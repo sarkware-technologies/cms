@@ -1,0 +1,37 @@
+{
+    "name": "cms-gateway",
+    "version": "1.0.0",
+    "description": "",
+    "main": "src/server.js",
+    "type": "module",
+    "scripts": {
+      "dev": "nodemon src/server.js",
+      "start": "node src/server.js",
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "axios": "^1.4.0",
+        "base64-js": "^1.5.1",        
+        "body-parser": "^1.20.0",
+        "cookie-parser": "^1.4.6",
+        "cors": "^2.8.5",
+        "dotenv": "^16.0.3",
+        "express": "^4.18.2",
+        "express-session": "^1.18.0",
+        "express-rate-limit": "^6.7.0",
+        "http-proxy-middleware": "^2.0.6",
+        "json": "^11.0.0",
+        "moment": "^2.29.4",        
+        "pm2": "^5.3.0",              
+        "uuid": "^9.0.0",
+        "jsonwebtoken": "^9.0.0",
+        "https-proxy-agent": "^7.0.4",
+        "socket.io-client": "^4.6.1"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.22"
+    },
+    "author": "Sark",
+    "license": "ISC"
+  }
+  

@@ -1,0 +1,485 @@
+@font-face {
+    font-family: ProximaNova;
+    src: url('../fonts/proxima-nova/ProximaNova-Regular.otf'); 
+}
+
+@font-face {
+    font-family: ProximaNovaSemiBold;
+    src: url('../fonts/proxima-nova/Proxima\ Nova\ Semibold.otf'); 
+}
+
+@font-face {
+    font-family: ProximaNovaBold;
+    src: url('../fonts/proxima-nova/Proxima\ Nova\ Bold.otf'); 
+}
+
+:root {
+    --primary-text-color: #ffffff;
+    --primary-background: #49cced;
+    --secondary-text-color: #6c757d;
+    --secondary-background: #f5f7fa;
+    --primary-hover-background: #41bedd;
+    --top-bar-background: #2e363f;
+    --text-color: #495057;
+    --body-color: #edf1f7;
+    --link-color: #0088cc;
+    --form-field-border-color: #D9D9D9;
+    --error-msg-color: #d92550;
+}
+
+/* CSS reset section start */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center, dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	  margin: 0;
+	  padding: 0;
+	  border: 0;
+	  font-size: 100%;
+	  font: inherit;
+	  vertical-align: baseline;
+}
+
+nav,
+menu,
+aside,
+figure,
+footer,
+header,
+hgroup,
+article,
+details,
+section,
+figcaption { 
+    display:block;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+a, a:hover {
+    color: var(--link-color);
+	text-decoration: none;
+}
+
+*:before, *:after {
+    box-sizing: inherit;
+}
+
+table {
+	width: 100%;
+	border-spacing: 0;
+    border-collapse: collapse;
+}
+
+ol, ul {
+    list-style: none;
+}
+
+img, video {
+    max-width: 100%;
+}
+
+img {
+    border-style: none;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  	margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  	-moz-appearance: textfield;
+}
+
+::-moz-selection {
+	background-color: #b3d4fc; /* 1 */
+	color: #000000; /* 1 */
+	text-shadow: none;
+}
+
+::selection {
+	background-color: #b3d4fc; /* 1 */
+	color: #000000; /* 1 */
+	text-shadow: none;
+}
+
+::-webkit-scrollbar {
+    width: 15px;
+    height: 8px;    
+}
+
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.2);
+}
+ 
+::-webkit-scrollbar-thumb {
+    background-color: #777;
+    outline: 1px solid #777;
+}
+
+input,
+select,
+button {
+    outline: none;
+}
+
+html,
+body,
+#root,
+.pharmarack-cms-login-wrapper {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+	font-family: -apple-system,BlinkMacSystemFont,'ProximaNova',"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";	
+    margin: 0;
+    padding: 0;    
+    font-size: 16px;
+    color: var(--text-color);
+    background: var(--body-color);
+    min-height: 100%;
+    position: relative;
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
+}
+
+/* file upload button */
+input[type="file"]::file-selector-button {
+    border-radius: 4px;
+    padding: 0 16px;
+    height: 30px;
+    cursor: pointer;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.16);
+    box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.05);
+    margin-right: 16px;
+    transition: background-color 200ms;
+}
+
+/* file upload button hover state */
+input[type="file"]::file-selector-button:hover {
+    background-color: #f3f4f6;
+}
+
+/* file upload button active state */
+input[type="file"]::file-selector-button:active {
+    background-color: #e5e7eb;
+}
+
+input::placeholder {
+    font-size: 16px;
+    opacity: 0.5;
+}
+
+@-webkit-keyframes slideInUp {
+    from {
+        -webkit-transform: translate3d(0, 7%, 0);
+        transform: translate3d(0, 7%, 0);
+        visibility: visible;
+        opacity: 0.2; 
+    }
+    to {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+        opacity: 2; 
+    } 
+}
+@keyframes slideInUp {
+    from {
+        -webkit-transform: translate3d(0, 7%, 0);
+        transform: translate3d(0, 7%, 0);
+        visibility: visible;
+        opacity: 0.2; 
+    }
+    to {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+        opacity: 1; 
+    } 
+}
+
+select,
+textarea,
+input[type=tel],
+input[type=date],
+input[type=time],
+input[type=week],
+input[type=month],
+input[type=text],
+input[type=email],
+input[type=color],
+input[type=number],
+input[type=password],
+input[type=datetime-local] {
+    width: 100%;
+    height: 32px;
+    padding: 0px 10px;
+    border-radius: 4px;
+    border: solid 1px var(--form-field-border-color);    
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong {
+    font-family: 'ProximaNovaBold';	
+}
+
+.pharmarack-cms-btn {
+    height: 50px;
+    display: flex;
+    font-weight: 600;
+    color: var(--text-color);
+    text-align: center;    
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: 5px 15px;
+    font-size: 16px;
+    line-height: 15px;
+    border-radius: 4px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+}
+
+.pharmarack-cms-btn.loading {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.pharmarack-cms-btn.loading > i {
+    font-size: 20px;
+}
+
+.pharmarack-cms-btn > i {
+    font-size: 16px;
+}
+
+.pharmarack-cms-btn.icon-left > i {
+    margin-right: 5px;
+}
+
+.pharmarack-cms-btn.icon-right > i {
+    margin-left: 5px;
+}
+
+.pharmarack-cms-btn.block {
+    width: 100%;    
+}
+
+/* Normal button style starts here */
+
+.pharmarack-cms-btn.primary {
+    color: #ffffff;
+    background: #2196f3;
+}
+
+.pharmarack-cms-btn.secondary {
+    color: #ffffff;
+    background: #6c757d;
+}
+
+.pharmarack-cms-btn.success {
+    color: #ffffff;
+    background: #3ac47d;
+}
+
+.pharmarack-cms-btn.danger {
+    color: #ffffff;
+    background: #d92550;
+}
+
+.pharmarack-cms-btn.warning {
+    color: #000000;
+    background: #f7b924;
+}
+
+.pharmarack-cms-btn.light {
+    color: #000000;
+    background: #eee;
+}
+
+.pharmarack-cms-btn.dark {
+    color: #ffffff;
+    background: #444054;
+}
+
+/* Active state */
+
+.pharmarack-cms-btn.primary:active,
+.pharmarack-cms-btn.primary:hover,
+.pharmarack-cms-btn.primary:focus {
+    color: #ffffff;
+    background: #0c74c7;
+}
+
+.pharmarack-cms-btn.secondary:active,
+.pharmarack-cms-btn.secondary:hover,
+.pharmarack-cms-btn.secondary:focus {
+    color: #ffffff;
+    background: #495258;
+}
+
+.pharmarack-cms-btn.success:active,
+.pharmarack-cms-btn.success:hover,
+.pharmarack-cms-btn.success:focus {
+    color: #ffffff;
+    background: #1e914e;
+}
+
+.pharmarack-cms-btn.danger:active,
+.pharmarack-cms-btn.danger:hover,
+.pharmarack-cms-btn.danger:focus {
+    color: #ffffff;
+    background: #a2153a;
+}
+
+.pharmarack-cms-btn.warning:active,
+.pharmarack-cms-btn.warning:hover,
+.pharmarack-cms-btn.warning:focus {
+    color: #000000;
+    background: #d6931f;
+}
+
+.pharmarack-cms-btn.light:active,
+.pharmarack-cms-btn.light:hover,
+.pharmarack-cms-btn.light:focus {
+    color: #000000;
+    background: #ccc;
+}
+
+.pharmarack-cms-btn.dark:active,
+.pharmarack-cms-btn.dark:hover,
+.pharmarack-cms-btn.dark:focus {
+    color: #ffffff;
+    background: #2c2d3a;
+}
+
+/* Disabled state */
+
+.pharmarack-cms-btn.primary.disabled,
+.pharmarack-cms-btn.primary:disabled,
+.pharmarack-cms-btn.secondary.disabled,
+.pharmarack-cms-btn.secondary:disabled,
+.pharmarack-cms-btn.success.disabled,
+.pharmarack-cms-btn.success:disabled,
+.pharmarack-cms-btn.danger.disabled,
+.pharmarack-cms-btn.danger:disabled,
+.pharmarack-cms-btn.warning.disabled,
+.pharmarack-cms-btn.warning:disabled,
+.pharmarack-cms-btn.light.disabled,
+.pharmarack-cms-btn.light:disabled,
+.pharmarack-cms-btn.dark.disabled,
+.pharmarack-cms-btn.dark:disabled {
+    opacity: .65;
+    pointer-events: none;
+}
+
+.pharmarack-cms-login-wrapper {
+    width: 100%;
+    height: 100%;
+    background-image: url('../imgs/logo.png');
+    background-size: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.pharmarack-cms-login-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(247, 249, 253, 0.96);
+    z-index: 1;
+}
+
+.pharmarack-cms-login-form {
+    background-color: #fff;
+    padding: 45px 70px;
+    z-index: 999;
+    border-radius: 20px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.pharmarack-cms-login-form input {
+    width: 375px;
+    height: 50px;
+    border-radius: 4px;
+    border: solid 1px #D9D9D9;
+    padding: 0px 15px;
+    margin-bottom: 20px;
+}
+
+.pharmarack-cms-login-form-header {
+    margin-bottom: 30px;
+}
+
+
+.pharmarack-cms-login-form-header p {
+    font-size: 24px;
+    margin-top: 10px;
+    font-family: 'ProximaNovaSemiBold';
+}
+
+.pharmarack-cms-form-row {
+    position: relative;
+}
+
+.pharmarack-cms-form-error-message {
+    color: #fff;
+    background: #EE4226;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 20px;
+    border-radius: 5px;
+    font-family: 'ProximaNovaSemiBold';
+}
+
+.pharmarack-cms-form-error-message.login {
+    margin-top: 115px;
+}
+
+.pharmarack-cms-forgot-link {
+    color: #030303;
+    margin-top: 25px;
+    display: block;
+}
+
+.pharmarack-cms-login-powered-by {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: -115px;
+    margin-top: 100px;
+}

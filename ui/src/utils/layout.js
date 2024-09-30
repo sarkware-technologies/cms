@@ -2,16 +2,20 @@ import React, { lazy, Suspense } from 'react';
 import app_config from '../configs/config';
 import Spinner from '../components/spiner';
 
-const LayoutLoader = () => {
+const LayoutLoader = () => {    console.log("pathname : "+ location.pathname);
 
     let layout = null;
     let layoutConfig = null;
     const controller = window["_controller"];
 
     if (controller.utils.isAuthenticated()) {                
-        layoutConfig = app_config.authorized.find(item => item.getRole === controller.utils.getRole());        
+        layoutConfig = app_config.routes.authorized.find(item => item.getRole === controller.utils.getRole());        
     } else {
-        layoutConfig = app_config.unauthorized.find(item => item.layout === location.pathname);
+        if (location.pathname === "" || location.pathname === "/") {
+            layoutConfig = app_config.routes.unauthorized.find(item => item.layout === "login");
+        } else {
+            layoutConfig = app_config.routes.unauthorized.find(item => item.layout === location.pathname);
+        }        
     }
 
     layout = layoutConfig ? layoutConfig.layout : null;
