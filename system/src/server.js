@@ -4,9 +4,8 @@ dotenv.config();
 import cors from "cors";
 import express from "express";
 import routes from "./routes/index.js"
-import DBM from "./utils/db.js";
+import MDBM from "./utils/mongo.js";
 import MYDBM from "./utils/mysql.js";
-import SocketManager from "./utils/socket-manager.js";
 
 /**
  * 
@@ -18,11 +17,9 @@ import SocketManager from "./utils/socket-manager.js";
 class SystemServer {
 
     constructor() {
-
         this.app = express();
         this.setupMiddlewares(); 
         this.setupRoutes();               
-        
     }
 
     setupMiddlewares = () => {
@@ -65,11 +62,11 @@ class SystemServer {
 
     listen = async () => {
 
-        await DBM.connect();
-        if (DBM.checkConnection()) {
+        await MDBM.connect();
+        if (MDBM.checkConnection()) {
             this.app.listen(process.env.SYSTEM_PORT);
         } else {
-            console.log("DB connection error");
+            console.log("MongoDB connection error");
         }
         
     };

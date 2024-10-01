@@ -106,12 +106,14 @@ const Login = (props) => {
     };
 
     const displayErrorMsg = () => {
-        return <div className='pharmarack-cms-form-error-message login'><i className='fa fa-circle-xmark'></i> Please enter you email or phone number</div>
+        //return <div className='pharmarack-cms-form-error-message login'><i className='fa fa-circle-xmark'></i> Please enter you email or phone number</div>
     };
 
     return (
 
         <div className="pharmarack-cms-login-wrapper">
+
+            {displayErrorMsg()}
 
             <div className="pharmarack-cms-login-form">
 
@@ -140,8 +142,6 @@ const Login = (props) => {
                 </div>
 
             </div>
-
-            {displayErrorMsg()}
 
         </div>
 

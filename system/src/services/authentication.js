@@ -8,7 +8,7 @@ export default class AuthService {
         this.TM = new TokenManager();
     }
 
-    signin = async (_req) => {
+    signIn = async (_req) => {
 
         if (!_req.body.user) {
             throw new Error("User name is missing");
@@ -89,7 +89,55 @@ export default class AuthService {
 
     };
 
-    selectRole = async () => {
+    selectRole = async (_req) => {
+
+        try {
+
+
+
+        } catch (e) {
+            throw e;
+        }
+
+    };
+
+    signOut = async (_req) => {
+
+        try {
+
+
+
+        } catch (e) {
+            throw e;
+        }
+
+    };
+
+    resetPassword = async (_req) => {
+
+        try {
+
+
+
+        } catch (e) {
+            throw e;
+        }
+
+    };
+
+    sendForgotPasswordToken = async (_req) => {
+
+        try {
+
+
+
+        } catch (e) {
+            throw e;
+        }
+
+    };
+
+    submitForgotPassword = async (_req) => {
 
         try {
 

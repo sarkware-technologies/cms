@@ -1,4 +1,6 @@
 import jwt from "jsonwebtoken";
+import UserModel from "../models/user";
+import RoleModel from "../models/role";
 
 export default class Utils {
 
@@ -33,15 +35,22 @@ export default class Utils {
         
     };
 
-    static verifyCmsToken = (_token) => {
+    static extractUserFromToken = async (_payload) => { 
 
-        try {              
-            return jwt.verify(_token.trim(), process.env.CMS_COMMON_SECRET);                        
-        } catch (_e) { 
-            console.log(_e,23423)        
-            return false;
-        }       
- 
-    }
+        try {
+
+            const user = await UserModel.findById(_payload.user).lean();
+            if (_payload.role) {
+                user["role"] = _payload.role;
+            }
+
+            return user;
+
+        } catch (e) {
+            console.log(e);
+            return null;
+        }
+
+    };
 
 }

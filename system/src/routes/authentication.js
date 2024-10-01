@@ -9,10 +9,12 @@ export default class AuthRouter {
         this.router = new Router();
         this.authService = new AuthService();
 
-        this.router.post("/user/sign-in", this.signin);
-        this.router.post("/user/sign-out", this.signout);
-        this.router.get("/user/reset", this.resetPassword);
-        this.router.get("/user/forgot-password", this.forgotPassword);
+        this.router.post("/auth/sign-in", this.signIn);
+        this.router.post("/auth/sign-out", this.signOut);
+        this.router.post("/auth/reset-password", this.resetPassword);        
+        this.router.post("/auth/select-role", this.selectRole);
+        this.router.post("/auth/send-forgot-password-token", this.sendForgotPasswordToken);
+        this.router.post("/auth/submit-forgot-password", this.submitForgotPassword);
 
     }
 
@@ -20,18 +22,52 @@ export default class AuthRouter {
         return this.router;
     };
 
-    signin = async (_req, _res) => {
+    signIn = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.authService.signin(_req));
+            _res.status(200).json(await this.authService.signIn(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
     };
 
-    signout = async (_req, _res) => { };
+    selectRole = async (_req, _res) => {
+        try {
+            _res.status(200).json(await this.authService.selectRole(_req));
+        } catch (_e) {
+            Utils.handleError(_e, _res);
+        }
+    };
 
-    resetPassword = async (_req, _res) => { };
+    signOut = async (_req, _res) => { 
+        try {
+            _res.status(200).json(await this.authService.signOut(_req));
+        } catch (_e) {
+            Utils.handleError(_e, _res);
+        }
+    };
 
-    forgotPassword = async (_req, _res) => { };
+    resetPassword = async (_req, _res) => {
+        try {
+            _res.status(200).json(await this.authService.resetPassword(_req));
+        } catch (_e) {
+            Utils.handleError(_e, _res);
+        }
+    };
+
+    sendForgotPasswordToken = async (_req, _res) => {
+        try {
+            _res.status(200).json(await this.authService.sendForgotPasswordToken(_req));
+        } catch (_e) {
+            Utils.handleError(_e, _res);
+        }
+    };
+
+    submitForgotPassword = async () => {
+        try {
+            _res.status(200).json(await this.authService.submitForgotPassword(_req));
+        } catch (_e) {
+            Utils.handleError(_e, _res);
+        }
+    }
 
 }

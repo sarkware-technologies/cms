@@ -247,7 +247,7 @@ strong {
 }
 
 .pharmarack-cms-btn {
-    height: 50px;
+    height: 40px;
     display: flex;
     font-weight: 600;
     color: var(--text-color);
@@ -398,7 +398,8 @@ strong {
     pointer-events: none;
 }
 
-.pharmarack-cms-login-wrapper {
+.pharmarack-cms-login-wrapper,
+.pharmarack-cms-register-wrapper {
     width: 100%;
     height: 100%;
     background-image: url('../imgs/logo.png');
@@ -409,7 +410,8 @@ strong {
     flex-direction: column;
 }
 
-.pharmarack-cms-login-wrapper::before {
+.pharmarack-cms-login-wrapper::before,
+.pharmarack-cms-register-wrapper::before {
     content: '';
     position: absolute;
     top: 0;
@@ -420,30 +422,44 @@ strong {
     z-index: 1;
 }
 
-.pharmarack-cms-login-form {
+.pharmarack-cms-login-form,
+.pharmarack-cms-register-form {
     background-color: #fff;
-    padding: 45px 70px;
+    padding: 35px 50px;
     z-index: 999;
     border-radius: 20px;
     font-size: 16px;
     text-align: center;
 }
 
-.pharmarack-cms-login-form input {
+.pharmarack-cms-register-form {
+    width: 500px;
+    margin: 0px auto;
+    position: relative;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.pharmarack-cms-login-form select,
+.pharmarack-cms-register-form select,
+.pharmarack-cms-login-form input,
+.pharmarack-cms-register-form input {
     width: 375px;
-    height: 50px;
+    height: 40px;
     border-radius: 4px;
     border: solid 1px #D9D9D9;
     padding: 0px 15px;
     margin-bottom: 20px;
 }
 
-.pharmarack-cms-login-form-header {
+.pharmarack-cms-login-form-header,
+.pharmarack-cms-register-form-header {
     margin-bottom: 30px;
 }
 
 
-.pharmarack-cms-login-form-header p {
+.pharmarack-cms-login-form-header p,
+.pharmarack-cms-register-form-header p {
     font-size: 24px;
     margin-top: 10px;
     font-family: 'ProximaNovaSemiBold';
@@ -457,16 +473,18 @@ strong {
     color: #fff;
     background: #EE4226;
     z-index: 999;
-    display: flex;
+    display: table;
     align-items: center;
     gap: 10px;
-    padding: 15px 20px;
+    padding: 10px 20px;
     border-radius: 5px;
     font-family: 'ProximaNovaSemiBold';
+    position: relative;
+    margin: 25px auto;
 }
 
 .pharmarack-cms-form-error-message.login {
-    margin-top: 115px;
+    margin-bottom: 25px;
 }
 
 .pharmarack-cms-forgot-link {
@@ -480,6 +498,10 @@ strong {
     gap: 15px;
     align-items: center;
     justify-content: center;
-    margin-bottom: -115px;
-    margin-top: 100px;
+    margin-bottom: -100px;
+    margin-top: 80px;
+}
+
+.pharmarack-cms-login-link-wrapper {
+    margin-top: 25px;
 }

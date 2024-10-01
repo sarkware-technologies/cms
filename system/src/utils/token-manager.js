@@ -16,7 +16,8 @@ export default class TokenManager {
     constructor() {
         this.secretKey = process.env.CMS_COMMON_SECRET;     
         this.tempSecretKey = process.env.CMS_TEMP_SECRET;
-        this.refreshSecretKey = process.env.CMS_REFRESH_SECRET;           
+        this.refreshSecretKey = process.env.CMS_REFRESH_SECRET;
+        this.forgotSecretKey = process.env.CMS_FORGOT_SECRET;   
     }
 
     issueToken = (_userId, _role) => {
@@ -48,7 +49,18 @@ export default class TokenManager {
 
     };
 
-    verifyToken = (_token) => {
+    issueForgotToken = (_userId) => {
+
+        let data = {
+            user: _userId,  
+            time: Date()            
+        }
+        
+        return jwt.sign(data, this.forgotSecretKey, { expiresIn: "30m" });
+
+    };
+
+    verifySystemToken = (_token) => {
 
         try {
                   
@@ -79,6 +91,56 @@ export default class TokenManager {
 
         try {
             const verified = jwt.verify(_refreshToken.trim(), this.refreshSecretKey);
+            return {
+                status: true,
+                payload: verified
+            };
+        } catch (_e) {
+            return {
+                status: false,
+                payload: null
+            };
+        }
+
+    }
+
+    /**
+     * 
+     * Verify Temp Token
+     * 
+     * @param {string} _refreshToken 
+     * @returns {object}
+     * 
+     */
+    verifyTempToken = (_tempToken) => {
+
+        try {
+            const verified = jwt.verify(_tempToken.trim(), this.tempSecretKey);
+            return {
+                status: true,
+                payload: verified
+            };
+        } catch (_e) {
+            return {
+                status: false,
+                payload: null
+            };
+        }
+
+    }
+
+    /**
+     * 
+     * Verify Temp Token
+     * 
+     * @param {string} _refreshToken 
+     * @returns {object}
+     * 
+     */
+    verifyForgotToken = (_forgotToken) => {
+
+        try {
+            const verified = jwt.verify(_forgotToken.trim(), this.forgotSecretKey);
             return {
                 status: true,
                 payload: verified
