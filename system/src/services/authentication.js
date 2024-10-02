@@ -1,5 +1,5 @@
-import UserLoginDetailsModel from "../models/user-login-details";
-import UserRoleMappingModel from "../models/user-role-mapping";
+import UserLoginDetailsModel from "../models/user-login-details.js";
+import UserRoleMappingModel from "../models/user-role-mapping.js";
 import TokenManager from "../utils/token-manager.js";
 
 export default class AuthService {

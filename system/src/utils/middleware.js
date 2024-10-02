@@ -1,5 +1,5 @@
-import TokenManager from "./token-manager";
-import Utils from "./utils";
+import TokenManager from "./token-manager.js";
+import Utils from "./utils.js";
 
 export default class RequestInterceptor {
     

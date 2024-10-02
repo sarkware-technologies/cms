@@ -4,7 +4,7 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 
-import RouterManager from "./utils/route-manager";
+import RouterManager from "./utils/route-manager.js";
 
 class GatewayServer {
 
@@ -38,8 +38,7 @@ class GatewayServer {
     };
 
     listen() {        
-        this.server.listen(process.env.GATEWAY_PORT); 
-        socket.init();      
+        this.server.listen(process.env.GATEWAY_PORT);      
     }
 
 }

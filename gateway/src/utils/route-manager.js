@@ -10,15 +10,9 @@ export default class RouterManager {
     initRequestHandler = () => {
 
         this.express.use("/system", async (_req, _res, _next) => {
-
+    console.log(process.env.SYSTEM_SERVER);
             try {
-
-                createProxyMiddleware({ target: process.env.SYSTEM_HTTP_SERVER })(
-                    _req,
-                    _res,
-                    _next
-                );
-                
+                createProxyMiddleware({ target: process.env.SYSTEM_SERVER })( _req, _res, _next );
             } catch (_e) {
                 throw new Error(_e);
             }

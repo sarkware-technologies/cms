@@ -1,8 +1,14 @@
 import { Router } from 'express';
 
-import UserRouter from './user.js';
+import RegisterRouter from './register.js';
+
+const ping = (_req, _res) => {
+    _res.status(200).send("Its working");
+};
 
 const routes = new Router();
-routes.use(new UserRouter().getRoutes());
+routes.use(new RegisterRouter().getRoutes());
+
+routes.get("/hello", ping);
 
 export default routes;

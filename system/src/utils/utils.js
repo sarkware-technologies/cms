@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
-import UserModel from "../models/user";
-import RoleModel from "../models/role";
+import UserModel from "../models/user.js";
 
 export default class Utils {
 
