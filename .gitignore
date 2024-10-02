@@ -2,4 +2,7 @@ node_modules
 build
 .vscode
 package-lock.json
-.env
+/system/.env
+/gateway/.env
+/composer/.env
+/segment/.env
