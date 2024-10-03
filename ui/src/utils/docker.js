@@ -1,3 +1,5 @@
+import React, { createRef } from "react";
+
 export default class Docker {
 
     constructor () {
@@ -32,7 +34,6 @@ export default class Docker {
                 config.body = JSON.stringify(_request.payload);
             }
     
-            // Display loading indicator if applicable
             if (this.indicatorRef.current) {
                 this.indicatorCounter++;
                 this.indicatorRef.current.style.display = "block";
@@ -41,7 +42,6 @@ export default class Docker {
             const gatewayUrl = process.env.REACT_APP_GATEWAY_URL;
             const response = await fetch(gatewayUrl + _request.endpoint, config);
     
-            // Hide loading indicator after response is received
             if (this.indicatorRef.current) {
                 this.indicatorCounter--;
                 if (this.indicatorCounter === 0) {
@@ -49,30 +49,27 @@ export default class Docker {
                 }
             }
     
-            // Check if the response is successful (status code between 200 and 299)
             if (response.ok) {
 
                 const contentType = response.headers.get("content-type");
     
                 if (contentType && contentType.indexOf("application/json") !== -1) {
                     const result = await response.json();
-                    return result; // Return JSON result
+                    return result;
                 } else {
                     const text = await response.text();
-                    return text; // Return plain text result
+                    return text;
                 }
 
             } else {
 
-                // Handle 401 Unauthorized
                 if (response.status === 401) {
                     sessionStorage.removeItem("pharmarack_cms_user");
                     sessionStorage.removeItem("pharmarack_cms_token");
                     document.location.href = "";
-                    return; // Exit function after redirection
+                    return;
                 }
     
-                // Handle other errors and try parsing error data as JSON
                 const errorData = await response.text();
                 let errorMessage;
                 try {
@@ -86,13 +83,11 @@ export default class Docker {
             }
         } catch (error) {
 
-            // Hide loading indicator if any network or fetch error occurs
             if (this.indicatorRef.current) {
                 this.indicatorRef.current.style.display = "none";
             }
     
-            // Handle network or processing errors
-            throw error; // Throw the error to be handled by the caller
+            throw error;
 
         }
 

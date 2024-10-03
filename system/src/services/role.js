@@ -1,3 +1,5 @@
+import CapabilityModel from "../models/capability.js";
+import ModuleModel from "../models/module.js";
 import RoleModel from "../models/role.js";
 import Utils from "../utils/utils.js";
 
@@ -23,14 +25,14 @@ export default class RoleService {
             const filterType = _req.query.filter_type ? _req.query.filter_type : "";
 
             if (searchFrom !== "") {
-                return this.search(_req, page, skip, limit, searchFrom, searchFor);
+                return await this.search(_req, page, skip, limit, searchFrom, searchFor);
             }
 
             if (filter !== "") {
                 if (filterType === "seeds") {
-                    return this.groupSeed(_req, filter);
+                    return await this.groupSeed(_req, filter);
                 } else {
-                    return this.groupBy(_req, page, skip, limit, filter, filterBy);
+                    return await this.groupBy(_req, page, skip, limit, filter, filterBy);
                 }
             }
 
@@ -103,33 +105,43 @@ export default class RoleService {
 
     getRole = async (_req) => {
 
+        if (!_req.params.id) {
+            throw new Error("Role id is missing");
+        }
+
         try {
-
-
-        } catch (e) {
-
+            return await RoleModel.findOne({ _id: _req.params.id }).lean();
+        } catch (_e) {
+            throw _e;
         }
 
     };
 
     updateRole = async (_req) => {
 
+        if (!_req.params.id) {
+            throw new Error("Role id is missing");
+        }
+
         try {
-
-
-        } catch (e) {
-
+            return await RoleModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body } }, { runValidators: true, new: true });
+        } catch (_e) {
+            throw _e;
         }
 
     };
 
     deleteRole = async (_req) => {
+        
+        if (!_req.params.id) {
+            throw new Error("Role id is missing");
+        }
 
         try {
-
-
-        } catch (e) {
-
+            await CapabilityModel.deleteMany({ role: _req.params.id });
+            return await RoleModel.deleteOne({ _id: _req.params.id });            
+        } catch (_e) {
+            throw _e;
         }
 
     };
@@ -144,14 +156,14 @@ export default class RoleService {
                 throw new Error('Request body is required');
             }
 
-            body.password = await bcrypt.hash(body.password, 12);
-            const model = new RegisterModel(body);
-            const registered = await model.save();
+            const model = new RoleModel(body);
+            const role = await model.save();
+            await this.initCapabilities(role._id, _req.user._id);            
 
             return {
                 status: true,
                 message: 'You request submitted, please wait until the administrator approve your reguest',
-                payload: registered
+                payload: role
             };
 
         } catch (e) {
@@ -171,5 +183,80 @@ export default class RoleService {
         }
 
     };
+
+    loadCapabilities = async (_req) => {
+
+        if (!_req.params.id) {
+            throw new Error("Role id is missing");
+        }
+
+        try {
+
+            const _modules = await ModuleModel.find().lean();
+            const _caps = await CapabilityModel.find({ role: _req.params.id }).lean();
+
+            return {
+                modules: _modules,
+                capabilities: _caps
+            }
+
+        } catch (_e) {
+            throw _e;
+        }
+
+    }
+
+    updateCapabilities = async (_req) => {
+        
+        try {
+
+            let cId = null;
+            const capabilities = _req.body;
+            
+            for (let i = 0; i < capabilities.length; i++) {
+                cId = capabilities[i]._id;
+                delete capabilities[i]._id;
+                await CapabilityModel.findByIdAndUpdate(cId, { $set: { ...capabilities[i] } }, { runValidators: true, new: false });                               
+            }
+
+            return {status: true};
+
+        } catch (_e) {            
+            throw _e;
+        }
+
+    }
+
+    initCapabilities = async (_roleId, _userId) => { 
+
+        try {
+
+            let model = null;
+            let _modules = await ModuleModel.find({}).lean();
+            
+            for (let i = 0; i < _modules.length; i++) {
+
+                const cap = {
+                    role            : _roleId,
+                    module          : _modules[i]._id,
+                    can_read        : false,
+                    can_create      : false,
+                    can_update      : false,
+                    can_delete      : false,
+                    created_by      : _userId
+                };
+
+                model = new CapabilityModel(cap);
+                await model.save();
+
+            }
+
+        } catch (_e) {
+            throw _e;
+        }
+
+        return true;
+
+    }
 
 }

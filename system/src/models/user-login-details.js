@@ -1,7 +1,7 @@
 import mongoose from'mongoose';
 
 const UserLoginDetailsSchema = new mongoose.Schema({
-    userId                  : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemUser", default: null },
+    userId                  : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
     accessToken             : { type: String, default: null },
     refreshToken            : { type: String, default: null },
     tempToken               : { type: String, default: null },
@@ -17,24 +17,30 @@ const UserLoginDetailsSchema = new mongoose.Schema({
     timestamps              : true
 });
 
-UserLoginDetailsSchema.pre('save', function (next) {
-    if (this.isModified('failedAttempt') && this.failedAttempt === 3) {
-        
-        this.lockUntil = Date.now() + 15 * 60 * 1000;
-        
-        setTimeout(() => {
-            this.failedAttempt = 0;
-            this.lockUntil = null;
-            this.save();
-        }, 15 * 60 * 1000);
-        
+UserLoginDetailsSchema.pre('updateOne', function (next) {
+
+    const update = this.getUpdate();
+    const failedAttempt = update.$set?.failedAttempt;
+
+    if (failedAttempt >= 3 && (!this.lockUntil || this.lockUntil < Date.now())) {
+        const lockUntil = Date.now() + 3 * 60 * 1000;  // 15 minutes lock period
+
+        this.setUpdate({
+            ...update,
+            $set: {
+                ...update.$set,
+                lockUntil: lockUntil  // Set lockUntil field
+            }
+        });
     }
+
     next();
+
 });
 
 UserLoginDetailsSchema.methods.isLocked = function () {
     return this.lockUntil && this.lockUntil > Date.now();
 };
 
-const UserLoginDetailsModel = mongoose.model('cmsSystemUserLoginDetails', UserLoginDetailsSchema);
+const UserLoginDetailsModel = mongoose.model('cms_system_user_login_details', UserLoginDetailsSchema);
 export default UserLoginDetailsModel;

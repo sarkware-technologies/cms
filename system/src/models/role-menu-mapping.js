@@ -1,15 +1,15 @@
 import mongoose from'mongoose';
 
 const RoleMenuMappingSchema = new mongoose.Schema({ 
-    role                    : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemRole", default: null },
-    menu                    : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemMenu", default: null },
-    createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemUser", default: null },
-    updatedBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemUser", default: null }
+    role                    : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_role", default: null },
+    menu                    : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_menu", default: null },
+    createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+    updatedBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 },
 {  
     strict                  : true,
     timestamps              : true
 });
 
-const RoleMenuMappingModel = mongoose.model('cmsSystemRoleMenu', RoleMenuMappingSchema);
+const RoleMenuMappingModel = mongoose.model('cms_system_role_menu', RoleMenuMappingSchema);
 export default RoleMenuMappingModel;

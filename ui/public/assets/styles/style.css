@@ -469,6 +469,7 @@ strong {
     position: relative;
 }
 
+.pharmarack-cms-form-success-message,
 .pharmarack-cms-form-error-message {
     color: #fff;
     background: #EE4226;
@@ -481,6 +482,16 @@ strong {
     font-family: 'ProximaNovaSemiBold';
     position: relative;
     margin: 25px auto;
+    max-width: 780px;
+}
+
+.pharmarack-cms-form-success-message {
+    background: #3ac47d;
+}
+
+.pharmarack-cms-form-success-message i,
+.pharmarack-cms-form-error-message i {
+    margin-right: 5px;
 }
 
 .pharmarack-cms-form-error-message.login {

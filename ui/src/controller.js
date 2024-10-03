@@ -1,6 +1,7 @@
 import React, { createRef } from "react";
 import Utils from "./utils/utils";
 import LayoutLoader from "./utils/layout";
+import Docker from "./utils/docker";
 
 /**
  *
@@ -59,6 +60,13 @@ export default class Controller extends React.Component {
          * 
          */
         this.bucket = {};
+
+        /**
+         * 
+         * Common ajax handler
+         * 
+         */
+        this.docker = new Docker();
 
         /**
          * 

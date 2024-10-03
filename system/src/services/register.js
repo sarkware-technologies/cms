@@ -1,27 +1,28 @@
 import bcrypt from "bcrypt";
+import RoleModel from "../models/role.js";
 import RegisterModel from "../models/register.js"
 
 export default class RegisterService {
 
     constructor () {}
 
-    listRegisters = async (_req) => {
+    list = async (_req) => {
 
     };
 
-    getRegister = async (_req) => {
+    get = async (_req) => {
 
     };
 
-    updateRegister = async (_req) => {
+    update = async (_req) => {
 
     };
 
-    deleteRegister = async (_req) => {
+    delete = async (_req) => {
 
     };
 
-    createRegister = async (_req) => {
+    create = async (_req) => {
 
         try {
 
@@ -59,11 +60,21 @@ export default class RegisterService {
 
     };
 
-    approveRegister = async (_req) => {
+    approve = async (_req) => {
 
     };
 
-    rejectRegister = async (_req) => {
+    reject = async (_req) => {
+
+    };
+
+    getRoles = async (_req) => {
+
+        try {
+            return await RoleModel.find({}).sort({ title: 1 }).lean();
+        } catch (e) {
+            throw e;
+        }
 
     };
 

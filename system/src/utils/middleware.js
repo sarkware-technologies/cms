@@ -9,109 +9,110 @@ export default class RequestInterceptor {
     }
   
     init = () => {
-        this.initErrorInterceptor();
-        this.initPublicInterceptor();
-        this.initPrivateInterceptor();
-    }
 
-    initErrorInterceptor = () => {
+        /* Error handler */
 
         this.express.use((_err, _req, _res, _next) => {
+            if (!_err) return _next();
             
-            if (!_err) {
-                return _next();
-            }        
-            
-            _res.status(500);
-            _res.setHeader('content-type', 'text/plain');
-            _res.send('Internal server error');
-
+            console.error('Error:', _err); // Log the error for debugging
+            _res.status(500).json({ message: 'Internal server error' });
         });
 
         process.on('uncaughtException', (err) => {
             console.error('Uncaught Exception:', err);        
         });
 
-    };
+        
 
-    initPublicInterceptor = () => {
+        this.express.use(async (_req, _res, _next) => { 
 
-        this.server.use(async (_req, _res, _next) => { 
+            /* Public route handler */
 
-            if (
-                _req.path === "/health" ||
-                _req.path === "/system/auth/sign-in" ||
-                _req.path === "/system/user/register" ||
-                _req.path === "/system/auth/send-forgot-password-token"
-            ) {
-                return _next();
+            const publicPaths = [
+                "/health",
+                "/system/auth/sign-in",
+                "/system/register",
+                "/system/register/user-types",
+                "/system/auth/send-forgot-password-token"
+            ];
+
+            if (publicPaths.includes(_req.path)) {
+                return _next(); // Skip authorization for public paths
+            }
+
+            /* For private routes */
+            
+            const authHeader = _req.headers["authorization"];
+
+            if (!authHeader) {
+                return _res.status(401).json({ message: "Unauthorized request - authorization header not found" });
+            }
+
+            if (!authHeader.startsWith("Bearer ")) {
+                return _res.status(401).json({ message: "Unsupported token type - Expect Bearer token" });
+            }
+
+            const token = authHeader.split(" ")[1];
+            let tokenValidationResult;
+
+            switch (_req.path) {
+                case "/system/auth/select-role":
+                    tokenValidationResult = this.verifyAndSetUser(token, "temp", _req);
+                    break;
+                case "/system/auth/submit-forgot-password":
+                    tokenValidationResult = this.verifyAndSetUser(token, "forgot", _req);
+                    break;
+                default:
+                    tokenValidationResult = this.verifyAndSetUser(token, "system", _req);
+            }
+
+            if (tokenValidationResult.status) {
+                return _next(); // Token is valid, proceed
+            } else {
+                return _res.status(401).json({ message: tokenValidationResult.message });
             }
 
         });
 
-    };
+    }
 
-    initPrivateInterceptor = () => {
+    /**
+     * Generic method to verify token based on token type and set user details in request.
+     * 
+     * @param {string} token - JWT token from the Authorization header.
+     * @param {string} tokenType - Type of token to validate ("system", "temp", "forgot").
+     * @param {object} req - Request object to attach user info.
+     * @returns {object} - Status and message of the token validation.
+     */
+    verifyAndSetUser = (token, tokenType, req) => {
 
-        this.server.use(async (_req, _res, _next) => { 
+        let tokenVerificationResult;
 
-            if (!_req.headers["authorization"]) {
-                _res.status(401).send("Unauthorized request - authorization header not found");
-                return;
+        switch (tokenType) {
+            case "temp":
+                tokenVerificationResult = this.tokenManager.verifyTempToken(token);
+                break;
+            case "forgot":
+                tokenVerificationResult = this.tokenManager.verifyForgotToken(token);
+                break;
+            case "system":
+            default:
+                tokenVerificationResult = this.tokenManager.verifySystemToken(token);
+                break;
+        }
+
+        if (tokenVerificationResult.status) {
+            const user = Utils.extractUserFromToken(tokenVerificationResult.payload);
+            if (user) {
+                req["user"] = user;
+                return { status: true, message: "Token validated successfully" };
+            } else {
+                return { status: false, message: "Internal server error - Couldn't retrieve user details" };
             }
-
-            if (_req.path !== "/system/auth/select-role" 
-                && _req.path !== "/system/auth/submit-forgot-password") {
-
-                /* Check for system access token */
-                const token = this.tokenManager.verifySystemToken(_req.headers["authorization"]);
-                if (token.status) {
-
-                    _req["user"] = Utils.extractUserFromToken(token.payload);
-                    if (_req["user"]) {
-                        _next();
-                    } else {
-                        _res.status(401).send("Internal server error - Couldn't retrieve user details");
-                    }
-                    
-                } else {
-                    _res.status(401).send("Unauthorized request - token is expired");
-                }
-
-            } else if (_req.path === "/system/auth/select-role") {
-
-                /* Check for temp access token */
-                const token = this.tokenManager.verifyTempToken(_req.headers["authorization"]);
-                if (token.status) {
-                    _req["user"] = Utils.extractUserFromToken(token.payload);
-                    if (_req["user"]) {
-                        _next();
-                    } else {
-                        _res.status(401).send("Internal server error - Couldn't retrieve user details");
-                    }
-                } else {
-                    _res.status(401).send("Unauthorized request - token is expired");
-                }
-
-            } else if (_req.path === "/system/auth/submit-forgot-password") {
-
-                /* Check for temp access token */
-                const token = this.tokenManager.verifyForgotToken(_req.headers["authorization"]);
-                if (token.status) {
-                    _req["user"] = Utils.extractUserFromToken(token.payload);
-                    if (_req["user"]) {
-                        _next();
-                    } else {
-                        _res.status(401).send("Internal server error - Couldn't retrieve user details");
-                    }
-                } else {
-                    _res.status(401).send("Unauthorized request - token is expired");
-                }
-
-            }
-
-        });
+        } else {
+            return { status: false, message: "Unauthorized request - token is invalid or expired" };
+        }
 
     };
-
 }

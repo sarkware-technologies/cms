@@ -1,15 +1,15 @@
 import mongoose from'mongoose';
 
 const RolePrivilegeMappingSchema = new mongoose.Schema({ 
-    role                    : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemRole", default: null },
-    privilege               : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemPrivilege", default: null },
-    createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemUser", default: null },
-    updatedBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemUser", default: null }
+    role                    : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_role", default: null },
+    privilege               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_privilege", default: null },
+    createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+    updatedBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 },
 {  
     strict                  : true,
     timestamps              : true
 });
 
-const RolePrivilegeMappingModel = mongoose.model('cmsSystemRolePrivilege', RolePrivilegeMappingSchema);
+const RolePrivilegeMappingModel = mongoose.model('cms_system_role_privilege', RolePrivilegeMappingSchema);
 export default RolePrivilegeMappingModel;

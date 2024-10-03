@@ -6,13 +6,13 @@ const ServiceSchema = new mongoose.Schema({
     description             : { type: String, default: "" }, 
     offline_message         : { type: String, default: "" },
     status                  : { type: Boolean, default: false },
-    created_by              : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemUser", default: null },
-    updated_by              : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemUser", default: null }
+    created_by              : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+    updated_by              : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 },
 {  
     strict                  : true,
     timestamps              : true
 });
 
-const ServiceModel = mongoose.model('cmsSystemService', ServiceSchema);
+const ServiceModel = mongoose.model('cms_system_service', ServiceSchema);
 export default ServiceModel;

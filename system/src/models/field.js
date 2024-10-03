@@ -9,10 +9,10 @@ const FieldSchema = new mongoose.Schema({
     unique          : { type: Boolean, default: false },
     options         : { type: Object, default: {} },
     usage           : { type: Number, default: FieldUsage.BOTH },         
-    entity          : { type: mongoose.Schema.Types.ObjectId, ref: 'cmsSystemEntity', required: true },
+    entity          : { type: mongoose.Schema.Types.ObjectId, ref: 'cms_system_entity', required: true },
     status          : { type: Boolean, default: false },
-    created_by      : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemUser", default: null },
-    updated_by      : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemUser", default: null }
+    created_by      : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+    updated_by      : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 },
 {  
     strict          : true,
@@ -34,5 +34,5 @@ FieldSchema.pre('save', async function (next) {
     }
 });
 
-const FieldModel = mongoose.model('cmsSystemField', FieldSchema);
+const FieldModel = mongoose.model('cms_system_field', FieldSchema);
 export default FieldModel;

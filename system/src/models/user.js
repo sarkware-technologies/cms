@@ -6,13 +6,13 @@ const UserSchema = new mongoose.Schema({
     password                : { type: String, required: true },
     fullName                : { type: String, default: null },
     status                  : { type: Boolean, default: false },
-    createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemUser", default: null },
-    updatedBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemUser", default: null },
+    createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+    updatedBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
 },
 {  
     strict                  : true,
     timestamps              : true
 });
 
-const UserModel = mongoose.model('cmsSystemUser', UserSchema);
+const UserModel = mongoose.model('cms_system_user', UserSchema);
 export default UserModel;

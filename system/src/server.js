@@ -6,6 +6,7 @@ import express from "express";
 import routes from "./routes/index.js"
 import MDBM from "./utils/mongo.js";
 import MYDBM from "./utils/mysql.js";
+import RequestInterceptor from "./utils/middleware.js";
 
 /**
  * 
@@ -42,6 +43,9 @@ class SystemServer {
 
         this.app.use(cors());
         this.app.use(express.json());  
+
+        const RC = new RequestInterceptor(this.app);
+        RC.init();
 
     };
 

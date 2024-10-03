@@ -5,113 +5,148 @@ const Login = (props) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     const mobileRegex = /^[6-9]\d{9}$/;
 
-    const [fullName, setFullName] = useState("");
-    const [email, setEmail] = useState("");
-    const [mobile, setMobile] = useState("");
-    const [userType, setUserType] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [btnEnable, setBtnEnable] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");    
+    const [roles, setRoles] = useState([]); 
+    const [btnEnable, setBtnEnable] = useState(false); 
 
-    useEffect(() => {  console.log(email, mobile, fullName, password, confirmPassword);
-        if (emailRegex.test(email) && mobileRegex.test(mobile) && fullName && password && confirmPassword) {
+    const [state, setState] = useState({
+        fullName: "",
+        email: "",
+        mobile: "",
+        userType: "",
+        password: "",
+        confirmPassword: ""
+    });
+
+    const [response, setResponse] = useState({
+        msgType: "error",
+        message: ""
+    });
+
+    useEffect(() => {
+        if (emailRegex.test(state.email) && mobileRegex.test(state.mobile) && state.fullName && state.password && state.confirmPassword) {
             
-            if (password == confirmPassword) {
+            if (state.password == state.confirmPassword) {
                 setBtnEnable(true);
-                setErrorMessage("");
+                setResponse({
+                    msgType: "success",
+                    message: ""
+                });
             } else {
                 setBtnEnable(false);
-                setErrorMessage("Password and confirm password must be same");
+                setResponse({
+                    msgType: "error",
+                    message: "Password and confirm password must be same"
+                });
             }
 
         } else {
             setBtnEnable(false);
         }
-    }, [email, mobile, fullName, userType, password, confirmPassword]);
+    }, [state]);
+
+    useEffect(() => {
+        getRoleList();
+    }, []);
 
     const handleFullNameChange = (_e) => {
-        setFullName(_e.target.value);
+        setState({...state, fullName: _e.target.value});
     };
 
     const handleEmailChange = (_e) => {
-        setEmail(_e.target.value);
+        setState({...state, email: _e.target.value});
     };
 
     const handleMobileChange = (_e) => {
-        setMobile(_e.target.value);
+        setState({...state, mobile: _e.target.value});
     };
 
     const handleUserTypeChange = (_e) => {
-        setUserType(_e.target.value);
+        setState({...state, userType: _e.target.value});
     };
 
     const handlePasswordChange = (_e) => {
-        setPassword(_e.target.value);
+        setState({...state, password: _e.target.value});
     };
 
     const handleConfirmPasswordChange = (_e) => {
-        setConfirmPassword(_e.target.value);
+        setState({...state, confirmPassword: _e.target.value});
     };
 
-    const handleRegisterBtnClick = () => {
+    const getRoleList = async () => {
 
-        if (state.authType == 1 && state.isPassEmpty) {
-            return;
-        } else if (state.authType == 2 && state.isOtpEmpty) {
-            return;
+        try {
+
+            const roles = await window._controller.docker.dock({
+                method: "GET",
+                endpoint: "/system/register/user-types",
+            });
+
+            setRoles(roles);
+
+        } catch (e) {
+
+            setResponse({
+                msgType: "success",
+                message: e.message
+            });
+
         }
 
-        window._controller.dock(
-            {
+    };
+
+    const handleRegisterBtnClick = async () => {
+
+        try {
+
+            const response = await window._controller.docker.dock({
                 method: "POST",
-                endpoint: "/system/user/register",
+                endpoint: "/system/register",
                 payload: { 
-                    fullName: fullName,
-                    email: email,
-                    mobile: mobile,
-                    userType: userType,
-                    password: password
+                    fullName: state.fullName,
+                    email: state.email,
+                    mobile: state.mobile,
+                    userType: state.userType,
+                    password: state.password
                 }
-            },
-            (_req, _res) => {
+            });  console.log(response);
 
-                if (_res.status) {
-
-                    
-
-                } else {
-                    window._controller?.notify(_res.message, "error");
-                }
-
-            },
-            (_req, _res) => {
-                window._controller?.notify(_res, "error");
+            if (response.status) {
+                setState({
+                    fullName: "",
+                    email: "",
+                    mobile: "",
+                    userType: "",
+                    password: "",
+                    confirmPassword: ""
+                });
+    
+                setResponse({
+                    msgType: "success",
+                    message: response.message
+                });
+            } else {
+                setResponse({
+                    msgType: "error",
+                    message: response.message
+                });
             }
-        );
 
-    }
+        } catch (e) {
 
-    const displaySuccessMsg = () => {
-        if (successMessage) {
-            return <div className='pharmarack-cms-form-error-message login'><i className='fa fa-circle-xmark'></i> {successMessage}</div>
+            setResponse({
+                msgType: "success",
+                message: e.message
+            });
+
         }
-        return null;        
-    };
 
-    const displayErrorMsg = () => {
-        if (errorMessage) {
-            return <div className='pharmarack-cms-form-error-message login'><i className='fa fa-circle-xmark'></i> {errorMessage}</div>
-        }
-        return null;        
     };
 
     return (
 
         <div className="pharmarack-cms-register-wrapper">
 
-            {displayErrorMsg()}
+            {response.message ? (<div className={`pharmarack-cms-form-${response.msgType}-message login`}><i className={`fa ${ response.msgType == "error" ? "fa-circle-xmark" : "fa-circle-check" }`}></i> {response.message}</div>) : null}
 
             <div className="pharmarack-cms-register-form">
 
@@ -122,24 +157,24 @@ const Login = (props) => {
 
                 <div className="pharmarack-cms-form-fields">
                     <div className="pharmarack-cms-form-row">
-                        <input type='text' placeholder='Full Name' value={fullName} onChange={handleFullNameChange} />
+                        <input type='text' placeholder='Full Name' value={state.fullName} onChange={handleFullNameChange} />
                     </div>
                     <div className="pharmarack-cms-form-row">
-                        <input type='text' placeholder='Email Id' value={email} onChange={handleEmailChange} />
+                        <input type='text' placeholder='Email Id' value={state.email} onChange={handleEmailChange} />
                     </div>
                     <div className="pharmarack-cms-form-row">
-                        <input type='text' placeholder='Mobile Number' value={mobile} onChange={handleMobileChange} />
+                        <input type='text' placeholder='Mobile Number' value={state.mobile} onChange={handleMobileChange} />
                     </div>
                     <div className="pharmarack-cms-form-row">
-                        <select value={userType} onChange={handleUserTypeChange} >
-                            <option value="" default>Select user type</option>
+                        <select onChange={handleUserTypeChange} value={state.userType} className={`pharma-cms-form-field select`}>
+                            {roles.map((_item, _index) => { return <option key={"option_"+ _index} value={_item["_id"]}>{_item["title"]}</option> })}
                         </select>
                     </div>
                     <div className="pharmarack-cms-form-row">
-                        <input type='password' placeholder='Password' value={password} onChange={handlePasswordChange} />
+                        <input type='password' placeholder='Password' value={state.password} onChange={handlePasswordChange} />
                     </div>
                     <div className="pharmarack-cms-form-row">
-                        <input type='password' placeholder='Confirm Password' value={confirmPassword} onChange={handleConfirmPasswordChange} />
+                        <input type='password' placeholder='Confirm Password' value={state.confirmPassword} onChange={handleConfirmPasswordChange} />
                     </div>
                 </div>
 

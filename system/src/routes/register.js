@@ -9,11 +9,12 @@ export default class RegisterRouter {
         this.router = new Router();
         this.registerService = new RegisterService();
 
+        this.router.get("/register/user-types", this.getRoles);
         this.router.get("/register/:id", this.get);
         this.router.get("/registers", this.list);        
         this.router.put("/register/:id", this.update);
         this.router.delete("/register/:id", this.delete);
-        this.router.post("/register/create", this.create);
+        this.router.post("/register", this.create);
 
         this.router.put("/register/:id/approve", this.approve);
         this.router.put("/register/:id/reject", this.reject);
@@ -26,7 +27,7 @@ export default class RegisterRouter {
 
     list = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.registerService.listRegisters(_req));
+            _res.status(200).json(await this.registerService.list(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
@@ -34,7 +35,7 @@ export default class RegisterRouter {
 
     get = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.registerService.getRegister(_req));
+            _res.status(200).json(await this.registerService.get(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
@@ -42,7 +43,7 @@ export default class RegisterRouter {
 
     update = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.registerService.updateRegister(_req));
+            _res.status(200).json(await this.registerService.update(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
@@ -50,7 +51,7 @@ export default class RegisterRouter {
 
     delete = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.registerService.deleteRegister(_req));
+            _res.status(200).json(await this.registerService.delete(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
@@ -58,7 +59,7 @@ export default class RegisterRouter {
 
     create = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.registerService.createRegister(_req));
+            _res.status(200).json(await this.registerService.create(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
@@ -66,7 +67,7 @@ export default class RegisterRouter {
 
     approve = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.registerService.approveRegister(_req));
+            _res.status(200).json(await this.registerService.approve(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
@@ -74,7 +75,15 @@ export default class RegisterRouter {
 
     reject = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.registerService.rejectRegister(_req));
+            _res.status(200).json(await this.registerService.reject(_req));
+        } catch (_e) {
+            Utils.handleError(_e, _res);
+        }
+    };
+
+    getRoles = async (_req, _res) => {
+        try {
+            _res.status(200).json(await this.registerService.getRoles(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }

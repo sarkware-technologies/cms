@@ -12,5 +12,5 @@ const RegisterSchema = new mongoose.Schema({
     timestamps              : true
 });
 
-const RegisterModel = mongoose.model('cmsSystemRegister', RegisterSchema);
+const RegisterModel = mongoose.model('cms_system_register', RegisterSchema);
 export default RegisterModel;

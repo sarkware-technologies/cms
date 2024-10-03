@@ -1,6 +1,10 @@
+import RoleModel from "../models/role.js";
 import UserLoginDetailsModel from "../models/user-login-details.js";
 import UserRoleMappingModel from "../models/user-role-mapping.js";
+import UserModel from "../models/user.js";
 import TokenManager from "../utils/token-manager.js";
+
+import bcrypt from "bcrypt";
 
 export default class AuthService {
 
@@ -36,18 +40,29 @@ export default class AuthService {
                     if (isValid) {
 
                         const userLoginDetails = await UserLoginDetailsModel.findOne({ userId: user._id });
-
-                        if (userLoginDetails && userLoginDetails.isLocked()) {
-                            throw new Error("Account locked. Try again after 15 minutes.");
-                        }
+                        if (userLoginDetails && userLoginDetails.isLocked && userLoginDetails.isLocked()) {
+                            const remainingTimeMs = userLoginDetails.lockUntil - Date.now();
+                            const remainingMinutes = Math.ceil(remainingTimeMs / (1000 * 60));
+                            return {
+                                type: "locked",
+                                remaining: userLoginDetails.lockUntil,
+                                message: `Account locked. Try again after ${remainingMinutes} minutes.`
+                            };
+                        }  
 
                         /* Check roles */
-                        const roles = await UserRoleMappingModel.find({user: user._id}).populate("role").lean().exec();
+                        const _roles = await UserRoleMappingModel.find({user: user._id}).populate("role").lean().exec();
+                        const roles = _roles.map(mapping => {
+                            return {
+                                _id: mapping.role._id,
+                                title: mapping.role.title
+                            };
+                        });
 
-                        if (roles) {
+                        if (roles && roles.length > 0) {
 
                             if (roles.length === 1) {
-                                return await this.prepareUser(user, roles);
+                                return await this.prepareUser(user, _roles[0]);
                             } else {
                                 return {
                                     type: "role",
@@ -67,7 +82,7 @@ export default class AuthService {
 
                         await UserLoginDetailsModel.updateOne(
                             { userId: user._id },
-                            { $set: { failedAttempt: updatedFailedAttempt++ } },
+                            { $set: { failedAttempt: (updatedFailedAttempt + 1) } },
                             { upsert: true }
                         );
 
@@ -91,11 +106,70 @@ export default class AuthService {
 
     selectRole = async (_req) => {
 
+        if (!_req.body.user) {
+            throw new Error("User name is missing");
+        }
+
+        if (!_req.body.password) {
+            throw new Error("Password is missing");
+        }
+
+        if (!_req.body.role) {
+            throw new Error("Role is missing");
+        }
+
         try {
 
+            /* Step 1 - check for mobile */
+            let user = await UserModel.findOne({ mobile: _req.body.user }).lean({ virtuals: true });
 
+            if (!user) {
+                /* Step 2 - check for email */
+                user = await UserModel.findOne({ email: _req.body.user }).lean({ virtuals: true });
+            }
 
-        } catch (e) {
+            if (user) {
+
+                if (user.status) {
+
+                    let isValid = await bcrypt.compare(_req.body.password, user.password);
+                    if (isValid) {
+
+                        const userLoginDetails = await UserLoginDetailsModel.findOne({ userId: user._id }).lean();
+                        if (userLoginDetails && userLoginDetails.isLocked) {
+                            return {
+                                type: "locked",
+                                remaining: userLoginDetails.updatedAt,
+                                message: "Account locked. Try again after 15 minutes."
+                            };
+                        }  
+
+                        /* Check one more time the the selected role is indeed maapped for the user */
+                        const _roles = await UserRoleMappingModel.find({user: user._id, role: _req.body.role}).populate("role").lean().exec();
+
+                        if (_roles && _roles.length == 1) {
+                            return await this.prepareUser(user, _roles[0]);
+                        }
+
+                        throw new Error("An error occurred while setup user session");
+
+                    }
+
+                } else {
+                    throw new Error("Your account is disabled, please contact support team");
+                }
+
+            } else {
+                throw new Error("Username or password is invalid");
+            }
+
+            if (_req.user && _req.user._id) {
+                return await UserRoleMappingModel.find({user: user._id}).populate("role").lean().exec();
+            } else {
+                throw new Error("An error occurred while retrieving the user roles");
+            }
+
+        } catch (e) { console.log(e);
             throw e;
         }
 
@@ -149,12 +223,12 @@ export default class AuthService {
 
     };
 
-    prepareUser = async (_user, _role) => {
+    prepareUser = async (_user, _mapping) => {
 
         const {
             accessToken,
             refreshToken
-        } = this.TM.issueToken(_user._id, _role._id);
+        } = this.TM.issueToken(_user._id, _mapping.role._id);
 
         await UserLoginDetailsModel.updateOne(
             { userId: _user._id },
@@ -171,7 +245,7 @@ export default class AuthService {
             email: _user.email,
             mobile: _user.mobile,
             fullName: _user.fullName,
-            roleName: _role.title,
+            roleName: _mapping.role.title,
             accessToken,
             refreshToken
         }

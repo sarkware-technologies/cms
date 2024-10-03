@@ -11,10 +11,10 @@ const ModuleSchema = new mongoose.Schema({
     package                 : { type: Number, default: 0 },
     deprecated              : { type: Boolean, default: false },
     to_be_deprecated        : { type: Boolean, default: false },    
-    service                 : { type: mongoose.Schema.Types.ObjectId, ref: 'cmsSystemService', required: true },
+    service                 : { type: mongoose.Schema.Types.ObjectId, ref: 'cms_system_service', required: true },
     status                  : { type: Boolean, default: true },
-    created_by          : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemUser", default: null },
-    updated_by          : { type: mongoose.Schema.Types.ObjectId, ref: "cmsSystemUser", default: null }
+    created_by          : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+    updated_by          : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 },
 {  
     strict                  : true,
@@ -23,5 +23,5 @@ const ModuleSchema = new mongoose.Schema({
 
 ModuleSchema.index({ handle: 1, service: 1 }, { unique: true });
 
-const ModuleModel = mongoose.model('cmsSystemModule', ModuleSchema);
+const ModuleModel = mongoose.model('cms_system_module', ModuleSchema);
 export default ModuleModel;
