@@ -179,10 +179,27 @@ export default class AuthService {
 
         try {
 
+            if (_req.user && _req.user._id) {
 
+                await UserLoginDetailsModel.updateOne(
+                    { userId: _user._id },
+                    { $set: { 
+                        accessToken: null,
+                        refreshToken: null,
+                        isRevoked: true,
+                        failedAttempt: 0,
+                        lockUntil: null
+                    }},
+                    { upsert: true }
+                );
+
+                return {status: true, message: "Logged out Successfully"};
+
+            }
 
         } catch (e) {
-            throw e;
+            console.log(e);
+            return {status: false, message: "Logged out Failed"};
         }
 
     };
@@ -191,7 +208,46 @@ export default class AuthService {
 
         try {
 
+            const user = await UserModel.findOne({ _id: _req.user._id }).lean({ virtuals: true });
 
+            if (user) {
+
+                if (user.status) {
+
+                    let isValid = await bcrypt.compare(_req.body.password, user.password);
+
+                    if (isValid) {
+
+                        const passwordHash = await bcrypt.hash(body.newPassword, 12);
+
+                        await UserModel.findByIdAndUpdate(user._id, { $set: { password: passwordHash } }, { runValidators: true, new: true });                        
+                        await UserLoginDetailsModel.updateOne(
+                            { userId: user._id },
+                            { $set: { 
+                                accessToken: null,
+                                refreshToken: null,
+                                isRevoked: true,
+                                failedAttempt: 0,
+                                lockUntil: null,
+                                lastPasswordUpdated: Date.now() 
+                            }
+                            },
+                            { upsert: true }
+                        );
+
+                        return {status: true, message: "Logged out Successfully"};
+
+                    } else {
+                        return {status: false, message: "Invalid password, please enter the current password"};
+                    }
+
+                } else {
+                    return {status: false, message: "Something not right, your account is already disabled"};
+                }
+
+            } else {
+                return {status: false, message: "An error occurred while retrieving the user record"};
+            }
 
         } catch (e) {
             throw e;
@@ -202,7 +258,37 @@ export default class AuthService {
     sendForgotPasswordToken = async (_req) => {
 
         try {
+            
+            let channelType = "mobile";
 
+            /* Step 1 - check for mobile */
+            let user = await UserModel.findOne({ mobile: _req.body.user }).lean({ virtuals: true });
+
+            if (!user) {
+                channelType = "email";
+                /* Step 2 - check for email */
+                user = await UserModel.findOne({ email: _req.body.user }).lean({ virtuals: true });
+            }
+
+            if (user) {
+
+                if (user.status) {
+
+                    const _token = ""
+
+                }
+
+            }
+
+            if (roles.length === 1) {
+                return await this.prepareUser(user, _roles[0]);
+            } else {
+                return {
+                    type: "role",
+                    roles: roles,
+                    tempAccessToken: this.TM.issueTempToken(user._id)
+                };
+            }
 
 
         } catch (e) {

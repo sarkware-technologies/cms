@@ -15,7 +15,7 @@ export default class AuthRouter {
         this.router.post("/auth/select-role", this.selectRole);
         this.router.post("/auth/send-forgot-password-token", this.sendForgotPasswordToken);
         this.router.post("/auth/submit-forgot-password", this.submitForgotPassword);
-
+    
     }
 
     getRoutes = () => {
