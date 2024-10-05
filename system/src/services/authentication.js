@@ -1,8 +1,10 @@
-import RoleModel from "../models/role.js";
+import RoleService from "./role.js";
 import UserLoginDetailsModel from "../models/user-login-details.js";
 import UserRoleMappingModel from "../models/user-role-mapping.js";
 import UserModel from "../models/user.js";
 import TokenManager from "../utils/token-manager.js";
+
+import MenuModel from "../models/menu.js";
 
 import bcrypt from "bcrypt";
 
@@ -10,9 +12,10 @@ export default class AuthService {
 
     constructor () {
         this.TM = new TokenManager();
+        this.roleService = new RoleService();
     }
 
-    signIn = async (_req) => {
+    signIn = async (_req) => {   
 
         if (!_req.body.user) {
             throw new Error("User name is missing");
@@ -36,19 +39,22 @@ export default class AuthService {
 
                 if (user.status) {
 
+                    const userLoginDetails = await UserLoginDetailsModel.findOne({ userId: user._id });
+                    await userLoginDetails.resetLockIfExpired();
+
+                    if (userLoginDetails && userLoginDetails.isLocked && userLoginDetails.isLocked()) {
+                        const remainingTimeMs = userLoginDetails.lockUntil - Date.now();
+                        const remainingMinutes = Math.ceil(remainingTimeMs / (1000 * 60));
+                        return {
+                            type: "locked",
+                            remaining: userLoginDetails.lockUntil,
+                            message: `Account locked. Try again after ${remainingMinutes} minutes.`
+                        };
+                    } 
+
+
                     let isValid = await bcrypt.compare(_req.body.password, user.password);
                     if (isValid) {
-
-                        const userLoginDetails = await UserLoginDetailsModel.findOne({ userId: user._id });
-                        if (userLoginDetails && userLoginDetails.isLocked && userLoginDetails.isLocked()) {
-                            const remainingTimeMs = userLoginDetails.lockUntil - Date.now();
-                            const remainingMinutes = Math.ceil(remainingTimeMs / (1000 * 60));
-                            return {
-                                type: "locked",
-                                remaining: userLoginDetails.lockUntil,
-                                message: `Account locked. Try again after ${remainingMinutes} minutes.`
-                            };
-                        }  
 
                         /* Check roles */
                         const _roles = await UserRoleMappingModel.find({user: user._id}).populate("role").lean().exec();
@@ -61,9 +67,12 @@ export default class AuthService {
 
                         if (roles && roles.length > 0) {
 
-                            if (roles.length === 1) {
+                            if (roles.length === 2) {
                                 return await this.prepareUser(user, _roles[0]);
                             } else {
+
+                                roles.unshift({_id: "", title: "Select Your Role"});
+
                                 return {
                                     type: "role",
                                     roles: roles,
@@ -79,7 +88,6 @@ export default class AuthService {
 
                         const loginDetails = await UserLoginDetailsModel.findOne({userId: user._id}).lean();
                         const updatedFailedAttempt = loginDetails ? loginDetails.failedAttempt : 0;
-
                         await UserLoginDetailsModel.updateOne(
                             { userId: user._id },
                             { $set: { failedAttempt: (updatedFailedAttempt + 1) } },
@@ -311,29 +319,36 @@ export default class AuthService {
 
     prepareUser = async (_user, _mapping) => {
 
-        const {
-            accessToken,
-            refreshToken
-        } = this.TM.issueToken(_user._id, _mapping.role._id);
+        try {
 
-        await UserLoginDetailsModel.updateOne(
-            { userId: _user._id },
-            { $set: { 
+            const {
                 accessToken,
-                refreshToken,
-                lastLoggedIn: Date.now()
-            }},
-            { upsert: true }
-        );
+                refreshToken
+            } = this.TM.issueToken(_user._id, _mapping.role._id);
 
-        return {
-            type: "success",
-            email: _user.email,
-            mobile: _user.mobile,
-            fullName: _user.fullName,
-            roleName: _mapping.role.title,
-            accessToken,
-            refreshToken
+            await UserLoginDetailsModel.updateOne(
+                { userId: _user._id },
+                { $set: { 
+                    accessToken,
+                    refreshToken,
+                    lastLoggedIn: Date.now()
+                }},
+                { upsert: true }
+            );
+    
+            return {
+                type: "success",
+                email: _user.email,
+                mobile: _user.mobile,
+                fullName: _user.fullName,
+                roleName: _mapping.role.title,
+                modules: await this.roleService.prepareModulesAndCapabilities(_mapping.role._id),
+                accessToken,
+                refreshToken
+            }
+
+        } catch (e) {
+            throw e;
         }
 
     };

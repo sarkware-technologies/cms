@@ -1,5 +1,6 @@
 import CapabilityModel from "../models/capability.js";
 import ModuleModel from "../models/module.js";
+import MenuModel from "../models/menu.js"
 import RoleModel from "../models/role.js";
 import Utils from "../utils/utils.js";
 
@@ -7,7 +8,7 @@ export default class RoleService {
 
     constructor () {}
 
-    listRoles = async (_req) => {
+    list = async (_req) => {
 
         try {
 
@@ -67,7 +68,6 @@ export default class RoleService {
         try {
             return await RoleModel.distinct(_field).exec();
         } catch (_e) {
-
             throw _e;
         }
 
@@ -103,7 +103,7 @@ export default class RoleService {
 
     };
 
-    getRole = async (_req) => {
+    get = async (_req) => {
 
         if (!_req.params.id) {
             throw new Error("Role id is missing");
@@ -117,7 +117,7 @@ export default class RoleService {
 
     };
 
-    updateRole = async (_req) => {
+    update = async (_req) => {
 
         if (!_req.params.id) {
             throw new Error("Role id is missing");
@@ -131,7 +131,7 @@ export default class RoleService {
 
     };
 
-    deleteRole = async (_req) => {
+    delete = async (_req) => {
         
         if (!_req.params.id) {
             throw new Error("Role id is missing");
@@ -146,7 +146,7 @@ export default class RoleService {
 
     };
 
-    createRole = async (_req) => {
+    create = async (_req) => {
 
         try {
 
@@ -258,5 +258,41 @@ export default class RoleService {
         return true;
 
     }
+
+    prepareModulesAndCapabilities = async (_roleId) => {
+        
+        let menu = {};
+        let menus = [];        
+        let capabilities = [];
+
+        try {                        
+            
+            capabilities = await CapabilityModel.find({ role: _roleId }).lean();
+            for (let i = 0; i < capabilities.length; i++) {
+
+                if (capabilities[i].can_read || capabilities[i].can_create || capabilities[i].can_delete || capabilities[i].can_update) {
+                    menu = await MenuModel.findOne({ module: capabilities[i].module }).lean();
+
+                    delete menu["created_by"];
+                    delete menu["updated_by"];
+
+                    menu["capability"] = {
+                        read: capabilities[i].can_read,
+                        create: capabilities[i].can_create,
+                        delete: capabilities[i].can_delete,
+                        update: capabilities[i].can_update
+                    }
+                    menus.push(menu);
+                }
+
+            }
+
+        } catch (_e) {
+            throw _e;
+        }
+
+        return menus;
+
+    };
 
 }

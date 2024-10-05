@@ -8,29 +8,35 @@ const Login = (props) => {
     const [state, setState] = useState({
         username: "",
         password: "",
-        userNameEmpty: false,
-        passwordEmpty: false,
-        userNameInvalid: false,
-        passwordInalid: false,
+        role: null,
+        userNameEmpty: true,
+        passwordEmpty: true,
         authError: false,
         authErrorMsg: "",
-        loading: false
+        loading: false,
+        roleSelectorVisible: false
     });
 
+    const [roles, setRoles] = useState([]); 
+    const [btnEnable, setBtnEnable] = useState(false);
+    const [roleLabel, setRoleLabel] = useState('');
+
     useEffect(() => { 
-        if (emailRegex.test(state.username) || mobileRegex.test(state.username)) {
-            //setBtnEnable(true);
-        } else {
-            //setBtnEnable(false);
+        if (!state.userNameEmpty && !state.passwordEmpty) {
+            if (emailRegex.test(state.username) || mobileRegex.test(state.username)) {
+                setBtnEnable(true);
+                return;
+            }
         }
-    }, [state.username]);
+        setBtnEnable(false);        
+    }, [state]);
 
     const handleUserChange = (_e) => {
         let isEmpty = true;
         if (_e.target.value) {
             isEmpty = false;
         }
-        setState((prevState) => ({ ...prevState, username: _e.target.value, isUserEmpty: isEmpty }));
+        setState((prevState) => ({ ...prevState, username: _e.target.value, userNameEmpty: isEmpty }));
     }
 
     const handlePasswordChange = (_e) => {
@@ -38,8 +44,14 @@ const Login = (props) => {
         if (_e.target.value) {
             isEmpty = false;
         }
-        setState((prevState) => ({ ...prevState, password: _e.target.value, isPassEmpty: isEmpty }));
+        setState((prevState) => ({ ...prevState, password: _e.target.value, passwordEmpty: isEmpty }));
     }
+
+    const handleRoleChange = (_e) => {
+        const selectedOption = _e.target.selectedOptions[0];
+        setRoleLabel(selectedOption.label);
+        setState((prevState) => ({ ...prevState, role: _e.target.value }));
+    };
 
     const handleUserKeyDown = (_e) => {
         if (_e.key === 'Enter') {
@@ -55,65 +67,93 @@ const Login = (props) => {
         }
     }
 
-    const handleSignInBtnClick = () => {
+    const handleSignInBtnClick = async () => {
 
-        if (state.authType == 1 && state.isPassEmpty) {
-            return;
-        } else if (state.authType == 2 && state.isOtpEmpty) {
-            return;
-        }
+        try {   console.log(state);
 
-        window._controller.dock(
-            {
-                method: "POST",
-                endpoint: "/system/user/sign-in",
-                payload: { user: state.username, password: state.password }
-            },
-            (_req, _res) => {
+            if (state.roleSelectorVisible) {
 
-                if (_res.status) {
+                if (state.role) {
 
-                    /* Successfully signed in */
-                    sessionStorage.setItem("pharmarack_cms_user", _res.payload.user);
-                    sessionStorage.setItem("pharmarack_cms_token", _res.payload.token);
-                    // sessionStorage.setItem("pharmarack_cms_role", _res.payload.role.handle);
-                    //sessionStorage.setItem("ff_menu", JSON.stringify(_res.payload.menu));                     
+                    const response = await window._controller.docker.dock({
+                        method: "POST",
+                        endpoint: "/system/auth/select-role",
+                        payload: { 
+                            user: state.username,
+                            password: state.password,
+                            role: state.role
+                        }
+                    }); 
 
-                    document.location.href = "";
+                    if (response.type == "success") {
+                        setupSession(response);
+                    } else {
+
+                    }
 
                 } else {
-                    window._controller?.notify(_res.message, "error");
+                    setState((prevState) => ({ ...prevState, authError: true, authErrorMsg: "Please select your role" }));
                 }
 
-            },
-            (_req, _res) => {
-                window._controller?.notify(_res, "error");
-            }
-        );
+            } else {
 
+                const response = await window._controller.docker.dock({
+                    method: "POST",
+                    endpoint: "/system/auth/sign-in",
+                    payload: { 
+                        user: state.username,
+                        password: state.password
+                    }
+                }); 
+    
+                if (response.type == "role") {
+                    setRoles(response.roles);
+                    setState((prevState) => ({ ...prevState, roleSelectorVisible: true, authError: false }));
+                } else if (response.type == "locked") {
+                    setState((prevState) => ({ ...prevState, roleSelectorVisible: false, authError: true, authErrorMsg: response.message }));
+                } else if (response.type == "success") {
+                    setupSession(response);
+                }
+            }
+
+        } catch (e) {
+            setState((prevState) => ({ ...prevState, authError: true, authErrorMsg: e.message }));
+        }
+        
     }
+
+    const setupSession = (_response) => {
+        /* Successfully signed in */
+        sessionStorage.setItem("pharmarack_cms_email", _response.email);
+        sessionStorage.setItem("pharmarack_cms_mobile", _response.mobile);
+        sessionStorage.setItem("pharmarack_cms_role_name", _response.roleName);                    
+        sessionStorage.setItem("pharmarack_cms_full_name", _response.fullName);
+        sessionStorage.setItem("pharmarack_cms_access_token", _response.accessToken);
+        sessionStorage.setItem("pharmarack_cms_refresh_token", _response.refreshToken);
+        sessionStorage.setItem("pharmarack_cms_menus", JSON.stringify(_response.modules));
+    };
 
     const handleForgotLinkClick = (_e) => {
         document.location.href = "?view=forgot-password";
     }
 
+    const handleRegisterLinkClick = (_e) => {
+        document.location.href = "/registration";
+    };
+
     const renderBtnLabel = () => {
         if (!state.loading) {
-            return 'Sign In';
+            return roles.length > 0 ? `${ (state.role && roleLabel) ? ("Sign in as "+ roleLabel) : "Select Role" }` : 'Sign In';
         } else {
             return <i className='fa fa-cog fa-spin'></i>
         }
-    };
-
-    const displayErrorMsg = () => {
-        //return <div className='pharmarack-cms-form-error-message login'><i className='fa fa-circle-xmark'></i> Please enter you email or phone number</div>
     };
 
     return (
 
         <div className="pharmarack-cms-login-wrapper">
 
-            {displayErrorMsg()}
+            {state.authError ? (<div className={`pharmarack-cms-form-error-message login`}><i className="fa fa-circle-xmark"></i> {state.authErrorMsg}</div>) : null}
 
             <div className="pharmarack-cms-login-form">
 
@@ -131,9 +171,22 @@ const Login = (props) => {
                     </div>
                 </div>
 
+                <div className={`pharmarack-cms-form-action ${ roles.length > 0 ? "visible" : "hidden" }`}>
+                    <select onChange={handleRoleChange} value={state.role} className={`pharma-cms-form-field select`}>
+                        {roles.map((_item, _index) => { return <option key={"option_"+ _index} value={_item["_id"]}>{_item["title"]}</option> })}
+                    </select>
+                </div>
+
                 <div className="pharmarack-cms-form-action">
-                    <button className={`pharmarack-cms-btn primary block ${state.loading ? "loading" : ""}`} onClick={handleSignInBtnClick}>{renderBtnLabel()}</button>
+                    <button className={`pharmarack-cms-btn primary block ${!btnEnable ? "disabled" : ""}`} disabled={!btnEnable} onClick={handleSignInBtnClick}>{renderBtnLabel()}</button>
                     <a href="#" className='pharmarack-cms-forgot-link' onClick={handleForgotLinkClick}>Forgot Password?</a>
+                    <div className="pharmarack-cms-login-form-seperator"></div>
+                    <p className="pharmarack-cms-register-link-p">New User? <a href="/registration" className='pharmarack-cms-register-link' onClick={handleRegisterLinkClick}>Register Now</a></p>
+                </div>
+
+                <div className="pharmarack-cms-form-action">
+
+
                 </div>
 
                 <div className="pharmarack-cms-login-powered-by">

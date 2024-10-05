@@ -180,7 +180,7 @@ const Login = (props) => {
 
                 <div className="pharmarack-cms-form-action">
                     <button className={`pharmarack-cms-btn primary block ${!btnEnable ? "disabled" : ""}`} disabled={!btnEnable} onClick={handleRegisterBtnClick} >Register</button>
-                    <p className='pharmarack-cms-login-link-wrapper'>Already a User? <a href="#" className='pharmarack-cms-login-link'>Login Now</a></p>
+                    <p className='pharmarack-cms-login-link-wrapper'>Already a User? <a href="/" className='pharmarack-cms-login-link'>Login Now</a></p>
                 </div>
 
             </div>

@@ -11,11 +11,15 @@ const LayoutLoader = () => {    console.log("pathname : "+ location.pathname);
     if (controller.utils.isAuthenticated()) {                
         layoutConfig = app_config.routes.authorized.find(item => item.getRole === controller.utils.getRole());        
     } else {
+
+        const _pathName =  location.pathname.replace(/^\//, '');
+
         if (location.pathname === "" || location.pathname === "/") {
-            layoutConfig = app_config.routes.unauthorized.find(item => item.layout === "registration");
+            layoutConfig = app_config.routes.unauthorized.find(item => item.layout === "login");
         } else {
-            layoutConfig = app_config.routes.unauthorized.find(item => item.layout === location.pathname);
-        }        
+            layoutConfig = app_config.routes.unauthorized.find(item => item.layout === _pathName);
+        } 
+
     }
 
     layout = layoutConfig ? layoutConfig.layout : null;
@@ -27,7 +31,7 @@ const LayoutLoader = () => {    console.log("pathname : "+ location.pathname);
          * We assume that there is alway a layout called 'login'
          * 
          */
-        layout = 'registration';
+        layout = 'login';
     }
 
     const LayoutComponent = lazy(() => import(`../layouts/${layout}`));

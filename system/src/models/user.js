@@ -4,6 +4,7 @@ const UserSchema = new mongoose.Schema({
     email                   : { type: String, required: true },
     mobile                  : { type: String, required: true },
     password                : { type: String, required: true },
+    otp                     : { type: String, default: null },
     fullName                : { type: String, default: null },
     status                  : { type: Boolean, default: false },
     createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },

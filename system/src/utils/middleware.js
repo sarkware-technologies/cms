@@ -32,6 +32,7 @@ export default class RequestInterceptor {
             const publicPaths = [
                 "/health",
                 "/system/auth/sign-in",
+                "/system/auth/select-role",
                 "/system/register",
                 "/system/register/user-types",
                 "/system/auth/send-forgot-password-token"
@@ -57,9 +58,6 @@ export default class RequestInterceptor {
             let tokenValidationResult;
 
             switch (_req.path) {
-                case "/system/auth/select-role":
-                    tokenValidationResult = this.verifyAndSetUser(token, "temp", _req);
-                    break;
                 case "/system/auth/submit-forgot-password":
                     tokenValidationResult = this.verifyAndSetUser(token, "forgot", _req);
                     break;

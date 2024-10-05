@@ -27,8 +27,16 @@ const app_config = {
                 layout: "login"
             },
             {
+                path: "/registration",
+                layout: "registration"
+            },
+            {
                 path: "/forgot-password",
                 layout: "forgot_password"
+            },
+            {
+                path: "/main",
+                layout: "main"
             },
             {
                 path: "*",

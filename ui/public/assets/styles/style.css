@@ -246,6 +246,14 @@ strong {
     font-family: 'ProximaNovaBold';	
 }
 
+.visible {
+    display: block;
+}
+
+.hidden {
+    display: none;
+}
+
 .pharmarack-cms-btn {
     height: 40px;
     display: flex;
@@ -515,4 +523,14 @@ strong {
 
 .pharmarack-cms-login-link-wrapper {
     margin-top: 25px;
+}
+
+.pharmarack-cms-login-form-seperator {
+    border-top: solid 1px #D9D9D9;
+    margin: 20px 65px;
+}
+
+.pharmarack-cms-login-link,
+.pharmarack-cms-register-link {
+    font-family: 'ProximaNovaSemiBold';
 }

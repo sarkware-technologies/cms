@@ -38,6 +38,15 @@ UserLoginDetailsSchema.pre('updateOne', function (next) {
 
 });
 
+UserLoginDetailsSchema.methods.resetLockIfExpired = async function () {
+    // If the lock has expired, reset failedAttempt and lockUntil
+    if (this.lockUntil && this.lockUntil <= Date.now()) {
+        this.failedAttempt = 0;
+        this.lockUntil = null;
+        await this.save();  // Save changes
+    }
+};
+
 UserLoginDetailsSchema.methods.isLocked = function () {
     return this.lockUntil && this.lockUntil > Date.now();
 };
