@@ -50,11 +50,10 @@ export default class Utils {
 
     isAuthenticated = () => {
 
-        const user = sessionStorage.getItem("pharmarack_cms_user");
-        const token = sessionStorage.getItem("pharmarack_cms_token");
-        const role = sessionStorage.getItem("pharmarack_cms_role");
+        const accessToken = localStorage.getItem("pharmarack_cms_access_token");
+        const refreshToken = localStorage.getItem("pharmarack_cms_refresh_token");
     
-        return user && token && role;
+        return accessToken && refreshToken;
 
     };
 

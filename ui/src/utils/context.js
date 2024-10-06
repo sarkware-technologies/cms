@@ -204,8 +204,8 @@ const ContextWrapper = (props, ref) => {
         const loadContext = async () => {
             try {        
                 
-                const _config = await import ('../config/'+ context +".js");
-                const _module = await import ('../context/'+ context +".js");
+                const _config = await import ('../configs/'+ context +".js");
+                const _module = await import ('../contexts/'+ context +".js");
                 self.config = _config.default;
                 self.viewMode = "archive";
                 
@@ -268,10 +268,10 @@ const ContextWrapper = (props, ref) => {
             const view = <View ref={viewRef} config={state.viewConfig} handle={state.currentView} />
             window._controller.registerField(state.currentView, "view", viewRef);  
 
-            return <div className={`fields-factory-context-view ${context} ${state.currentView}`}>{view}</div>;
+            return <div className={`pharmarack-cms-context-view ${context} ${state.currentView}`}>{view}</div>;
             
         } else {
-            return <div className="fields-factory-context-view"><h1 className="fields-factory-no-view-message">No view configured</h1></div>;        
+            return <div className="pharmarack-cms-context-view"><h1 className="pharmarack-cms-no-view-message">No view configured</h1></div>;        
         }
     };
 

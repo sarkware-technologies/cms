@@ -17,7 +17,7 @@ const System = (props) => {
     useEffect(() => {
         window._controller.layout = appLayout;
         try {
-            const _modules = JSON.parse(sessionStorage.getItem("pharmarack_cms_menus"));
+            const _modules = JSON.parse(localStorage.getItem("pharmarack_cms_menus"));
             if (_modules && Array.isArray(_modules)) {
                 setModules(_modules); 
             } else {

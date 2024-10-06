@@ -2,17 +2,20 @@ import React, { lazy, Suspense } from 'react';
 import app_config from '../configs/config';
 import Spinner from '../components/spiner';
 
-const LayoutLoader = () => {    console.log("pathname : "+ location.pathname);
+const LayoutLoader = () => {
 
     let layout = null;
     let layoutConfig = null;
     const controller = window["_controller"];
+    const _pathName =  location.pathname.replace(/^\//, '');
 
-    if (controller.utils.isAuthenticated()) {                
-        layoutConfig = app_config.routes.authorized.find(item => item.getRole === controller.utils.getRole());        
+    if (controller.utils.isAuthenticated()) { console.log("It is authenticated");
+        if (_pathName === "" || _pathName === "/") {
+            location.href = "/main";
+        } else {
+            layoutConfig = app_config.routes.unauthorized.find(item => item.layout === "main"); 
+        }           
     } else {
-
-        const _pathName =  location.pathname.replace(/^\//, '');
 
         if (location.pathname === "" || location.pathname === "/") {
             layoutConfig = app_config.routes.unauthorized.find(item => item.layout === "login");
@@ -22,7 +25,7 @@ const LayoutLoader = () => {    console.log("pathname : "+ location.pathname);
 
     }
 
-    layout = layoutConfig ? layoutConfig.layout : null;
+    layout = layoutConfig ? layoutConfig.layout : null;  console.log("Before final layout : "+ layout);
 
     if (!layout) {
         /**

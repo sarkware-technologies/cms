@@ -119,13 +119,13 @@ const AppLayout = (props, ref) => {
     const clearSession = () => {
 
         /* Successfully signed in */
-        sessionStorage.removeItem("pharmarack_cms_email");
-        sessionStorage.removeItem("pharmarack_cms_mobile");
-        sessionStorage.removeItem("pharmarack_cms_role_name");                    
-        sessionStorage.removeItem("pharmarack_cms_full_name");
-        sessionStorage.removeItem("pharmarack_cms_access_token");
-        sessionStorage.removeItem("pharmarack_cms_refresh_token");
-        sessionStorage.removeItem("pharmarack_cms_menus");
+        localStorage.removeItem("pharmarack_cms_email");
+        localStorage.removeItem("pharmarack_cms_mobile");
+        localStorage.removeItem("pharmarack_cms_role_name");                    
+        localStorage.removeItem("pharmarack_cms_full_name");
+        localStorage.removeItem("pharmarack_cms_access_token");
+        localStorage.removeItem("pharmarack_cms_refresh_token");
+        localStorage.removeItem("pharmarack_cms_menus");
 
         document.location.href = "/";
         
@@ -135,7 +135,7 @@ const AppLayout = (props, ref) => {
     useEffect(() => {
         let _modules = [];
         try {
-            _modules = JSON.parse(sessionStorage.getItem("pharmarack_cms_menus"));
+            _modules = JSON.parse(localStorage.getItem("pharmarack_cms_menus"));
         } catch (e) {
             console.log(e);
         }   
@@ -171,8 +171,8 @@ const AppLayout = (props, ref) => {
                 <div className="pharmarack-cms-sidebar-user">
                     <div><i className="fa fa-user"></i></div>
                     <div>
-                        <p className="pharmarack-cms-sidebar-user-label">{sessionStorage.getItem("pharmarack_cms_full_name")}</p>
-                        <p className="pharmarack-cms-sidebar-user-name">{sessionStorage.getItem("pharmarack_cms_role_name")}</p>
+                        <p className="pharmarack-cms-sidebar-user-label">{localStorage.getItem("pharmarack_cms_full_name")}</p>
+                        <p className="pharmarack-cms-sidebar-user-name">{localStorage.getItem("pharmarack_cms_role_name")}</p>
                     </div>
                 </div>
 

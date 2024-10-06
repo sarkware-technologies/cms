@@ -137,7 +137,7 @@ export default class Controller extends React.Component {
     };
 
     setModuleState = (_module, _state) => {
-        this.store[_module] = _state;
+        this.snapshot[_module] = _state;
     };
 
     setLayoutInstance = (_instance) => {
@@ -145,7 +145,202 @@ export default class Controller extends React.Component {
     };
 
     getModuleState = (_module) => {
-        return this.store[_module] ? this.store[_module] : null;
+        return this.snapshot[_module] ? this.snapshot[_module] : null;
+    };
+
+    registerField = (_handle, _type, _field) => {
+        let contextObj = this.getCurrentModuleInstance();
+        if (contextObj) {
+            contextObj.registerField(_handle, _field);
+        }
+    };
+
+    onTabMount = (_handle) => {
+        let contextObj = this.getCurrentModuleInstance();
+        if (contextObj) {
+            const field = contextObj.getField(_handle);
+            if (field) {
+                field.init();
+            }
+        }
+    };
+
+    getField = (_handle) => {
+        let contextObj = this.getCurrentModuleInstance();
+        if (contextObj) {
+            return contextObj.getField(_handle);
+        }
+        return null;
+    };
+
+    /**
+     *
+     * @param {*} _handle
+     */
+    getInputFieldVal = (_handle) => {
+        let field = this.getField(_handle);
+        if (field) {
+            return field.getVal();
+        }
+        return null;
+    };
+
+    /**
+     *
+     * @param { } _handle
+     * @param {*} _value
+     */
+    setInputFieldVal = (_handle, _value) => {
+        let field = this.getField(_handle);
+        if (field) {
+            field.setVal(_value);
+            return _value;
+        }
+        return null;
+    };
+
+    getToggleStatus = (_handle) => {
+        let field = this.getField(_handle);
+        if (field) {
+            return field.getStatus();
+        }
+        return null;
+    };
+
+    setToggleStatus = (_handle, _value) => {
+        let field = this.getField(_handle);
+        if (field) {
+            field.setStatus(_value);
+            return _value;
+        }
+        return null;
+    };
+
+    getSearchRecord = (_handle) => {
+        let field = this.getField(_handle);
+        if (field) {
+            return field.getCurrentRecord();
+        }
+        return null;
+    };
+
+    setSearchRecord = (_handle, _value) => {
+        let field = this.getField(_handle);
+        if (field) {
+            field.setCurrentRecord(_value);
+            return _value;
+        }
+        return null;
+    };
+
+    switchTab = (_handle, _view) => {
+        let field = this.getField(_handle);
+        if (field) {
+            field.switchTab(_view);
+            return true;
+        }
+        return null;
+    };
+
+    switchView = (_view) => {
+        let contextObj = this.getCurrentModuleInstance();
+        if (contextObj) {
+            contextObj.switchView(_view);
+            return true;
+        }
+        return null;
+    };
+
+    loadContextBar = (_title, _breadcrumb, _actions) => {
+        if (this.ContextBar && this.ContextBar.current) {
+            this.ContextBar.current.loadTopBar(_title, _breadcrumb, _actions);
+        }
+    };
+
+    loadContextTitle = (_title) => {
+        if (this.ContextBar && this.ContextBar.current) {
+            this.ContextBar.current.loadTitle(_title);
+        }
+    };
+
+    loadContextBreadcrumb = (_breadcrumb) => {
+        if (this.ContextBar && this.ContextBar.current) {
+            this.ContextBar.current.loadBreadcrumb(_breadcrumb);
+        }
+    };
+
+    loadContextActions = (_actions) => {
+        if (this.ContextBar && this.ContextBar.current) {
+            this.ContextBar.current.loadActions(_actions);
+        }
+    };
+
+    /**
+     *
+     * @param {*} _key
+     * @param {*} _choices
+     */
+    loadFieldChoices = (_key, _choices) => {
+        let field = this.getField(_key);
+        if (field) {
+            field.loadOptions(_choices);
+            return _choices;
+        }
+        return null;
+    };
+
+    /**
+     *
+     * @param {*} _key
+     * @param {*} _records
+     */
+    loadRecords = (_handle, _records, _totalPages, _recordPerPage) => {
+        let contextObj = this.getCurrentModuleInstance();
+        if (contextObj) {
+            let field = contextObj.getField(_handle);
+            if (field) {
+                field.loadRecords(_records, _totalPages, _recordPerPage);
+                /* Put it on the context state */
+                //contextObj.loadDataGridSnap(_records, _totalPages);
+                return _records;
+            }
+        }
+        return null;
+    };
+
+    /**
+     *
+     * @param {*} _key
+     */
+    getCurrentRecord = (_key) => {
+        let field = this.getField(_key);
+        if (field) {
+            return field.getCurrentRecord();
+        }
+        return null;
+    };
+
+    /**
+     * 
+     * @param {*} _target 
+     * @param {*} _handle 
+     */
+    handleMediaChange = (_target, _handle) => {
+        let contextObj = this.getCurrentModuleInstance();
+        if (contextObj) {
+            contextObj.handleMediaChange(_target, _handle);
+        }
+    };
+
+    /**
+     * 
+     * @param {*} _handle 
+     */
+    handleMediaDelete = (_handle) => {
+        let contextObj = this.getCurrentModuleInstance();
+        if (contextObj) {
+            contextObj.handleMediaDelete(_handle);
+        }
     };
 
     render = () => <LayoutLoader />;

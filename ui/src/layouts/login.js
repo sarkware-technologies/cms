@@ -125,13 +125,13 @@ const Login = (props) => {
     const setupSession = (_response) => {
 
         /* Successfully signed in */
-        sessionStorage.setItem("pharmarack_cms_email", _response.email);
-        sessionStorage.setItem("pharmarack_cms_mobile", _response.mobile);
-        sessionStorage.setItem("pharmarack_cms_role_name", _response.roleName);                    
-        sessionStorage.setItem("pharmarack_cms_full_name", _response.fullName);
-        sessionStorage.setItem("pharmarack_cms_access_token", _response.accessToken);
-        sessionStorage.setItem("pharmarack_cms_refresh_token", _response.refreshToken);
-        sessionStorage.setItem("pharmarack_cms_menus", JSON.stringify(_response.modules));
+        localStorage.setItem("pharmarack_cms_email", _response.email);
+        localStorage.setItem("pharmarack_cms_mobile", _response.mobile);
+        localStorage.setItem("pharmarack_cms_role_name", _response.roleName);                    
+        localStorage.setItem("pharmarack_cms_full_name", _response.fullName);
+        localStorage.setItem("pharmarack_cms_access_token", _response.accessToken);
+        localStorage.setItem("pharmarack_cms_refresh_token", _response.refreshToken);
+        localStorage.setItem("pharmarack_cms_menus", JSON.stringify(_response.modules));
 
         document.location.href = "/main";
         

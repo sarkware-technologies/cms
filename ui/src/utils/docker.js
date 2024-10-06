@@ -20,7 +20,7 @@ export default class Docker {
             );  
             
             if (isPrivate) {
-                const token = sessionStorage.getItem("pharmarack_cms_access_token");
+                const token = localStorage.getItem("pharmarack_cms_access_token");
                 if (token) {              
                     header.append("Authorization", `Bearer ${token}`);
                 } else {
@@ -67,8 +67,15 @@ export default class Docker {
             } else {
 
                 if (response.status === 401) {
-                    sessionStorage.removeItem("pharmarack_cms_user");
-                    sessionStorage.removeItem("pharmarack_cms_token");
+                    
+                    localStorage.removeItem("pharmarack_cms_email");
+                    localStorage.removeItem("pharmarack_cms_mobile");
+                    localStorage.removeItem("pharmarack_cms_role_name");                    
+                    localStorage.removeItem("pharmarack_cms_full_name");
+                    localStorage.removeItem("pharmarack_cms_access_token");
+                    localStorage.removeItem("pharmarack_cms_refresh_token");
+                    localStorage.removeItem("pharmarack_cms_menus");
+
                     document.location.href = "";
                     return;
                 }

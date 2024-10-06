@@ -569,7 +569,7 @@ strong {
 }
 
 .pharmarack-cms-sidebar-branding h1 img {
-    width: 55px;
+    width: 50px;
     margin-right: 10px;
 }
 
@@ -1124,7 +1124,7 @@ input.pharmarack-cms-form-field,
 select.pharmarack-cms-form-field, 
 textarea.pharmarack-cms-form-field {
     width: 100%;
-    height: 30px;
+    height: 35px;
     padding: 5px 10px;
     max-width: 100%;
     border: solid 1px #ddd;
