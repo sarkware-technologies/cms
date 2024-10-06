@@ -6,3 +6,8 @@ package-lock.json
 /gateway/.env
 /composer/.env
 /segment/.env
+/system/node_modules
+/segment/node_modules
+/composer/node_modules
+/ui/node_modules
+/gateway/node_modules

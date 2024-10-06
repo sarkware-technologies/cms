@@ -108,7 +108,7 @@ const Login = (props) => {
                     userType: state.userType,
                     password: state.password
                 }
-            });  console.log(response);
+            }, false);
 
             if (response.status) {
                 setState({

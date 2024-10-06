@@ -69,7 +69,7 @@ const Login = (props) => {
 
     const handleSignInBtnClick = async () => {
 
-        try {   console.log(state);
+        try {
 
             if (state.roleSelectorVisible) {
 
@@ -83,12 +83,12 @@ const Login = (props) => {
                             password: state.password,
                             role: state.role
                         }
-                    }); 
+                    }, false); 
 
                     if (response.type == "success") {
                         setupSession(response);
                     } else {
-
+                        setState((prevState) => ({ ...prevState, authError: true, authErrorMsg: "Something went wrong, please try again" }));
                     }
 
                 } else {
@@ -104,7 +104,7 @@ const Login = (props) => {
                         user: state.username,
                         password: state.password
                     }
-                }); 
+                }, false); 
     
                 if (response.type == "role") {
                     setRoles(response.roles);
@@ -123,6 +123,7 @@ const Login = (props) => {
     }
 
     const setupSession = (_response) => {
+
         /* Successfully signed in */
         sessionStorage.setItem("pharmarack_cms_email", _response.email);
         sessionStorage.setItem("pharmarack_cms_mobile", _response.mobile);
@@ -131,6 +132,9 @@ const Login = (props) => {
         sessionStorage.setItem("pharmarack_cms_access_token", _response.accessToken);
         sessionStorage.setItem("pharmarack_cms_refresh_token", _response.refreshToken);
         sessionStorage.setItem("pharmarack_cms_menus", JSON.stringify(_response.modules));
+
+        document.location.href = "/main";
+        
     };
 
     const handleForgotLinkClick = (_e) => {

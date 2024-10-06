@@ -9,7 +9,7 @@ export default class Docker {
         this.indicatorCounter = 0;
     }
 
-    dock = async (_request) => {
+    dock = async (_request, isPrivate = true) => {
 
         try {
 
@@ -17,12 +17,15 @@ export default class Docker {
             header.append(
                 "Content-Type",
                 _request.content_type ? _request.content_type : "application/json"
-            );   
+            );  
             
-            const token = sessionStorage.getItem("pharmarack_cms_token");
-    
-            if (token) {              
-                header.append("Authorization", `Bearer ${token}`);
+            if (isPrivate) {
+                const token = sessionStorage.getItem("pharmarack_cms_access_token");
+                if (token) {              
+                    header.append("Authorization", `Bearer ${token}`);
+                } else {
+                    throw new Error("Access token is not found");
+                }
             }
     
             let config = {

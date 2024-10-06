@@ -33,10 +33,31 @@ export default class Controller extends React.Component {
         
         /**
          * 
+         * 
+         * 
+         */
+        this.instances = {};
+        
+        /**
+         * 
          * Holds the reference to the context bar component
          * 
          */
-        this.ContextBar = createRef();                
+        this.ContextBar = createRef();
+
+        /**
+         * 
+         * 
+         * 
+         */
+        this.notification = createRef();
+
+        /**
+         * 
+         * 
+         * 
+         */
+        this.layout = createRef();
         
         /**
          * 
@@ -59,7 +80,16 @@ export default class Controller extends React.Component {
          * which needs to be fetched only once and used across the application
          * 
          */
-        this.bucket = {};
+        this.bucket = {
+            countryRecords: [],
+            stateRecords: [],
+            regionRecords: [],
+            retailerRecords: [],
+            segmentRecords: [],
+            distributorRecords: [],
+            companyRecords: [],
+            componentTypeList: []
+        };
 
         /**
          * 
@@ -76,6 +106,47 @@ export default class Controller extends React.Component {
         window["_controller"] = this;
 
     };      
+
+    getCurrentTheme = () => {
+        return this.state.theme;
+    };
+
+    getCurrentLocale = () => {
+        return this.state.locale;
+    };
+
+    getCurrentModule = () => {
+        return this.current;
+    };
+
+    getCurrentModuleInstance = () => {
+        if (this.current && this.instances[this.current]) {
+            return this.instances[this.current];
+        }
+        return null;
+    };
+
+    setCurrentModuleInstance = (_module, _instance) => {
+        this.current = _module;
+        this.instances[_module] = _instance;
+        this.instances[_module].init();
+    };
+
+    setCurrentModule = (_module) => {
+        this.current = _module;
+    };
+
+    setModuleState = (_module, _state) => {
+        this.store[_module] = _state;
+    };
+
+    setLayoutInstance = (_instance) => {
+        this.layout = _instance;
+    };
+
+    getModuleState = (_module) => {
+        return this.store[_module] ? this.store[_module] : null;
+    };
 
     render = () => <LayoutLoader />;
 
