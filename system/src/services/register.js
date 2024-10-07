@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import RoleModel from "../models/role.js";
 import RegisterModel from "../models/register.js"
 import UserService from "./user.js";
+import Utils from "../utils/utils.js";
 
 export default class RegisterService {
 
@@ -44,7 +45,7 @@ export default class RegisterService {
             return Utils.response(_count, page, _registers);
 
         } catch (e) {
-            throw _e;
+            throw e;
         }
 
     };

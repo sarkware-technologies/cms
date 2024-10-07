@@ -343,6 +343,10 @@ export default class Controller extends React.Component {
         }
     };
 
+    notify = (_msg, _type) => {
+        this.notification.current.notify(_msg, _type);
+    };
+
     render = () => <LayoutLoader />;
 
 }

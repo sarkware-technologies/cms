@@ -1,4 +1,4 @@
-export default function AuthTypeContext(_component) {
+export default function ServiceContext(_component) {
 
     this.component = _component;
     this.config = this.component.config;
@@ -265,9 +265,9 @@ export default function AuthTypeContext(_component) {
      */
     this.onFieldKeyUp = ( _handle, _value, _e ) => {
         
-        if (_handle === "auth_type_form_title") {
+        if (_handle === "service_form_title") {
             let name = _value.replace(/\s+/g, '_').toLowerCase();
-            this.controller.setInputFieldVal("auth_type_form_handle", name);
+            this.controller.setInputFieldVal("service_form_handle", name);
         }
 
     };
@@ -446,14 +446,14 @@ export default function AuthTypeContext(_component) {
      */
     this.onActionBtnClick = (_action) => {
 
-        if (_action === "NEW_AUTH_TYPE") {
-            this.component.currentRecord["auth_type_grid"] = null;
-            this.controller.switchView("auth_type_form");
-        } else if (_action === "CANCEL_AUTH_TYPE") {     
-            this.component.currentRecord["auth_type_grid"] = null;       
+        if (_action === "NEW_SERVICE") {
+            this.component.currentRecord["service_grid"] = null;
+            this.controller.switchView("service_form");
+        } else if (_action === "CANCEL_SERVICE") {     
+            this.component.currentRecord["service_grid"] = null;       
             this.controller.switchView("main_view");
-        } else if (_action === "SAVE_AUTH_TYPE") {
-            this.saveAuthType();
+        } else if (_action === "SAVE_SERVICE") {
+            this.saveService();
         }
 
     };
@@ -492,32 +492,32 @@ export default function AuthTypeContext(_component) {
 
     };
 
-    this.saveAuthType = () => {
+    this.saveService = () => {
 
         const request = {};    
-        const authType = this.component.currentRecord["auth_type_grid"];
+        const service = this.component.currentRecord["service_grid"];
 
-        if (authType) {
+        if (service) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/auth-type/" + authType._id;
+            request["endpoint"] = "/system/service/" + service._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/auth-type";
+            request["endpoint"] = "/system/service";
         }
 
-        const authTypeForm = this.controller.getField("auth_type_form");
-        if (authTypeForm) {
+        const serviceForm = this.controller.getField("service_form");
+        if (serviceForm) {
 
-            request["payload"] = authTypeForm.getFormFields();   
+            request["payload"] = serviceForm.getFormFields();   
 
             if (request["payload"] && Object.keys(request["payload"]).length > 0) {
 
                 this.controller.docker.dock(request).then((_res) => {
                     this.controller.notify(_res.title + " saved successfully.!");
                         this.controller.switchView("main_view");
-                        this.component.currentRecord["auth_type_grid"] = null;
+                        this.component.currentRecord["service_grid"] = null;
                 })
                 .catch((e) => { console.log(e);
                     this.controller.notify(e.message, "error");

@@ -98,14 +98,16 @@ class Helper {
 				
 							if (inputFields.indexOf(_fields[k].type) !== -1) {
 				
-								value = window._controller.getInputFieldVal(_namespace + _fields[k].handle);				
+								value = window._controller.getInputFieldVal(_namespace + _fields[k].handle);	
+								
+								console.log(_namespace + _fields[k].handle +" = "+ value);
 
 								if (_fields[k].mandatory) {
 									/* Mandatory Block */
 									if (_fields[k].pattern) {                            
 										/* Use regular expression */
 										if (!value.match(_fields[k].pattern)) {
-				
+											fieldRef.setError();
 										}
 									} else {
 										/* No pattern exist, so normal check */

@@ -37,7 +37,7 @@ let auth_type_config = {
                                     is_main_grid: true,
                                     empty_message: "No auth type configured yet.!",
                                     datasource: {endpoint: "/system/auth-types", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "role", target_type: "view", view: "role_form", data: "remote", endpoint: "/system/auth-type/"},
+                                    link: {key: "_id", context: "auth_type", target_type: "view", view: "auth_type_form", data: "remote", endpoint: "/system/auth-type/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -51,7 +51,7 @@ let auth_type_config = {
                                         },
                                         {
                                             show: true, 
-                                            width: "40",
+                                            width: "65",
                                             search: false,
                                             filter: false,
                                             header: {title: "Title", align: "left", filterable: false, searchable: true, sortable: false}, 
@@ -61,17 +61,7 @@ let auth_type_config = {
                                         },
                                         {
                                             show: true, 
-                                            width: "35",
-                                            search: false,
-                                            filter: false,
-                                            header: {title: "Secret Type", align: "left", filterable: false, searchable: true, sortable: false}, 
-                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "secretType", type: "link", align: "left", editable: false},
-                                            prompt: ""
-                                        },
-                                        {
-                                            show: true, 
-                                            width: "10", 
+                                            width: "15", 
                                             search: false,
                                             filter: false,
                                             header: {title: "Is Active", align: "right"}, 
@@ -81,7 +71,7 @@ let auth_type_config = {
                                         } ,
                                         {
                                             show: true, 
-                                            width: "10", 
+                                            width: "15", 
                                             search: false,
                                             filter: false,
                                             header: {title: "Status", align: "right"}, 
@@ -160,14 +150,14 @@ let auth_type_config = {
                                     { type: "text", label: "Title", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "text", label: "Handle", handle: "handle", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "select", label: "Secret Type", handle: "secretType", value : "1", value_key: "value", label_key: "label", options: [{label: "Password", value: "1", selected: true, disabled: false},{label: "Otp", value: "2", selected: false, disabled: false}], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },
-                                    { type: "select", label: "Password Complex", handle: "complex", value : "1", value_key: "value", label_key: "label", options: [{label: "Simple", value: "1", selected: true, disabled: false},{label: "Complex", value: "2", selected: false, disabled: false}], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },
-                                    { type: "number", label: "Minimum Length", handle: "length", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "number", label: "Expired", handle: "expired", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                    { type: "select", label: "Password Complex", handle: "complex", value : "1", value_key: "value", label_key: "label", options: [{label: "Simple", value: "1", selected: true, disabled: false},{label: "Complex", value: "2", selected: false, disabled: false}], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },                            
+                                    { type: "number", label: "Minimum Length", handle: "minLength", value : "8", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                    { type: "number", label: "Maximum Length", handle: "maxLength", value : "16", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                    { type: "number", label: "Expired on Every", handle: "expired", value : "365", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
                                 ]
                             }
                         ]
                     }
-
                 ]
             },
             footer: {

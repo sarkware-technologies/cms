@@ -7,8 +7,8 @@ const Input = (props, ref) => {
     const [state, setState] = useState({
         type: ('type' in props.config) ? props.config.type : "",
         value: ('value' in props.config) ? props.config.value : "",
-        min: ('min' in props.config) ? props.config.min : 0,
-        max: ('max' in props.config) ? props.config.max : 0,
+        min: ('min' in props.config) ? props.config.min : null,
+        max: ('max' in props.config) ? props.config.max : null,
         readonly: ('readonly' in props.config) ? props.config.readonly : false,
         disabled: ('disabled' in props.config) ? props.config.disabled : false,
         maxlength: ('maxlength' in props.config) ? props.config.maxlength : 0,
@@ -24,7 +24,7 @@ const Input = (props, ref) => {
         return {
             getVal: () => {
 
-                if (state.type == "number") {
+                if (state.type == "number") {  console.log("getVal : "+state.value);
                     if (!isNaN(state.value)) {
 
                         if (!isNaN(state.min)) {

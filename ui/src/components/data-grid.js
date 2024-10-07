@@ -532,7 +532,7 @@ const DataGrid = (props, ref) => {
 
                 window._controller.docker.dock(request)
                 .then((_res) => {
-                    contextObj.currentRecord[props.config.handle] = _res;                           
+                    contextObj.currentRecord[props.config.handle] = _res;                        
                     switchView();
                 })
                 .catch((e) => {
@@ -683,7 +683,7 @@ const DataGrid = (props, ref) => {
 
     }
 
-    const RecordButton = (_props) => {
+    const RecordButton = (_props) => {  console.log(_props);
 
         let icon = "";        
         let classes = "pharmarack-cms-btn "+ _props.config.classes +" "+ _props.config.field.theme;
@@ -749,7 +749,7 @@ const DataGrid = (props, ref) => {
 
     }
 
-    const RecordCell = (_props) => {
+    const RecordCell = (_props) => {  console.log(_props);
 
         const cssProperties = {
             textAlign: _props.config.field.align 
@@ -758,7 +758,7 @@ const DataGrid = (props, ref) => {
         if (_props.config.field.type === "link" || _props.config.field.type === "link_search") {
             return <td style={cssProperties}><a href="#1" onClick={e => handleRecordLinkClick(e, props.config.handle, props.config.link.context, _props.record)}>{_props.data}</a></td>;
         } else if (_props.config.field.type === "button") {
-            return <td style={cssProperties}><button className="pharmarack-cms-btn dark" onClick={e => handleRecordBtnClick(e, _props.config.field.action, props.config.handle, _props.record)}><i className={_props.data}></i></button></td>
+            return <td style={cssProperties}><button className={`pharmarack-cms-btn ${_props.config.field.classes}`} onClick={e => handleRecordBtnClick(e, _props.config.field.action, props.config.handle, _props.record)}>{_props.data}</button></td>
         } else if (_props.config.field.type === "collapse") {
             return <td style={cssProperties}><button className="" onClick={e => handleCollapseBtnClick(e, _props.config.field, _props.record)}><i className="fa fa-chevron-down"></i></button></td>;
         }
@@ -822,7 +822,7 @@ const DataGrid = (props, ref) => {
                                 _data = dateObj.toDateString();
                             } 
                         } else if (item.field.type === "button") {
-                            _data = item.field.icon;
+                            _data = item.field.label;
                         } else if (item.field.type === "collapse") {
                             collapseFields = item.field.fields;                            
                             expand = collapseState[_props.record[item.field.key]];

@@ -780,6 +780,17 @@ table.pharmarack-cms-data-table th {
 
 table.pharmarack-cms-data-table td > button {
     display: inline-block;
+    font-weight: normal;
+}
+
+table.pharmarack-cms-data-table td > button.approve-btn {
+    color: #fff;
+    background: #2196F3;
+}
+
+table.pharmarack-cms-data-table td > button.reject-btn {
+    color: #2196F3;
+    border: solid 1px #2196F3;
 }
 
 table.pharmarack-cms-data-table > tbody tr:nth-of-type(even) {
@@ -787,7 +798,7 @@ table.pharmarack-cms-data-table > tbody tr:nth-of-type(even) {
 }
 
 table.pharmarack-cms-data-table > tbody tr:nth-of-type(odd) td {
-    background: #f7f9fc;
+    background: #EEF5FF;
 }
 
 table.pharmarack-cms-data-table > tbody td a {

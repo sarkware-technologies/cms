@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import app_config from '../configs/config';
 import Spinner from '../components/spiner';
+import Notification from '../components/notification';
 
 const LayoutLoader = () => {
 
@@ -42,6 +43,7 @@ const LayoutLoader = () => {
     return (
         <Suspense fallback={<Spinner />}>
             <LayoutComponent />
+            <Notification ref={window._controller.notification} />
         </Suspense>
     );
 

@@ -293,7 +293,7 @@ export default function RoleContext(_component) {
     this.onFieldKeyUp = ( _handle, _value, _e ) => {
         
         if (_handle === "role_form_title") {
-            let name = _value.replace(/\s+/g, '-').toLowerCase();
+            let name = _value.replace(/\s+/g, '_').toLowerCase();
             this.controller.setInputFieldVal("role_form_handle", name);
         }
 
@@ -544,16 +544,16 @@ export default function RoleContext(_component) {
             request["payload"] = roleForm.getFormFields();   
 
             if (request["payload"] && Object.keys(request["payload"]).length > 0) {
-                this.controller.dock(request, 
-                    (_req, _res) => {     
-                        this.controller.notify(_res.title + " saved successfully.!");
-                        this.controller.switchView("main_view");
-                        this.component.currentRecord["role_grid"] = null;
-                    }, 
-                    (_req, _res) => {
-                        this.controller.notify(_res, "error");
-                    }
-                );
+
+                this.controller.docker.dock(request).then((_res) => {
+                    this.controller.notify(_res.title + " saved successfully.!");
+                    this.controller.switchView("main_view");
+                    this.component.currentRecord["role_grid"] = null;
+                })
+                .catch((e) => {
+                    this.controller.notify(e.message, "error");
+                });
+
             }
         }
 

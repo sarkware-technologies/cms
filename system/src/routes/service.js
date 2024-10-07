@@ -7,7 +7,7 @@ export default class ServiceRouter {
     constructor() {
 
         this.router = new Router();
-        this.roleService = new RoleService();
+        this.serviceService = new ServiceService();
 
         this.router.get("/service/:id", this.get);
         this.router.get("/services", this.list);     
@@ -23,7 +23,7 @@ export default class ServiceRouter {
 
     list = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.roleService.listRoles(_req));
+            _res.status(200).json(await this.serviceService.list(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
@@ -31,7 +31,7 @@ export default class ServiceRouter {
 
     get = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.roleService.getRole(_req));
+            _res.status(200).json(await this.serviceService.get(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
@@ -39,7 +39,7 @@ export default class ServiceRouter {
 
     update = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.roleService.updateRole(_req));
+            _res.status(200).json(await this.serviceService.update(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
@@ -47,7 +47,7 @@ export default class ServiceRouter {
 
     delete = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.roleService.deleteRole(_req));
+            _res.status(200).json(await this.serviceService.delete(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
@@ -55,23 +55,7 @@ export default class ServiceRouter {
 
     create = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.roleService.createRole(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
-        }
-    };
-
-    loadCapabilities = async (_req, _res) => {
-        try {
-            _res.status(200).json(await this.roleService.loadCapabilities(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
-        }
-    };
-
-    updateCapabilities = async (_req, _res) => {
-        try {
-            _res.status(200).json(await this.roleService.updateCapabilities(_req));
+            _res.status(200).json(await this.serviceService.create(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
