@@ -190,7 +190,7 @@ export default class AuthService {
             if (_req.user && _req.user._id) {
 
                 await UserLoginDetailsModel.updateOne(
-                    { userId: _user._id },
+                    { userId: _req.user._id },
                     { $set: { 
                         accessToken: null,
                         refreshToken: null,
@@ -206,7 +206,6 @@ export default class AuthService {
             }
 
         } catch (e) {
-            console.log(e);
             return {status: false, message: "Logged out Failed"};
         }
 

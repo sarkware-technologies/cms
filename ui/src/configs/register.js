@@ -6,7 +6,7 @@ let register_config = {
                 show: true,
                 title: "Registers",
                 breadcrumb: "",
-                actions: [{ label: "New Register", theme: "primary", action: "NEW_SERVICE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ label: "New Register", theme: "primary", method: "post", action: "NEW_SERVICE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -128,8 +128,8 @@ let register_config = {
                 title: "Register",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", action: "CANCEL_REGISTER", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Save", theme: "primary", action: "SAVE_REGISTER", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_REGISTER", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Save", theme: "primary", method: "post", action: "SAVE_REGISTER", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {
@@ -169,7 +169,8 @@ let register_config = {
             manage: true 
         }
         
-    }
+    },
+    enums: {}
 
 };
 

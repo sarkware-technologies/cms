@@ -327,7 +327,7 @@ export default class Controller extends React.Component {
      */
     handleMediaChange = (_target, _handle) => {
         let contextObj = this.getCurrentModuleInstance();
-        if (contextObj) {
+        if (contextObj && contextObj.handleMediaChange) {
             contextObj.handleMediaChange(_target, _handle);
         }
     };
@@ -338,7 +338,7 @@ export default class Controller extends React.Component {
      */
     handleMediaDelete = (_handle) => {
         let contextObj = this.getCurrentModuleInstance();
-        if (contextObj) {
+        if (contextObj && contextObj.handleMediaDelete) {
             contextObj.handleMediaDelete(_handle);
         }
     };

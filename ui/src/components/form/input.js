@@ -3,6 +3,7 @@ import React, { forwardRef, useImperativeHandle, useState, useRef, useEffect } f
 const Input = (props, ref) => {
 
     const dom = useRef(null);
+    const contextObj = window._controller.getCurrentModuleInstance(); 
 
     const [state, setState] = useState({
         type: ('type' in props.config) ? props.config.type : "",
@@ -63,15 +64,46 @@ const Input = (props, ref) => {
 
     const handleChange = (_e) => {
         setState({ ...state, value: _e.target.value });
-        window._controller.getCurrentModuleInstance().onFieldChange((props.namespace + props.config.handle), _e.target.value, _e);
-    }
+        if (contextObj && contextObj.onFieldChange) {
+            contextObj.onFieldChange((props.namespace + props.config.handle), _e.target.value, _e);
+        }
+    };
 
-    const handleClick = (_e) => window._controller.getCurrentModuleInstance().onFieldClick((props.namespace + props.config.handle), _e.target, _e);
-    const handleDblClick = (_e) => window._controller.getCurrentModuleInstance().onFieldDblClick((props.namespace + props.config.handle), _e.target, _e);
-    const handleKeyDown = (_e) => window._controller.getCurrentModuleInstance().onFieldKeyDown((props.namespace + props.config.handle), _e.target.value, _e);
-    const handleKeyUp = (_e) => window._controller.getCurrentModuleInstance().onFieldKeyUp((props.namespace + props.config.handle), _e.target.value, _e);
-    const handleFocus = (_e) => window._controller.getCurrentModuleInstance().onFieldInFocus((props.namespace + props.config.handle), _e.target);
-    const handleBlur = (_e) => window._controller.getCurrentModuleInstance().onFieldOutFocus((props.namespace + props.config.handle), _e.target);
+    const handleClick = (_e) => {
+        if (contextObj && contextObj.onFieldClick) {
+            contextObj.onFieldClick((props.namespace + props.config.handle), _e.target, _e);
+        }
+    };
+
+    const handleDblClick = (_e) => {
+        if (contextObj && contextObj.onFieldDblClick) {
+            contextObj.onFieldDblClick((props.namespace + props.config.handle), _e.target, _e);
+        }
+    };
+
+    const handleKeyDown = (_e) => {
+        if (contextObj && contextObj.onFieldKeyDown) {
+            contextObj.onFieldKeyDown((props.namespace + props.config.handle), _e.target.value, _e);
+        }
+    };
+
+    const handleKeyUp = (_e) => {
+        if (contextObj && contextObj.onFieldKeyUp) {
+            contextObj.onFieldKeyUp((props.namespace + props.config.handle), _e.target.value, _e);
+        }
+    };
+
+    const handleFocus = (_e) => {
+        if (contextObj && contextObj.onFieldInFocus) {
+            contextObj.onFieldInFocus((props.namespace + props.config.handle), _e.target);
+        }
+    };
+
+    const handleBlur = (_e) => {
+        if (contextObj && contextObj.onFieldOutFocus) {
+            contextObj.onFieldOutFocus((props.namespace + props.config.handle), _e.target);
+        }
+    };
 
     const determinDate = (_value) => {
 

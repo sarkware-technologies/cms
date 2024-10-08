@@ -59,10 +59,10 @@ export default class RequestInterceptor {
 
             switch (_req.path) {
                 case "/system/auth/submit-forgot-password":
-                    tokenValidationResult = this.verifyAndSetUser(token, "forgot", _req);
+                    tokenValidationResult = await this.verifyAndSetUser(token, "forgot", _req);
                     break;
                 default:
-                    tokenValidationResult = this.verifyAndSetUser(token, "system", _req);
+                    tokenValidationResult = await this.verifyAndSetUser(token, "system", _req);
             }
 
             if (tokenValidationResult.status) {
@@ -83,7 +83,7 @@ export default class RequestInterceptor {
      * @param {object} req - Request object to attach user info.
      * @returns {object} - Status and message of the token validation.
      */
-    verifyAndSetUser = (token, tokenType, req) => {
+    verifyAndSetUser = async (token, tokenType, req) => {
 
         let tokenVerificationResult;
 
@@ -101,7 +101,7 @@ export default class RequestInterceptor {
         }
 
         if (tokenVerificationResult.status) {
-            const user = Utils.extractUserFromToken(tokenVerificationResult.payload);
+            const user = await Utils.extractUserFromToken(tokenVerificationResult.payload);  console.log(user);
             if (user) {
                 req["user"] = user;
                 return { status: true, message: "Token validated successfully" };

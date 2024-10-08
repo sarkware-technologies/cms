@@ -8,7 +8,8 @@ const LayoutLoader = () => {
     let layout = null;
     let layoutConfig = null;
     const controller = window["_controller"];
-    const _pathName =  location.pathname.replace(/^\//, '');
+    //const _pathName =  location.pathname.replace(/^\//, '');
+    const _pathName =  location.pathname;
 
     if (controller.utils.isAuthenticated()) { console.log("It is authenticated");
         if (_pathName === "" || _pathName === "/") {
@@ -19,9 +20,9 @@ const LayoutLoader = () => {
     } else {
 
         if (location.pathname === "" || location.pathname === "/") {
-            layoutConfig = app_config.routes.unauthorized.find(item => item.layout === "login");
+            layoutConfig = app_config.routes.unauthorized.find(item => item.path === "login");
         } else {
-            layoutConfig = app_config.routes.unauthorized.find(item => item.layout === _pathName);
+            layoutConfig = app_config.routes.unauthorized.find(item => item.path === _pathName);
         } 
 
     }

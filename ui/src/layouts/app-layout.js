@@ -95,23 +95,20 @@ const AppLayout = (props, ref) => {
         
     }
 
-    const handleLogoutClick = async() => {
+    const handleLogoutClick = async() => { console.log("handleLogoutClick is called");
 
         try {
 
             const response = await window._controller.docker.dock({
                 method: "POST",
                 endpoint: "/system/auth/sign-out",
-                payload: { 
-                    user: state.username,
-                    password: state.password
-                }
+                payload: {}
             }); 
 
             clearSession();
 
         } catch (e) {
-
+            console.log(e);
         }
 
     };
@@ -133,17 +130,16 @@ const AppLayout = (props, ref) => {
 
     // Example of setting modules from response
     useEffect(() => {
+
         let _modules = [];
         try {
             _modules = JSON.parse(localStorage.getItem("pharmarack_cms_menus"));
         } catch (e) {
             console.log(e);
         }   
-        
-        const signInResponse = {
-            modules: _modules
-        };
-        setModules(signInResponse.modules); // Set the modules into state
+    
+        _modules.sort((a, b) => a.order - b.order);
+        setModules(_modules);
         
     }, []);
 

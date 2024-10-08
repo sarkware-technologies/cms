@@ -8,6 +8,7 @@
  * 
  */
 
+import { v4 as uuidv4 } from 'uuid';
 import React, {useState, useEffect, forwardRef, useRef, memo, useImperativeHandle} from "react";
 
 /**
@@ -399,6 +400,8 @@ const DataGrid = (props, ref) => {
 
     const headerInstances = {};
     const [collapseState, setCollapseState] = useState({});
+
+    const contextObj = window._controller.getCurrentModuleInstance();
     
     /* State used by Paginator component */
     const [state, setState] = useState({
@@ -415,11 +418,8 @@ const DataGrid = (props, ref) => {
     const [bodyHeight, setBodyHeight] = useState(200);
 
     const getDataSource = () => {
-        if (!datasource) {
-            const contextObj = window._controller.getCurrentModuleInstance();
-            if (contextObj) {
-                datasource = contextObj.onDatagridRequest(props.config.handle, props.config.datasource);                
-            }
+        if (!datasource && contextObj && contextObj.onDatagridRequest) {
+            datasource = contextObj.onDatagridRequest(props.config.handle, props.config.datasource);                
         }
         return datasource;
     };
@@ -505,9 +505,7 @@ const DataGrid = (props, ref) => {
     const handleRecordLinkClick = (_e, _gridName, _targetContext, _value) => {
 
         _e.preventDefault();
-        state.currentRecord = _value; 
-
-        const contextObj = window._controller.getCurrentModuleInstance();                
+        state.currentRecord = _value;            
 
         if (contextObj) {
 
@@ -521,8 +519,10 @@ const DataGrid = (props, ref) => {
 
             if (props.config.link.data === "remote") {
 
-                let _endPoint = props.config.link.endpoint + state.currentRecord[props.config.link.key];             
-                _endPoint = contextObj.onCurrentRecordRequest(props.config.handle, _endPoint);                
+                let _endPoint = props.config.link.endpoint + state.currentRecord[props.config.link.key];  
+                if (contextObj.onCurrentRecordRequest) {
+                    _endPoint = contextObj.onCurrentRecordRequest(props.config.handle, _endPoint);   
+                }                             
             
                 const request = {};
                 request["method"] = "GET";
@@ -550,7 +550,9 @@ const DataGrid = (props, ref) => {
                 
             }   
             
-            contextObj.onRecordLinkClick(_e, _gridName, _targetContext, state.currentRecord);
+            if (contextObj && contextObj.onRecordLinkClick) {
+                contextObj.onRecordLinkClick(_e, _gridName, _targetContext, state.currentRecord);
+            }
 
         } else {
             console.error("Unexpected Error, current module is missing.!");
@@ -558,13 +560,10 @@ const DataGrid = (props, ref) => {
 
     };
     
-    const handleRecordBtnClick = (_e, _field, _gridName, _record) => {
-
-        const contextObj = window._controller.getCurrentModuleInstance();                
-        if (contextObj) {
+    const handleRecordBtnClick = (_e, _field, _gridName, _record) => {              
+        if (contextObj && contextObj.onRecordButtonClick) {
             contextObj.onRecordButtonClick(_e, _field, _gridName, _record);
         }
-
     };
 
     const handleCollapseBtnClick = (_e, _config, _record) => {
@@ -583,9 +582,7 @@ const DataGrid = (props, ref) => {
 
     };
 
-    const switchView = () => {
-
-        const contextObj = window._controller.getCurrentModuleInstance();                        
+    const switchView = () => {                   
 
         if (contextObj && props.config.link && props.config.link.target_type && contextObj.currentRecord[props.config.handle]) {
         
@@ -637,11 +634,14 @@ const DataGrid = (props, ref) => {
                     break;
                 }
             }
-
-            const contextObj = window._controller.getCurrentModuleInstance();        
+    
             if (contextObj) {                
 
-                const proceed = contextObj.onRecordToggleStatus(props.config.handle, _props.config.handle,  _record, _e.target.checked);
+                let proceed = true;
+                if (contextObj.onRecordToggleStatus) {
+                    proceed = contextObj.onRecordToggleStatus(props.config.handle, _props.config.handle,  _record, _e.target.checked);
+                }
+                
                 if (proceed) {
 
                     if (_record[_props.config.key_field]) {
@@ -709,32 +709,32 @@ const DataGrid = (props, ref) => {
                             }                            
                             
                             if (item.field.type === "alphanumeric") {                                                                
-                                return <td style={cssProperties} className={`${item.classes}`}>
+                                return <td key={uuidv4()} style={cssProperties} className={`${item.classes}`}>
                                         <label>{item.header.title}</label>
                                         {_props.record[item.field.handle]}
                                     </td>;
                             } else if (item.field.type === "serial") {
-                                return <td style={cssProperties} className={`${item.classes}`}>
+                                return <td key={uuidv4()} style={cssProperties} className={`${item.classes}`}>
                                         <label>{item.header.title}</label>
                                         {_props.serial}
                                     </td>;
                             } else if (item.field.type === "link") {                                
-                                return <td style={cssProperties} className={`${item.classes}`}>
+                                return <td key={uuidv4()} style={cssProperties} className={`${item.classes}`}>
                                         <label>{item.header.title}</label>
                                         <a href="#1" onClick={e => handleRecordLinkClick(e, item.field.handle, item.field.link.context, _props.record)}>{_props.record[item.field.handle]}</a>
                                     </td>;
                             } else if (item.field.type === "toggle") {
-                                return <td style={cssProperties} className={`${item.classes}`}>
+                                return <td key={uuidv4()} style={cssProperties} className={`${item.classes}`}>
                                         <label>{item.header.title}</label>
                                         <Toggle status={_props.record[item.field.handle]} config={item.field} record={_props.record} />
                                     </td>;                            
                             } else if (item.field.type === "button") {                                
-                                return <td style={cssProperties} className={`${item.classes}`}>
+                                return <td key={uuidv4()} style={cssProperties} className={`${item.classes}`}>
                                         <label>{item.header.title}</label>
                                         <RecordButton config={item} record={_props.record} />
                                     </td>
                             } else if (item.field.type === "static") {                                
-                                return <td style={cssProperties} className={`${item.classes}`}>
+                                return <td key={uuidv4()} style={cssProperties} className={`${item.classes}`}>
                                         <label>{item.header.title}</label>
                                         {item.field.value}
                                     </td>;
@@ -749,14 +749,14 @@ const DataGrid = (props, ref) => {
 
     }
 
-    const RecordCell = (_props) => {  console.log(_props);
+    const RecordCell = (_props) => {
 
         const cssProperties = {
             textAlign: _props.config.field.align 
         }        
 
         if (_props.config.field.type === "link" || _props.config.field.type === "link_search") {
-            return <td style={cssProperties}><a href="#1" onClick={e => handleRecordLinkClick(e, props.config.handle, props.config.link.context, _props.record)}>{_props.data}</a></td>;
+            return <td style={cssProperties}><a href="#" onClick={e => handleRecordLinkClick(e, props.config.handle, props.config.link.context, _props.record)}>{_props.data}</a></td>;
         } else if (_props.config.field.type === "button") {
             return <td style={cssProperties}><button className={`pharmarack-cms-btn ${_props.config.field.classes}`} onClick={e => handleRecordBtnClick(e, _props.config.field.action, props.config.handle, _props.record)}>{_props.data}</button></td>
         } else if (_props.config.field.type === "collapse") {
@@ -786,7 +786,7 @@ const DataGrid = (props, ref) => {
                         } else if (item.type === "link") {
                             _data = _props.record[item.field.handle];
                         } else if (item.field.type === "toggle") {
-                            _data = <Toggle status={_props.record[item.field.handle]} config={item.field} record={_props.record} />;
+                            _data = <Toggle key={uuidv4()} status={_props.record[item.field.handle]} config={item.field} record={_props.record} />;
                         } else if (item.field.type === "search") {
                             _data = _props.record[item.field.handle][item.field.label_key];
                         } else if (item.field.type === "collapse") {
@@ -810,7 +810,7 @@ const DataGrid = (props, ref) => {
                         } else if (item.field.type === "link") {
                             _data = _props.record[item.field.handle];
                         } else if (item.field.type === "toggle") {
-                            _data = <Toggle status={_props.record[item.field.handle]} config={item.field} record={_props.record} />;
+                            _data = <Toggle key={uuidv4()} status={_props.record[item.field.handle]} config={item.field} record={_props.record} />;
                         } else if (item.field.type === "search" || item.field.type === "link_search") {
                             if (_props.record[item.field.handle] && _props.record[item.field.handle][item.field.label_key]) {
                                 _data = _props.record[item.field.handle][item.field.label_key]; 
@@ -831,6 +831,10 @@ const DataGrid = (props, ref) => {
                                 textAlign: item.field.align 
                             } 
                             return <td style={cssProperties}><button className="" onClick={e => handleCollapseBtnClick(e, item.field, _props.record)}><i className={arrowClass}></i></button></td>;
+                        } else if (item.field.type === "enum") {
+                            if (contextObj && contextObj.config && contextObj.config.enums[item.field.enum]) {
+                                _data = contextObj.config.enum[item.field.enum][_props.record[item.field.handle]];
+                            }
                         }
                         return <RecordCell key={_props.serial +"-"+index} config={item}  record={_props.record} data={_data} />;
                     })
@@ -862,23 +866,28 @@ const DataGrid = (props, ref) => {
         if (!state.progress) {
 
             if (records && records.length > 0) {
-                widget = <tbody id="pharmarack-cms-data-grid-record-body">{records.map((item, index) => <TableRecord key={index} serial={((index + 1) + ((state.currentPage - 1) * state.recordsPerPage))} record={item} />)}</tbody>;                
+                widget = <tbody key={uuidv4()} id="pharmarack-cms-data-grid-record-body">{records.map((item, index) => <TableRecord key={index} serial={((index + 1) + ((state.currentPage - 1) * state.recordsPerPage))} record={item} />)}</tbody>;                
             } else {
                 let msg = "No record found.!";
                 if (props.config.empty_message) {
                     msg = props.config.empty_message;
                 }        
-                widget = <tbody id="pharmarack-cms-data-grid-record-body"><tr><td colSpan={state.headers.length}><h2 className="pharmarack-cms-data-grid-no-record">{msg}</h2></td></tr></tbody>;
+                widget = <tbody key={uuidv4()} id="pharmarack-cms-data-grid-record-body"><tr><td colSpan={state.headers.length}><h2 className="pharmarack-cms-data-grid-no-record">{msg}</h2></td></tr></tbody>;
             }        
 
         } else {
-            widget = <tbody id="pharmarack-cms-data-grid-record-body" style={{height: bodyHeight+"px"}}><tr><td colSpan={state.headers.length}><h2 className="pharmarack-cms-data-grid-no-record"><i class="fa fa-cog fa-spin"></i></h2></td></tr></tbody>;
+            widget = <tbody key={uuidv4()} id="pharmarack-cms-data-grid-record-body" style={{height: bodyHeight+"px"}}><tr><td colSpan={state.headers.length}><h2 className="pharmarack-cms-data-grid-no-record"><i class="fa fa-cog fa-spin"></i></h2></td></tr></tbody>;
         }
 
         useEffect(() => {            
             const tbodyElement = document.getElementById("pharmarack-cms-data-grid-record-body");
             if (tbodyElement) {
                 setBodyHeight(tbodyElement.clientHeight);
+                setTimeout(() => {
+                    if (contextObj && contextObj.afterDataGridRecordLoaded) {
+                        contextObj.afterDataGridRecordLoaded(props.config.handle);
+                    }
+                }, 500);
             }
         }, [records]);
 
@@ -942,11 +951,12 @@ const DataGrid = (props, ref) => {
 
     const fetchRecords = async() => { 
 
-        if (!datasource) {
-            const contextObj = window._controller.getCurrentModuleInstance();
-            if (contextObj) {
-                datasource = contextObj.onDatagridRequest(props.config.handle, props.config.datasource);                
+        if (contextObj && contextObj.onDatagridRequest) {
+            if ((!datasource)) {
+                datasource = contextObj.onDatagridRequest(props.config.handle, props.config.datasource); 
             }
+        } else if (!datasource) {
+            datasource = props.config.datasource;
         }
 
         let endPoint = "";
@@ -999,8 +1009,7 @@ const DataGrid = (props, ref) => {
 
                     const _res = await window._controller.docker.dock(request);
                     let _records = _res.payload;
-                    const contextObj = window._controller.getCurrentModuleInstance();
-                    if (contextObj) {
+                    if (contextObj && contextObj.beforeLoadingDatagrid) {
                         _records = contextObj.beforeLoadingDatagrid(props.config.handle, _res.payload);
                     } 
     
@@ -1056,8 +1065,7 @@ const DataGrid = (props, ref) => {
 
                 const _res = await window._controller.docker.dock(request);
                 let _records = _res.payload;
-                const contextObj = window._controller.getCurrentModuleInstance();
-                if (contextObj) {
+                if (contextObj && contextObj.beforeLoadingDatagrid) {
                     _records = contextObj.beforeLoadingDatagrid(props.config.handle, _res.payload);
                 } 
 

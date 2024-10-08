@@ -39,7 +39,7 @@ const View = (props, ref) => {
                 for (let i = 0; i < config.header.rows.length; i++) {
                     rows.push(renderRow("header", i, config.header.rows[i]));
                 }
-                if (contextObj) {
+                if (contextObj && contextObj.onViewSectionRendering) {
                     custom = contextObj.onViewSectionRendering(handle, config.header, "header");
                 }
                 if (custom && custom.component) {
@@ -67,7 +67,7 @@ const View = (props, ref) => {
             for (let i = 0; i < config.content.rows.length; i++) {
                 rows.push(renderRow("content", i, config.content.rows[i]));
             }
-            if (contextObj) {
+            if (contextObj && contextObj.onViewSectionRendering) {
                 custom = contextObj.onViewSectionRendering(handle, config.content, "content");
             }
             if (custom && custom.component) {
@@ -93,7 +93,7 @@ const View = (props, ref) => {
                 for (let i = 0; i < config.footer.rows.length; i++) {
                     rows.push(renderRow("footer", i, config.footer.rows[i]));
                 }
-                if (contextObj) {
+                if (contextObj && contextObj.onViewSectionRendering) {
                     custom = contextObj.onViewSectionRendering(handle, config.footer, "footer");
                 }
                 if (custom && custom.component) {
@@ -211,7 +211,7 @@ const View = (props, ref) => {
             heading.push(<div key={uuidv4()} className="pharmarack-cms-view-column-title">{titles}</div>);
         }        
 
-        if (contextObj) {
+        if (contextObj && contextObj.onColumnSectionRendering) {
             custom = contextObj.onColumnSectionRendering(handle, _config, _section, _row, _column);
         }
 
@@ -366,8 +366,12 @@ const View = (props, ref) => {
         },
         resetFormFields: () => {
 
-            const contextObj = window._controller.getCurrentModuleInstance();                                
-            const res = contextObj.onResetView(handle);
+            let res = true;
+            const contextObj = window._controller.getCurrentModuleInstance();  
+            
+            if (contextObj.onResetView) {
+                res = contextObj.onResetView(handle);
+            }
 
             if (!res) {
                 return;
@@ -405,7 +409,10 @@ const View = (props, ref) => {
                     }
                 }
             }
-            contextObj.onViewMounted(handle);
+
+            if (contextObj.onViewMounted) {
+                contextObj.onViewMounted(handle);
+            }            
         }
 
         if (config.context_header.show) {

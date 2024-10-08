@@ -6,7 +6,7 @@ let service_config = {
                 show: true,
                 title: "Services",
                 breadcrumb: "",
-                actions: [{ label: "New Service", theme: "primary", action: "NEW_SERVICE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ label: "New Service", theme: "primary", method: "post", action: "NEW_SERVICE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -78,8 +78,8 @@ let service_config = {
                 title: "Service",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", action: "CANCEL_SERVICE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Save", theme: "primary", action: "SAVE_SERVICE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_SERVICE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Save", theme: "primary", method: "post", action: "SAVE_SERVICE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {
@@ -119,7 +119,8 @@ let service_config = {
             manage: true 
         }
         
-    }
+    },
+    enums: {}
 
 };
 

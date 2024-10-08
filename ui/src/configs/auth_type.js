@@ -6,7 +6,7 @@ let auth_type_config = {
                 show: true,
                 title: "Auth Types",
                 breadcrumb: "",
-                actions: [{ label: "New Auth Type", theme: "primary", action: "NEW_AUTH_TYPE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ label: "New Auth Type", theme: "primary", method: "post", action: "NEW_AUTH_TYPE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -98,8 +98,8 @@ let auth_type_config = {
                 title: "Auth Type",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", action: "CANCEL_AUTH_TYPE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Save", theme: "primary", action: "SAVE_AUTH_TYPE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_AUTH_TYPE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Save", theme: "primary", method: "post", action: "SAVE_AUTH_TYPE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {
@@ -168,7 +168,8 @@ let auth_type_config = {
             manage: true 
         }
         
-    }
+    },
+    enums: {}
 
 };
 

@@ -20,7 +20,7 @@ const TopBar = (props, ref) => {
 
     const dispatchClickEvent = (_e, _action) => {
         let contextObj = window._controller.getCurrentModuleInstance();        
-        if (contextObj) {
+        if (contextObj && contextObj.onActionBtnClick) {
             contextObj.onActionBtnClick(_action);
         }
     };    

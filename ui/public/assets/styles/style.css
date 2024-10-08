@@ -535,6 +535,18 @@ strong {
     font-family: 'ProximaNovaSemiBold';
 }
 
+.pharmarack-cms-login-link-p {
+    margin-top: 60px;
+    margin-bottom: 90px;
+}
+
+.pharmarack-cms-forgot-password-form-desc {
+    margin-bottom: 50px;
+    color: #9193A1 !important;
+    font-family: 'ProximaNova' !important;
+    font-size: 14px !important;
+}
+
 /* Main view styles */
 
 .pharmarack-cms-master-container {
@@ -736,7 +748,7 @@ ul.pharmarack-cms-sidebar-main-nav-ul a i,
 }
 
 table.pharmarack-cms-data-table {
-    font-size: 14px;
+    font-size: 16px;
 }
 
 table.pharmarack-cms-data-table thead {
@@ -751,7 +763,7 @@ table.pharmarack-cms-data-table tbody {
 
 table.pharmarack-cms-data-table th,
 table.pharmarack-cms-data-table td {
-    padding: 8px 15px;
+    padding: 12px 15px;
     border: none;
     vertical-align: middle;
     border-right: solid 1px #f5f6fa;

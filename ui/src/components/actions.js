@@ -6,7 +6,7 @@ const Actions = (props, ref) => {
 
     const handleActionButtonClick = (_e, _action) => {
         const contextObj = window._controller.getCurrentModuleInstance();        
-        if (contextObj) {
+        if (contextObj && contextObj.onActionBtnClick) {
             contextObj.onActionBtnClick(_action);
         } else {
             console.error("Unexpected Error, current module is missing.!");

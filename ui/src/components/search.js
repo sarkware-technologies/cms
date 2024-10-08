@@ -8,6 +8,8 @@ const Search = (props, ref) => {
     const resultInputRef = useRef(null);
     const searchInputRef = useRef(null);
 
+    const contextObj = window._controller.getCurrentModuleInstance();
+
     const [state, setState] = useState({
         classes: "",
         active: false,        
@@ -38,28 +40,30 @@ const Search = (props, ref) => {
             endPoint = endPoint + "?field="+ props.config.label_key +"&search="+ state.searchText +"&page=1";
         }
 
-        window._controller.dock(
-            {
-                method: "GET",
-                endpoint: endPoint
-            }, 
-            (_req, _res) => { console.log("response arrived");
-                
-                state.records = _res.payload;
-                state.totalPages = _res.totalPages;
-                state.recordsPerPage = _res.recordPerPage;
-                state.currentPage = 1;
+        if (contextObj && contextObj.onSearchBoxRequest) {
+            endPoint = contextObj.onSearchBoxRequest(props.config.handle, endPoint);
+        }
 
-                setState({
-                    ...state,                              
-                    isSearching: false                    
-                });              
+        window._controller.docker.dock({
+            method: "GET",
+            endpoint: endPoint
+        })
+        .then((_res) => {
+            
+            state.records = _res.payload;
+            state.totalPages = _res.totalPages;
+            state.recordsPerPage = _res.recordPerPage;
+            state.currentPage = 1;
 
-            }, 
-            (_req, _res) => {
-                console.log(_res);
-            }
-        ); 
+            setState({
+                ...state,                              
+                isSearching: false                    
+            });  
+
+        })
+        .catch((e) => {
+            console.log(e);
+        }); 
 
     };
 
@@ -93,10 +97,15 @@ const Search = (props, ref) => {
     };
 
     const handleRecordClick = (_e, _record) => {
+
         _e.preventDefault();
         setState({...state, currentRecord: _record, active: false});
         currentRecordLink = _e.target;
-        window._controller.getCurrentModuleInstance().onSearchRecordSelected(props.config.handle, _record);
+
+        if (contextObj && contextObj.onSearchRecordSelected) {
+            contextObj.onSearchRecordSelected(props.config.handle, _record);
+        }
+
     };
 
     const handlePrevPageBtnClick = (_e) => {
@@ -235,12 +244,17 @@ const Search = (props, ref) => {
             return record;
         },   
         setCurrentRecord: (_record) => {
+
             if (!_record) _record = {};
             setState({
                 ...state, 
                 currentRecord: _record                    
-            });            
-            window._controller.getCurrentModuleInstance().onSearchRecordSelected(props.config.handle, _record);
+            });
+            
+            if (contextObj && contextObj.onSearchRecordSelected) {
+                contextObj.onSearchRecordSelected(props.config.handle, _record);
+            }
+            
         },   
         loadRecords: (_records, _totalRecords, _recordsPerPage) => {
             setState({
@@ -303,7 +317,9 @@ const Search = (props, ref) => {
 
     useEffect(() => { 
         if (state.currentRecord && Object.keys(state.currentRecord).length > 0) {
-            window._controller.getCurrentModuleInstance().onSearchRecordSelected(props.config.handle, state.currentRecord);
+            if (contextObj && contextObj.onSearchRecordSelected) {
+                contextObj.onSearchRecordSelected(props.config.handle, state.currentRecord);
+            }
         }        
     }, []);
 

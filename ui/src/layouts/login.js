@@ -138,7 +138,7 @@ const Login = (props) => {
     };
 
     const handleForgotLinkClick = (_e) => {
-        document.location.href = "?view=forgot-password";
+        document.location.href = "/forgot-password";
     }
 
     const handleRegisterLinkClick = (_e) => {
@@ -183,7 +183,7 @@ const Login = (props) => {
 
                 <div className="pharmarack-cms-form-action">
                     <button className={`pharmarack-cms-btn primary block ${!btnEnable ? "disabled" : ""}`} disabled={!btnEnable} onClick={handleSignInBtnClick}>{renderBtnLabel()}</button>
-                    <a href="#" className='pharmarack-cms-forgot-link' onClick={handleForgotLinkClick}>Forgot Password?</a>
+                    <a href="/forgot-password" className='pharmarack-cms-forgot-link' onClick={handleForgotLinkClick}>Forgot Password?</a>
                     <div className="pharmarack-cms-login-form-seperator"></div>
                     <p className="pharmarack-cms-register-link-p">New User? <a href="/registration" className='pharmarack-cms-register-link' onClick={handleRegisterLinkClick}>Register Now</a></p>
                 </div>

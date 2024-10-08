@@ -19,9 +19,15 @@ const Toggle = (props, ref) => {
     });
 
     const handleChange = (_e) => {
+
         const checked = _e.target.checked;
         setState({...state, status: checked});
-        window._controller.getCurrentModuleInstance().onToggleStatus((props.namespace + props.config.handle), checked);        
+
+        const contextObj = window._controller.getCurrentModuleInstance();
+        if (contextObj && contextObj.onToggleStatus) {
+            contextObj.onToggleStatus((props.namespace + props.config.handle), checked);
+        }
+ 
     };
 
     return (

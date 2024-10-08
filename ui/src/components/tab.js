@@ -15,6 +15,7 @@ import Helper from "../utils/helper";
 const Tab = (props, ref) => {
  
     const _namespace = props.config.handle +"_";
+    const contextObj = window._controller.getCurrentModuleInstance(); 
 
     const [state, setState] = useState({
         config: {...props.config},  
@@ -23,10 +24,13 @@ const Tab = (props, ref) => {
     });
     
     const handleTabItemClick = (_currentView) => { 
-        const contextObj = window._controller.getCurrentModuleInstance(); 
-        if (contextObj && contextObj.beforeTabViewSwitch(state.config.handle, state.config.currentView, _currentView)) {
-            setState({...state, currentView: _currentView});     
-        }        
+        if (contextObj && contextObj.beforeTabViewSwitch) {
+            if (contextObj.beforeTabViewSwitch(state.config.handle, state.config.currentView, _currentView)) {
+                setState({...state, currentView: _currentView}); 
+            }                
+        } else {
+            setState({...state, currentView: _currentView}); 
+        }         
     };       
 
     const renderTabBody = () => { 
@@ -237,10 +241,13 @@ const Tab = (props, ref) => {
     const self =  { 
 
         init: () => {
-            const contextObj = window._controller.getCurrentModuleInstance();  
-            if (contextObj && contextObj.beforeTabViewSwitch(state.config.handle, null, state.config.default_tab)) {
+            if (contextObj && contextObj.beforeTabViewSwitch) {
+                if (contextObj.beforeTabViewSwitch(state.config.handle, null, state.config.default_tab)) {
+                    setState({...state, currentView: state.config.default_tab});
+                }                
+            } else {
                 setState({...state, currentView: state.config.default_tab});
-            }            
+            }           
         },
         switchTab: (_view) => {   
             if (state.config.items[_view]) {
@@ -289,9 +296,12 @@ const Tab = (props, ref) => {
         },
         resetFormFields: () => {
 
-            const _namespace = state.config.handle + "_";
-            const contextObj = window._controller.getCurrentModuleInstance();                                
-            const res = contextObj.onResetTabView(state.config.handle, state.currentView);
+            const res = true;
+            const _namespace = state.config.handle + "_";                          
+            
+            if (contextObj.onResetTabView) {
+                res = contextObj.onResetTabView(state.config.handle, state.currentView);
+            }
 
             if (!res) {
                 return;
@@ -315,13 +325,10 @@ const Tab = (props, ref) => {
     /* Expose the component to the consumer */
     useImperativeHandle(ref, () => self);
 
-    useEffect(() => {
-
-        let contextObj = window._controller.getCurrentModuleInstance();        
-        if (contextObj && state && state.currentView) {                        
+    useEffect(() => {       
+        if (contextObj && contextObj.onTabViewMounted && state && state.currentView) {                        
             contextObj.onTabViewMounted(state.config.handle, state.currentView);
         }
-
     }, [state]);
     
     useEffect(() => {

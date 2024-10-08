@@ -35,6 +35,10 @@ const app_config = {
                 layout: "forgot_password"
             },
             {
+                path: "/reset-password",
+                layout: "reset_password"
+            },
+            {
                 path: "/main",
                 layout: "main"
             },

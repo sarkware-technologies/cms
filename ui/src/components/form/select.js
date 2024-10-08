@@ -2,7 +2,8 @@ import React, {forwardRef, useImperativeHandle, useState, useRef, useEffect} fro
 
 const Select = (props, ref) => {
 
-    const dom = useRef(null);  
+    const dom = useRef(null);
+    const contextObj = window._controller.getCurrentModuleInstance();
 
     const [state, setState] = useState({
         classes: ('classes' in props.config) ? props.config.classes : "",
@@ -54,39 +55,56 @@ const Select = (props, ref) => {
     });
     
     const handleChange = (_e) => {     
-        setState({...state, current: _e.target.value});   
-        window._controller.getCurrentModuleInstance().onFieldChange((props.namespace + props.config.handle), _e.target.value, _e);
+        setState({...state, current: _e.target.value});  
+        if (contextObj && contextObj.onFieldChange) {
+            contextObj.onFieldChange((props.namespace + props.config.handle), _e.target.value, _e);
+        }
     };
 
-    const handleFocus = (_e) => window._controller.getCurrentModuleInstance().onFieldInFocus((props.namespace + props.config.handle), _e.target);
-    const handleBlur = (_e) => window._controller.getCurrentModuleInstance().onFieldOutFocus((props.namespace + props.config.handle), _e.target);
+    const handleFocus = (_e) => {
+        if(contextObj && contextObj.onFieldInFocus) {
+            contextObj.onFieldInFocus((props.namespace + props.config.handle), _e.target);
+        }
+    }
+    const handleBlur = (_e) => {
+        if(contextObj && contextObj.onFieldOutFocus) {
+            contextObj.onFieldOutFocus((props.namespace + props.config.handle), _e.target);
+        }
+    }
 
     useEffect(() => {
 
         if (props.config.source === "remote") {
+
             const request = {
                 method: "GET",
                 endpoint: props.config.endpoint
-            };        
+            };   
             
-            window._controller.dock(request, 
-                (_req, _res) => {                      
-                    if (Array.isArray(_res)) {
-                        if (props.config.placeholder) {
-                            _res.push();
-                            _res.splice(0, 0, { [props.config["value_key"]]: "", [props.config["label_key"]]: props.config.placeholder });
-                        }                        
-                        setState((prevState) => ({...prevState, options: _res})); 
-                        /* Let context knows */
-                        setTimeout(() => {
-                            window._controller.getCurrentModuleInstance().afterSelectBoxLoaded((props.namespace + props.config.handle));
-                        }, 500);
-                    }                    
-                }, 
-                (_req, _res) => {
-                    console.error(_req);
+            if (contextObj && contextObj.onSelectBoxRequest) {
+                request["endpoint"] = contextObj.onSelectBoxRequest((props.namespace + props.config.handle), props.config.endpoint);
+            }
+
+            window._controller.docker.dock(request)
+            .then((_res) => {
+                if (Array.isArray(_res)) {
+                    if (props.config.placeholder) {
+                        _res.push();
+                        _res.splice(0, 0, { [props.config["value_key"]]: "", [props.config["label_key"]]: props.config.placeholder });
+                    }                        
+                    setState((prevState) => ({...prevState, options: _res})); 
+                    /* Let context knows */
+                    setTimeout(() => {
+                        if (contextObj && contextObj.afterSelectBoxLoaded) {
+                            contextObj.afterSelectBoxLoaded((props.namespace + props.config.handle));
+                        }
+                    }, 500);
                 }
-            );
+            })
+            .catch((e) => {
+                console.log(e);
+            });
+            
         } else {
             if (props.config.value !== undefined) {
                 setState((prevState) => ({ ...prevState, current: props.config.value }));

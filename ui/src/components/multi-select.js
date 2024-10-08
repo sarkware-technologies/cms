@@ -538,7 +538,7 @@ const MultiSelect = (props, ref) => {
                         
                     }
                     const contextObj = window._controller.getCurrentModuleInstance();
-                    if (contextObj) {
+                    if (contextObj && contextObj.onMultiSelectRecordLoaded) {
                         contextObj.onMultiSelectRecordLoaded(props.config.handle);
                     } 
                 }, 
