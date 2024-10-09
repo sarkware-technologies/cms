@@ -10,11 +10,12 @@ export default class ModuleService {
 
         try {
 
-            let _users = [];
+            let _modules = [];
 
             const page = parseInt(_req.query.page) || 1;
             const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
             const limit = parseInt(process.env.PAGE_SIZE);
+            const populate = _req.query.populate ? _req.query.populate : false;
 
             const searchFor = _req.query.search ? _req.query.search : "";
             const searchFrom = _req.query.field ? _req.query.field : "";
@@ -36,12 +37,17 @@ export default class ModuleService {
             }
 
             const _count = await ModuleModel.countDocuments({});
-            _users = await ModuleModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
+
+            if (populate) {                
+                _modules = await ModuleModel.find({}).populate('service').sort({ title: 1 }).skip(skip).limit(limit).lean().exec();                
+            } else {
+                _modules = await ModuleModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
+            }
             
-            return Utils.response(_count, page, _users);
+            return Utils.response(_count, page, _modules);
 
         } catch (e) {
-            throw _e;
+            throw e;
         }
 
     };

@@ -68,7 +68,7 @@ let auth_type_config = {
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                             field: {handle: "isActive", type: "toggle", align: "right", key_field: "_id", title_key: "title"},
                                             prompt: ""
-                                        } ,
+                                        },
                                         {
                                             show: true, 
                                             width: "15", 

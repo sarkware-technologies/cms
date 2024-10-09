@@ -91,7 +91,7 @@ export default function ServiceContext(_component) {
                         this.controller.switchView("main_view");
                         this.component.currentRecord["service_grid"] = null;
                 })
-                .catch((e) => { console.log(e);
+                .catch((e) => {
                     this.controller.notify(e.message, "error");
                 });
 
