@@ -4,8 +4,6 @@ import UserRoleMappingModel from "../models/user-role-mapping.js";
 import UserModel from "../models/user.js";
 import TokenManager from "../utils/token-manager.js";
 
-import MenuModel from "../models/menu.js";
-
 import bcrypt from "bcrypt";
 
 export default class AuthService {
@@ -40,18 +38,22 @@ export default class AuthService {
                 if (user.status) {
 
                     const userLoginDetails = await UserLoginDetailsModel.findOne({ userId: user._id });
-                    await userLoginDetails.resetLockIfExpired();
 
-                    if (userLoginDetails && userLoginDetails.isLocked && userLoginDetails.isLocked()) {
-                        const remainingTimeMs = userLoginDetails.lockUntil - Date.now();
-                        const remainingMinutes = Math.ceil(remainingTimeMs / (1000 * 60));
-                        return {
-                            type: "locked",
-                            remaining: userLoginDetails.lockUntil,
-                            message: `Account locked. Try again after ${remainingMinutes} minutes.`
-                        };
-                    } 
+                    if (userLoginDetails) {
 
+                        await userLoginDetails.resetLockIfExpired();
+
+                        if (userLoginDetails.isLocked && userLoginDetails.isLocked()) {
+                            const remainingTimeMs = userLoginDetails.lockUntil - Date.now();
+                            const remainingMinutes = Math.ceil(remainingTimeMs / (1000 * 60));
+                            return {
+                                type: "locked",
+                                remaining: userLoginDetails.lockUntil,
+                                message: `Account locked. Try again after ${remainingMinutes} minutes.`
+                            };
+                        }
+
+                    }
 
                     let isValid = await bcrypt.compare(_req.body.password, user.password);
                     if (isValid) {
@@ -177,7 +179,26 @@ export default class AuthService {
                 throw new Error("An error occurred while retrieving the user roles");
             }
 
-        } catch (e) { console.log(e);
+        } catch (e) {
+            throw e;
+        }
+
+    };
+
+    refreshAccessToken = async (_req) => {
+
+        try {
+
+            const refreshTokenRes = this.TM.verifyRefreshToken();
+            if (refreshTokenRes.status) {
+
+
+
+            } else {
+
+            }
+
+        } catch (e) {
             throw e;
         }
 

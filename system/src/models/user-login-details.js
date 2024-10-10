@@ -10,7 +10,9 @@ const UserLoginDetailsSchema = new mongoose.Schema({
     lastRefreshedIn         : { type: Date, default: null },
     lastPasswordUpdated     : { type: Date, default: null },
     failedAttempt           : { type: Number, default: 0 },
-    lockUntil               : { type: Date, default: null }
+    lockUntil               : { type: Date, default: null },
+    createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+    updatedBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 },
 {  
     strict                  : true,

@@ -11,8 +11,8 @@ const FieldSchema = new mongoose.Schema({
     usage           : { type: Number, default: FieldUsage.BOTH },         
     entity          : { type: mongoose.Schema.Types.ObjectId, ref: 'cms_system_entity', required: true },
     status          : { type: Boolean, default: false },
-    created_by      : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
-    updated_by      : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
+    createdBy       : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+    updatedBy       : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 },
 {  
     strict          : true,

@@ -11,6 +11,7 @@ export default class AuthRouter {
 
         this.router.post("/auth/sign-in", this.signIn);
         this.router.post("/auth/sign-out", this.signOut);
+        this.router.post("/auth/refresh-access-token", this.refreshAccessToken);
         this.router.post("/auth/reset-password", this.resetPassword);        
         this.router.post("/auth/select-role", this.selectRole);
         this.router.post("/auth/send-forgot-password-token", this.sendForgotPasswordToken);
@@ -68,6 +69,14 @@ export default class AuthRouter {
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
-    }
+    };
+
+    refreshAccessToken = async () => {
+        try {
+            _res.status(200).json(await this.authService.submitForgotPassword(_req));
+        } catch (_e) {
+            Utils.handleError(_e, _res);
+        }
+    };
 
 }

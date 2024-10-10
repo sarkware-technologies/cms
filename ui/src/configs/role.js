@@ -51,12 +51,22 @@ let role_config = {
                                         },
                                         {
                                             show: true, 
-                                            width: "95",
+                                            width: "85",
                                             search: false,
                                             filter: false,
                                             header: {title: "Title", align: "left", filterable: false, searchable: true, sortable: false}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                             field: {handle: "title", type: "link", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "10", 
+                                            search: false,
+                                            filter: false,
+                                            header: {title: "Status", align: "right"}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "status", type: "toggle", align: "right", key_field: "_id", title_key: "title"},
                                             prompt: ""
                                         }                                    
                                     ]
@@ -102,7 +112,7 @@ let role_config = {
                                 fields: [                                    
                                     { type: "text", label: "Title", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "text", label: "Handle", handle: "handle", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "select", label: "Auth Type", handle: "auth_type", value : "1", value_key: "value", label_key: "label", options: [{label: "PASSWORD", value: "1", selected: true, disabled: false},{label: "OTP", value: "2", selected: false, disabled: false}], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" }
+                                    { type: "select", label: "Auth Type", handle: "auth_type", value : "1", value_key: "_id", label_key: "title", options: [], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/auth-type-all" }
                                 ]
                             }
                         ]

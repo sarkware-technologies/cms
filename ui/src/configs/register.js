@@ -6,7 +6,7 @@ let register_config = {
                 show: true,
                 title: "Registers",
                 breadcrumb: "",
-                actions: [{ label: "New Register", theme: "primary", method: "post", action: "NEW_SERVICE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: []
             },           
             header: {
                 show: false

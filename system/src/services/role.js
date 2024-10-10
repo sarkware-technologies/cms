@@ -124,7 +124,7 @@ export default class RoleService {
         }
 
         try {
-            return await RoleModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body } }, { runValidators: true, new: true });
+            return await RoleModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updated_by: _req.user._id } }, { runValidators: true, new: true });
         } catch (_e) {
             throw _e;
         }
@@ -156,6 +156,7 @@ export default class RoleService {
                 throw new Error('Request body is required');
             }
 
+            body["created_by"] = _req.user._id;
             const model = new RoleModel(body);
             const role = await model.save();
             await this.initCapabilities(role._id, _req.user._id);            
@@ -216,7 +217,7 @@ export default class RoleService {
             for (let i = 0; i < capabilities.length; i++) {
                 cId = capabilities[i]._id;
                 delete capabilities[i]._id;
-                await CapabilityModel.findByIdAndUpdate(cId, { $set: { ...capabilities[i] } }, { runValidators: true, new: false });                               
+                await CapabilityModel.findByIdAndUpdate(cId, { $set: { ...capabilities[i], updated_by: _req.user._id } }, { runValidators: true, new: false });                               
             }
 
             return {status: true};
@@ -236,18 +237,21 @@ export default class RoleService {
             
             for (let i = 0; i < _modules.length; i++) {
 
-                const cap = {
-                    role            : _roleId,
-                    module          : _modules[i]._id,
-                    can_read        : false,
-                    can_create      : false,
-                    can_update      : false,
-                    can_delete      : false,
-                    created_by      : _userId
-                };
-
-                model = new CapabilityModel(cap);
-                await model.save();
+                const capExist = await CapabilityModel.findOne({role: _roleId, module: _modules[i]._id});
+                if (!capExist) {
+                    const cap = {
+                        role            : _roleId,
+                        module          : _modules[i]._id,
+                        can_read        : false,
+                        can_create      : false,
+                        can_update      : false,
+                        can_delete      : false,
+                        created_by      : _userId
+                    };
+    
+                    model = new CapabilityModel(cap);
+                    await model.save();
+                }
 
             }
 

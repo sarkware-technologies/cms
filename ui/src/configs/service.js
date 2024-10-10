@@ -51,12 +51,22 @@ let service_config = {
                                         },
                                         {
                                             show: true, 
-                                            width: "95",
+                                            width: "85",
                                             search: false,
                                             filter: false,
                                             header: {title: "Title", align: "left", filterable: false, searchable: true, sortable: false}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                             field: {handle: "title", type: "link", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "10", 
+                                            search: false,
+                                            filter: false,
+                                            header: {title: "Status", align: "right"}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "status", type: "toggle", align: "right", key_field: "_id", title_key: "title"},
                                             prompt: ""
                                         }                                    
                                     ]

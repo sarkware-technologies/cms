@@ -1,5 +1,6 @@
 import CapabilityModel from "../models/capability.js";
 import ModuleModel from "../models/module.js";
+import RoleModel from "../models/role.js";
 import Utils from "../utils/utils.js";
 
 export default class ModuleService {
@@ -129,7 +130,7 @@ export default class ModuleService {
         }
 
         try {
-            return await ModuleModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body } }, { runValidators: true, new: true });
+            return await ModuleModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updated_by: _req.user._id } }, { runValidators: true, new: true });
         } catch (_e) {
             throw _e;
         }
@@ -161,8 +162,31 @@ export default class ModuleService {
                 throw new Error('Request body is required');
             }
 
+            body["created_by"] = _req.user._id;
             const model = new ModuleModel(body);
-            const module = await model.save();     
+            const module = await model.save(); 
+            
+            const _roles = await RoleModel.find({}).lean();
+            
+            for (let i = 0; i < _roles.length; i++) {
+
+                const capExist = await CapabilityModel.findOne({role: _roles[i]._id, module: module._id});
+                if (!capExist) {
+                    const cap = {
+                        role            : _roles[i]._id,
+                        module          : module._id,
+                        can_read        : false,
+                        can_create      : false,
+                        can_update      : false,
+                        can_delete      : false,
+                        created_by      : _req.user._id
+                    };
+    
+                    model = new CapabilityModel(cap);
+                    await model.save();
+                }
+                
+            }  
 
             return {
                 status: true,

@@ -79,7 +79,7 @@ const Login = (props) => {
             const roles = await window._controller.docker.dock({
                 method: "GET",
                 endpoint: "/system/register/user-types",
-            });
+            }, false);
 
             setRoles(roles);
 

@@ -7,8 +7,8 @@ const ModuleSchema = new mongoose.Schema({
     offline_message         : { type: String, default: "" },   
     service                 : { type: mongoose.Schema.Types.ObjectId, ref: 'cms_system_service', required: true },
     status                  : { type: Boolean, default: true },
-    created_by              : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
-    updated_by              : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
+    createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+    updatedBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 },
 {  
     strict                  : true,

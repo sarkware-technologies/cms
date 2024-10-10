@@ -102,7 +102,7 @@ let module_config = {
             sidebar: null,
             manage: true             
         },
-        service_form: {
+        module_form: {
             context_header: {
                 show: true,
                 title: "Module",

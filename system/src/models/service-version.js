@@ -10,6 +10,8 @@ const ServiceVersionSchema = new mongoose.Schema({
     to_be_deprecated        : { type: Boolean, default: false },    
     host                    : { type: mongoose.Schema.Types.ObjectId, ref: 'cms_system_host', required: true },
     service                 : { type: mongoose.Schema.Types.ObjectId, ref: 'cms_system_service', required: true },
+    createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+    updatedBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 },
 {  
     strict              : true,
