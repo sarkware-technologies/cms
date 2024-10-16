@@ -25,7 +25,7 @@ const Input = (props, ref) => {
         return {
             getVal: () => {
 
-                if (state.type == "number") {  console.log("getVal : "+state.value);
+                if (state.type == "number") { 
                     if (!isNaN(state.value)) {
 
                         if (!isNaN(state.min)) {

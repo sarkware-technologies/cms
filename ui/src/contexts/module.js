@@ -16,6 +16,68 @@ export default function ServiceContext(_component) {
     /**
      * 
      * @param {*} _handle 
+     * 
+     * Called after the select box component option's loaded (happens only remote config)
+     * 
+     */
+    this.afterSelectBoxLoaded = (_handle) => {  console.log(_handle);
+
+        if (_handle == "module_form_service") {
+            const serviceSelect = this.controller.getField("module_form_service");
+            const currentRecord = this.component.currentRecord["module_grid"];
+            if (serviceSelect && currentRecord) {
+                serviceSelect.setVal(currentRecord["service"]);
+            }
+        }
+
+    };
+
+    /**
+     * 
+     * @param {*} _handle 
+     * @param {*} _toggleHandle 
+     * @param {*} _record 
+     * @param {*} _status 
+     * @returns 
+     * 
+     * Called whenever toggle field change (in datagrid)
+     * This option assumes that it will always be the status field
+     * So it will automatically update the record in db as well, unless you return false 
+     * 
+     */
+    this.onRecordToggleStatus = (_handle, _toggleHandle, _record, _status) => {
+
+        if (_handle == "module_grid" && _record) {
+
+            const request = {};
+            request["method"] = "PUT";  
+            request["endpoint"] = "/system/module/"+ _record._id;          
+
+            request["payload"] = {
+                status: _status
+            };  
+            
+            const moduleGrid = this.controller.getField("module_grid");
+
+            this.controller.docker.dock(request).then((_res) => {
+                window._controller.notify(_record.title +" has been "+ (_status ? "enabled" : "disabled"));                      
+                moduleGrid.initFetch(); 
+            })
+            .catch((e) => {
+                moduleGrid.initFetch();
+                this.controller.notify(e.message, "error");
+            });
+
+            return false;
+        }
+
+        return true;
+
+    };
+
+    /**
+     * 
+     * @param {*} _handle 
      * @param {*} _value 
      * @param {*} _e 
      * 
@@ -87,7 +149,7 @@ export default function ServiceContext(_component) {
             if (request["payload"] && Object.keys(request["payload"]).length > 0) {
 
                 this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(_res.title + " saved successfully.!");
+                    this.controller.notify(_res.message);
                         this.controller.switchView("main_view");
                         this.component.currentRecord["module_grid"] = null;
                 })

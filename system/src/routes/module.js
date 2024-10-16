@@ -9,7 +9,8 @@ export default class ModuleRouter {
         this.router = new Router();
         this.moduleService = new ModuleService();
 
-        this.router.get("/module/:id", this.get);
+        this.router.get("/module/all", this.listAll);
+        this.router.get("/module/:id", this.get);        
         this.router.get("/modules", this.list);     
         this.router.put("/module/:id", this.update);
         this.router.delete("/module/:id", this.delete);
@@ -24,6 +25,14 @@ export default class ModuleRouter {
     list = async (_req, _res) => {
         try {
             _res.status(200).json(await this.moduleService.list(_req));
+        } catch (_e) {
+            Utils.handleError(_e, _res);
+        }
+    };
+
+    listAll = async (_req, _res) => {
+        try {
+            _res.status(200).json(await this.moduleService.listAll(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }

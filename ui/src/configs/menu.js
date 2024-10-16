@@ -51,7 +51,7 @@ let menu_config = {
                                         },
                                         {
                                             show: true, 
-                                            width: "30",
+                                            width: "35",
                                             search: false,
                                             filter: false,
                                             header: {title: "Title", align: "left", filterable: false, searchable: true, sortable: false}, 
@@ -61,7 +61,7 @@ let menu_config = {
                                         },
                                         {
                                             show: true, 
-                                            width: "30",
+                                            width: "35",
                                             search: false,
                                             filter: false,
                                             header: {title: "Handle", align: "left", filterable: false, searchable: false, sortable: false}, 
@@ -78,17 +78,7 @@ let menu_config = {
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                             field: {handle: "module", type: "search", label_key: "title", value_key: "_id"},
                                             prompt: ""
-                                        },
-                                        {
-                                            show: true, 
-                                            width: "10", 
-                                            search: false,
-                                            filter: false,
-                                            header: {title: "Status", align: "right"}, 
-                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "status", type: "toggle", align: "right", key_field: "_id", title_key: "title"},
-                                            prompt: ""
-                                        }                                    
+                                        }                                   
                                     ]
                                 }
                             }
@@ -129,13 +119,14 @@ let menu_config = {
                                 layout: "horizontal",
                                 collapsible: false,
                                 classes: "",
-                                fields: [
-                                    { type: "toggle", label: "Status", handle: "status", value : false, classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" },                                   
+                                fields: [    
                                     { type: "text", label: "Title", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "text", label: "Handle", handle: "handle", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "select", label: "Service", handle: "service", value : "1", value_key: "value", label_key: "label", options: [], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },
-                                    { type: "textarea", label: "Description", handle: "description", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "textarea", label: "Offline Message", handle: "offline_message", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
+                                    { type: "select", label: "Icon Type", handle: "iconType", value : "1", value_key: "value", label_key: "label", options: [{label: "ASSET", value: "1", selected: true, disabled: false},{label: "SVG", value: "2", selected: false, disabled: false},{label: "FONTAWESOME", value: "3", selected: false, disabled: false}], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },
+                                    { type: "text", label: "Icon", handle: "icon", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                    { type: "select", label: "Parent", handle: "parent", value : "1", value_key: "_id", label_key: "title", options: [], placeholder: "-- Select Parent --", classes : "", mandatory : false, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/menu/all" },
+                                    { type: "select", label: "Module", handle: "module", value : "1", value_key: "_id", label_key: "title", options: [], placeholder: "-- Select Module --", classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/module/all" },
+                                    { type: "number", label: "Order", handle: "order", value : "0", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
                                 ]
                             }
                         ]

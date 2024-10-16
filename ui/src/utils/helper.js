@@ -98,9 +98,7 @@ class Helper {
 				
 							if (inputFields.indexOf(_fields[k].type) !== -1) {
 				
-								value = window._controller.getInputFieldVal(_namespace + _fields[k].handle);	
-								
-								console.log(_namespace + _fields[k].handle +" = "+ value);
+								value = window._controller.getInputFieldVal(_namespace + _fields[k].handle);									
 
 								if (_fields[k].mandatory) {
 									/* Mandatory Block */

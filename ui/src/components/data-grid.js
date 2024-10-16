@@ -758,7 +758,11 @@ const DataGrid = (props, ref) => {
         if (_props.config.field.type === "link" || _props.config.field.type === "link_search") {
             return <td style={cssProperties}><a href="#" onClick={e => handleRecordLinkClick(e, props.config.handle, props.config.link.context, _props.record)}>{_props.data}</a></td>;
         } else if (_props.config.field.type === "button") {
-            return <td style={cssProperties}><button className={`pharmarack-cms-btn ${_props.config.field.classes}`} onClick={e => handleRecordBtnClick(e, _props.config.field.action, props.config.handle, _props.record)}>{_props.data}</button></td>
+            if (!_props.config.field.icon) {
+                return <td style={cssProperties}><button className={`pharmarack-cms-btn ${_props.config.field.classes}`} onClick={e => handleRecordBtnClick(e, _props.config.field.action, props.config.handle, _props.record)}>{_props.data}</button></td>
+            } else {
+                return <td style={cssProperties}><button className={`pharmarack-cms-btn ${_props.config.field.classes}`} onClick={e => handleRecordBtnClick(e, _props.config.field.action, props.config.handle, _props.record)}><i className={_props.config.field.icon}></i> {_props.data}</button></td>
+            }            
         } else if (_props.config.field.type === "collapse") {
             return <td style={cssProperties}><button className="" onClick={e => handleCollapseBtnClick(e, _props.config.field, _props.record)}><i className="fa fa-chevron-down"></i></button></td>;
         }
@@ -775,7 +779,7 @@ const DataGrid = (props, ref) => {
 
         if (props.config.is_keyless) {            
             rows.push(
-                <tr>
+                <tr key={uuidv4()}>
                 {
                     props.config.rows.map((item, index) => {
                         let _data = "";                        
@@ -799,7 +803,7 @@ const DataGrid = (props, ref) => {
             );
         } else {    
             rows.push(
-                <tr>
+                <tr key={uuidv4()}>
                 { 
                     props.config.columns.map((item, index) => { 
                         let _data = ""; 
@@ -822,7 +826,7 @@ const DataGrid = (props, ref) => {
                                 _data = dateObj.toDateString();
                             } 
                         } else if (item.field.type === "button") {
-                            _data = item.field.label;
+                            _data = item.field.label;                            
                         } else if (item.field.type === "collapse") {
                             collapseFields = item.field.fields;                            
                             expand = collapseState[_props.record[item.field.key]];
@@ -846,7 +850,7 @@ const DataGrid = (props, ref) => {
         if (collapseFields && expand) {
 
             rows.push(
-                <tr>
+                <tr key={uuidv4()}>
                     <td colSpan={props.config.columns.length}>
                         <CollapseField key={_props.serial +"-collapse-form"} fields={collapseFields} record={_props.record} />
                     </td>

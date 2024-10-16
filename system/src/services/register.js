@@ -3,11 +3,23 @@ import RoleModel from "../models/role.js";
 import RegisterModel from "../models/register.js"
 import UserService from "./user.js";
 import Utils from "../utils/utils.js";
+import PasswordComplex from "../enums/password-complex.js";
+import NotificationService from "../utils/notifier.js";
+import UserModel from "../models/user.js";
 
 export default class RegisterService {
 
     constructor () {
+
+        this.emailRegx = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+        this.mobileRegx = /^[6-9]\d{9}$/;
+        this.alphaRegx = /^(?=.*[a-z])(?=.*[A-Z]).+$/;
+        this.numberRegx = /^(?=.*\d).+$/;
+        this.specialRegx = /^(?=.*[!@#$%^&*(),.?":{}|<>]).+$/;
+
         this.userService = new UserService();
+        this.notifier = new NotificationService();
+
     }
 
     list = async (_req) => {
@@ -22,10 +34,21 @@ export default class RegisterService {
 
             const searchFor = _req.query.search ? _req.query.search : "";
             const searchFrom = _req.query.field ? _req.query.field : "";
+            const populate = _req.query.populate ? _req.query.populate : false;
 
             const filter = _req.query.filter ? _req.query.filter : "";
             const filterBy = _req.query.filter_by ? _req.query.filter_by : "";
             const filterType = _req.query.filter_type ? _req.query.filter_type : "";
+
+            let _isApproved = _req.query.isApproved ? _req.query.isApproved : null;
+
+            if (_isApproved === 'null') {
+                _isApproved = null;
+            } else if (_isApproved === 'true') {
+                _isApproved = true;
+            } else if (_isApproved === 'false') {
+                _isApproved = false;
+            }
 
             if (searchFrom !== "") {
                 return await this.search(_req, page, skip, limit, searchFrom, searchFor);
@@ -39,9 +62,14 @@ export default class RegisterService {
                 }
             }
 
-            const _count = await RegisterModel.countDocuments({});
-            _registers = await RegisterModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
-            
+            const _count = await RegisterModel.countDocuments({isApproved: _isApproved});
+
+            if (populate) {                
+                _registers = await RegisterModel.find({isApproved: _isApproved}).populate('userType').sort({ title: 1 }).skip(skip).limit(limit).lean().exec();                
+            } else {
+                _registers = await RegisterModel.find({isApproved: _isApproved}).sort({ title: 1 }).skip(skip).limit(limit).lean();
+            }
+
             return Utils.response(_count, page, _registers);
 
         } catch (e) {
@@ -157,9 +185,46 @@ export default class RegisterService {
                 throw new Error('Request body is required');
             }
 
+            if (!this.emailRegx.test(body.email)) {
+                throw new Error('Invalid email address');
+            }
+
+            const isEmailUsed = await UserModel.findOne({email: body.email}).lean();
+            if (isEmailUsed) {
+                throw new Error('Email address is already used');
+            }
+
+            if (!this.mobileRegx.test(body.mobile)) {
+                throw new Error('Invalid mobile number');
+            }
+
+            const isMobileUsed = await UserModel.findOne({mobile: body.mobile}).lean();
+            if (isMobileUsed) {
+                throw new Error('Mobile number is already used');
+            }
+
+            if (!body.userType) {
+                throw new Error('userType is required');
+            }
+
+            const role = await RoleModel.findById(body.userType).populate("authType").lean().exec();
+            if (!role) {
+                throw new Error('Invalid role selected');
+            }
+
+            if (role.authType.complex == PasswordComplex.SIMPLE) {
+                if(body.password.length < role.authType.minLength || body.password.length > role.authType.maxLength) {
+                    throw new Error('Password is strength is weak');
+                }
+            } else {
+                if(body.password.length < role.authType.minLength || body.password.length > role.authType.maxLength || !this.alphaRegx.test(body.password) || !this.numberRegx.test(body.password) || !this.specialRegx.test(body.password)) {
+                    throw new Error('Password is strength is weak');
+                }
+            }
+
             body.password = await bcrypt.hash(body.password, 12);
             const model = new RegisterModel(body);
-            const registered = await model.save();
+            const registered = await model.save();           
 
             return {
                 status: true,
@@ -185,22 +250,69 @@ export default class RegisterService {
 
     };
 
-    approve = async (_req) => {
+    approve = async (_req) => { console.log("approve hass been reached");
 
-        try {
+        try {  console.log(_req.params.id);
 
-            const register = await RegisterModel.findOneById(_req.param.id).lean();
+            const register = await RegisterModel.findById(_req.params.id).lean();  console.log(register);
             if (register) {
 
-                if (!register.isApproved) {
+                if (register.isApproved === null) {
 
-                    await RegisterModel.findByIdAndUpdate(_req.param.id, { $set: { isApproved: true } }, { runValidators: true, new: false });   
-                    await this.userService.createFromRegister(register);
+                    await RegisterModel.findByIdAndUpdate(_req.params.id, { $set: { isApproved: true, updatedBy: _req.user._id } }, { runValidators: true, new: false });
+                    
+                    /**
+                     * 
+                     * Create the User
+                     * 
+                     */
+                    await this.userService.createFromRegister(register, _req.user._id);
+
+                    const eBody = {
+                        toEmailId: register.email,
+                        data: "Hi, your registration is approved, You may start using the CMS portal"
+                    }
+
+                    this.notifier.sendEmail(eBody);
 
                     return { status: true, message: "Approved successfully" }
 
                 } else {
-                    throw new Error("Already approved");
+                    if (register.isApproved) {
+                        throw new Error("Already approved");
+                    } else {
+                        throw new Error("Already rejected");
+                    }
+                }
+
+            }
+
+        } catch (e) { console.log(e);
+            throw e;
+        }
+
+    };
+
+    reject = async (_req) => {
+
+        try {
+
+            const register = await RegisterModel.findById(_req.params.id).lean();
+            if (register) {
+
+                if (register.isApproved === null) {
+
+                    await RegisterModel.findByIdAndUpdate(_req.params.id, { $set: { isApproved: false, updatedBy: _req.user._id } }, { runValidators: true, new: false });   
+                    await this.userService.createFromRegister(register, _req.user._id);
+
+                    return { status: true, message: "Rejected successfully" }
+
+                } else {
+                    if (!register.isApproved) {
+                        throw new Error("Already rejected");
+                    } else {
+                        throw new Error("Cannot reject once it is approved");
+                    }                    
                 }
 
             }
@@ -211,14 +323,10 @@ export default class RegisterService {
 
     };
 
-    reject = async (_req) => {
-
-    };
-
     getRoles = async (_req) => {
 
         try {
-            return await RoleModel.find({}).sort({ title: 1 }).lean();
+            return await RoleModel.find().populate("authType").sort({ title: 1 }).lean();
         } catch (e) {
             throw e;
         }

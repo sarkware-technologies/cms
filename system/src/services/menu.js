@@ -1,8 +1,7 @@
-import UserRoleMappingModel from "../models/user-role-mapping.js";
-import UserModel from "../models/user.js";
 import Utils from "../utils/utils.js";
+import MenuModel from "../models/menu.js";
 
-export default class UserService {
+export default class MenuService {
 
     constructor () {}
 
@@ -24,19 +23,19 @@ export default class UserService {
             const filterType = _req.query.filter_type ? _req.query.filter_type : "";
 
             if (searchFrom !== "") {
-                return await this.search(_req, page, skip, limit, searchFrom, searchFor);
+                return this.search(_req, page, skip, limit, searchFrom, searchFor);
             }
 
             if (filter !== "") {
                 if (filterType === "seeds") {
-                    return await this.groupSeed(_req, filter);
+                    return this.groupSeed(_req, filter);
                 } else {
-                    return await this.groupBy(_req, page, skip, limit, filter, filterBy);
+                    return this.groupBy(_req, page, skip, limit, filter, filterBy);
                 }
             }
 
-            const _count = await UserModel.countDocuments({});
-            _users = await UserModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
+            const _count = await MenuModel.countDocuments({});
+            _users = await MenuModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
             
             return Utils.response(_count, page, _users);
 
@@ -46,12 +45,22 @@ export default class UserService {
 
     };
 
+    listAll = async (_req) => {
+
+        try {
+            return await MenuModel.find({}).sort({ title: 1 }).lean();
+        } catch (e) {
+            throw e;
+        }
+
+    };
+
     search = async (_req, _page, _skip, _limit, _field, _search) => {
 
         try {
 
-            const _count = await UserModel.countDocuments({ [_field]: { $regex: new RegExp(_search, 'i') } });
-            const _roles = await UserModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _count = await MenuModel.countDocuments({ [_field]: { $regex: new RegExp(_search, 'i') } });
+            const _roles = await MenuModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
             return Utils.response(_count, _page, _roles);
 
@@ -64,7 +73,7 @@ export default class UserService {
     groupSeed = async(_req, _field) => { 
 
         try {
-            return await UserModel.distinct(_field).exec();
+            return await MenuModel.distinct(_field).exec();
         } catch (_e) {
 
             throw _e;
@@ -81,8 +90,8 @@ export default class UserService {
                 query[_field] = { $in: _match.split('|') };
             }
 
-            const _count = await UserModel.countDocuments(query);
-            const _roles = await UserModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _count = await MenuModel.countDocuments(query);
+            const _roles = await MenuModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
             return Utils.response(_count, _page, _roles);
 
@@ -95,7 +104,7 @@ export default class UserService {
     count = async (_req) => {
 
         try {
-            return await UserModel.countDocuments({});
+            return await MenuModel.countDocuments({});
         } catch (_e) {
             throw _e;
         }
@@ -105,11 +114,11 @@ export default class UserService {
     get = async (_req) => {
 
         if (!_req.params.id) {
-            throw new Error("User id is missing");
+            throw new Error("Menu id is missing");
         }
 
         try {
-            return await UserModel.findOne({ _id: _req.params.id }).lean();
+            return await MenuModel.findOne({ _id: _req.params.id }).lean();
         } catch (_e) {
             throw _e;
         }
@@ -119,11 +128,11 @@ export default class UserService {
     update = async (_req) => {
 
         if (!_req.params.id) {
-            throw new Error("User id is missing");
+            throw new Error("Menu id is missing");
         }
 
         try {
-            return await UserModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updated_by: _req.user._id } }, { runValidators: true, new: true });
+            return await MenuModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updated_by: _req.user._id } }, { runValidators: true, new: true });
         } catch (_e) {
             throw _e;
         }
@@ -133,46 +142,11 @@ export default class UserService {
     delete = async (_req) => {
         
         if (!_req.params.id) {
-            throw new Error("User id is missing");
+            throw new Error("Menu id is missing");
         }
 
         try {
-            return await UserModel.deleteOne({ _id: _req.params.id });            
-        } catch (_e) {
-            throw _e;
-        }
-
-    };
-
-    createFromRegister = async (_payload, _createdBy) => {
-
-        try {
-
-            const model = new UserModel({
-                email: _payload.email,
-                mobile: _payload.mobile,
-                password: _payload.password,
-                fullName: _payload.fullName,
-                status: true,
-                createdBy: _createdBy
-            });
-
-            const user = await model.save();
-
-            const mapping = new UserRoleMappingModel({
-                user: user._id,
-                role: _payload.userType,
-                createdBy: _createdBy
-            });
-
-            await mapping.save();
-            
-            return {
-                status: true,
-                message: "User "+ user.fullName +" is created successfully",
-                payload: user
-            };
-
+            return await MenuModel.deleteOne({ _id: _req.params.id });            
         } catch (_e) {
             throw _e;
         }
@@ -189,14 +163,14 @@ export default class UserService {
                 throw new Error('Request body is required');
             }
 
-            body["created_by"] = _req.user._id;
-            const model = new UserModel(body);
-            const user = await model.save();     
+            body["created_by"] = _req.user._id
+            const model = new MenuModel(body);
+            const menu = await model.save();     
 
             return {
                 status: true,
-                message: "User "+ user.fullName +" is created successfully",
-                payload: user
+                message: "Menu "+ menu.title +" is created successfully",
+                payload: menu
             };
 
         } catch (e) {
@@ -210,7 +184,7 @@ export default class UserService {
     
             return {
                 status: false,
-                message: e.message || 'An error occurred while registering the user'
+                message: e.message || 'An error occurred while creating menu'
             };
 
         }

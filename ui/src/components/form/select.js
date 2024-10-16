@@ -26,10 +26,11 @@ const Select = (props, ref) => {
             getVal: () => {      
                 if (dom.current) {                    
                     const selectedOption = dom.current.querySelector('option:checked');
-                    if (selectedOption) {                    
+                    if (selectedOption) {                     
                         return selectedOption.value;
                     }
-                }                
+                }   
+                console.log("No selected value : "+ state.current);            
                 return state.current;
             },
             getElement: () => dom.current,
@@ -88,8 +89,7 @@ const Select = (props, ref) => {
             window._controller.docker.dock(request)
             .then((_res) => {
                 if (Array.isArray(_res)) {
-                    if (props.config.placeholder) {
-                        _res.push();
+                    if (props.config.placeholder) {                        
                         _res.splice(0, 0, { [props.config["value_key"]]: "", [props.config["label_key"]]: props.config.placeholder });
                     }                        
                     setState((prevState) => ({...prevState, options: _res})); 

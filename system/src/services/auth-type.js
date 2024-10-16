@@ -184,7 +184,7 @@ export default class AuthTypeService {
     
             return {
                 status: false,
-                message: e.message || 'An error occurred while registering the user'
+                message: e.message || 'An error occurred while creating auth type'
             };
 
         }

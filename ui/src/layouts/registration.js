@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react';
 
 const Login = (props) => {
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-    const mobileRegex = /^[6-9]\d{9}$/;
+    const emailRegx = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    const mobileRegx = /^[6-9]\d{9}$/;
+    const alphaRegx = /^(?=.*[a-z])(?=.*[A-Z]).+$/;
+    const numberRegx = /^(?=.*\d).+$/;
+    const specialRegx = /^(?=.*[!@#$%^&*(),.?":{}|<>]).+$/;
 
+    const [role, setRole] = useState(null); 
     const [roles, setRoles] = useState([]); 
     const [btnEnable, setBtnEnable] = useState(false); 
 
@@ -23,14 +27,22 @@ const Login = (props) => {
     });
 
     useEffect(() => {
-        if (emailRegex.test(state.email) && mobileRegex.test(state.mobile) && state.fullName && state.password && state.confirmPassword) {
+        if (emailRegx.test(state.email) && mobileRegx.test(state.mobile) && state.fullName && state.password && state.confirmPassword) {
             
             if (state.password == state.confirmPassword) {
-                setBtnEnable(true);
-                setResponse({
-                    msgType: "success",
-                    message: ""
-                });
+                if (validatePassword()) {
+                    setBtnEnable(true);
+                    setResponse({
+                        msgType: "success",
+                        message: ""
+                    });
+                } else {
+                    setBtnEnable(false);
+                    setResponse({
+                        msgType: "error",
+                        message: "Password strength is weak"
+                    });    
+                }                
             } else {
                 setBtnEnable(false);
                 setResponse({
@@ -62,6 +74,8 @@ const Login = (props) => {
 
     const handleUserTypeChange = (_e) => {
         setState({...state, userType: _e.target.value});
+        const _roles = roles.filter((item) => item._id == _e.target.value);        
+        setRole(_roles ? _roles[0] : null);
     };
 
     const handlePasswordChange = (_e) => {
@@ -82,6 +96,10 @@ const Login = (props) => {
             }, false);
 
             setRoles(roles);
+            if (roles && roles.length > 0) {
+                setState({...state, userType: roles[0]._id});
+                setRole(roles[0]);
+            }            
 
         } catch (e) {
 
@@ -140,6 +158,49 @@ const Login = (props) => {
 
         }
 
+    };    
+
+    const updatePasswordStatus = () => {
+
+        if (!role) return null;
+    
+        const { minLength, maxLength, complex } = role.authType;
+        const { password } = state;
+        
+        const getPasswordFeedback = (condition, message) => (
+            <p className={condition ? "success" : "error"}>{message}</p>
+        );
+    
+        return (
+            <>
+                {getPasswordFeedback(password && password.length >= minLength, `Minimum ${minLength}`)}
+                {getPasswordFeedback(password && password.length <= maxLength, `Maximum ${maxLength}`)}
+    
+                {complex != 1 && (
+                    <>
+                        {getPasswordFeedback(alphaRegx.test(password), "[A-Z] & [a-z]")}
+                        {getPasswordFeedback(numberRegx.test(password), "[0-9]")}
+                        {getPasswordFeedback(specialRegx.test(password), `[!@#$%^&*(),.?":{}|<>]`)}
+                    </>
+                )}
+            </>
+        );
+    };
+
+    const validatePassword = () => {
+
+        if (role) {
+            if (state.password) {
+                if (role.authType.complex == 1) {
+                    return (state.password.length >= role.authType.minLength && state.password.length <= role.authType.maxLength);
+                } else {
+                    return (state.password.length >= role.authType.minLength && state.password.length <= role.authType.maxLength && alphaRegx.test(state.password) && numberRegx.test(state.password) && specialRegx.test(state.password));
+                }
+            }
+        }
+
+        return false;
+
     };
 
     return (
@@ -184,6 +245,8 @@ const Login = (props) => {
                 </div>
 
             </div>
+
+            <div className='pharmarack-cms-password-status-box'>{updatePasswordStatus()}</div>
 
         </div>
 

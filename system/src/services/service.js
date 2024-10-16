@@ -47,6 +47,16 @@ export default class ServiceService {
 
     };
 
+    listAll = async (_req) => {
+
+        try {
+            return await ServiceModel.find({}).sort({ title: 1 }).lean();
+        } catch (e) {
+            throw e;
+        }
+
+    };
+
     search = async (_req, _page, _skip, _limit, _field, _search) => {
 
         try {
@@ -186,7 +196,7 @@ export default class ServiceService {
     
             return {
                 status: false,
-                message: e.message || 'An error occurred while registering the user'
+                message: e.message || 'An error occurred while creating service'
             };
 
         }

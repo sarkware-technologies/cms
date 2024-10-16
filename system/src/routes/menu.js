@@ -1,20 +1,20 @@
 import { Router } from "express";
 import Utils from "../utils/utils.js";
-import ServiceService from "../services/service.js";
+import MenuService from "../services/menu.js";
 
-export default class ServiceRouter {
+export default class MenuRouter {
 
     constructor() {
 
         this.router = new Router();
-        this.serviceService = new ServiceService();
+        this.menuService = new MenuService();
 
-        this.router.get("/service/all", this.listAll);
-        this.router.get("/service/:id", this.get);
-        this.router.get("/services", this.list);     
-        this.router.put("/service/:id", this.update);
-        this.router.delete("/service/:id", this.delete);
-        this.router.post("/service", this.create);
+        this.router.get("/menu/all", this.listAll);
+        this.router.get("/menu/:id", this.get);             
+        this.router.get("/menus", this.list);
+        this.router.put("/menu/:id", this.update);
+        this.router.delete("/menu/:id", this.delete);
+        this.router.post("/menu", this.create);
 
     }
 
@@ -24,7 +24,7 @@ export default class ServiceRouter {
 
     list = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.serviceService.list(_req));
+            _res.status(200).json(await this.menuService.list(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
@@ -32,7 +32,7 @@ export default class ServiceRouter {
 
     listAll = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.serviceService.listAll(_req));
+            _res.status(200).json(await this.menuService.listAll(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
@@ -40,7 +40,7 @@ export default class ServiceRouter {
 
     get = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.serviceService.get(_req));
+            _res.status(200).json(await this.menuService.get(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
@@ -48,7 +48,7 @@ export default class ServiceRouter {
 
     update = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.serviceService.update(_req));
+            _res.status(200).json(await this.menuService.update(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
@@ -56,7 +56,7 @@ export default class ServiceRouter {
 
     delete = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.serviceService.delete(_req));
+            _res.status(200).json(await this.menuService.delete(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }
@@ -64,7 +64,7 @@ export default class ServiceRouter {
 
     create = async (_req, _res) => {
         try {
-            _res.status(200).json(await this.serviceService.create(_req));
+            _res.status(200).json(await this.menuService.create(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }

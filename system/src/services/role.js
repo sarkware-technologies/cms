@@ -178,7 +178,7 @@ export default class RoleService {
     
             return {
                 status: false,
-                message: e.message || 'An error occurred while registering the user'
+                message: e.message || 'An error occurred while creating role'
             };
 
         }
@@ -271,27 +271,33 @@ export default class RoleService {
 
         try {                        
             
-            capabilities = await CapabilityModel.find({ role: _roleId }).lean();
+            capabilities = await CapabilityModel.find({ role: _roleId }).populate({
+                path: 'module',
+                match: { status: true }
+            }).lean();
+
             for (let i = 0; i < capabilities.length; i++) {
 
                 if (capabilities[i].can_read || capabilities[i].can_create || capabilities[i].can_delete || capabilities[i].can_update) {
-                    menu = await MenuModel.findOne({ module: capabilities[i].module }).lean();
+                    
+                    menu = await MenuModel.findOne({ module: capabilities[i].module._id }).lean();
+                    if (menu) {
+                        delete menu["created_by"];
+                        delete menu["updated_by"];
 
-                    delete menu["created_by"];
-                    delete menu["updated_by"];
-
-                    menu["capability"] = {
-                        read: capabilities[i].can_read,
-                        create: capabilities[i].can_create,
-                        delete: capabilities[i].can_delete,
-                        update: capabilities[i].can_update
+                        menu["capability"] = {
+                            read: capabilities[i].can_read,
+                            create: capabilities[i].can_create,
+                            delete: capabilities[i].can_delete,
+                            update: capabilities[i].can_update
+                        }
+                        menus.push(menu);
                     }
-                    menus.push(menu);
                 }
 
             }
 
-        } catch (_e) {
+        } catch (_e) { console.log(_e);
             throw _e;
         }
 

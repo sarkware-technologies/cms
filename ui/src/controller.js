@@ -182,7 +182,7 @@ export default class Controller extends React.Component {
         if (field) {
             return field.getVal();
         }
-        return null;
+        return null; 
     };
 
     /**

@@ -53,6 +53,16 @@ export default class ModuleService {
 
     };
 
+    listAll = async (_req) => {
+
+        try {
+            return await ModuleModel.find({}).sort({ title: 1 }).lean();
+        } catch (e) {
+            throw e;
+        }
+
+    };
+
     search = async (_req, _page, _skip, _limit, _field, _search) => {
 
         try {
@@ -182,8 +192,8 @@ export default class ModuleService {
                         created_by      : _req.user._id
                     };
     
-                    model = new CapabilityModel(cap);
-                    await model.save();
+                    const capModel = new CapabilityModel(cap);
+                    await capModel.save();
                 }
                 
             }  
@@ -205,7 +215,7 @@ export default class ModuleService {
     
             return {
                 status: false,
-                message: e.message || 'An error occurred while registering the user'
+                message: e.message || 'An error occurred while creating module'
             };
 
         }

@@ -32,7 +32,7 @@ export default class AuthService {
                 /* Step 2 - check for email */
                 user = await UserModel.findOne({ email: _req.body.user }).lean({ virtuals: true });
             }
-
+console.log(user);
             if (user) {
 
                 if (user.status) {
@@ -59,7 +59,15 @@ export default class AuthService {
                     if (isValid) {
 
                         /* Check roles */
-                        const _roles = await UserRoleMappingModel.find({user: user._id}).populate("role").lean().exec();
+                        let _roles = await UserRoleMappingModel.find({user: user._id}).populate({
+                            path: 'role',
+                            match: { status: true }
+                        }).lean().exec();
+
+                        _roles = _roles.filter(mapping => {
+                            return mapping.role;
+                        });
+                        
                         const roles = _roles.map(mapping => {
                             return {
                                 _id: mapping.role._id,
@@ -69,7 +77,7 @@ export default class AuthService {
 
                         if (roles && roles.length > 0) {
 
-                            if (roles.length === 2) {
+                            if (roles.length === 1) {
                                 return await this.prepareUser(user, _roles[0]);
                             } else {
 
@@ -108,7 +116,7 @@ export default class AuthService {
                 throw new Error("Username or password is invalid");
             }
 
-        } catch (e) {
+        } catch (e) { console.log(e);
             throw e;
         }
 

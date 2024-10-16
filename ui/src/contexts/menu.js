@@ -16,6 +16,33 @@ export default function ServiceContext(_component) {
     /**
      * 
      * @param {*} _handle 
+     * 
+     * Called after the select box component option's loaded (happens only remote config)
+     * 
+     */
+    this.afterSelectBoxLoaded = (_handle) => {
+
+        if (_handle == "menu_form_parent") {
+            const parentSelect = this.controller.getField("menu_form_parent");
+            const currentRecord = this.component.currentRecord["menu_grid"];
+            if (parentSelect && currentRecord) {
+                parentSelect.setVal(currentRecord["parent"]);
+            }
+        }
+
+        if (_handle == "menu_form_module") {
+            const moduleSelect = this.controller.getField("menu_form_module");
+            const currentRecord = this.component.currentRecord["menu_grid"];
+            if (moduleSelect && currentRecord) {
+                moduleSelect.setVal(currentRecord["module"]);
+            }
+        }
+
+    };
+
+    /**
+     * 
+     * @param {*} _handle 
      * @param {*} _value 
      * @param {*} _e 
      * 
@@ -24,9 +51,9 @@ export default function ServiceContext(_component) {
      */
     this.onFieldKeyUp = ( _handle, _value, _e ) => {
         
-        if (_handle === "module_form_title") {
+        if (_handle === "menu_form_title") {
             let name = _value.replace(/\s+/g, '_').toLowerCase();
-            this.controller.setInputFieldVal("module_form_handle", name);
+            this.controller.setInputFieldVal("menu_form_handle", name);
         }
 
     };
@@ -52,44 +79,44 @@ export default function ServiceContext(_component) {
      */
     this.onActionBtnClick = (_action) => {
 
-        if (_action === "NEW_MODULE") {
-            this.component.currentRecord["module_grid"] = null;
-            this.controller.switchView("module_form");
-        } else if (_action === "CANCEL_MODULE") {     
-            this.component.currentRecord["module_grid"] = null;       
+        if (_action === "NEW_MENU") {
+            this.component.currentRecord["menu_grid"] = null;
+            this.controller.switchView("menu_form");
+        } else if (_action === "CANCEL_MENU") {     
+            this.component.currentRecord["menu_grid"] = null;       
             this.controller.switchView("main_view");
-        } else if (_action === "SAVE_MODULE") {
-            this.saveModule();
+        } else if (_action === "SAVE_MENU") {
+            this.saveMenu();
         }
 
     };
 
-    this.saveModule = () => {
+    this.saveMenu = () => {
 
         const request = {};    
-        const module = this.component.currentRecord["module_grid"];
+        const menu = this.component.currentRecord["menu_grid"];
 
-        if (module) {
+        if (menu) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/module/" + module._id;
+            request["endpoint"] = "/system/menu/" + menu._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/module";
+            request["endpoint"] = "/system/menu";
         }
 
-        const moduleForm = this.controller.getField("module_form");
-        if (moduleForm) {
+        const menuForm = this.controller.getField("menu_form");
+        if (menuForm) {
 
-            request["payload"] = moduleForm.getFormFields();   
+            request["payload"] = menuForm.getFormFields();   
 
             if (request["payload"] && Object.keys(request["payload"]).length > 0) {
 
                 this.controller.docker.dock(request).then((_res) => {
                     this.controller.notify(_res.title + " saved successfully.!");
                         this.controller.switchView("main_view");
-                        this.component.currentRecord["module_grid"] = null;
+                        this.component.currentRecord["menu_grid"] = null;
                 })
                 .catch((e) => {
                     this.controller.notify(e.message, "error");

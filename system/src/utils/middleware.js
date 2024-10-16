@@ -101,7 +101,7 @@ export default class RequestInterceptor {
         }
 
         if (tokenVerificationResult.status) {
-            const user = await Utils.extractUserFromToken(tokenVerificationResult.payload);  console.log(user);
+            const user = await Utils.extractUserFromToken(tokenVerificationResult.payload);
             if (user) {
                 req["user"] = user;
                 return { status: true, message: "Token validated successfully" };

@@ -33,6 +33,25 @@ export default function RoleContext(_component) {
     /**
      * 
      * @param {*} _handle 
+     * 
+     * Called after the select box component option's loaded (happens only remote config)
+     * 
+     */
+    this.afterSelectBoxLoaded = (_handle) => {  console.log(_handle);
+
+        if (_handle == "role_form_authType") {
+            const authTypeSelect = this.controller.getField("role_form_authType");
+            const currentRecord = this.component.currentRecord["role_grid"];  console.log(currentRecord);
+            if (authTypeSelect && currentRecord) {
+                authTypeSelect.setVal(currentRecord["authType"]);
+            }
+        }
+
+    };
+
+    /**
+     * 
+     * @param {*} _handle 
      * @param {*} _value 
      * @param {*} _e 
      * 

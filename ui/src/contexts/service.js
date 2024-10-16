@@ -16,6 +16,49 @@ export default function ServiceContext(_component) {
     /**
      * 
      * @param {*} _handle 
+     * @param {*} _toggleHandle 
+     * @param {*} _record 
+     * @param {*} _status 
+     * @returns 
+     * 
+     * Called whenever toggle field change (in datagrid)
+     * This option assumes that it will always be the status field
+     * So it will automatically update the record in db as well, unless you return false 
+     * 
+     */
+    this.onRecordToggleStatus = (_handle, _toggleHandle, _record, _status) => {
+
+        if (_handle == "service_grid" && _record) {
+
+            const request = {};
+            request["method"] = "PUT";  
+            request["endpoint"] = "/system/service/"+ _record._id;          
+
+            request["payload"] = {
+                status: _status
+            };  
+            
+            const serviceGrid = this.controller.getField("service_grid");
+
+            this.controller.docker.dock(request).then((_res) => {
+                window._controller.notify(_record.title +" has been "+ (_status ? "enabled" : "disabled"));                      
+                serviceGrid.initFetch(); 
+            })
+            .catch((e) => {
+                serviceGrid.initFetch();
+                this.controller.notify(e.message, "error");
+            });
+
+            return false;
+        }
+
+        return true;
+
+    };
+
+    /**
+     * 
+     * @param {*} _handle 
      * @param {*} _value 
      * @param {*} _e 
      * 

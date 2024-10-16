@@ -15,7 +15,7 @@
 
 :root {
     --primary-text-color: #ffffff;
-    --primary-background: #49cced;
+    --primary-background: #2196F3;
     --secondary-text-color: #6c757d;
     --secondary-background: #f5f7fa;
     --primary-hover-background: #41bedd;
@@ -25,6 +25,7 @@
     --link-color: #0088cc;
     --form-field-border-color: #D9D9D9;
     --error-msg-color: #d92550;
+    --success-msg-color: #1e914e;
 }
 
 /* CSS reset section start */
@@ -547,6 +548,28 @@ strong {
     font-size: 14px !important;
 }
 
+.pharmarack-cms-password-status-box {
+    position: absolute;
+    z-index: 9999;
+    right: 50px;
+    bottom: 50px;
+    background: #fff;
+    padding: 25px;
+    border-radius: 20px;
+}
+
+.pharmarack-cms-password-status-box p {
+    margin: 5px 0px;
+}
+
+.pharmarack-cms-password-status-box p.success {
+    color: var(--success-msg-color);
+}
+
+.pharmarack-cms-password-status-box p.error {
+    color: var(--error-msg-color);
+}
+
 /* Main view styles */
 
 .pharmarack-cms-master-container {
@@ -800,9 +823,14 @@ table.pharmarack-cms-data-table td > button.approve-btn {
     background: #2196F3;
 }
 
+table.pharmarack-cms-data-table td > button.edit-btn,
 table.pharmarack-cms-data-table td > button.reject-btn {
     color: #2196F3;
     border: solid 1px #2196F3;
+}
+
+table.pharmarack-cms-data-table td > button.edit-btn {
+    border: none;
 }
 
 table.pharmarack-cms-data-table > tbody tr:nth-of-type(even) {
@@ -1449,43 +1477,47 @@ div.pharmarack-cms-tab.top {
 div.pharmarack-cms-tab.left div.pharmarack-cms-tab-header {
     width: 200px;
     padding-right: 15px;
-    border-right: solid 1px var(--primary-background);
+    border-right: solid 1px #D9D9D9;
 }
 
 div.pharmarack-cms-tab.top div.pharmarack-cms-tab-header {
     margin-bottom: 15px;
-    border-bottom: solid 2px var(--primary-background);
+    border-bottom: solid 1px #D9D9D9;
 }
 
 div.pharmarack-cms-tab.top div.pharmarack-cms-tab-header > button {
     border: none;
-    height: 35px;
+    height: 50px;
     cursor: pointer;
     padding: 0px 15px;
+    background: #fff;
+    font-weight: bold;
+    color: #A7A7A7;
 }
 
 div.pharmarack-cms-tab.left div.pharmarack-cms-tab-header > button {
     display: flex;
     font-size: 14px;
     height: 32px;
-    color: #3C434E;
+    color: #A7A7A7;
     align-items: center;
     border: none;
     width: 100%;
     cursor: pointer;
     background: #f5f6fa;
     padding: 0px 15px 0px 5px;
+    font-weight: bold;
 }
 
 div.pharmarack-cms-tab.top div.pharmarack-cms-tab-header > button.active,
 div.pharmarack-cms-tab.left div.pharmarack-cms-tab-header > button.active {
-    color: #fff;    
-    background: var(--primary-background);
+    color: var(--primary-background);    
+    border-bottom: solid 3px var(--primary-background);
 }
 
 div.pharmarack-cms-tab.top div.pharmarack-cms-tab-header > button.active i,
 div.pharmarack-cms-tab.left div.pharmarack-cms-tab-header > button.active i {
-    color: #fff;
+    color: var(--primary-background); 
 }
 
 div.pharmarack-cms-tab.top div.pharmarack-cms-tab-header > button i,
