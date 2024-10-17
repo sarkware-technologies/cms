@@ -1,7 +1,7 @@
 import Utils from "../utils/utils.js";
-import MenuModel from "../models/menu.js";
+import HostModel from "../models/host.js";
 
-export default class MenuService {
+export default class HostService {
 
     constructor () {}
 
@@ -9,7 +9,7 @@ export default class MenuService {
 
         try {
 
-            let _menus = [];
+            let _users = [];
 
             const page = parseInt(_req.query.page) || 1;
             const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
@@ -17,7 +17,6 @@ export default class MenuService {
 
             const searchFor = _req.query.search ? _req.query.search : "";
             const searchFrom = _req.query.field ? _req.query.field : "";
-            const populate = _req.query.populate ? _req.query.populate : false;
 
             const filter = _req.query.filter ? _req.query.filter : "";
             const filterBy = _req.query.filter_by ? _req.query.filter_by : "";
@@ -35,15 +34,10 @@ export default class MenuService {
                 }
             }
 
-            const _count = await MenuModel.countDocuments({});
-
-            if (populate) {                
-                _menus = await MenuModel.find({}).populate('module').sort({ title: 1 }).skip(skip).limit(limit).lean().exec();                
-            } else {
-                _menus = await MenuModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
-            }
+            const _count = await HostModel.countDocuments({});
+            _users = await HostModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
             
-            return Utils.response(_count, page, _menus);
+            return Utils.response(_count, page, _users);
 
         } catch (e) {
             throw _e;
@@ -54,7 +48,7 @@ export default class MenuService {
     listAll = async (_req) => {
 
         try {
-            return await MenuModel.find({}).sort({ title: 1 }).lean();
+            return await HostModel.find({}).sort({ title: 1 }).lean();
         } catch (e) {
             throw e;
         }
@@ -65,8 +59,8 @@ export default class MenuService {
 
         try {
 
-            const _count = await MenuModel.countDocuments({ [_field]: { $regex: new RegExp(_search, 'i') } });
-            const _roles = await MenuModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _count = await HostModel.countDocuments({ [_field]: { $regex: new RegExp(_search, 'i') } });
+            const _roles = await HostModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
             return Utils.response(_count, _page, _roles);
 
@@ -79,7 +73,7 @@ export default class MenuService {
     groupSeed = async(_req, _field) => { 
 
         try {
-            return await MenuModel.distinct(_field).exec();
+            return await HostModel.distinct(_field).exec();
         } catch (_e) {
 
             throw _e;
@@ -96,8 +90,8 @@ export default class MenuService {
                 query[_field] = { $in: _match.split('|') };
             }
 
-            const _count = await MenuModel.countDocuments(query);
-            const _roles = await MenuModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _count = await HostModel.countDocuments(query);
+            const _roles = await HostModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
             return Utils.response(_count, _page, _roles);
 
@@ -110,7 +104,7 @@ export default class MenuService {
     count = async (_req) => {
 
         try {
-            return await MenuModel.countDocuments({});
+            return await HostModel.countDocuments({});
         } catch (_e) {
             throw _e;
         }
@@ -124,7 +118,7 @@ export default class MenuService {
         }
 
         try {
-            return await MenuModel.findOne({ _id: _req.params.id }).lean();
+            return await HostModel.findOne({ _id: _req.params.id }).lean();
         } catch (_e) {
             throw _e;
         }
@@ -138,7 +132,7 @@ export default class MenuService {
         }
 
         try {
-            return await MenuModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updated_by: _req.user._id } }, { runValidators: true, new: true });
+            return await HostModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updated_by: _req.user._id } }, { runValidators: true, new: true });
         } catch (_e) {
             throw _e;
         }
@@ -152,7 +146,7 @@ export default class MenuService {
         }
 
         try {
-            return await MenuModel.deleteOne({ _id: _req.params.id });            
+            return await HostModel.deleteOne({ _id: _req.params.id });            
         } catch (_e) {
             throw _e;
         }
@@ -170,7 +164,7 @@ export default class MenuService {
             }
 
             body["created_by"] = _req.user._id
-            const model = new MenuModel(body);
+            const model = new HostModel(body);
             const menu = await model.save();     
 
             return {
@@ -190,7 +184,7 @@ export default class MenuService {
     
             return {
                 status: false,
-                message: e.message || 'An error occurred while creating menu'
+                message: e.message || 'An error occurred while creating host'
             };
 
         }

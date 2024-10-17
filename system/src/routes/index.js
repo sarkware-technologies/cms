@@ -7,6 +7,9 @@ import AuthTypeRouter from './auth-type.js';
 import ServiceRouter from './service.js';
 import ModuleRouter from './module.js';
 import MenuRouter from './menu.js';
+import HostRouter from './host.js';
+import EntityRouter from './entity.js';
+import FieldRouter from './field.js';
 
 const ping = (_req, _res) => {
     _res.status(200).send("Its working");
@@ -22,5 +25,8 @@ routes.use(new AuthTypeRouter().getRoutes());
 routes.use(new ServiceRouter().getRoutes());
 routes.use(new ModuleRouter().getRoutes());
 routes.use(new MenuRouter().getRoutes());
+routes.use(new HostRouter().getRoutes());
+routes.use(new EntityRouter().getRoutes());
+routes.use(new FieldRouter().getRoutes());
 
 export default routes;

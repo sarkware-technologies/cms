@@ -51,12 +51,32 @@ let host_config = {
                                         },
                                         {
                                             show: true, 
-                                            width: "95",
+                                            width: "50",
                                             search: false,
                                             filter: false,
                                             header: {title: "Name", align: "left", filterable: false, searchable: true, sortable: false}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                             field: {handle: "name", type: "link", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "35",
+                                            search: false,
+                                            filter: false,
+                                            header: {title: "Host", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "host", type: "alphanumeric", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "10",
+                                            search: false,
+                                            filter: false,
+                                            header: {title: "Port", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "port", type: "alphanumeric", align: "left", editable: false},
                                             prompt: ""
                                         }                                    
                                     ]

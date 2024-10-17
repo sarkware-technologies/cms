@@ -724,6 +724,10 @@ ul.pharmarack-cms-sidebar-main-nav-ul a i,
 .pharmarack-cms-system-content-wrapper {
     margin-top: 60px;
     height: calc(100% - 60px);
+    /*background-image: url("../imgs/background.png");*/
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 35%;
 }
 
 .pharmarack-cms-breadcrump-bar {

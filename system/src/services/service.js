@@ -1,5 +1,7 @@
 import CapabilityModel from "../models/capability.js";
+import HostModel from "../models/host.js";
 import ModuleModel from "../models/module.js";
+import ServiceVersionModel from "../models/service-version.js";
 import ServiceModel from "../models/service.js";
 import Utils from "../utils/utils.js";
 
@@ -199,6 +201,56 @@ export default class ServiceService {
                 message: e.message || 'An error occurred while creating service'
             };
 
+        }
+
+    };
+
+    prepareRoutes = async () => {
+
+        try {
+            let host = {},
+                _hosts = {},
+                _versions = {},
+                _features = [];
+    
+            const routes = {
+                hosts: {},
+                services: {},
+            };
+
+            const _services = await ServiceModel.find({}).lean();
+            const _lists = await HostModel.find({}).lean();
+
+            for (let i = 0; i < _lists.length; i++) {
+                _hosts[_lists[i]._id] = _lists[i];
+            }
+            routes.hosts = _hosts;
+    
+            /* Fetch version */
+            for (let i = 0; i < _services.length; i++) {
+
+                routes.services[_services[i].handle] = {
+                    service: _services[i],
+                    features: {},
+                    versions: {},
+                };
+    
+                _features = await ModuleModel.find({ service: _services[i]._id });            
+                _versions = await ServiceVersionModel.find({ service: _services[i]._id });
+    
+                for (let j = 0; j < _versions.length; j++) {
+                    routes.services[_services[i].handle].versions[_versions[j].route] = _versions[j];
+                }
+    
+                for (let j = 0; j < _features.length; j++) {
+                    routes.services[_services[i].handle].features[_features[j].handle] = _features[j];
+                }
+            }
+                
+            return routes;
+
+        } catch (_e) {
+            throw _e;
         }
 
     };

@@ -7,6 +7,7 @@ import routes from "./routes/index.js"
 import MDBM from "./utils/mongo.js";
 import MYDBM from "./utils/mysql.js";
 import RequestInterceptor from "./utils/middleware.js";
+import cache from "./utils/cache.js";
 
 /**
  * 
@@ -67,6 +68,8 @@ class SystemServer {
     listen = async () => {
 
         await MDBM.connect();
+        await cache.initCache();
+        
         if (MDBM.checkConnection()) {
             this.app.listen(process.env.SYSTEM_PORT);
         } else {

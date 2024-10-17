@@ -113,4 +113,17 @@ export default class RequestInterceptor {
         }
 
     };
+
+    interceptRequest = async (_module, _method, _permissions, _routeHandler) => {
+
+        return (req, res, next) => {
+            if (checkPermissions(_permissions, req)) {                
+                return _routeHandler(req, res, next);
+            } else {                
+                return res.status(403).json({ message: 'Forbidden: Insufficient Permissions' });
+            }
+        };
+        
+    };
+
 }

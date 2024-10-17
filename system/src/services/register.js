@@ -326,7 +326,7 @@ export default class RegisterService {
     getRoles = async (_req) => {
 
         try {
-            return await RoleModel.find().populate("authType").sort({ title: 1 }).lean();
+            return await RoleModel.find({handle: { $ne : "system" }}).populate("authType").sort({ title: 1 }).lean();
         } catch (e) {
             throw e;
         }
