@@ -16,6 +16,9 @@ export default class ServiceRouter {
         this.router.delete("/service/:id", this.delete);
         this.router.post("/service", this.create);
 
+        this.router.get("/services/:id/modules", this.listModules);
+        this.router.get("/services/:id/versions", this.listVersions);
+
     }
 
     getRoutes = () => {
@@ -33,6 +36,22 @@ export default class ServiceRouter {
     listAll = async (_req, _res) => {
         try {
             _res.status(200).json(await this.serviceService.listAll(_req));
+        } catch (_e) {
+            Utils.handleError(_e, _res);
+        }
+    };
+
+    listModules = async (_req, _res) => {
+        try {
+            _res.status(200).json(await this.serviceService.listModules(_req));
+        } catch (_e) {
+            Utils.handleError(_e, _res);
+        }
+    };
+
+    listVersions = async (_req, _res) => {
+        try {
+            _res.status(200).json(await this.serviceService.listVersions(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }

@@ -59,6 +59,65 @@ export default class ServiceService {
 
     };
 
+    listModules = async (_req) => {
+
+        const page = parseInt(_req.query.page) || 1;
+        const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
+        const limit = parseInt(process.env.PAGE_SIZE);
+        const serviceId = _req.params.id ? _req.params.id : null;
+    
+        if (serviceId) {
+
+            try {
+                
+                const _count = await ModuleModel.countDocuments({ service: serviceId });
+                const _modules = await ModuleModel.find({ service: serviceId })                                
+                .skip(skip)
+                .limit(limit)
+                .lean();  console.log(_modules);
+                return Utils.response(_count, page, _modules);
+
+            } catch (_e) {
+                throw _e;
+            }
+            
+        }
+    
+        return Utils.response(0, 0, []);
+
+    };
+
+    listVersions = async (_req) => {
+
+        const page = parseInt(_req.query.page) || 1;
+        const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
+        const limit = parseInt(process.env.PAGE_SIZE);
+        const serviceId = _req.params.id ? _req.params.id : null;
+    
+        if (serviceId) {
+
+            try {
+                
+                const _count = await ServiceVersionModel.countDocuments({ service: serviceId });
+                const _versions = await ServiceVersionModel.find({ service: serviceId })
+                .populate("host")
+                .sort({ version: 1 })
+                .skip(skip)
+                .limit(limit)
+                .lean()
+                .exec();
+                return Utils.response(_count, page, _versions);
+
+            } catch (_e) {
+                throw _e;
+            }
+
+        }
+    
+        return Utils.response(0, 0, []);
+
+    };
+
     search = async (_req, _page, _skip, _limit, _field, _search) => {
 
         try {
