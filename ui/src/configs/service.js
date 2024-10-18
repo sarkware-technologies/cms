@@ -112,7 +112,7 @@ let service_config = {
                                 fields: [
                                     { type: "toggle", label: "Status", handle: "status", value : false, classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" },                                   
                                     { type: "text", label: "Title", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "text", label: "Handle", handle: "handle", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                    { type: "text", label: "Route", handle: "handle", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "textarea", label: "Description", handle: "description", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
                                 ]
                             }
@@ -171,7 +171,7 @@ let service_config = {
                                                                     is_main_grid: false,
                                                                     empty_message: "No version configured for this service.!",
                                                                     datasource: {endpoint: "/system/versions", page: 0, populate: false},
-                                                                    link: {key: "version", context: "service", view: "version_form"},
+                                                                    link: {key: "_id", context: "service", target_type: "tab", tab: "service_tab", tab_item: "version_form_tab", data: "remote", endpoint: "/system/version"},                                                                    
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -250,7 +250,7 @@ let service_config = {
                                                                     is_main_grid: false,
                                                                     empty_message: "No module mapped for this service.!",
                                                                     datasource: {endpoint: "/system/modules", page: 0, populate: false},
-                                                                    link: {key: "name", context: "service", view: "module_form"},
+                                                                    link: {key: "_id", context: "service", target_type: "tab", tab: "service_tab", tab_item: "module_form_tab", data: "remote", endpoint: "/system/module"},                                                                    
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -281,7 +281,7 @@ let service_config = {
                                                                             width: "15", 
                                                                             header: {title: "Status", align: "right"}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                            field: {handle: "status", type: "toggle", align: "right", key_field: "_id", title_key: "name"},
+                                                                            field: {handle: "status", type: "toggle", align: "right", key_field: "_id", title_key: "title"},
                                                                             prompt: ""
                                                                         }                                     
                                                                     ]
@@ -297,10 +297,10 @@ let service_config = {
                                                 actions: [{ label: "New Module", theme: "primary", action: "NEW_MODULE", classes: "icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
                                             }
                                         },
-                                        feature_form_tab: {  
+                                        module_form_tab: {  
                                             custom: true,                                                           
                                             icon: "far fa-server",
-                                            title: "Feature",					                                            
+                                            title: "Module",					                                            
                                             header: {
                                                 show: false
                                             },                    
@@ -317,56 +317,11 @@ let service_config = {
                                                                 width: "100%",
                                                                 layout: "horizontal",
                                                                 fields: [                                                                
-                                                                    { type: "text", label: "Name", handle: "feature_name", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                                                    { type: "text", label: "Handle", handle: "feature_handle", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },                                                                
-                                                                    { type: "number", label: "Price", handle: "feature_price", value : "", placeholder: "", classes : "", mandatory : false, min: "", max: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                                                    { type: "select", label: "Package", handle: "feature_package", value : "1", value_key: "value", label_key: "label", options: [{label: "Free", value: "1", selected: true, disabled: false},{label: "Weekly", value: "2", selected: false, disabled: false},{label: "Monthly", value: "3", selected: false, disabled: false},{label: "Yearly", value: "4", selected: false, disabled: false},{label: "Transaction", value: "5", selected: false, disabled: false}], classes : "", mandatory : false, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "" }                                                                
-                                                                ]
-                                                            }
-                                                        ]
-                                                    },
-                                                    {
-                                                        seperator: false,
-                                                        columns: [
-                                                            {
-                                                                title: "",
-                                                                sub_title: "",
-                                                                type: "fields",
-                                                                width: "16.88888%",
-                                                                layout: "horizontal",
-                                                                fields: [{ type: "toggle", label: "Status", handle: "feature_status", value : false, classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" }]
-                                                            },
-                                                            {
-                                                                title: "",
-                                                                sub_title: "",
-                                                                type: "fields",
-                                                                width: "16.88888%",
-                                                                layout: "horizontal",
-                                                                fields: [{ type: "toggle", label: "To be deprecated", handle: "feature_to_be_deprecated", value : false, classes : "", mandatory : false, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" }]
-                                                            },
-                                                            {
-                                                                title: "",
-                                                                sub_title: "",
-                                                                type: "fields",
-                                                                width: "16.88888%",
-                                                                layout: "horizontal",
-                                                                fields: [{ type: "toggle", label: "Depricated", handle: "feature_deprecated", value : false, classes : "", mandatory : false, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" }]
-                                                            }   
-                                                        ]
-                                                    },
-                                                    {
-                                                        seperator: false,
-                                                        columns: [
-                                                            {
-                                                                title: "",
-                                                                sub_title: "",
-                                                                type: "fields",
-                                                                width: "100%",
-                                                                layout: "horizontal",
-                                                                fields: [
-                                                                    { type: "textarea", label: "Description", handle: "feature_description", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                                                    { type: "textarea", label: "Offline Message", handle: "feature_offline_message", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                                                    { type: "textarea", label: "Deprecate Message", handle: "feature_deprecate_message", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
+                                                                    { type: "toggle", label: "Status", handle: "status", value : false, classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" },                                   
+                                                                    { type: "text", label: "Title", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                                                    { type: "text", label: "Route", handle: "handle", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },                                                                    
+                                                                    { type: "textarea", label: "Description", handle: "description", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                                                    { type: "textarea", label: "Offline Message", handle: "offline_message", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }                            
                                                                 ]
                                                             }
                                                         ]
@@ -377,8 +332,8 @@ let service_config = {
                                                 show: true,                                            
                                                 align: "left",
                                                 actions: [                                                
-                                                    { label: "Save Feature", theme: "primary", action: "SAVE_FEATURE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" },
-                                                    { label: "Cancel", theme: "secondary", action: "CANCEL_FEATURE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                                                    { label: "Save Module", theme: "primary", action: "SAVE_MODULE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" },
+                                                    { label: "Cancel", theme: "secondary", action: "CANCEL_MODULE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                                                 ]
                                             }
                                         },
@@ -402,9 +357,9 @@ let service_config = {
                                                                 width: "100%",
                                                                 layout: "horizontal",
                                                                 fields: [
-                                                                    { type: "text", label: "Version", handle: "version_version", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                                                    { type: "text", label: "Route", handle: "version_route", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },                                                                
-                                                                    { type: "search", label: "Location", handle: "version_host", value : "", placeholder: "Click to search for location", searchprompt: "Search for location",search_class: "", popup_class: "",mandatory: true, disabled: false, tabindex: 1, align: "right", label_width: 0, label_position: "top", validation_message: "", value_key: "_id", label_key: "name", datasource: {endpoint: "/system/hosts", page: 0}}
+                                                                    { type: "text", label: "Version", handle: "version", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                                                    { type: "text", label: "Route", handle: "route", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },                                                                
+                                                                    { type: "search", label: "Host", handle: "host", value : "", placeholder: "Click to search for host", searchprompt: "Search for host",search_class: "", popup_class: "",mandatory: true, disabled: false, tabindex: 1, align: "right", label_width: 0, label_position: "top", validation_message: "", value_key: "_id", label_key: "name", datasource: {endpoint: "/system/hosts", page: 0}}
                                                                 ]
                                                             }
                                                         ]
@@ -418,7 +373,7 @@ let service_config = {
                                                                 type: "fields",
                                                                 width: "16.88888%",
                                                                 layout: "horizontal",
-                                                                fields: [{ type: "toggle", label: "Status", handle: "version_status", value : false, classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" }]
+                                                                fields: [{ type: "toggle", label: "Status", handle: "status", value : false, classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" }]
                                                             },
                                                             {
                                                                 title: "",
@@ -426,7 +381,7 @@ let service_config = {
                                                                 type: "fields",
                                                                 width: "16.88888%",
                                                                 layout: "horizontal",
-                                                                fields: [{ type: "toggle", label: "To be deprecated", handle: "version_to_be_deprecated", value : false, classes : "", mandatory : false, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" }]
+                                                                fields: [{ type: "toggle", label: "To be deprecated", handle: "to_be_deprecated", value : false, classes : "", mandatory : false, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" }]
                                                             },
                                                             {
                                                                 title: "",
@@ -434,7 +389,7 @@ let service_config = {
                                                                 type: "fields",
                                                                 width: "16.88888%",
                                                                 layout: "horizontal",
-                                                                fields: [{ type: "toggle", label: "Depricated", handle: "version_deprecated", value : false, classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" }]
+                                                                fields: [{ type: "toggle", label: "Depricated", handle: "deprecated", value : false, classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" }]
                                                             }   
                                                         ]
                                                     },      
@@ -448,8 +403,8 @@ let service_config = {
                                                                 width: "100%",
                                                                 layout: "horizontal",
                                                                 fields: [                                                                                                                           
-                                                                    { type: "textarea", label: "Offline Message", handle: "version_offline_message", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                                                    { type: "textarea", label: "Deprecate Message", handle: "version_deprecate_message", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
+                                                                    { type: "textarea", label: "Offline Message", handle: "offline_message", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                                                    { type: "textarea", label: "Deprecate Message", handle: "deprecate_message", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
                                                                 ]
                                                             }
                                                         ]

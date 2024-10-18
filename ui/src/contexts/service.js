@@ -113,14 +113,53 @@ export default function ServiceContext(_component) {
      * Called whenever user click pressing key on any fields or grid cell 
      * 
      */
-    this.onFieldKeyUp = ( _handle, _value, _e ) => {
+    this.onFieldKeyUp = ( _handle, _value, _e ) => {  console.log("_handle ", _handle);
         
         if (_handle === "service_form_title") {
             let name = _value.replace(/\s+/g, '_').toLowerCase();
             this.controller.setInputFieldVal("service_form_handle", name);
+        } else if (_handle === "service_tab_title") {            
+            this.controller.setInputFieldVal("service_tab_handle", _value.replace(/\s+/g, '_').toLowerCase());
         }
 
     };
+
+    /**
+     * 
+     * @param {*} _tabHandle 
+     * @param {*} _tabItemHandle 
+     * 
+     * Called whenever a Tab Item is go to visible state 
+     * 
+     */
+    this.onTabViewMounted = ( _tabHandle, _tabItemHandle ) => {
+
+        if (_tabHandle === "service_tab") {
+
+            const serviceTab = this.controller.getField("service_tab");
+            if (serviceTab) {
+
+                if (_tabItemHandle === "version_form_tab") {
+                    
+                    const version = this.component.currentRecord["version_grid"];
+                    if (version) {
+                        serviceTab.setFormFields(version);
+                    }
+
+                } else if (_tabItemHandle === "module_form_tab") {
+
+                    const module = this.component.currentRecord["module_grid"];
+                    if (module) {
+                        serviceTab.setFormFields(module);
+                    }
+
+                }
+
+            }
+
+        }        
+        
+    }; 
 
     /**     
      * 
@@ -131,7 +170,22 @@ export default function ServiceContext(_component) {
      * 
      */
     this.beforeViewMount = (_handle, _viewConfig) => {
+        
+        if (!_handle) {
+            return _viewConfig;
+        }
+
+        if (_handle === "service_form") {
+            const service = this.component.currentRecord["service_grid"];  
+            if (service) {    
+                _viewConfig.footer.show = true;
+            } else {
+                _viewConfig.footer.show = false;
+            }
+        }        
+
         return _viewConfig;
+
     };
 
     /**
@@ -162,7 +216,7 @@ export default function ServiceContext(_component) {
         } else if (_action === "NEW_MODULE") {
             this.controller.switchTab("service_tab", "module_form_tab");
         } else if (_action === "SAVE_MODULE") {
-            this.saveFeature();
+            this.saveModule();
         } else if (_action === "CANCEL_MODULE") {
             /* Clear the current record */
             this.component.currentRecord["module_grid"] = null;
@@ -228,21 +282,52 @@ export default function ServiceContext(_component) {
         }
 
         request["payload"] = {};
-        request["payload"]["version"] = this.controller.getInputFieldVal("version_version"); 
-        request["payload"]["route"] = this.controller.getInputFieldVal("version_route");
-        request["payload"]["offline_message"] = this.controller.getInputFieldVal("version_offline_message");
-        request["payload"]["deprecate_message"] = this.controller.getInputFieldVal("version_deprecate_message");
-        request["payload"]["status"] = this.controller.getToggleStatus("version_status");        
-        request["payload"]["deprecated"] = this.controller.getToggleStatus("version_deprecated");
-        request["payload"]["to_be_deprecated"] = this.controller.getToggleStatus("version_to_be_deprecated");
-
-        request["payload"]["host"] = this.controller.getSearchRecord("version_host");
-        request["payload"]["service"] = currentService._id;
-
+        const serviceTab = this.controller.getField("service_tab");
+        if (serviceTab) {
+            request["payload"] = serviceTab.getFormFields();
+            request["payload"]["service"] = currentService._id;
+        }
+       
         this.controller.docker.dock(request).then((_res) => {
             this.controller.notify(request["payload"].version + " saved successfully.!");
             this.controller.switchTab("service_tab", "version_tab");
             this.component.currentRecord["version_grid"] = null;
+        })
+        .catch((e) => {
+            this.controller.notify(e.message, "error");
+        });
+
+    };
+
+    this.saveModule = () => {
+
+        const currentService = this.component.currentRecord["service_grid"];
+        if (!currentService) {
+            return;
+        }
+
+        const request = {};        
+        if (this.component.currentRecord["module_grid"]) {
+            /* It's an uppdate call */
+            request["method"] = "PUT";
+            request["endpoint"] = "/system/module/"+ this.component.currentRecord["module_grid"]._id;
+        } else {
+            /* It's a new record */
+            request["method"] = "POST";
+            request["endpoint"] = "/system/module";
+        }
+
+        request["payload"] = {};
+        const serviceTab = this.controller.getField("service_tab");
+        if (serviceTab) {
+            request["payload"] = serviceTab.getFormFields();
+            request["payload"]["service"] = currentService._id;
+        }
+       
+        this.controller.docker.dock(request).then((_res) => {
+            this.controller.notify(request["payload"].version + " saved successfully.!");
+            this.controller.switchTab("service_tab", "module_tab");
+            this.component.currentRecord["module_grid"] = null;
         })
         .catch((e) => {
             this.controller.notify(e.message, "error");

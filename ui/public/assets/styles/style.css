@@ -185,7 +185,8 @@ input[type="file"]::file-selector-button:active {
     background-color: #e5e7eb;
 }
 
-input::placeholder {
+.pharmarack-cms-login-wrapper input::placeholder,
+.pharmarack-cms-register-wrapper input::placeholder {
     font-size: 16px;
     opacity: 0.5;
 }

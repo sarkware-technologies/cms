@@ -519,7 +519,9 @@ const DataGrid = (props, ref) => {
 
             if (props.config.link.data === "remote") {
 
-                let _endPoint = props.config.link.endpoint + state.currentRecord[props.config.link.key];  
+                const id = state.currentRecord[props.config.link.key];
+                let _endPoint = props.config.link.endpoint.endsWith("/") ? (props.config.link.endpoint + id) : (props.config.link.endpoint +"/"+ id);                 
+
                 if (contextObj.onCurrentRecordRequest) {
                     _endPoint = contextObj.onCurrentRecordRequest(props.config.handle, _endPoint);   
                 }                             
@@ -531,7 +533,7 @@ const DataGrid = (props, ref) => {
                 contextObj.currentRecord[props.config.handle] = null;
 
                 window._controller.docker.dock(request)
-                .then((_res) => {
+                .then((_res) => {  console.log("Insid eresponse handler : "+ props.config.handle);
                     contextObj.currentRecord[props.config.handle] = _res;                        
                     switchView();
                 })
@@ -652,7 +654,7 @@ const DataGrid = (props, ref) => {
                         const id = _record[_props.config.key_field];                                   
 
                         request["method"] = "PUT";
-                        request["endpoint"] = props.config.datasource.endpoint +"/"+ id;
+                        request["endpoint"] = props.config.link.endpoint.endsWith("/") ? (props.config.link.endpoint + id) : (props.config.link.endpoint +"/"+ id);
                         request["payload"] = {};                        
                         request["payload"][_props.config.handle] = _e.target.checked;
 

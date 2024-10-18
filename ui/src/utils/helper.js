@@ -143,7 +143,7 @@ class Helper {
 								}
 				
 							} else if (_fields[k].type === "search") {
-				
+				 
 								/* Validation for Search */
 								value = window._controller.getCurrentRecord(_namespace + _fields[k].handle);
 								if (_fields[k].mandatory && !value) {

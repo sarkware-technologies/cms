@@ -281,7 +281,7 @@ const Tab = (props, ref) => {
             }
 
         },
-        getFormFields: (_payload) => {
+        getFormFields: () => {
 
             let fieldValues = {}, payload = {};
             const _namespace = state.config.handle + "_";
