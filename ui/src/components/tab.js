@@ -20,16 +20,17 @@ const Tab = (props, ref) => {
     const [state, setState] = useState({
         config: {...props.config},  
         currentView: null,
-        currentViewMode: "archive" 
+        currentViewMode: "archive",
+        lastActive: props.config.default_tab 
     });
     
     const handleTabItemClick = (_currentView) => { 
         if (contextObj && contextObj.beforeTabViewSwitch) {
             if (contextObj.beforeTabViewSwitch(state.config.handle, state.config.currentView, _currentView)) {
-                setState({...state, currentView: _currentView}); 
+                setState({...state, currentView: _currentView, lastActive: _currentView}); 
             }                
         } else {
-            setState({...state, currentView: _currentView}); 
+            setState({...state, currentView: _currentView, lastActive: _currentView}); 
         }         
     };       
 
@@ -169,9 +170,17 @@ const Tab = (props, ref) => {
     const renderTabItems = (_view, _config) => {
 
         let classes = "";
-        if (state.currentView === _view) {
-            classes = "active";
+
+        if (state.config.items[state.currentView].custom) {
+            if (state.lastActive === _view) {
+                classes = "active";
+            }
+        } else {
+            if (state.currentView === _view) {
+                classes = "active";
+            }
         }
+        
         let btnText = [];
         if (_config.icon !== "") {
             btnText.push(<i key={"i_"+_view} className={_config.icon}></i>);

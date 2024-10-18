@@ -10,6 +10,7 @@ import MenuRouter from './menu.js';
 import HostRouter from './host.js';
 import EntityRouter from './entity.js';
 import FieldRouter from './field.js';
+import VersionRouter from './service-version.js';
 
 const ping = (_req, _res) => {
     _res.status(200).send("Its working");
@@ -28,5 +29,6 @@ routes.use(new MenuRouter().getRoutes());
 routes.use(new HostRouter().getRoutes());
 routes.use(new EntityRouter().getRoutes());
 routes.use(new FieldRouter().getRoutes());
+routes.use(new VersionRouter().getRoutes());
 
 export default routes;

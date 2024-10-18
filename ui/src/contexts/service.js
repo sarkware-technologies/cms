@@ -220,11 +220,11 @@ export default function ServiceContext(_component) {
         if (this.component.currentRecord["version_grid"]) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/versions/"+ this.component.currentRecord["version_grid"]._id;
+            request["endpoint"] = "/system/version/"+ this.component.currentRecord["version_grid"]._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/versions";
+            request["endpoint"] = "/system/version";
         }
 
         request["payload"] = {};
@@ -239,16 +239,14 @@ export default function ServiceContext(_component) {
         request["payload"]["host"] = this.controller.getSearchRecord("version_host");
         request["payload"]["service"] = currentService._id;
 
-        this.controller.dock(request, 
-            (_req, _res) => {                    
-                this.controller.notify(request["payload"].version + " saved successfully.!");
-                this.controller.switchTab("service_tab", "tab1");
-                this.component.currentRecord["version_grid"] = null;
-            }, 
-            (_req, _res) => {
-                this.controller.notify(_res, "error");
-            }
-        );
+        this.controller.docker.dock(request).then((_res) => {
+            this.controller.notify(request["payload"].version + " saved successfully.!");
+            this.controller.switchTab("service_tab", "version_tab");
+            this.component.currentRecord["version_grid"] = null;
+        })
+        .catch((e) => {
+            this.controller.notify(e.message, "error");
+        });
 
     };
 
