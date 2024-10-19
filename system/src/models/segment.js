@@ -4,10 +4,10 @@ import SegmentOrder from '../enums/segment-order.js';
 import SegmentRetailer from '../enums/segment-retailer.js';
 import SegmentDistributor from '../enums/segment-distributor.js';
 
-const RoleSchema = new mongoose.Schema({ 
+const SegmentSchema = new mongoose.Schema({ 
     title                   : { type: String, required: true },
     description             : { type: String, default: null },
-    type                    : { type: Number, default: SegmentType.DYNAMIC },
+    segmentType             : { type: Number, default: SegmentType.DYNAMIC },
     fromDate                : { type: Date, default: null },
     toDate                  : { type: Date, default: null },
     geography               : { type: String, default: null },
@@ -15,6 +15,7 @@ const RoleSchema = new mongoose.Schema({
     regions                 : { type: Array, default: null },
     orderStatus             : { type: Number, default: SegmentOrder.PROCESSED },
     retailerStatus          : { type: Number, default: SegmentRetailer.ALL },
+    companies               : { type: Array, default: null },
     distributorStatus       : { type: Number, default: SegmentDistributor.ALL },    
     status                  : { type: Boolean, default: false },
     createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
@@ -25,5 +26,5 @@ const RoleSchema = new mongoose.Schema({
     timestamps              : true
 });
 
-const RoleModel = mongoose.model('cms_system_segment', RoleSchema);
-export default RoleModel;
+const SegmentModel = mongoose.model('cms_system_segment', SegmentSchema);
+export default SegmentModel;

@@ -1,8 +1,8 @@
 import mongoose from'mongoose';
 
-const SegmentDistributorExclusionSchema = new mongoose.Schema({ 
+const SegmentRetailerExclusionSchema = new mongoose.Schema({ 
     segment                 : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_segment", default: null },
-    distributor             : { type: String, default: null },
+    retailer                : { type: String, default: null },
     createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
     updatedBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 },
@@ -11,5 +11,5 @@ const SegmentDistributorExclusionSchema = new mongoose.Schema({
     timestamps              : true
 });
 
-const SegmentDistributorExclusionModel = mongoose.model('cms_system_segment_distributor_exclusion', SegmentDistributorExclusionSchema);
-export default SegmentDistributorExclusionModel;
+const SegmentRetailerExclusionModel = mongoose.model('cms_system_segment_retailer_exclusion', SegmentRetailerExclusionSchema);
+export default SegmentRetailerExclusionModel;

@@ -520,32 +520,30 @@ const MultiSelect = (props, ref) => {
                 method: "GET",
                 endpoint: props.config.endpoint
             };        
-            
-            window._controller.dock(request, 
-                (_req, _res) => {                      
-                    if (Array.isArray(_res)) {
 
-                        setOriginal(_res);
-                        
-                        setState({
-                            ...state,
-                            currentPage: 0,  
-                            records: _res,
-                            source: _res,                                    
-                            isLoading: false,                            
-                            totalPages: Math.floor(_res.length / props.config.recordsPerPage) 
-                        });  
-                        
-                    }
-                    const contextObj = window._controller.getCurrentModuleInstance();
-                    if (contextObj && contextObj.onMultiSelectRecordLoaded) {
-                        contextObj.onMultiSelectRecordLoaded(props.config.handle);
-                    } 
-                }, 
-                (_req, _res) => {
-                    console.error(_req);
+            window._controller.docker.dock(request).then((_res) => {
+                if (Array.isArray(_res)) {
+
+                    setOriginal(_res);
+                    
+                    setState({
+                        ...state,
+                        currentPage: 0,  
+                        records: _res,
+                        source: _res,                                    
+                        isLoading: false,                            
+                        totalPages: Math.floor(_res.length / props.config.recordsPerPage) 
+                    });  
+                    
                 }
-            );
+                const contextObj = window._controller.getCurrentModuleInstance();
+                if (contextObj && contextObj.onMultiSelectRecordLoaded) {
+                    contextObj.onMultiSelectRecordLoaded(props.config.handle);
+                } 
+            })
+            .catch((e) => {
+                window._controller.notify(e.message, "error");
+            });            
 
         } else {
             setState({

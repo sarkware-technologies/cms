@@ -1,8 +1,13 @@
+import React from "react";
+import { v4 as uuidv4 } from 'uuid';
+import SegmentPreview from "../components/segment-preview";
+
 export default function SegmentContext(_component) {
 
     this.component = _component;
     this.config = this.component.config;
     this.controller = window._controller;
+    this.segmentPreviewRef = null;
 
     /**
      * 
@@ -28,6 +33,58 @@ export default function SegmentContext(_component) {
             let name = _value.replace(/\s+/g, '_').toLowerCase();
             this.controller.setInputFieldVal("auth_type_form_handle", name);
         }
+
+    };
+
+    /**
+     * 
+     * @param {*} _handle 
+     * @param {*} _value 
+     * @param {*} _e 
+     * 
+     * Called whenever a field got changed 
+     * 
+     */
+    this.onFieldChange = ( _handle, _value, _e ) => {
+    
+        if (_handle == "segment_form_segmentType") {
+
+            const segmentFormTab = this.controller.getField("segment_form_tab");
+            if (segmentFormTab) {
+                const tabView = (_value == 1) ? "dynamic_segment_tab" : "static_segment_tab";
+                segmentFormTab.switchTab(tabView);
+            } 
+
+        }
+
+    };
+
+    /**
+     * 
+     * @param {*} _config 
+     * @param {*} _section 
+     * @param {*} _row 
+     * @param {*} _column 
+     * @returns 
+     * 
+     * Column's render callback (chance to insert your own component into each columns)
+     * 
+     */
+    this.onColumnSectionRendering = (_handle, _config, _section, _row, _column) => {  
+
+        let _widgets = [];
+        
+        if (_handle === "segment_form" && _section === "content" && _row === 0 && _column === 1) {
+            
+            this.segmentPreviewRef = React.createRef();
+            let widget = <SegmentPreview ref={this.segmentPreviewRef} />;                
+            _widgets.push(<div key={uuidv4()} style={{width: "66.6666%"}} className={`fields-factory-view-column flex-remaining-width`}>{widget}</div>);
+            
+            return { component: _widgets, pos: "replace" };
+        }
+
+        /* 'pos' could be 'before', 'after' or 'replace' */
+        return { component: _widgets, pos: "after" };
 
     };
 
@@ -58,19 +115,19 @@ export default function SegmentContext(_component) {
      */
     this.onActionBtnClick = (_action) => {
 
-        if (_action === "NEW_AUTH_TYPE") {
-            this.component.currentRecord["auth_type_grid"] = null;
-            this.controller.switchView("auth_type_form");
-        } else if (_action === "CANCEL_AUTH_TYPE") {     
-            this.component.currentRecord["auth_type_grid"] = null;       
+        if (_action === "NEW_SEGMENT") {
+            this.component.currentRecord["segment_grid"] = null;
+            this.controller.switchView("segment_form");
+        } else if (_action === "CANCEL_SEGMENT") {     
+            this.component.currentRecord["segment_grid"] = null;       
             this.controller.switchView("main_view");
-        } else if (_action === "SAVE_AUTH_TYPE") {
-            this.saveAuthType();
+        } else if (_action === "SAVE_SEGMENT") {
+            this.saveSegment();
         }
 
     };
 
-    this.saveAuthType = () => {
+    this.saveSegment = () => {
 
         const request = {};    
         const authType = this.component.currentRecord["auth_type_grid"];

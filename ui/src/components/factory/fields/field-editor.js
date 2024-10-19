@@ -69,16 +69,14 @@ const FieldEditor = (props, ref) => {
         const request = {
             method: "GET",
             endpoint: "/system/entity/"+ props.record._id +"/fields"
-        };        
+        };    
         
-        window._controller.dock(request, 
-            (_req, _res) => {                                            
-                setState((prevState) => ({...prevState, fields: _res.payload})); 
-            }, 
-            (_req, _res) => {
-                
-            }
-        );
+        window._controller.docker.dock(request).then((_res) => {
+            setState((prevState) => ({...prevState, fields: _res.payload})); 
+        })
+        .catch((e) => {
+            window._controller.notify("Failed to fetch fields.!", "error");
+        });        
 
     };
 
@@ -124,15 +122,13 @@ const FieldEditor = (props, ref) => {
         request["endpoint"] = "/system/field/"+ _config._id;            
         request["payload"] = payload;
 
-        window._controller.dock(request, 
-            (_req, _res) => {                    
-                window._controller.notify("Updated successfully.!"); 
-                fetchFields();
-            }, 
-            (_req, _res) => {
-                window._controller.notify("Failed to update.!", "error");                    
-            }
-        );
+        window._controller.docker.dock(request).then((_res) => {
+            window._controller.notify("Updated successfully.!"); 
+            fetchFields();
+        })
+        .catch((e) => {
+            window._controller.notify("Failed to update.!", "error");
+        });  
 
     }
 
@@ -141,17 +137,15 @@ const FieldEditor = (props, ref) => {
         const request = {};                   
         /* It's a new record */
         request["method"] = "DELETE";
-        request["endpoint"] = "/system/field/"+ _id;     
+        request["endpoint"] = "/system/field/"+ _id;   
         
-        window._controller.dock(request, 
-            (_req, _res) => {                    
-                window._controller.notify("Removed successfully.!"); 
-                fetchFields();
-            }, 
-            (_req, _res) => {
-                window._controller.notify("Failed to remove.!", "error");                    
-            }
-        );
+        window._controller.docker.dock(request).then((_res) => {
+            window._controller.notify("Removed successfully.!"); 
+            fetchFields();
+        })
+        .catch((e) => {
+            window._controller.notify("Failed to remove.!", "error");
+        });        
 
     }
 
@@ -182,18 +176,16 @@ const FieldEditor = (props, ref) => {
         request["payload"] = {};                        
         request["payload"][_property] = _e.target.checked;
 
-        window._controller.dock(request, 
-            (_req, _res) => {     
-                if (_property === "status") {
-                    window._controller.notify( _record.title + (_e.target.checked ? " enabled successfully" : " disabled successfully"));                                
-                } else {
-                    window._controller.notify( _record.title +" unique option" + (_e.target.checked ? " enabled successfully" : " disabled successfully"));                                
-                }                               
-            }, 
-            (_req, _res) => {
-                this.controller.notify(_record.title + " failed to update.!", "error");                                
-            }
-        );
+        window._controller.docker.dock(request).then((_res) => {
+            if (_property === "status") {
+                window._controller.notify( _record.title + (_e.target.checked ? " enabled successfully" : " disabled successfully"));                                
+            } else {
+                window._controller.notify( _record.title +" unique option" + (_e.target.checked ? " enabled successfully" : " disabled successfully"));                                
+            } 
+        })
+        .catch((e) => {
+            window._controller.notify(_record.title + " failed to update.!", "error");
+        });
 
     };
 
@@ -301,17 +293,15 @@ const FieldEditor = (props, ref) => {
             request["payload"]["handle"] = handle;                         
             request["payload"]["entity"] = props.record._id;
 
-            window._controller.dock(request, 
-                (_req, _res) => {                    
-                    window._controller.notify(request["payload"].handle + " saved successfully.!"); 
-                    fetchFields();
-                    titleInput.current.value = "";
-                    handleInput.current.value = "";
-                }, 
-                (_req, _res) => {
-                    window._controller.notify(request["payload"].handle + " failed to save.!", "error");                    
-                }
-            );
+            window._controller.docker.dock(request).then((_res) => {
+                window._controller.notify(request["payload"].handle + " saved successfully.!"); 
+                fetchFields();
+                titleInput.current.value = "";
+                handleInput.current.value = "";
+            })
+            .catch((e) => {
+                window._controller.notify(request["payload"].handle + " failed to save.!", "error");
+            });
 
         }
 

@@ -79,7 +79,7 @@ const TextArea = (props, ref) => {
     };
 
     const classes = state.disabled ? (state.classes + " disabled") : state.classes;
-    return <textarea ref={dom} onChange={handleChange} onClick={handleClick} onDoubleClick={handleDblClick} onKeyDown={handleKeyDown} onKeyUp={handleKeyUp} onFocus={handleFocus} onBlur={handleBlur} rows={state.rows} cols={state.cols} value={state.value} className={`pharmarack-cms-form-field textarea ${classes}`} ></textarea>;
+    return <textarea ref={dom} onChange={handleChange} onClick={handleClick} onDoubleClick={handleDblClick} onKeyDown={handleKeyDown} onKeyUp={handleKeyUp} onFocus={handleFocus} onBlur={handleBlur} rows={state.rows} cols={state.cols} value={state.value} className={`pharmarack-cms-form-field textarea ${classes}`} placeholder={state.placeholder}></textarea>;
 
 }
 

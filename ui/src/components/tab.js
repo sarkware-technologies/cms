@@ -10,10 +10,16 @@ import Actions from "./actions";
 import Toggle from "./form/toggle";
 import Search from "./search";
 import Helper from "../utils/helper";
-
+import SubView from "./sub-view"
+import Text from "./form/text";
+import MultiSelect from "./multi-select";
+import Media from './media';
+import Image from "./factory/editor/image";
+import Button from "./form/button";
 
 const Tab = (props, ref) => {
  
+    const handle = props.handle;    
     const _namespace = props.config.handle +"_";
     const contextObj = window._controller.getCurrentModuleInstance(); 
 
@@ -91,7 +97,11 @@ const Tab = (props, ref) => {
 
     const renderColumn = (_config) => { 
         
-        let widget = null;
+        let widget = null,
+            titles = [],
+            heading = [],
+            custom = null;
+
         if (_config.type === "fields") {
             
             let fields = [];
@@ -106,6 +116,13 @@ const Tab = (props, ref) => {
             widget = <DataGrid ref={gridRef} source="records" config={_config.datagrid} />                       
             window._controller.registerField(_config.datagrid.handle, _config.type, gridRef);   
 
+        } else if (_config.type === "rows") {
+
+            widget = [];
+            for (let i = 0; i < _config.rows.length; i++) {
+                widget.push(renderRow(_config.rows[i]));
+            }
+
         } else if (_config.type === "tab") {            
             /* Nested tab not yet supported */
         } else {
@@ -113,8 +130,19 @@ const Tab = (props, ref) => {
         }
 
         let cssProps = {width: _config.width};
-        if (widget) {
-            return <div key={uuidv4()} className="pharmarack-cms-tab-column" style={cssProps}>{widget}</div>
+
+        if (_config.title) {
+            titles.push(<h3 key={uuidv4()}>{_config.title}</h3>);
+        }
+        if (_config.sub_title) {
+            titles.push(<p key={uuidv4()}>{_config.sub_title}</p>);
+        }
+        if (titles.length > 0) {
+            heading.push(<div key={uuidv4()} className="pharmarack-cms-view-column-title">{titles}</div>);
+        }        
+
+        if (widget) {            
+            return <div key={uuidv4()} className="pharmarack-cms-tab-column" style={cssProps}>{heading}{widget}</div>
         } else {
             return null;
         }
@@ -125,8 +153,9 @@ const Tab = (props, ref) => {
                 
         let field = null;        
         let fieldRef = React.createRef();
-        
-        if (_config.type === "text" || _config.type === "password" || _config.type === "number" || _config.type === "date" ||  _config.type === "email" || _config.type === "time" || _config.type === "week" || _config.type === "datetime-local" || _config.type === "color" || _config.type === "month") {
+
+
+        if (_config.type === "text" || _config.type === "password" || _config.type === "number" || _config.type === "date" ||  _config.type === "email" || _config.type === "time" || _config.type === "week" || _config.type === "datetime-local" || _config.type === "color" || _config.type === "month" || _config.type === "file") {
             field = <Input ref={fieldRef} namespace={_namespace} config={_config} />
         } else if (_config.type === "select") {
             field = <Select ref={fieldRef} namespace={_namespace} config={_config} />
@@ -140,6 +169,27 @@ const Tab = (props, ref) => {
             field = <Toggle ref={fieldRef} namespace={_namespace} config={_config} />
         } else if (_config.type === "search") {
             field = <Search ref={fieldRef} namespace={_namespace} config={_config} />
+        } else if (_config.type === "label") {
+            field = <Text ref={fieldRef} namespace={_namespace} config={_config} />
+        } else if (_config.type === "multiselect") {
+            field = <MultiSelect ref={fieldRef} namespace={_namespace} config={_config} />
+        } else if (_config.type === "image") {            
+            field = <Image ref={fieldRef} namespace={_namespace} config={_config} />
+        } else if (_config.type === "button") {            
+            field = <Button ref={fieldRef} namespace={_namespace} config={_config} />
+        } else if (_config.type === "media") {
+            field = <Media ref={fieldRef} namespace={_namespace} config={_config} />
+        } else if (_config.type === "view") {
+            if (_config.value && contextObj.config.views[_config.value]) {                           
+                const viewConfig = {...contextObj.config.views[_config.value]};
+                field = <SubView config={viewConfig} handle={_config.value} />;
+            }
+        } else if (_config.type === "placeholder") {
+
+            const holderRef = React.createRef();
+            field = <div ref={holderRef} id={_config.placeholder} className="pharmarack-cms-placeholder-container"></div>;
+            window._controller.registerField(_config.placeholder, _config.type, holderRef);
+
         }
 
         window._controller.registerField((_namespace + _config.handle), _config.type, fieldRef);        
@@ -149,20 +199,34 @@ const Tab = (props, ref) => {
     
     const buildWrapper = (_config, _field) => {
 
-        return (
-            <div key={uuidv4()} className="pharmarack-cms-form-field-wrapper">
-                <div className={`pharmarack-cms-form-field-wrap ${_config.label_position}`}>
-                    <div>
-                        <label className="pharmarack-cms-form-field-label">{_config.label}</label>
+        if (_config.label) {
+            return (
+                <div key={uuidv4()} className={`pharmarack-cms-form-field-wrapper ${_config.handle}`}>
+                    <div className={`pharmarack-cms-form-field-wrap ${_config.label_position}`}>
+                        <div>
+                            <label className={`pharmarack-cms-form-field-label ${ _config.mandatory ? "required" : "" }`} dangerouslySetInnerHTML={{ __html: _config.label }}></label>
+                        </div>
+                        <div>
+                        {_field}
+                        <p className="pharmarack-cms-form-error-message">{_config.validation_message}</p>
+                        </div>
                     </div>
-                    <div>
-                    {_field}
-                    <p className="pharmarack-cms-form-error-message">{_config.validation_message}</p>
-                    </div>
+    
                 </div>
-
-            </div>
-        );
+            );
+        } else {
+            return (
+                <div key={uuidv4()} className={`pharmarack-cms-form-field-wrapper ${_config.handle}`}>
+                    <div className={`pharmarack-cms-form-field-wrap ${_config.label_position}`}>                        
+                        <div>
+                        {_field}
+                        <p className="pharmarack-cms-form-error-message">{_config.validation_message}</p>
+                        </div>
+                    </div>
+    
+                </div>
+            );
+        }
 
     };
 

@@ -11,7 +11,7 @@ const LayoutLoader = () => {
     //const _pathName =  location.pathname.replace(/^\//, '');
     const _pathName =  location.pathname;
 
-    if (controller.utils.isAuthenticated()) { console.log("It is authenticated");
+    if (controller.utils.isAuthenticated()) {
         if (_pathName === "" || _pathName === "/") {
             location.href = "/main";
         } else {
@@ -27,7 +27,7 @@ const LayoutLoader = () => {
 
     }
 
-    layout = layoutConfig ? layoutConfig.layout : null;  console.log("Before final layout : "+ layout);
+    layout = layoutConfig ? layoutConfig.layout : null; 
 
     if (!layout) {
         /**

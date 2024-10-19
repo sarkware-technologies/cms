@@ -1,4 +1,4 @@
-import React, {forwardRef, useEffect, createRef, useImperativeHandle} from "react";
+import React, {forwardRef, useEffect, createRef, useImperativeHandle, useState} from "react";
 import { v4 as uuidv4 } from 'uuid';
 import Tab from "./tab";
 import DataGrid from "./data-grid";
@@ -20,12 +20,13 @@ import Button from "./form/button";
 
 const View = (props, ref) => {
 
-    const handle = props.handle;
-    const config = {...props.config}; 
+    const handle = props.handle;    
     const _namespace = handle + "_";
     const columnRefs = {};
+    const isSubView = ('isSubView' in props) ? props.isSubView : false;
 
     const contextObj = window._controller.getCurrentModuleInstance();
+    const [config, setConfig] = useState({...props.config});
     
     const renderView = () => {
 
@@ -193,6 +194,13 @@ const View = (props, ref) => {
             widget = <div ref={holderRef} id={_config.placeholder} className="pharmarack-cms-placeholder-container"></div>;
             window._controller.registerField(_config.placeholder, _config.type, holderRef);
 
+        } else if (_config.type === "rows") {
+
+            widget = [];
+            for (let i = 0; i < _config.rows.length; i++) {
+                widget.push(renderRow("sub-row", i, _config.rows[i]));
+            }
+
         } else {
             /* Safe to ignore */
         }
@@ -296,20 +304,34 @@ const View = (props, ref) => {
             return _field;
         }
 
-        return (
-            <div key={uuidv4()} className={`pharmarack-cms-form-field-wrapper ${_config.handle}`}>
-                <div className={`pharmarack-cms-form-field-wrap ${_config.label_position}`}>
-                    <div>
-                        <label className={`pharmarack-cms-form-field-label ${ _config.mandatory ? "required" : "" }`} dangerouslySetInnerHTML={{ __html: _config.label }}></label>
+        if (_config.label) {
+            return (
+                <div key={uuidv4()} className={`pharmarack-cms-form-field-wrapper ${_config.handle}`}>
+                    <div className={`pharmarack-cms-form-field-wrap ${_config.label_position}`}>
+                        <div>
+                            <label className={`pharmarack-cms-form-field-label ${ _config.mandatory ? "required" : "" }`} dangerouslySetInnerHTML={{ __html: _config.label }}></label>
+                        </div>
+                        <div>
+                        {_field}
+                        <p className="pharmarack-cms-form-error-message">{_config.validation_message}</p>
+                        </div>
                     </div>
-                    <div>
-                    {_field}
-                    <p className="pharmarack-cms-form-error-message">{_config.validation_message}</p>
-                    </div>
+    
                 </div>
-
-            </div>
-        );
+            );
+        } else {
+            return (
+                <div key={uuidv4()} className={`pharmarack-cms-form-field-wrapper ${_config.handle}`}>
+                    <div className={`pharmarack-cms-form-field-wrap ${_config.label_position}`}>                        
+                        <div>
+                        {_field}
+                        <p className="pharmarack-cms-form-error-message">{_config.validation_message}</p>
+                        </div>
+                    </div>
+    
+                </div>
+            );
+        }
 
     };
 
@@ -327,6 +349,49 @@ const View = (props, ref) => {
             
         }
 
+    };
+
+    const initView = () => {
+
+        const contextObj = window._controller.getCurrentModuleInstance();
+        if (contextObj) {
+            if (config.manage) {
+                const viewForm = window._controller.getField(handle);
+                if (viewForm) { 
+                    const record = contextObj.currentRecord[contextObj.currentGrid];
+                    if (record) {                
+                        viewForm.setFormFields(record);
+                    } else {
+                        viewForm.resetFormFields();                
+                    }
+                }
+            }
+
+            if (contextObj.onViewMounted) {
+                contextObj.onViewMounted(handle);
+            }            
+        }
+
+        if (!isSubView && config.context_header.show) {
+
+                const currentRecord = contextObj.currentRecord[contextObj.mainGrid];
+                let breadcrumb = "";
+                let title = config.context_header.title;            
+
+                if (config.context_header.breadcrumb) {   
+                    /* This means it should nbe single record view */             
+                    title += currentRecord ? " / " : " - [New]";
+                    if (currentRecord && currentRecord[config.context_header.breadcrumb]) {
+                        breadcrumb = currentRecord[config.context_header.breadcrumb];
+                    }
+                }
+                window._controller.loadContextBar(title, breadcrumb, config.context_header.actions);
+
+        } else {
+            if (!isSubView) {
+                window._controller.loadContextBar("", "", []);            
+            }
+        }
     };
 
     const self =  {
@@ -387,7 +452,11 @@ const View = (props, ref) => {
                 Helper.resetForm(_namespace, config.footer.rows);
             }
 
-        }
+        },
+        setViewConfig: (_config) => {
+            setConfig({..._config});
+        },
+        getViewConfig: () => config
 
     };
 
@@ -395,46 +464,12 @@ const View = (props, ref) => {
     useImperativeHandle(ref, () => self);
 
     useEffect(() => {
+        setConfig({...props.config});       
+    }, [props.config]);
 
-        const contextObj = window._controller.getCurrentModuleInstance();
-        if (contextObj) {
-            if (config.manage) {
-                const viewForm = window._controller.getField(handle);
-                if (viewForm) { 
-                    const record = contextObj.currentRecord[contextObj.currentGrid];
-                    if (record) {                
-                        viewForm.setFormFields(record);
-                    } else {
-                        viewForm.resetFormFields();                
-                    }
-                }
-            }
-
-            if (contextObj.onViewMounted) {
-                contextObj.onViewMounted(handle);
-            }            
-        }
-
-        if (config.context_header.show) {
-
-                const currentRecord = contextObj.currentRecord[contextObj.mainGrid];
-                let breadcrumb = "";
-                let title = config.context_header.title;            
-
-                if (config.context_header.breadcrumb) {   
-                    /* This means it should nbe single record view */             
-                    title += currentRecord ? " / " : " - [New]";
-                    if (currentRecord && currentRecord[config.context_header.breadcrumb]) {
-                        breadcrumb = currentRecord[config.context_header.breadcrumb];
-                    }
-                }
-                window._controller.loadContextBar(title, breadcrumb, config.context_header.actions);
-
-        } else {
-            window._controller.loadContextBar("", "", []);            
-        }
-
-    }, [handle]);  
+    useEffect(() => {
+        initView();
+    }, [handle, config]);  
 
     return renderView();
 

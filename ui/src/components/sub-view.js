@@ -15,7 +15,7 @@ import View from "./view";
 const SubView = (props) => {
 
     const viewRef = React.createRef(); 
-    const widget = <View ref={viewRef} config={props.config} handle={props.handle} />
+    const widget = <View ref={viewRef} config={props.config} handle={props.handle} isSubView={true} />
     window._controller.registerField(props.handle, "view", viewRef);
 
     return widget;
