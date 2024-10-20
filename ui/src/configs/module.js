@@ -86,7 +86,7 @@ let module_config = {
                                             filter: false,
                                             header: {title: "Status", align: "right"}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "status", type: "toggle", align: "right", key_field: "_id", title_key: "title"},
+                                            field: {handle: "status", type: "toggle", align: "right", label_key: "title", value_key: "_id"},
                                             prompt: ""
                                         }                                    
                                     ]

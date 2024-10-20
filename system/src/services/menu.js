@@ -138,7 +138,7 @@ export default class MenuService {
         }
 
         try {
-            return await MenuModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updated_by: _req.user._id } }, { runValidators: true, new: true });
+            return await MenuModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
         } catch (_e) {
             throw _e;
         }
@@ -169,7 +169,7 @@ export default class MenuService {
                 throw new Error('Request body is required');
             }
 
-            body["created_by"] = _req.user._id
+            body["createdBy"] = _req.user._id
             const model = new MenuModel(body);
             const menu = await model.save();     
 

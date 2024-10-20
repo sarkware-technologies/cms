@@ -44,7 +44,7 @@ class Cache {
         
         try {
 
-            const entities = this.entity.prepareEntites();
+            const entities = await this.entity.prepareEntites();
             const eKeys = Object.keys(entities);
 
             for (let i = 0; i < eKeys.length; i++) {
@@ -66,6 +66,14 @@ class Cache {
         }
 
     }; 
+
+    getEntity = async (_key) => {
+        return await this.redisClient.get("pharmarack_cms_entities", _key);
+    };
+
+    hasEntity = async (_key) => {
+        return await this.redisClient.exists("pharmarack_cms_entities", _key);
+    };
     
     setRoutes = async () => {
 

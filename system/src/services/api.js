@@ -5,6 +5,8 @@ import EntityModuleMappingModel from "../models/entity-module.js";
 import Utils from "../utils/utils.js";
 import ComponentService from "./component.js";
 import MasterService from "./master.js";
+import PageService from "./page.js";
+import SegmentService from "./segment.js";
 
 import { EventEmitter } from 'events';
 import multer from 'multer';
@@ -29,6 +31,8 @@ class ApiManager {
         this.componentService.init();
         this.masterService = new MasterService();
         this.masterService.init();
+        this.segmentService = new SegmentService();
+        this.segmentService.init();
 
     };
 
@@ -277,18 +281,43 @@ class ApiManager {
             
             const model = await EM.getModel(_entity);
 
-            if (model) {                 
+            if (model) {  
+                
+                const { body } = _req.body;
 
-                const modelObj = new model(_req.body);
-                const record = await modelObj.save();
-                //await axios.get(process.env.COMPOSER_SERVER  +"/cms/api/invalidateAllPageCache");                  
+                body["createdBy"] = _req.user._id
+                const modelObj = new model(body);
+                const record = await modelObj.save();   
+                
+                let _message = "";
+                if (record.title) {
+                    _message = "Record "+ record.title +" is created successfully";
+                } else if (record.name) {
+                    _message = "Record "+ record.name +" is created successfully";
+                } else {
+                    _message = "Record created successfully";
+                }
 
-                return record;    
-
+                return {
+                    status: true,
+                    message: _message,
+                    payload: authType
+                };
             }
-            
-        } catch (_e) {      
-            throw _e;
+
+        } catch (e) {
+
+            if (e.name === 'ValidationError') {
+                return {
+                    status: false,
+                    message: e.errors
+                };
+            }
+    
+            return {
+                status: false,
+                message: e.message || 'An error occurred while creating auth type'
+            };
         }
 
         throw new Error(_entity +" model not found");
@@ -307,8 +336,7 @@ class ApiManager {
 
             if (model) {
 
-                const record = await model.findByIdAndUpdate(_req.query.id, { $set: { ..._req.body } }, {runValidators: true, new: true });
-                //await axios.get(process.env.COMPOSER_SERVER  +"/cms/api/invalidateAllPageCache"); 
+                const record = await model.findByIdAndUpdate(_req.query.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, {runValidators: true, new: true });                 
                 return record;
 
             }           
@@ -347,7 +375,7 @@ class ApiManager {
                 for (let i = 0; i < _req.body.ids.length; i++) {
 
                     try {
-                        _success[_req.body.ids[i]] = await model.findByIdAndUpdate(_req.body.ids[i], { $set: { ..._req.body.record } }, {runValidators: true, new: true });
+                        _success[_req.body.ids[i]] = await model.findByIdAndUpdate(_req.body.ids[i], { $set: { ..._req.body.record, updatedBy: _req.user._id } }, {runValidators: true, new: true });
                     } catch (_e) {
                         _failed[_req.body.ids[i]] = _e.message;
                     }
@@ -387,7 +415,7 @@ class ApiManager {
                 for (let i = 0; i < ids.length; i++) {
 
                     try {
-                        _success[ids[i]] = await model.findByIdAndUpdate(ids[i], { $set: { ..._req.body[ids[i]] } }, {runValidators: true, new: true });
+                        _success[ids[i]] = await model.findByIdAndUpdate(ids[i], { $set: { ..._req.body[ids[i]], updatedBy: _req.user._id } }, {runValidators: true, new: true });
                     } catch (_e) {
                         _failed[ids[i]] = _e.message;
                     }

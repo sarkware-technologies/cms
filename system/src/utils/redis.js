@@ -5,13 +5,11 @@ export default class RedisClient {
     static instance;
 
     constructor() {
-
         if (RedisClient.instance) {
             return RedisClient.instance;
         }
 
         try {
-
             this.writeClient = redis.createClient({
                 url: process.env.REDIS_WRITE_CLIENT_USER_SESSION,
             });
@@ -26,9 +24,8 @@ export default class RedisClient {
         } catch (error) {
             console.log(error);
         }
-  
+
         RedisClient.instance = this;
-        
     }
 
     static getInstance() {
@@ -59,6 +56,16 @@ export default class RedisClient {
         }
     }
 
+    async exists(group, key) {
+        try {
+            // Using hExists to check if the key exists in the hash
+            const exists = await this.readClient.hExists(group, key);
+            return exists; // Returns true or false
+        } catch (err) {
+            console.error("Error checking key existence in Redis:", err);
+        }
+    }
+
     async invalidateAllCache(group) {
         try {
             await this.writeClient.del(group);            
@@ -75,3 +82,4 @@ process.on("exit", () => {
     redisClient.writeClient.quit();
     redisClient.readClient.quit();
 });
+

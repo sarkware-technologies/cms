@@ -1,4 +1,4 @@
-let auth_type_config = {
+let segment_config = {
 
     views: {
         main_view: { 
@@ -51,7 +51,7 @@ let auth_type_config = {
                                         },
                                         {
                                             show: true, 
-                                            width: "65",
+                                            width: "25",
                                             search: false,
                                             filter: false,
                                             header: {title: "Title", align: "left", filterable: false, searchable: true, sortable: false}, 
@@ -61,12 +61,12 @@ let auth_type_config = {
                                         },
                                         {
                                             show: true, 
-                                            width: "15", 
+                                            width: "30",
                                             search: false,
                                             filter: false,
-                                            header: {title: "Is Active", align: "right"}, 
+                                            header: {title: "Description", align: "left", filterable: false, searchable: false, sortable: false}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "isActive", type: "toggle", align: "right", key_field: "_id", title_key: "title"},
+                                            field: {handle: "description", type: "alphanumeric", align: "left", editable: false},
                                             prompt: ""
                                         },
                                         {
@@ -74,9 +74,29 @@ let auth_type_config = {
                                             width: "15", 
                                             search: false,
                                             filter: false,
+                                            header: {title: "Created By", align: "left"}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "createdBy", type: "search", align: "left", label_key: "fullName", value_key: "_id"},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "15", 
+                                            search: false,
+                                            filter: false,
+                                            header: {title: "Modified By", align: "left"}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "updatedBy", type: "search", align: "left", label_key: "fullName", value_key: "_id"},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "10", 
+                                            search: false,
+                                            filter: false,
                                             header: {title: "Status", align: "right"}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "status", type: "toggle", align: "right", key_field: "_id", title_key: "title"},
+                                            field: {handle: "status", type: "toggle", align: "right", label_key: "title", value_key: "_id"},
                                             prompt: ""
                                         }                                     
                                     ]
@@ -92,7 +112,7 @@ let auth_type_config = {
             sidebar: null,
             manage: true             
         },
-        segment_form: {
+        new_segment_form: {
             context_header: {
                 show: true,
                 title: "Segment",
@@ -425,7 +445,7 @@ let auth_type_config = {
                                                                                         value_key: "RetailerId", 
                                                                                         label_key: "RetailerName", 
                                                                                         source: "remote",
-                                                                                        endpoint: "/system/api/component/component/multi_select_list?entity=retailer&select=_id|RetailerId|RetailerName"
+                                                                                        endpoint: "/system/api/segment/segment/multi_select_list?entity=retailer&select=_id|RetailerId|RetailerName"
                                                                                     }
                                                                                 ]
                                                                             }                            
@@ -463,15 +483,140 @@ let auth_type_config = {
                 ]
             },
             footer: {
-                show: true,
-                rows: []
+                show: false
             },
             sidebar: null,
-            manage: true 
-        }        
+            manage: false 
+        },
+        segment_form: {
+            context_header: {
+                show: true,
+                title: "Segment",
+                breadcrumb: "title",
+                actions: [
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Edit Segment Rules", theme: "primary", method: "post", action: "EDIT_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Add new Retailers", theme: "primary", method: "post", action: "ADD_RETAILER", classes: "", icon: "", tabindex : 8, status: true, shortcut: "" }
+                ]
+            },           
+            header: {
+                show: false
+            },
+            content: {
+                show: true,
+                rows: [
+                    {
+                        seperator: false,
+                        columns: [
+                            {
+                                title: "",
+                                sub_title: "",
+                                type: "fields",
+                                width: "100%",
+                                layout: "horizontal",
+                                classes: "",
+                                fields: [                                                                        
+                                    { type: "label", label: "Title", handle: "title", value : "",  classes : "", align: "right", label_width: 0, label_position: "top" },                                                                    
+                                    { type: "label", label: "Description", handle: "description", value : "", classes : "", align: "right", label_width: 0, label_position: "top" }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        seperator: false,
+                        columns: [
+                            {
+                                title: "Retailers",
+                                sub_title: "",
+                                type: "datagrid",
+                                width: "100%",
+                                layout: "horizontal",
+                                collapsible: false,
+                                datagrid: {
+                                    handle: "retailer_grid",        
+                                    layout: "fluid",		
+                                    height: "",
+                                    header: true,
+                                    content: true,
+                                    footer: true,	
+                                    grid_lines: true,								
+                                    multi_select: false,
+                                    full_row_select: false,
+                                    is_main_grid: true,
+                                    empty_message: "No retailer mapped for this segment yet.!",
+                                    datasource: {endpoint: "/system/term/:id/retailers", page: 0, populate: false, handler: "dedicated", cached: true},
+                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/system/segment/"},
+                                    columns: [
+                                        {
+                                            show: true, 
+                                            width: "10", 
+                                            search: false,
+                                            filter: false,                                            
+                                            classes: "",
+                                            header: {title: "S.No", align: "left"}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                            prompt: ""
+                                        }, 
+                                        {
+                                            show: true, 
+                                            width: "35",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Retailer Name", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "RetailerName", type: "alphanumeric", align: "left", editable: false},
+                                            prompt: ""
+                                        }, 
+                                        {
+                                            show: true, 
+                                            width: "25",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Mobile Number", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "MobileNumber", type: "alphanumeric", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "20",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Retailer Id", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "RetailerId", type: "alphanumeric", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "10", 
+                                            search: false,
+                                            filter: false,
+                                            header: {title: "Action", align: "center", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "", type: "button", action: "REMOVE", align: "center", icon: "fa fa-trash", class: "icon-left"},
+                                            prompt: ""
+                                        }                                     
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            footer: {
+                show: false                
+            },
+            sidebar: null,
+            manage: true
+        }
     },
     enums: {}
 
 };
 
-export default auth_type_config;
+export default segment_config;

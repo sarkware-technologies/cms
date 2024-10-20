@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import app_config from '../configs/config';
 import Spinner from '../components/spiner';
 import Notification from '../components/notification';
@@ -39,7 +39,12 @@ const LayoutLoader = () => {
         layout = 'login';
     }
 
+    let appLayout = React.createRef();
     const LayoutComponent = lazy(() => import(`../layouts/${layout}`));
+
+    useEffect(() => {
+        //window._controller.layout = appLayout;
+    }, []);
 
     return (
         <Suspense fallback={<Spinner />}>

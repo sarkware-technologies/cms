@@ -26,7 +26,7 @@ const View = (props, ref) => {
     const isSubView = ('isSubView' in props) ? props.isSubView : false;
 
     const contextObj = window._controller.getCurrentModuleInstance();
-    const [config, setConfig] = useState({...props.config});
+    const config = {...props.config};
     
     const renderView = () => {
 
@@ -307,7 +307,7 @@ const View = (props, ref) => {
         if (_config.label) {
             return (
                 <div key={uuidv4()} className={`pharmarack-cms-form-field-wrapper ${_config.handle}`}>
-                    <div className={`pharmarack-cms-form-field-wrap ${_config.label_position}`}>
+                    <div className={`pharmarack-cms-form-field-wrap ${_config.label_position} ${_config.type}`}>
                         <div>
                             <label className={`pharmarack-cms-form-field-label ${ _config.mandatory ? "required" : "" }`} dangerouslySetInnerHTML={{ __html: _config.label }}></label>
                         </div>
@@ -349,49 +349,6 @@ const View = (props, ref) => {
             
         }
 
-    };
-
-    const initView = () => {
-
-        const contextObj = window._controller.getCurrentModuleInstance();
-        if (contextObj) {
-            if (config.manage) {
-                const viewForm = window._controller.getField(handle);
-                if (viewForm) { 
-                    const record = contextObj.currentRecord[contextObj.currentGrid];
-                    if (record) {                
-                        viewForm.setFormFields(record);
-                    } else {
-                        viewForm.resetFormFields();                
-                    }
-                }
-            }
-
-            if (contextObj.onViewMounted) {
-                contextObj.onViewMounted(handle);
-            }            
-        }
-
-        if (!isSubView && config.context_header.show) {
-
-                const currentRecord = contextObj.currentRecord[contextObj.mainGrid];
-                let breadcrumb = "";
-                let title = config.context_header.title;            
-
-                if (config.context_header.breadcrumb) {   
-                    /* This means it should nbe single record view */             
-                    title += currentRecord ? " / " : " - [New]";
-                    if (currentRecord && currentRecord[config.context_header.breadcrumb]) {
-                        breadcrumb = currentRecord[config.context_header.breadcrumb];
-                    }
-                }
-                window._controller.loadContextBar(title, breadcrumb, config.context_header.actions);
-
-        } else {
-            if (!isSubView) {
-                window._controller.loadContextBar("", "", []);            
-            }
-        }
     };
 
     const self =  {
@@ -464,12 +421,48 @@ const View = (props, ref) => {
     useImperativeHandle(ref, () => self);
 
     useEffect(() => {
-        setConfig({...props.config});       
-    }, [props.config]);
+        
+        const contextObj = window._controller.getCurrentModuleInstance();
+        if (contextObj) {
+            if (config.manage) {
+                const viewForm = window._controller.getField(handle);
+                if (viewForm) { 
+                    const record = contextObj.currentRecord[contextObj.currentGrid];
+                    if (record) {                
+                        viewForm.setFormFields(record);
+                    } else {
+                        viewForm.resetFormFields();                
+                    }
+                }
+            }
 
-    useEffect(() => {
-        initView();
-    }, [handle, config]);  
+            if (contextObj.onViewMounted) {
+                contextObj.onViewMounted(handle);
+            }            
+        }
+
+        if (!isSubView && config.context_header.show) {
+
+                const currentRecord = contextObj.currentRecord[contextObj.mainGrid];
+                let breadcrumb = "";
+                let title = config.context_header.title;            
+
+                if (config.context_header.breadcrumb) {   
+                    /* This means it should nbe single record view */             
+                    title += currentRecord ? " / " : " - [New]";
+                    if (currentRecord && currentRecord[config.context_header.breadcrumb]) {
+                        breadcrumb = currentRecord[config.context_header.breadcrumb];
+                    }
+                }
+                window._controller.loadContextBar(title, breadcrumb, config.context_header.actions);
+
+        } else {
+            if (!isSubView) {
+                window._controller.loadContextBar("", "", []);            
+            }
+        }
+
+    }, [handle]);  
 
     return renderView();
 

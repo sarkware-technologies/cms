@@ -16,14 +16,14 @@ const RadioButton = (props, ref) => {
             loadOptions: (_choices) => { 
                 setState({ ...state, choices: _choices, selected: "" }); 
             },
-            setChecked: (_choice) => {
+            setVal: (_choice) => {
                 setState({ ...state, selected: _choice }); // Only one value can be selected
+            },            
+            getVal: () => {
+                return state.selected; // Return the selected choice
             },
             setChoices: (_choices) => { 
                 setState({ ...state, choices: _choices });
-            },
-            getChecked: () => {
-                return state.selected; // Return the selected choice
             },
             clearChoices: () => {
                 setState({ ...state, selected: "" }); // Clear the selected choice

@@ -1,11 +1,14 @@
 import ModuleModel from "../models/module.js";
 import EntityModel from "../models/entity.js";
 import EM from "../utils/entity.js";
+import AP from "./api.js";
 import EntityModuleMappingModel from "../models/entity-module.js";
 import { EventEmitter } from 'events';
 
 import Utils from "../utils/utils.js";
 import SegmentModel from "../models/segment.js";
+import SegmentRetailerModel from "../models/segment-retailer.js";
+import SegmentType from "../enums/segment-type.js";
 
 export default class SegmentService {
 
@@ -41,7 +44,7 @@ export default class SegmentService {
             }
 
             const _count = await SegmentModel.countDocuments({});
-            _users = await SegmentModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
+            _users = await SegmentModel.find({}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
             
             return Utils.response(_count, page, _users);
 
@@ -138,7 +141,7 @@ export default class SegmentService {
         }
 
         try {
-            return await SegmentModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updated_by: _req.user._id } }, { runValidators: true, new: true });
+            return await SegmentModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
         } catch (_e) {
             throw _e;
         }
@@ -169,14 +172,31 @@ export default class SegmentService {
                 throw new Error('Request body is required');
             }
 
-            body["created_by"] = _req.user._id
+            body["createdBy"] = _req.user._id
             const model = new SegmentModel(body);
-            const module = await model.save();     
+            const segment = await model.save();     
+
+            if (segment.segmentType == SegmentType.STATIC && body.retailers && Array.isArray(body.retailers)) {
+                await Promise.all(body.retailers.map(async (retilerId) => {
+                    try {     
+                        const srModel = SegmentRetailerModel({
+                            segment: segment._id,
+                            retailer: retilerId,
+                            createdBy: body["createdBy"]
+                        });          
+                        await srModel.save();
+                    } catch (e) {
+                        console.log(e);
+                    }
+                }));
+            } else {
+                console.log("retailer list is empty");
+            }
 
             return {
                 status: true,
-                message: "Segment "+ module.title +" is created successfully",
-                payload: module
+                message: "Segment "+ segment.title +" is created successfully",
+                payload: segment
             };
 
         } catch (e) {
@@ -193,6 +213,34 @@ export default class SegmentService {
                 message: e.message || 'An error occurred while creating segment'
             };
 
+        }
+
+    };
+
+    listSegmentRetailers = async (_req) => {
+
+        try {
+
+            if (!_req.params.id) {
+                throw new Error("Segment id is missing");
+            }
+
+            let _retailers = [];                 
+            const segmentRetailers = await SegmentRetailerModel.find({segment: _req.params.id}).select("retailer").lean();
+            // Extract retailer ids into an array
+            const retailerIds = segmentRetailers.map(record => record.retailer);           
+
+            if (retailerIds.length > 0) {
+                const retailerModel = await EM.getModel("retailer");
+                if (retailerModel) {
+                    _retailers = await retailerModel.find({ RetailerId: { $in: retailerIds } });
+                }                
+            }      
+
+            return Utils.response(_retailers.length, 1, _retailers);
+
+        } catch (_e) {
+            throw _e;
         }
 
     };
@@ -251,10 +299,7 @@ export default class SegmentService {
                             ]
                             , null);
 
-                    } else if (_entity === "retailer") {
-                        //callback(await MYDBM.queryWithConditions("select RetailerId, RetailerName from retailers", []), null);
-                        callback(await SegmentModel.find().lean(), null);
-                    } else {                        
+                    } else {                      
                         const targetModel = await EM.getModel(_entity);
                         if (targetModel) {
 
@@ -275,7 +320,7 @@ export default class SegmentService {
                     
                 }
 
-            } catch (_e) {
+            } catch (_e) { console.log(_e);
                 callback(null, _e);
             }
 

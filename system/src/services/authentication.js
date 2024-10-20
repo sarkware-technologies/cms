@@ -32,7 +32,7 @@ export default class AuthService {
                 /* Step 2 - check for email */
                 user = await UserModel.findOne({ email: _req.body.user }).lean({ virtuals: true });
             }
-console.log(user);
+
             if (user) {
 
                 if (user.status) {

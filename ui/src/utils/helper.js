@@ -80,7 +80,7 @@ class Helper {
 			globalFlaq = true;
 
 		const payload = {};
-		const inputFields = ["text","textarea","select","password","number","date","email","time","week","month","datetime-local","color","file"];
+		const inputFields = ["text","textarea","select", "radio", "password","number","date","email","time","week","month","datetime-local","color","file"];
 		
 		for (let i = 0; i < _rows.length; i++) {
 			if (_rows[i].columns) {
@@ -161,6 +161,8 @@ class Helper {
 								payload[_fields[k].handle] = window._controller.getToggleStatus(_namespace + _fields[k].handle);
 							} else if (_fields[k].type === "multiselect") {
 								payload[_fields[k].handle] = fieldRef.getSelectedRecords();
+							} else if (_fields[k].type === "check") {
+								payload[_fields[k].handle] = fieldRef.getChecked();
 							}
 
 						}

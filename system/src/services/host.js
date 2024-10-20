@@ -114,7 +114,7 @@ export default class HostService {
     get = async (_req) => {
 
         if (!_req.params.id) {
-            throw new Error("Menu id is missing");
+            throw new Error("Host id is missing");
         }
 
         try {
@@ -128,11 +128,11 @@ export default class HostService {
     update = async (_req) => {
 
         if (!_req.params.id) {
-            throw new Error("Menu id is missing");
+            throw new Error("Host id is missing");
         }
 
         try {
-            return await HostModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updated_by: _req.user._id } }, { runValidators: true, new: true });
+            return await HostModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
         } catch (_e) {
             throw _e;
         }
@@ -142,7 +142,7 @@ export default class HostService {
     delete = async (_req) => {
         
         if (!_req.params.id) {
-            throw new Error("Menu id is missing");
+            throw new Error("Host id is missing");
         }
 
         try {
@@ -163,14 +163,14 @@ export default class HostService {
                 throw new Error('Request body is required');
             }
 
-            body["created_by"] = _req.user._id
+            body["createdBy"] = _req.user._id
             const model = new HostModel(body);
-            const menu = await model.save();     
+            const host = await model.save();     
 
             return {
                 status: true,
-                message: "Menu "+ menu.title +" is created successfully",
-                payload: menu
+                message: "Host "+ host.name +" is created successfully",
+                payload: host
             };
 
         } catch (e) {

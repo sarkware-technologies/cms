@@ -1,6 +1,6 @@
-const SegmentType = Object.freeze({
-    STATIC      : 1,
-    DYNAMIC     : 2
+const SegmentType = Object.freeze({    
+    DYNAMIC     : 1,
+    STATIC      : 2
 });
 
 export default SegmentType;

@@ -195,7 +195,7 @@ export default class ServiceService {
         }
 
         try {
-            return await ServiceModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updated_by: _req.user._id } }, { runValidators: true, new: true });
+            return await ServiceModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
         } catch (_e) {
             throw _e;
         }
@@ -236,7 +236,7 @@ export default class ServiceService {
                 throw new Error('Request body is required');
             }
 
-            body["created_by"] = _req.user._id;
+            body["createdBy"] = _req.user._id;
             const model = new ServiceModel(body);
             const service = await model.save();     
 

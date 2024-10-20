@@ -118,12 +118,36 @@ export default class EntityService {
     create = async (_req) => {
 
         try {
- 
-            const model = new EntityModel(_req.body);
-            return await model.save();                            
 
-        } catch (_e) {
-            throw _e;
+            const { body } = _req;
+
+            if (!body) {
+                throw new Error('Request body is required');
+            }
+
+            body["createdBy"] = _req.user._id; 
+            const model = new EntityModel(body);
+            const entity = await model.save();                            
+
+            return {
+                status: true,
+                message: "Entity "+ entity.title +" is created successfully",
+                payload: entity
+            };
+
+        } catch (_e) {                        
+
+            if (_e.name === 'ValidationError') {
+                return {
+                    status: false,
+                    message: _e.errors
+                };
+            }
+    
+            return {
+                status: false,
+                message: _e.message || 'An error occurred while creating entity'
+            };
         }
 
     };

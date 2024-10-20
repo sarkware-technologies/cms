@@ -21,20 +21,26 @@ export default function SegmentContext(_component) {
     /**
      * 
      * @param {*} _handle 
-     * @param {*} _value 
-     * @param {*} _e 
+     * @param {*} _datasource 
+     * @returns 
      * 
-     * Called whenever user click pressing key on any fields or grid cell 
+     * Called before making request to server - for datagrid
      * 
      */
-    this.onFieldKeyUp = ( _handle, _value, _e ) => {
-        
-        if (_handle === "auth_type_form_title") {
-            let name = _value.replace(/\s+/g, '_').toLowerCase();
-            this.controller.setInputFieldVal("auth_type_form_handle", name);
+    this.onDatagridRequest = (_handle, _datasource) => {
+
+        let datasource = JSON.parse(JSON.stringify(_datasource));        
+
+        if (_handle === "retailer_grid") {
+            const segment = this.component.currentRecord["segment_grid"]; 
+            if (segment) {
+                 datasource.endpoint = "/system/segment/"+ segment._id +"/retailers"; 
+            }
         }
 
-    };
+        return datasource;
+
+    };    
 
     /**
      * 
@@ -46,15 +52,23 @@ export default function SegmentContext(_component) {
      * 
      */
     this.onFieldChange = ( _handle, _value, _e ) => {
-    
-        if (_handle == "segment_form_segmentType") {
 
+        if (_handle == "new_segment_form_segmentType") {
             const segmentFormTab = this.controller.getField("segment_form_tab");
             if (segmentFormTab) {
                 const tabView = (_value == 1) ? "dynamic_segment_tab" : "static_segment_tab";
                 segmentFormTab.switchTab(tabView);
             } 
+        }
 
+        if (this.segmentPreviewRef.current) {
+            if (_handle == "new_segment_form_segmentType") {
+                this.segmentPreviewRef.current.setSegmentType(_value);
+            } else if (_handle == "segment_form_tab_title") {
+                this.segmentPreviewRef.current.setSegmentTitle(_value);
+            } else if (_handle == "segment_form_tab_description") {
+                this.segmentPreviewRef.current.setSegmentDescription(_value);
+            }
         }
 
     };
@@ -74,7 +88,7 @@ export default function SegmentContext(_component) {
 
         let _widgets = [];
         
-        if (_handle === "segment_form" && _section === "content" && _row === 0 && _column === 1) {
+        if (_handle === "new_segment_form" && _section === "content" && _row === 0 && _column === 1) {
             
             this.segmentPreviewRef = React.createRef();
             let widget = <SegmentPreview ref={this.segmentPreviewRef} />;                
@@ -117,7 +131,7 @@ export default function SegmentContext(_component) {
 
         if (_action === "NEW_SEGMENT") {
             this.component.currentRecord["segment_grid"] = null;
-            this.controller.switchView("segment_form");
+            this.controller.switchView("new_segment_form");
         } else if (_action === "CANCEL_SEGMENT") {     
             this.component.currentRecord["segment_grid"] = null;       
             this.controller.switchView("main_view");
@@ -130,35 +144,40 @@ export default function SegmentContext(_component) {
     this.saveSegment = () => {
 
         const request = {};    
-        const authType = this.component.currentRecord["auth_type_grid"];
+        const segment = this.component.currentRecord["segment_grid"];
 
-        if (authType) {
+        if (segment) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/auth-type/" + authType._id;
+            request["endpoint"] = "/system/segment/" + segment._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/auth-type";
+            request["endpoint"] = "/system/segment";
         }
 
-        const authTypeForm = this.controller.getField("auth_type_form");
-        if (authTypeForm) {
+        request["payload"] = null;
+        const segmentType = this.controller.getField("new_segment_form_segmentType");
 
-            request["payload"] = authTypeForm.getFormFields();   
-
-            if (request["payload"] && Object.keys(request["payload"]).length > 0) {
-
-                this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(_res.title + " saved successfully.!");
-                        this.controller.switchView("main_view");
-                        this.component.currentRecord["auth_type_grid"] = null;
-                })
-                .catch((e) => {
-                    this.controller.notify(e.message, "error");
-                });
-
+        if (segmentType) {
+            const sType = segmentType.getVal();
+            const segmentTab = this.controller.getField("segment_form_tab");
+            if (segmentTab) {
+                request["payload"] = segmentTab.getFormFields();                       
+                console.log(request["payload"]);
+                request["payload"]["segmentType"] = sType;
             }
+        }
+
+        if (request["payload"]) {
+            this.controller.docker.dock(request).then((_res) => {
+                this.controller.notify(_res.title + " saved successfully.!");
+                    this.controller.switchView("main_view");
+                    this.component.currentRecord["segment_grid"] = null;
+            })
+            .catch((e) => {
+                this.controller.notify(e.message, "error");
+            });
         }
 
     };

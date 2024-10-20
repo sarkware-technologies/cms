@@ -629,9 +629,9 @@ const DataGrid = (props, ref) => {
             setStatus(_e.target.checked);
 
             /* Update the grid record */
-            const id = _record[_props.config.key_field];
+            const id = _record[_props.config.value_key];
             for (let i = 0; i < state.records.length; i++) {
-                if (state.records[i][_props.config.key_field] === id) {
+                if (state.records[i][_props.config.value_key] === id) {
                     state.records[i][_props.config.handle] = _e.target.checked;
                     break;
                 }
@@ -646,12 +646,12 @@ const DataGrid = (props, ref) => {
                 
                 if (proceed) {
 
-                    if (_record[_props.config.key_field]) {
+                    if (_record[_props.config.value_key]) {
 
                         _record[_props.config.handle] = _e.target.checked;
 
                         const request = {};
-                        const id = _record[_props.config.key_field];                                   
+                        const id = _record[_props.config.value_key];                                   
 
                         request["method"] = "PUT";
                         request["endpoint"] = props.config.link.endpoint.endsWith("/") ? (props.config.link.endpoint + id) : (props.config.link.endpoint +"/"+ id);
@@ -660,10 +660,10 @@ const DataGrid = (props, ref) => {
 
                         window._controller.docker.dock(request)
                         .then((_res) => {
-                            window._controller.notify( _record[_props.config.title_key] + (_e.target.checked ? " enabled successfully" : " disabled successfully"));
+                            window._controller.notify( _record[_props.config.label_key] + (_e.target.checked ? " enabled successfully" : " disabled successfully"));
                         })
                         .catch((e) => {
-                            window._controller.notify(_record[_props.config.title_key] + " failed to update.!", "error"); 
+                            window._controller.notify(_record[_props.config.label_key] + " failed to update.!", "error"); 
                         });
 
                     }

@@ -132,7 +132,7 @@ export default class AuthTypeService {
         }
 
         try {
-            return await AuthTypeModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updated_by: _req.user._id } }, { runValidators: true, new: true });
+            return await AuthTypeModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
         } catch (_e) {
             throw _e;
         }
@@ -163,14 +163,14 @@ export default class AuthTypeService {
                 throw new Error('Request body is required');
             }
 
-            body["created_by"] = _req.user._id
+            body["createdBy"] = _req.user._id
             const model = new AuthTypeModel(body);
-            const module = await model.save();     
+            const authType = await model.save();     
 
             return {
                 status: true,
-                message: "Auth type "+ module.title +" is created successfully",
-                payload: module
+                message: "Auth type "+ authType.title +" is created successfully",
+                payload: authType
             };
 
         } catch (e) {

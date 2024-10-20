@@ -167,10 +167,10 @@ class EntityManager {
         //schemaFields["healthy"] = { type: mongoose.Schema.Types.Boolean, default: true };
         //schemaFields["audit_msg"] = { type: mongoose.Schema.Types.String, default: "" };
         //schemaFields["last_dump"] = { type: mongoose.Schema.Types.String, default: "" };
-        schemaFields["created_by"] = { type: mongoose.Schema.Types.ObjectId, ref: "system_user", default: null },
-        schemaFields["updated_by"] = { type: mongoose.Schema.Types.ObjectId, ref: "system_user", default: null }
+        schemaFields["createdBy"] = { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+        schemaFields["updatedBy"] = { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 
-        const schema = new mongoose.Schema(schemaFields, {strict: true, timestamps: true});                
+        const schema = new mongoose.Schema(schemaFields, {strict: true, timestamps: true});  
 
         return mongoose.model(_collectionName, schema);        
 
@@ -179,8 +179,10 @@ class EntityManager {
     getModel = async (_entity) => {
 
         if (_entity) { 
+
+            let modelExist = await cache.hasEntity(_entity);
             
-            if (!cache.hasEntity(_entity)) {
+            if (!modelExist) {
 
                 /**
                  * Entity not found on the cache
@@ -196,9 +198,10 @@ class EntityManager {
 
             }
 
-            if (cache.hasEntity(_entity)) {
+            modelExist = await cache.hasEntity(_entity);
+            if (modelExist) { 
 
-                const entity = cache.getEntity(_entity);
+                const entity = await cache.getEntity(_entity);
 
                 if (Array.isArray(entity.fields) && entity.fields.length > 0) {                   
                     return await this.createModel(_entity, entity.fields);

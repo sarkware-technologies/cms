@@ -66,7 +66,7 @@ let service_config = {
                                             filter: false,
                                             header: {title: "Status", align: "right"}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "status", type: "toggle", align: "right", key_field: "_id", title_key: "title"},
+                                            field: {handle: "status", type: "toggle", align: "right", label_key: "title", value_key: "_id"},
                                             prompt: ""
                                         }                                    
                                     ]
@@ -202,7 +202,7 @@ let service_config = {
                                                                             width: "15", 
                                                                             header: {title: "Status", align: "right", filterable: false, searchable: false}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                            field: {handle: "status", type: "toggle", align: "right", key_field: "_id", title_key: "version"},
+                                                                            field: {handle: "status", type: "toggle", align: "right", label_key: "version", value_key: "_id"},
                                                                             prompt: ""
                                                                         }                                    
                                                                     ]
@@ -281,7 +281,7 @@ let service_config = {
                                                                             width: "15", 
                                                                             header: {title: "Status", align: "right"}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                            field: {handle: "status", type: "toggle", align: "right", key_field: "_id", title_key: "title"},
+                                                                            field: {handle: "status", type: "toggle", align: "right", label_key: "title", value_key: "_id"},
                                                                             prompt: ""
                                                                         }                                     
                                                                     ]

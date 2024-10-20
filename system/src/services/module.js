@@ -140,7 +140,7 @@ export default class ModuleService {
         }
 
         try {
-            return await ModuleModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updated_by: _req.user._id } }, { runValidators: true, new: true });
+            return await ModuleModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
         } catch (_e) {
             throw _e;
         }
@@ -172,7 +172,7 @@ export default class ModuleService {
                 throw new Error('Request body is required');
             }
 
-            body["created_by"] = _req.user._id;
+            body["createdBy"] = _req.user._id;
             const model = new ModuleModel(body);
             const module = await model.save(); 
             
@@ -189,7 +189,7 @@ export default class ModuleService {
                         can_create      : false,
                         can_update      : false,
                         can_delete      : false,
-                        created_by      : _req.user._id
+                        createdBy      : _req.user._id
                     };
     
                     const capModel = new CapabilityModel(cap);

@@ -133,11 +133,36 @@ export default class FieldService {
 
         try {
 
-            const model = new FieldModel(_req.body);
-            return await model.save();                            
+            const { body } = _req;
 
-        } catch (_e) {            
-            throw _e;
+            if (!body) {
+                throw new Error('Request body is required');
+            }
+
+            body["createdBy"] = _req.user._id;
+            const model = new FieldModel(body);
+            const field = await model.save();  
+            
+            return {
+                status: true,
+                message: "Field "+ field.title +" is created successfully",
+                payload: field
+            };
+
+        } catch (_e) {                        
+
+            if (_e.name === 'ValidationError') {
+                return {
+                    status: false,
+                    message: _e.errors
+                };
+            }
+    
+            return {
+                status: false,
+                message: _e.message || 'An error occurred while creating field'
+            };
+
         }
 
     };
@@ -171,7 +196,7 @@ export default class FieldService {
         }
 
         try {
-            return await FieldModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body } }, { runValidators: true, new: true });
+            return await FieldModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
         } catch (_e) {
             throw _e;
         }

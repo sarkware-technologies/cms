@@ -124,7 +124,7 @@ export default class RoleService {
         }
 
         try {
-            return await RoleModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updated_by: _req.user._id } }, { runValidators: true, new: true });
+            return await RoleModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
         } catch (_e) {
             throw _e;
         }
@@ -156,7 +156,7 @@ export default class RoleService {
                 throw new Error('Request body is required');
             }
 
-            body["created_by"] = _req.user._id;
+            body["createdBy"] = _req.user._id;
             const model = new RoleModel(body);
             const role = await model.save();
             await this.initCapabilities(role._id, _req.user._id);            
@@ -217,7 +217,7 @@ export default class RoleService {
             for (let i = 0; i < capabilities.length; i++) {
                 cId = capabilities[i]._id;
                 delete capabilities[i]._id;
-                await CapabilityModel.findByIdAndUpdate(cId, { $set: { ...capabilities[i], updated_by: _req.user._id } }, { runValidators: true, new: false });                               
+                await CapabilityModel.findByIdAndUpdate(cId, { $set: { ...capabilities[i], updatedBy: _req.user._id } }, { runValidators: true, new: false });                               
             }
 
             return {status: true};
@@ -246,7 +246,7 @@ export default class RoleService {
                         can_create      : false,
                         can_update      : false,
                         can_delete      : false,
-                        created_by      : _userId
+                        createdBy      : _userId
                     };
     
                     model = new CapabilityModel(cap);
@@ -282,8 +282,8 @@ export default class RoleService {
                     
                     menu = await MenuModel.findOne({ module: capabilities[i].module._id }).lean();
                     if (menu) {
-                        delete menu["created_by"];
-                        delete menu["updated_by"];
+                        delete menu["createdBy"];
+                        delete menu["updatedBy"];
 
                         menu["capability"] = {
                             read: capabilities[i].can_read,
