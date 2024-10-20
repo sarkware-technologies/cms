@@ -3074,10 +3074,10 @@ div.pharmarack-cms-progress-notifier {
 }
 
 .pharmarack-cms-segment-preview-section {
-
+    margin-bottom: 20px;
 }
 
-.pharmarack-cms-segment-preview-section > label {
+.pharmarack-cms-segment-preview-section label {
     color: #8B8B8B;
     font-size: 14px;
     display: block;

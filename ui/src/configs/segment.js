@@ -305,7 +305,7 @@ let segment_config = {
                                                                                 layout: "horizontal",
                                                                                 classes: "",
                                                                                 fields: [                                                                        
-                                                                                    { type: "radio", label: "", handle: "type", value : "1", value_key: "value", label_key: "label", choices: [{label: "All", value: "1", selected: true, disabled: false},{label: "Only Authorized", value: "2", selected: false, disabled: false}], layout: "horizontal", classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },
+                                                                                    { type: "radio", label: "", handle: "retailerStatus", value : "1", value_key: "value", label_key: "label", choices: [{label: "All", value: "1", selected: true, disabled: false},{label: "Only Authorized", value: "2", selected: false, disabled: false}], layout: "horizontal", classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },
                                                                                 ]
                                                                             }                       
                                                                         ]

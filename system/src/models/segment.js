@@ -13,6 +13,7 @@ const SegmentSchema = new mongoose.Schema({
     geography               : { type: String, default: null },
     states                  : { type: Array, default: null },
     regions                 : { type: Array, default: null },
+    salesType               : { type: Number, default: SegmentOrder.PROCESSED },
     orderStatus             : { type: Number, default: SegmentOrder.PROCESSED },
     retailerStatus          : { type: Number, default: SegmentRetailer.ALL },
     companies               : { type: Array, default: null },
