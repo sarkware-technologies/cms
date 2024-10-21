@@ -432,13 +432,14 @@ let segment_config = {
                                                                                         searchprompt: "Search for retailers",
                                                                                         search_class: "", 
                                                                                         popup_class: "",
+                                                                                        behaviour: "flatlist",
                                                                                         mandatory: true, 
                                                                                         readonly: false, 
                                                                                         disabled: false, 
                                                                                         tabindex: 1, 
                                                                                         align: "right", 
                                                                                         label_width: 0, 
-                                                                                        recordsPerPage: 15,
+                                                                                        recordsPerPage: 10,
                                                                                         label_position: "top", 
                                                                                         prompt_message: "", 
                                                                                         validation_message: "", 
@@ -495,8 +496,7 @@ let segment_config = {
                 breadcrumb: "title",
                 actions: [
                     { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Edit Segment Rules", theme: "primary", method: "post", action: "EDIT_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Add new Retailers", theme: "primary", method: "post", action: "ADD_RETAILER", classes: "", icon: "", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Edit Segment Rules", theme: "primary", method: "post", action: "EDIT_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {
@@ -526,6 +526,41 @@ let segment_config = {
                         seperator: false,
                         columns: [
                             {
+                                title: "",
+                                sub_title: "",
+                                type: "view",
+                                width: "100%",
+                                layout: "horizontal",
+                                classes: "",
+                                view: "segment_retaler_form"
+                            }
+                        ]
+                    }
+                ]
+            },
+            footer: {
+                show: false                
+            },
+            sidebar: null,
+            manage: true
+        },
+        segment_retaler_form: {
+            context_header: {
+                show: false                
+            },           
+            header: {
+                show: true,
+                actions: [                 
+                    { label: "Add new Retailers", theme: "primary", method: "post", action: "ADD_RETAILER", classes: "", icon: "", tabindex : 8, status: true, shortcut: "" }
+                ]
+            },
+            content: {
+                show: true,
+                rows: [                   
+                    {
+                        seperator: false,
+                        columns: [
+                            {
                                 title: "Retailers",
                                 sub_title: "",
                                 type: "datagrid",
@@ -544,9 +579,20 @@ let segment_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No retailer mapped for this segment yet.!",
-                                    datasource: {endpoint: "/system/term/:id/retailers", page: 0, populate: false, handler: "dedicated", cached: true},
+                                    datasource: {endpoint: "/system/segment/:id/retailers", page: 0, populate: false, handler: "dedicated", cached: true},
                                     link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/system/segment/"},
                                     columns: [
+                                        {
+                                            show: true, 
+                                            width: "5", 
+                                            search: false,
+                                            filter: false,                                            
+                                            classes: "",
+                                            header: {title: "", align: "left"}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "#", type: "check", align: "left", editable: false},
+                                            prompt: ""
+                                        },
                                         {
                                             show: true, 
                                             width: "10", 
@@ -571,7 +617,7 @@ let segment_config = {
                                         }, 
                                         {
                                             show: true, 
-                                            width: "25",
+                                            width: "20",
                                             search: false,
                                             filter: false,
                                             classes: "",
@@ -603,6 +649,47 @@ let segment_config = {
                                         }                                     
                                     ]
                                 }
+                            }                           
+                        ]
+                    },
+                    {
+                        seperator: false,
+                        columns: [
+                            {
+                                title: "",
+                                sub_title: "",
+                                type: "fields",
+                                width: "100%",
+                                layout: "horizontal",
+                                classes: "",
+                                fields: [
+                                    {
+                                        type: "multiselect", 
+                                        label: "", 
+                                        handle: "add_retailers", 
+                                        value : "", 
+                                        parents: {},
+                                        placeholder: "Retailers", 
+                                        searchprompt: "Search for retailers",
+                                        search_class: "", 
+                                        popup_class: "",
+                                        behaviour: "popup",
+                                        mandatory: true, 
+                                        readonly: false, 
+                                        disabled: false, 
+                                        tabindex: 1, 
+                                        align: "right", 
+                                        label_width: 0, 
+                                        recordsPerPage: 10,
+                                        label_position: "top", 
+                                        prompt_message: "", 
+                                        validation_message: "", 
+                                        value_key: "RetailerId", 
+                                        label_key: "RetailerName", 
+                                        source: "remote",
+                                        endpoint: "/system/api/segment/segment/multi_select_list?entity=retailer&select=_id|RetailerId|RetailerName"
+                                    }
+                                ]
                             }
                         ]
                     }
@@ -612,7 +699,7 @@ let segment_config = {
                 show: false                
             },
             sidebar: null,
-            manage: true
+            manage: false
         }
     },
     enums: {}

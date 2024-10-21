@@ -13,7 +13,9 @@ export default class SegmentRouter {
         this.router.get("/segment-all", this.listAll);       
         this.router.get("/segment/:id/retailers", this.listSegmentRetailers);
         this.router.get("/segment/:id", this.get);
-        this.router.put("/segment/:id", this.update);
+        this.router.put("/segment/:id/deleteRetailers", this.deleteRetailersFromSegment);
+        this.router.put("/segment/:id/retailers", this.addRetailersToSegment);
+        this.router.put("/segment/:id", this.update);        
         this.router.delete("/segment/:id", this.delete);
         this.router.post("/segment", this.create);
 
@@ -74,6 +76,22 @@ export default class SegmentRouter {
     listSegmentRetailers = async (_req, _res) => {
         try {
             _res.status(200).json(await this.segmentService.listSegmentRetailers(_req));
+        } catch (_e) {
+            Utils.handleError(_e, _res);
+        }
+    };
+
+    addRetailersToSegment = async (_req, _res) => {
+        try {
+            _res.status(200).json(await this.segmentService.addRetailersToSegment(_req));
+        } catch (_e) {
+            Utils.handleError(_e, _res);
+        }
+    };
+
+    deleteRetailersFromSegment = async (_req, _res) => {
+        try {
+            _res.status(200).json(await this.segmentService.deleteRetailersFromSegment(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }

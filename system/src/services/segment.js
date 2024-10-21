@@ -9,6 +9,8 @@ import Utils from "../utils/utils.js";
 import SegmentModel from "../models/segment.js";
 import SegmentRetailerModel from "../models/segment-retailer.js";
 import SegmentType from "../enums/segment-type.js";
+import SegmentRetailerInclusionModel from "../models/segment-retailer-inclusion.js";
+import SegmentRetailerExclusionModel from "../models/segment-retailer-exclusion.js";
 
 export default class SegmentService {
 
@@ -238,6 +240,134 @@ export default class SegmentService {
             }      
 
             return Utils.response(_retailers.length, 1, _retailers);
+
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+
+    addRetailersToSegment = async (_req) => {
+
+        try {
+
+            const { body } = _req;
+
+            if (!_req.params.id) {
+                throw new Error("Segment id is missing");
+            }
+
+            if (!body) {
+                throw new Error('Request body is required');
+            }
+
+            let mapping = null;
+            const segment = await SegmentModel.findById(_req.params.id).lean();
+            
+            if (segment) {
+                if (segment.segmentType == SegmentType.STATIC) {
+
+                    /* It's a static segment */
+
+                    mapping = await Promise.all(body.map(async (retilerId) => {
+                        try {  
+                            
+                            const exist = await SegmentRetailerModel.find({segment: segment._id, retailer: retilerId,}).lean();
+                            if (!exist || (Array.isArray(exist) && exist.length == 0)) {
+                                const srModel = SegmentRetailerModel({
+                                    segment: segment._id,
+                                    retailer: retilerId,
+                                    createdBy: body["createdBy"]
+                                });          
+                                await srModel.save();
+                            }
+
+                        } catch (e) {
+                            console.log(e);
+                        }
+                    }));
+                } else {
+
+                    /* It's a dynamic segment - add it to inclusion list */
+                    mapping = await Promise.all(body.map(async (retilerId) => {
+                        try { 
+                            
+                            const exist = await SegmentRetailerInclusionModel.find({segment: segment._id, retailer: retilerId,}).lean();
+                            if (!exist || (Array.isArray(exist) && exist.length == 0)) {
+                                const srModel = SegmentRetailerInclusionModel({
+                                    segment: segment._id,
+                                    retailer: retilerId,
+                                    createdBy: body["createdBy"]
+                                });          
+                                await srModel.save();
+                            }
+
+                        } catch (e) {
+                            console.log(e);
+                        }
+                    }));
+
+                }
+            }               
+
+            return mapping;
+
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+
+    deleteRetailersFromSegment = async (_req) => {  console.log("deleteRetailersFromSegment is called");
+
+        try {
+
+            const { body } = _req;
+
+            if (!_req.params.id) {
+                throw new Error("Segment id is missing");
+            }
+
+            if (!body) {
+                throw new Error('Request body is required');
+            }
+
+            let deleted = null;
+            const segment = await SegmentModel.findById(_req.params.id).lean();
+            
+            if (segment) {
+                if (segment.segmentType == SegmentType.STATIC) {  console.log("It's a static segment");
+
+                    /* It's a static segment */
+                    deleted = await SegmentRetailerModel.deleteMany({retailer: { $in: body}});
+
+                } else {  
+
+                    /* It's a dynamic segment - add it to inclusion list */
+                    deleted = await SegmentRetailerInclusionModel.deleteMany({retailer: { $in: body}});
+
+                    await Promise.all(body.map(async (retilerId) => {
+                        try { 
+                            
+                            const exist = await SegmentRetailerExclusionModel.find({segment: segment._id, retailer: retilerId,}).lean();
+                            if (!exist || (Array.isArray(exist) && exist.length == 0)) {
+                                const sreModel = SegmentRetailerExclusionModel({
+                                    segment: segment._id,
+                                    retailer: retilerId,
+                                    createdBy: body["createdBy"]
+                                });          
+                                await sreModel.save();
+                            }
+
+                        } catch (e) {
+                            console.log(e);
+                        }
+                    }));
+
+                }
+            }
+
+            return deleted;
 
         } catch (_e) {
             throw _e;

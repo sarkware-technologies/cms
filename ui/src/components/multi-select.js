@@ -6,6 +6,8 @@ const MultiSelect = (props, ref) => {
     const searchInputRef = useRef(null);
     const multiSelectBoxRef = useRef(null);
 
+    const contextObj = window._controller.getCurrentModuleInstance();
+
     /**
      * 
      * all
@@ -14,6 +16,15 @@ const MultiSelect = (props, ref) => {
      * 
      */
     const [mode, setMode] = useState( ('selected' in props) ? ( Array.isArray(props.selected) ? "selected" : props.selected ) : "none" );
+
+    /**
+     * 
+     * dropDown
+     * flatlist
+     * popup
+     * 
+     */
+    const [behave, setBehaviour] = useState(('behaviour' in props.config) ? props.config.behaviour : "dropdown");
 
     /**
      * 
@@ -243,7 +254,17 @@ const MultiSelect = (props, ref) => {
                     props.child.current.reset();
                 }
             }
-        }
+        },
+        showPopup: () => {
+            if (behave == "popup") {
+                setState({...state, active: true});
+            }
+        },
+        hidePopup: () => {
+            if (behave == "popup") {
+                setState({...state, active: false});
+            }
+        }   
 
     };
 
@@ -429,6 +450,9 @@ const MultiSelect = (props, ref) => {
         _e.preventDefault();
         _e.stopPropagation();
         setState({...state, active: false});
+        if (contextObj && contextObj.onMultiSelectRecordDone) {
+            contextObj.onMultiSelectRecordDone(props.config.handle);
+        } 
     }
 
     const handlePrevPageBtnClick = (_e) => {
@@ -472,6 +496,16 @@ const MultiSelect = (props, ref) => {
 
     };
 
+    const renderDoneBtn = () => {
+
+        if (behave == "popup" && props.config.handle == "add_retailers") {            
+            return <a href="#" className="pharmarack-cms-btn primary done-btn" onClick={(_e) => handleDoneBtnClick(_e)}>Add {state.selectedRecords.length} Retailer(s)</a>;
+        } 
+
+        return <a href="#" className="pharmarack-cms-btn primary done-btn" onClick={(_e) => handleDoneBtnClick(_e)}>Done</a>
+
+    };
+
     const renderPageButtons = () => {
 
         let pageBtns = null;
@@ -481,7 +515,7 @@ const MultiSelect = (props, ref) => {
             const nextBtnClass = (state.currentPage >= state.totalPages) ? "disabled" : ""; 
 
             pageBtns =(
-                <div>
+                <div className="page-btns-wrapper">
                     <a href="#" onClick={(_e) => handlePrevPageBtnClick(_e)} className={`pharmarack-cms-btn primary ${prevBtnClass}`}><i className="far fa-chevron-left"></i></a>
                     <a href="#" onClick={(_e) => handleNextPageBtnClick(_e)} className={`pharmarack-cms-btn primary ${nextBtnClass}`}><i className="far fa-chevron-right"></i></a>
                 </div>
@@ -505,12 +539,43 @@ const MultiSelect = (props, ref) => {
 
                 {pageBtns} 
 
-                <a href="#" className="pharmarack-cms-btn primary done-btn" onClick={(_e) => handleDoneBtnClick(_e)}>Done</a>         
+                {behave == "popup" ? <a href="#" className="pharmarack-cms-btn secondary done-btn" onClick={(_e) => handleDoneBtnClick(_e)}>Cancel</a> : null}
+
+                {renderDoneBtn()}                         
 
             </div>
         );
 
     };
+
+    const renderWidget = () => {
+
+        return (
+            <div ref={multiSelectBoxRef} className={`pharmarack-cms-multi-select-widget ${state.classes} ${behave}`}>
+
+                <div className="pharmarack-cms-multi-select-widget-header" onClick={handleResultBoxClick} >
+                    <span>{_placeholder}</span>
+                    <i className="fa-regular fa-angle-down"></i>
+                </div>
+
+                <div className={`pharmarack-cms-multi-select-widget-popup-container ${dropdownClass}`}>
+
+                    {behave == "popup" ? <div className="pharmarack-cms-multi-select-popup-title">Add Retailers</div> : null}
+
+                    <div className="pharmarack-cms-multi-select-search-container">
+                        <input ref={searchInputRef} type="text" onKeyUp = {(_e) => handleSearchInputChange(_e)} placeholder={props.config.searchprompt} />
+                        <i className="far fa-search"></i>
+                    </div>
+                    
+                    <div className="pharmarack-cms-multi-select-records">{ state.active ? renderRecords() : null }</div>
+                    { state.active ? renderPageButtons() : "" } 
+                
+                </div>
+
+            </div>
+        );
+
+    }
 
     useEffect(() => {
 
@@ -536,7 +601,7 @@ const MultiSelect = (props, ref) => {
                     });  
                     
                 }
-                const contextObj = window._controller.getCurrentModuleInstance();
+                
                 if (contextObj && contextObj.onMultiSelectRecordLoaded) {
                     contextObj.onMultiSelectRecordLoaded(props.config.handle);
                 } 
@@ -556,7 +621,7 @@ const MultiSelect = (props, ref) => {
         const handleDocumentClick = (event) => {
         
             setState((prevState) => {
-                if (multiSelectBoxRef.current && !multiSelectBoxRef.current.contains(event.target)) {
+                if (multiSelectBoxRef.current && !multiSelectBoxRef.current.contains(event.target) && behave == "dropdown") {
                     return { ...prevState, active: false };
                 }
                 return prevState;
@@ -575,7 +640,17 @@ const MultiSelect = (props, ref) => {
             document.removeEventListener('mousedown', handleDocumentClick);
         };        
 
-    }, []);    
+    }, []);  
+    
+    useEffect(() => {
+
+        if (behave == "flatlist") {
+            setState((prevState) => {
+                return { ...prevState, active: true };
+            });
+        } 
+
+    }, [state.records]);
 
     let _placeholder = props.config.placeholder;          
     
@@ -588,26 +663,9 @@ const MultiSelect = (props, ref) => {
     const dropdownClass = state.active ? props.config.popup_class + " visible" : props.config.popup_class;
 
     return (
-        <div ref={multiSelectBoxRef} className={`pharmarack-cms-multi-select-widget ${state.classes}`}>
-
-            <div className="pharmarack-cms-multi-select-widget-header" onClick={handleResultBoxClick} >
-                <span>{_placeholder}</span>
-                <i className="fa-regular fa-angle-down"></i>
-            </div>
-
-            <div className={`pharmarack-cms-multi-select-widget-popup-container ${dropdownClass}`}>
-
-                <div className="pharmarack-cms-multi-select-search-container">
-                    <input ref={searchInputRef} type="text" onKeyUp = {(_e) => handleSearchInputChange(_e)} placeholder={props.config.searchprompt} />
-                    <i className="far fa-search"></i>
-                </div>
-                
-                <div className="pharmarack-cms-multi-select-records">{ state.active ? renderRecords() : null }</div>
-                { state.active ? renderPageButtons() : "" } 
-               
-            </div>
-
-        </div>        
+        <>
+            {(behave == "popup" && state.active) ? <div className="pharmarack-cms-multi-select-backdrop">{renderWidget()}</div> : renderWidget()}
+        </>
     );
 
 };

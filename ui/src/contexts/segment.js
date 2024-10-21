@@ -75,6 +75,50 @@ export default function SegmentContext(_component) {
 
     /**
      * 
+     * @param {*} _handle 
+     * 
+     * Called whenever multi-select widget's done button clicked
+     * 
+     */
+    this.onMultiSelectRecordDone = (_handle) => {
+
+        if (_handle == "add_retailers") {
+            const retailerWidget = this.controller.getField("segment_retaler_form_add_retailers");
+            if (retailerWidget) {
+
+                const selectedRetailers = retailerWidget.getSelectedRecords();
+
+                if (!selectedRetailers || selectedRetailers.length == 0) {
+                    return;
+                }
+
+                const request = {};    
+                const segment = this.component.currentRecord["segment_grid"];
+                const retailerGrid = this.controller.getField("retailer_grid");
+
+                if (segment) {
+                    
+                    request["method"] = "PUT";
+                    request["endpoint"] = "/system/segment/" + segment._id +"/retailers";
+                    request["payload"] = selectedRetailers;
+
+                    this.controller.docker.dock(request).then((_res) => {
+                        this.controller.notify(selectedRetailers.length + " retailers were added successfully.!");
+                        retailerGrid.initFetch();    
+                    })
+                    .catch((e) => {
+                        this.controller.notify(e.message, "error");
+                    });
+
+                }
+
+            }
+        }
+
+    };
+
+    /**
+     * 
      * @param {*} _config 
      * @param {*} _section 
      * @param {*} _row 
@@ -111,14 +155,46 @@ export default function SegmentContext(_component) {
      * 
      */
     this.beforeViewMount = (_handle, _viewConfig) => {
-
-        if (!_handle) {
-            return _viewConfig;
-        }
-        
         return _viewConfig;
+    };        
 
-    };    
+    /**
+     * 
+     * @param {*} _e 
+     * @param {*} _field 
+     * @param {*} _grid 
+     * @param {*} _record 
+     * 
+     * Called whenever user click on the datagrid record (button type)
+     * 
+     */
+    this.onRecordButtonClick = (_e, _field, _grid, _record) => {  console.log(_field, _grid, _record);
+
+        if (_grid == "retailer_grid" && _field == "REMOVE") {
+
+            const request = {};    
+            const segment = this.component.currentRecord["segment_grid"];
+            const retailerGrid = this.controller.getField("retailer_grid");
+
+            if (segment) {
+                
+                request["method"] = "PUT";
+                request["endpoint"] = "/system/segment/" + segment._id +"/deleteRetailers";
+                request["payload"] = [_record.RetailerId];
+
+                this.controller.docker.dock(request).then((_res) => {
+                    this.controller.notify(_record.RetailerName + " were removed successfully.!");
+                    retailerGrid.initFetch();    
+                })
+                .catch((e) => {
+                    this.controller.notify(e.message, "error");
+                });
+
+            }
+
+        }
+
+    };
 
     /**
      * 
@@ -127,7 +203,7 @@ export default function SegmentContext(_component) {
      * This handler called for any ( context specific ) action button click events 
      * 
      */
-    this.onActionBtnClick = (_action) => {
+    this.onActionBtnClick = (_action) => {  console.log("onActionBtnClick : "+ _action);
 
         if (_action === "NEW_SEGMENT") {
             this.component.currentRecord["segment_grid"] = null;
@@ -137,6 +213,11 @@ export default function SegmentContext(_component) {
             this.controller.switchView("main_view");
         } else if (_action === "SAVE_SEGMENT") {
             this.saveSegment();
+        } else if (_action === "ADD_RETAILER") {
+            const newRetailerSelector = this.controller.getField("segment_retaler_form_add_retailers");
+            if (newRetailerSelector) {
+                newRetailerSelector.showPopup();
+            }
         }
 
     };
@@ -163,8 +244,7 @@ export default function SegmentContext(_component) {
             const sType = segmentType.getVal();
             const segmentTab = this.controller.getField("segment_form_tab");
             if (segmentTab) {
-                request["payload"] = segmentTab.getFormFields();                       
-                console.log(request["payload"]);
+                request["payload"] = segmentTab.getFormFields();                                       
                 request["payload"]["segmentType"] = sType;
             }
         }

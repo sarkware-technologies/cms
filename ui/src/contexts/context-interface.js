@@ -193,6 +193,17 @@ export default function ContextInterface(_component) {
     /**
      * 
      * @param {*} _handle 
+     * 
+     * Called whenever multi-select widget's done button clicked
+     * 
+     */
+    this.onMultiSelectRecordDone = (_handle) => {
+
+    };
+
+    /**
+     * 
+     * @param {*} _handle 
      * @param {*} _target 
      * 
      * Called whenever a field or grid item got Focused 

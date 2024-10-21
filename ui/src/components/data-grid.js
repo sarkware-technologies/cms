@@ -400,6 +400,7 @@ const DataGrid = (props, ref) => {
 
     const headerInstances = {};
     const [collapseState, setCollapseState] = useState({});
+    const [checked, setChecked] = useState([]);
 
     const contextObj = window._controller.getCurrentModuleInstance();
     
@@ -499,6 +500,13 @@ const DataGrid = (props, ref) => {
         }        
         
         setState((prevState) => ({...prevState, headers: _headers, currentPage: 1}));
+
+    };
+
+    const handleRecordCheckClick = (_e, _field, _record) => {
+
+        _e.preventDefault();
+        
 
     };
 
@@ -767,6 +775,8 @@ const DataGrid = (props, ref) => {
             }            
         } else if (_props.config.field.type === "collapse") {
             return <td style={cssProperties}><button className="" onClick={e => handleCollapseBtnClick(e, _props.config.field, _props.record)}><i className="fa fa-chevron-down"></i></button></td>;
+        } else if (_props.config.field.type === "check") {
+            return <td style={cssProperties}><input type="checkbox" onChange={e => handleRecordCheckClick(e, _props.config.field, _props.record)} /></td>;
         }
 
         return <td style={cssProperties}>{_props.data}</td>;

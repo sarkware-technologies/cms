@@ -11,5 +11,7 @@ const SegmentRetailerExclusionSchema = new mongoose.Schema({
     timestamps              : true
 });
 
+SegmentRetailerExclusionSchema.index({ segment: 1, retailer: 1 }, { unique: true });
+
 const SegmentRetailerExclusionModel = mongoose.model('cms_system_segment_retailer_exclusion', SegmentRetailerExclusionSchema);
 export default SegmentRetailerExclusionModel;

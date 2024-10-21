@@ -11,5 +11,7 @@ const SegmentRetailerSchema = new mongoose.Schema({
     timestamps              : true
 });
 
+SegmentRetailerSchema.index({ segment: 1, retailer: 1 }, { unique: true });
+
 const SegmentRetailerModel = mongoose.model('cms_system_segment_retailer', SegmentRetailerSchema);
 export default SegmentRetailerModel;

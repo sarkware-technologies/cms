@@ -46,15 +46,15 @@ const View = (props, ref) => {
                 if (custom && custom.component) {
                     if (custom.pos === "before") {
                         sections.push(<div key={uuidv4()} className="pharmarack-cms-view-header-section before">{custom.component}</div>);
-                        sections.push(<div key={uuidv4()} className="pharmarack-cms-view-header-section">{rows}</div>);    
+                        sections.push(<div key={uuidv4()} className={`pharmarack-cms-view-header-section ${handle}`}>{rows}</div>);    
                     } else if (custom.pos === "after") {
-                        sections.push(<div key={uuidv4()} className="pharmarack-cms-view-header-section">{rows}</div>);
+                        sections.push(<div key={uuidv4()} className={`pharmarack-cms-view-header-section ${handle}`}>{rows}</div>);
                         sections.push(<div key={uuidv4()} className="pharmarack-cms-view-header-section after">{custom.component}</div>);
                     } else {
                         sections.push(<div key={uuidv4()} className="pharmarack-cms-view-header-section after">{custom.component}</div>);
                     }
                 } else {
-                    sections.push(<div key={uuidv4()} className="pharmarack-cms-view-header-section">{rows}</div>);
+                    sections.push(<div key={uuidv4()} className={`pharmarack-cms-view-header-section ${handle}`}>{rows}</div>);
                 }            
             } else if (config.header.actions) {
                 sections.push(<Actions key={uuidv4()} config={config.header} type="header" />);
@@ -74,15 +74,15 @@ const View = (props, ref) => {
             if (custom && custom.component) {
                 if (custom.pos === "before") {
                     sections.push(<div key={uuidv4()} className="pharmarack-cms-view-content-section before">{custom.component}</div>);
-                    sections.push(<div key={uuidv4()} className="pharmarack-cms-view-content-section">{rows}</div>);    
+                    sections.push(<div key={uuidv4()} className={`pharmarack-cms-view-content-section ${handle}`}>{rows}</div>);    
                 } else if (custom.pos === "after") {
-                    sections.push(<div key={uuidv4()} className="pharmarack-cms-view-content-section">{rows}</div>);
+                    sections.push(<div key={uuidv4()} className={`pharmarack-cms-view-content-section ${handle}`}>{rows}</div>);
                     sections.push(<div key={uuidv4()} className="pharmarack-cms-view-content-section after">{custom.component}</div>);
                 } else {
                     sections.push(<div key={uuidv4()} className="pharmarack-cms-view-content-section after">{custom.component}</div>);
                 }
             } else {
-                sections.push(<div key={uuidv4()} className="pharmarack-cms-view-content-section">{rows}</div>);
+                sections.push(<div key={uuidv4()} className={`pharmarack-cms-view-content-section ${handle}`}>{rows}</div>);
             }
         }
         
@@ -100,15 +100,15 @@ const View = (props, ref) => {
                 if (custom && custom.component) {
                     if (custom.pos === "before") {
                         sections.push(<div key={uuidv4()} className="pharmarack-cms-view-footer-section before">{custom.component}</div>);
-                        sections.push(<div key={uuidv4()} className="pharmarack-cms-view-footer-section">{rows}</div>);    
+                        sections.push(<div key={uuidv4()} className={`pharmarack-cms-view-footer-section ${handle}`}>{rows}</div>);    
                     } else if (custom.pos === "after") {
-                        sections.push(<div key={uuidv4()} className="pharmarack-cms-view-footer-section">{rows}</div>);
+                        sections.push(<div key={uuidv4()} className={`pharmarack-cms-view-footer-section ${handle}`}>{rows}</div>);
                         sections.push(<div key={uuidv4()} className="pharmarack-cms-view-footer-section after">{custom.component}</div>);
                     } else {
                         sections.push(<div key={uuidv4()} className="pharmarack-cms-view-footer-section after">{custom.component}</div>);
                     }
                 } else {
-                    sections.push(<div key={uuidv4()} className="pharmarack-cms-view-footer-section">{rows}</div>);
+                    sections.push(<div key={uuidv4()} className={`pharmarack-cms-view-footer-section ${handle}`}>{rows}</div>);
                 }
             } else if (config.footer.actions) {
                 sections.push(<Actions key={uuidv4()} config={config.footer} type="header" />);
@@ -125,7 +125,7 @@ const View = (props, ref) => {
                 if (sideBarViewConfig) {
                     
                     return (
-                        <div className="pharmarack-cms-view has-sidebar">
+                        <div className={`pharmarack-cms-view has-sidebar ${handle}`}>
                             <div className="flex-remaining-width">
                                 {sections}
                             </div>
@@ -139,7 +139,7 @@ const View = (props, ref) => {
             }
         }
 
-        return <div className="pharmarack-cms-view">{sections}</div>
+        return <div className={`pharmarack-cms-view ${handle}`}>{sections}</div>
 
     };
 

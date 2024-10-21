@@ -11,5 +11,7 @@ const SegmentRetailerInclusionSchema = new mongoose.Schema({
     timestamps              : true
 });
 
+SegmentRetailerInclusionSchema.index({ segment: 1, retailer: 1 }, { unique: true });
+
 const SegmentRetailerInclusionModel = mongoose.model('cms_system_segment_retailer_inclusion', SegmentRetailerInclusionSchema);
 export default SegmentRetailerInclusionModel;
