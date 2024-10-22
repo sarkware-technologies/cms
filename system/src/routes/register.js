@@ -15,7 +15,8 @@ export default class RegisterRouter {
         this.router.put("/register/:id", this.update);
         this.router.delete("/register/:id", this.delete);
         this.router.post("/register", this.create);
-
+        
+        this.router.put("/register/:id/update-approve", this.approveAndUpdate);
         this.router.put("/register/:id/approve", this.approve);
         this.router.put("/register/:id/reject", this.reject);
 
@@ -60,6 +61,14 @@ export default class RegisterRouter {
     create = async (_req, _res) => {
         try {
             _res.status(200).json(await this.registerService.create(_req));
+        } catch (_e) {
+            Utils.handleError(_e, _res);
+        }
+    };
+
+    approveAndUpdate = async (_req, _res) => {
+        try {
+            _res.status(200).json(await this.registerService.approveAndUpdate(_req));
         } catch (_e) {
             Utils.handleError(_e, _res);
         }

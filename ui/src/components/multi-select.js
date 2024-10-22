@@ -455,6 +455,12 @@ const MultiSelect = (props, ref) => {
         } 
     }
 
+    const handleCancelBtnClick = (_e) => {
+        _e.preventDefault();
+        _e.stopPropagation();
+        setState({...state, active: false});        
+    }
+
     const handlePrevPageBtnClick = (_e) => {
         
         _e.stopPropagation();
@@ -539,7 +545,7 @@ const MultiSelect = (props, ref) => {
 
                 {pageBtns} 
 
-                {behave == "popup" ? <a href="#" className="pharmarack-cms-btn secondary done-btn" onClick={(_e) => handleDoneBtnClick(_e)}>Cancel</a> : null}
+                {behave == "popup" ? <a href="#" className="pharmarack-cms-btn secondary done-btn" onClick={(_e) => handleCancelBtnClick(_e)}>Cancel</a> : null}
 
                 {renderDoneBtn()}                         
 

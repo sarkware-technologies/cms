@@ -250,43 +250,25 @@ export default class RegisterService {
 
     };
 
-    approve = async (_req) => { console.log("approve hass been reached");
+    approveAndUpdate = async (_req) => {
 
-        try {  console.log(_req.params.id);
+        if (!_req.params.id) {
+            throw new Error("Register id is missing");
+        }
 
-            const register = await RegisterModel.findById(_req.params.id).lean();  console.log(register);
-            if (register) {
+        try {
+            await RegisterModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
+            return this.doApprove(_req.params.id, _req.user._id);
+        } catch (e) { console.log(e);
+            throw e;
+        }
 
-                if (register.isApproved === null) {
+    };
 
-                    await RegisterModel.findByIdAndUpdate(_req.params.id, { $set: { isApproved: true, updatedBy: _req.user._id } }, { runValidators: true, new: false });
-                    
-                    /**
-                     * 
-                     * Create the User
-                     * 
-                     */
-                    await this.userService.createFromRegister(register, _req.user._id);
+    approve = async (_req) => {
 
-                    const eBody = {
-                        toEmailId: register.email,
-                        data: "Hi, your registration is approved, You may start using the CMS portal"
-                    }
-
-                    this.notifier.sendEmail(eBody);
-
-                    return { status: true, message: "Approved successfully" }
-
-                } else {
-                    if (register.isApproved) {
-                        throw new Error("Already approved");
-                    } else {
-                        throw new Error("Already rejected");
-                    }
-                }
-
-            }
-
+        try {
+            return await this.doApprove(_req.params.id, _req.user._id);
         } catch (e) { console.log(e);
             throw e;
         }
@@ -328,6 +310,49 @@ export default class RegisterService {
         try {
             return await RoleModel.find({handle: { $ne : "system" }}).populate("authType").sort({ title: 1 }).lean();
         } catch (e) {
+            throw e;
+        }
+
+    };
+
+    doApprove = async(_registerId, _userId) => {
+
+        try {
+
+            const register = await RegisterModel.findById(_registerId).lean();
+            if (register) {
+
+                if (register.isApproved === null) {
+
+                    await RegisterModel.findByIdAndUpdate(_registerId, { $set: { isApproved: true, updatedBy: _userId } }, { runValidators: true, new: false });
+                    
+                    /**
+                     * 
+                     * Create the User
+                     * 
+                     */
+                    await this.userService.createFromRegister(register, _userId);
+
+                    const eBody = {
+                        toEmailId: register.email,
+                        data: "Hi, your registration is approved, You may start using the CMS portal"
+                    }
+
+                    this.notifier.sendEmail(eBody);
+
+                    return { status: true, message: "Approved successfully" }
+
+                } else {
+                    if (register.isApproved) {
+                        throw new Error("Already approved");
+                    } else {
+                        throw new Error("Already rejected");
+                    }
+                }
+
+            }
+
+        } catch (e) { console.log(e);
             throw e;
         }
 

@@ -551,7 +551,8 @@ let segment_config = {
             header: {
                 show: true,
                 actions: [                 
-                    { label: "Add new Retailers", theme: "primary", method: "post", action: "ADD_RETAILER", classes: "", icon: "", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Remove Retailers", theme: "danger", method: "delete", action: "REMOVE_RETAILER", classes: "bulk-retailer-removed", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Add new Retailers", theme: "primary", method: "post", action: "ADD_RETAILER", classes: "bulk-retailer-added", icon: "", tabindex : 8, status: true, shortcut: "" }
                 ]
             },
             content: {
@@ -579,8 +580,8 @@ let segment_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No retailer mapped for this segment yet.!",
-                                    datasource: {endpoint: "/system/segment/:id/retailers", page: 0, populate: false, handler: "dedicated", cached: true},
-                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/system/segment/"},
+                                    datasource: {endpoint: "/system/segment/:id/retailers", page: 0, populate: false, handler: "dedicated", cached: false},
+                                    link: {key: "RetailerId", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/system/segment/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -621,7 +622,7 @@ let segment_config = {
                                             search: false,
                                             filter: false,
                                             classes: "",
-                                            header: {title: "Mobile Number", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                            header: {title: "Mobile Number", align: "left", filterable: false, searchable: false, sortable: false}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                             field: {handle: "MobileNumber", type: "alphanumeric", align: "left", editable: false},
                                             prompt: ""
@@ -632,7 +633,7 @@ let segment_config = {
                                             search: false,
                                             filter: false,
                                             classes: "",
-                                            header: {title: "Retailer Id", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                            header: {title: "Retailer Id", align: "left", filterable: false, searchable: false, sortable: false}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                             field: {handle: "RetailerId", type: "alphanumeric", align: "left", editable: false},
                                             prompt: ""

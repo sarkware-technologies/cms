@@ -484,10 +484,10 @@ strong {
     position: relative;
 }
 
-.pharmarack-cms-login-form .pharmarack-cms-form-success-message,
-.pharmarack-cms-register-form .pharmarack-cms-form-success-message,
-.pharmarack-cms-login-form .pharmarack-cms-form-error-message,
-.pharmarack-cms-register-form .pharmarack-cms-form-error-message {
+.pharmarack-cms-login-wrapper .pharmarack-cms-form-success-message,
+.pharmarack-cms-register-wrapper .pharmarack-cms-form-success-message,
+.pharmarack-cms-login-wrapper .pharmarack-cms-form-error-message,
+.pharmarack-cms-register-wrapper .pharmarack-cms-form-error-message {
     color: #fff;
     background: #EE4226;
     z-index: 999;
@@ -502,8 +502,8 @@ strong {
     max-width: 780px;
 }
 
-.pharmarack-cms-login-form .pharmarack-cms-form-success-message,
-.pharmarack-cms-register-form .pharmarack-cms-form-success-message {
+.pharmarack-cms-login-wrapper .pharmarack-cms-form-success-message,
+.pharmarack-cms-register-wrapper .pharmarack-cms-form-success-message {
     background: #3ac47d;
 }
 
@@ -903,6 +903,7 @@ div.pharmarack-cms-data-table-paginator {
     display: flex;
     font-size: 14px;
     padding: 25px;
+    padding-right: 0px;
     justify-content: end;
 }
 
@@ -1513,7 +1514,8 @@ div.pharmarack-cms-multi-select-search-container input {
 .pharmarack-cms-search-paginator a.done-btn {
     width: auto;
     font-weight: bold;
-    margin-left: 1px;
+    margin-left: 2px;
+    line-height: 30px;
 }
 
 .pharmarack-cms-search-paginator > div {
@@ -3210,4 +3212,8 @@ div.pharmarack-cms-progress-notifier {
     position: absolute;
     right: 0px;
     z-index: 999;
+}
+
+.pharmarack-cms-view.segment_retaler_form > div > button.bulk-retailer-removed {
+    right: 160px;
 }

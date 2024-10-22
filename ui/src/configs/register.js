@@ -87,7 +87,7 @@ let register_config = {
                                                                 },
                                                                 {
                                                                     show: true, 
-                                                                    width: "22",
+                                                                    width: "27",
                                                                     search: false,
                                                                     filter: false,
                                                                     header: {title: "Email Id", align: "left", filterable: false, searchable: false, sortable: false}, 
@@ -97,7 +97,7 @@ let register_config = {
                                                                 },
                                                                 {
                                                                     show: true, 
-                                                                    width: "11",
+                                                                    width: "16",
                                                                     search: false,
                                                                     filter: false,
                                                                     header: {title: "Mobile", align: "left", filterable: false, searchable: false, sortable: false}, 
@@ -113,16 +113,6 @@ let register_config = {
                                                                     header: {title: "User Type", align: "left", filterable: false, searchable: false, sortable: false}, 
                                                                     footer: {title: "", type: "none", total_type: "none", align: "left"},
                                                                     field: {handle: "userType", type: "search", label_key: "title", value_key: "_id"},
-                                                                    prompt: ""
-                                                                },
-                                                                {
-                                                                    show: true, 
-                                                                    width: "10",
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "Edit", align: "center", filterable: false, searchable: false, sortable: false}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "", type: "button", label: "Edit", action: "EDIT", align: "center", icon: "fa fa-edit", classes: "icon-right edit-btn"},
                                                                     prompt: ""
                                                                 },
                                                                 {
@@ -370,7 +360,9 @@ let register_config = {
                 breadcrumb: "title",
                 actions: [
                     { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_REGISTER", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Save", theme: "primary", method: "post", action: "SAVE_REGISTER", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Update", theme: "primary", method: "put", action: "SAVE_REGISTER", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Reject", theme: "warning", method: "put", action: "REJECT_REGISTER", classes: "icon-left", icon: "fa fa-thumbs-down", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Update & Approve", theme: "primary", method: "put", action: "UPDATE_APPROVE_REGISTER", classes: "icon-left", icon: "fa fa-thumbs-up", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {

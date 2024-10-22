@@ -227,6 +227,29 @@ export default class SegmentService {
                 throw new Error("Segment id is missing");
             }
 
+            const page = parseInt(_req.query.page) || 1;
+            const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
+            const limit = 10;//parseInt(process.env.PAGE_SIZE);
+
+            const searchFor = _req.query.search ? _req.query.search : "";
+            const searchFrom = _req.query.field ? _req.query.field : "";
+
+            const filter = _req.query.filter ? _req.query.filter : "";
+            const filterBy = _req.query.filter_by ? _req.query.filter_by : "";
+            const filterType = _req.query.filter_type ? _req.query.filter_type : "";
+
+            if (searchFrom !== "") {
+                return this.retailerSearch(_req, page, skip, limit, searchFrom, searchFor);
+            }
+
+            if (filter !== "") {
+                if (filterType === "seeds") {
+                    return this.retailerGroupSeed(_req, filter);
+                } else {
+                    return this.retailerGroupBy(_req, page, skip, limit, filter, filterBy);
+                }
+            }
+
             let _retailers = [];                 
             const segmentRetailers = await SegmentRetailerModel.find({segment: _req.params.id}).select("retailer").lean();
             // Extract retailer ids into an array
@@ -235,11 +258,82 @@ export default class SegmentService {
             if (retailerIds.length > 0) {
                 const retailerModel = await EM.getModel("retailer");
                 if (retailerModel) {
-                    _retailers = await retailerModel.find({ RetailerId: { $in: retailerIds } });
+                    _retailers = await retailerModel.find({ RetailerId: { $in: retailerIds } }).skip(skip).limit(limit).lean();
                 }                
             }      
 
-            return Utils.response(_retailers.length, 1, _retailers);
+            return Utils.response(retailerIds.length, 1, _retailers);
+
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+
+    retailerSearch = async (_req, _page, _skip, _limit, _field, _search) => {
+
+        try {
+
+            let _count = 0;
+            let _retailers = [];
+            const retailerModel = await EM.getModel("retailer");
+            if (retailerModel) {
+
+                const segmentRetailers = await SegmentRetailerModel.find({segment: _req.params.id}).select("retailer").lean();            
+                const retailerIds = segmentRetailers.map(record => record.retailer);
+
+                _count = await retailerModel.countDocuments({ 
+                    RetailerId: { $in: retailerIds }, 
+                    [_field]: { $regex: new RegExp(_search, 'i') } 
+                });
+                _retailers = await retailerModel.find({ 
+                    RetailerId: { $in: retailerIds }, 
+                    [_field]: { $regex: new RegExp(_search, 'i') } 
+                }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            }
+
+            return Utils.response(_count, _page, _retailers);
+
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+
+    retailerGroupSeed = async(_req, _field) => { 
+
+        try {
+            let _seeds = [];
+            const retailerModel = await EM.getModel("retailer");
+            if (retailerModel) {
+                _seeds = await retailerModel.distinct(_field).exec();
+            }
+            return _seeds;
+        } catch (_e) {
+
+            throw _e;
+        }
+
+    };
+
+    retailerGroupBy = async(_req, _page, _skip, _limit, _field, _match) => { 
+
+        try {
+
+            let query = {};
+            if (_match) {
+                query[_field] = { $in: _match.split('|') };
+            }
+
+            let _count = 0;
+            let _retailers = [];
+            const retailerModel = await EM.getModel("retailer");
+            if (retailerModel) {
+                _count = await retailerModel.countDocuments(query);
+                _retailers = await retailerModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            }
+
+            return Utils.response(_count, _page, _retailers);
 
         } catch (_e) {
             throw _e;
@@ -318,7 +412,7 @@ export default class SegmentService {
 
     };
 
-    deleteRetailersFromSegment = async (_req) => {  console.log("deleteRetailersFromSegment is called");
+    deleteRetailersFromSegment = async (_req) => {
 
         try {
 

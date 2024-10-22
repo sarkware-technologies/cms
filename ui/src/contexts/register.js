@@ -4,8 +4,6 @@ export default function ServiceContext(_component) {
     this.config = this.component.config;
     this.controller = window._controller;
 
-    this.au
-
     /**
      * 
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
@@ -18,6 +16,26 @@ export default function ServiceContext(_component) {
     /**
      * 
      * @param {*} _handle 
+     * 
+     * Called after the select box component option's loaded (happens only remote config)
+     * 
+     */
+    this.afterSelectBoxLoaded = (_handle) => {  console.log(_handle);
+
+        if (_handle == "register_form_userType" && this.component.currentRecord["register_pending_grid"]) {
+
+            const registerSelector = this.controller.getField(_handle);
+            if (registerSelector) {
+                registerSelector.setVal(this.component.currentRecord["register_pending_grid"].userType);
+            }
+
+        }
+
+    };
+
+    /**
+     * 
+     * @param {*} _handle 
      * @param {*} _value 
      * @param {*} _e 
      * 
@@ -25,8 +43,6 @@ export default function ServiceContext(_component) {
      * 
      */
     this.onFieldKeyUp = ( _handle, _value, _e ) => {
-
-
 
     };
 
@@ -60,8 +76,7 @@ export default function ServiceContext(_component) {
                 this.approveRegister(_record);
             } else if (_field == "REJECT") {
                 this.rejectRegister(_record);
-            } else if (_field == "EDIT") {
-                this.component.currentRecord["register_pending_grid"] = null;       
+            } else if (_field == "EDIT") {                
                 this.controller.switchView("register_form");
             }
         }
@@ -78,13 +93,22 @@ export default function ServiceContext(_component) {
     this.onActionBtnClick = (_action) => {
 
         if (_action === "NEW_REGISTER") {
-            this.component.currentRecord["register_grid"] = null;
+            this.component.currentRecord["register_pending_grid"] = null;
             this.controller.switchView("register_form");
         } else if (_action === "CANCEL_REGISTER") {     
-            this.component.currentRecord["register_grid"] = null;       
+            this.component.currentRecord["register_pending_grid"] = null;       
             this.controller.switchView("main_view");
         } else if (_action === "SAVE_REGISTER") {
             this.saveRegister();
+        } else if (_action === "REJECT_REGISTER") {
+            const record = this.component.currentRecord["register_pending_grid"];
+            if (record) {
+                this.rejectRegister(record);
+            } else {
+                this.controller.notify("Couldn't reject, pls try again later", "error");
+            }            
+        } else if (_action === "UPDATE_APPROVE_REGISTER") {
+            this.updateApproveRegister();
         }
 
     };
@@ -113,14 +137,41 @@ export default function ServiceContext(_component) {
 
                 this.controller.docker.dock(request).then((_res) => {
                     this.controller.notify(_res.title + " saved successfully.!");
-                        this.controller.switchView("main_view");
-                        this.component.currentRecord["register_pending_grid"] = null;
+                    this.controller.switchView("main_view");
+                    this.component.currentRecord["register_pending_grid"] = null;
                 })
                 .catch((e) => {
                     this.controller.notify(e.message, "error");
                 });
 
             }
+        }
+
+    };
+
+    this.updateApproveRegister = () => {
+
+        const record = this.component.currentRecord["register_pending_grid"];
+        if (record) {
+            
+            const request = {};    
+            request["method"] = "PUT";
+            request["endpoint"] = "/system/register/"+ record._id +"/update-approve";
+    
+            const registerForm = this.controller.getField("register_form");
+
+            if (registerForm) {
+                request["payload"] = registerForm.getFormFields();
+                this.controller.docker.dock(request).then((_res) => {
+                    this.controller.switchView("main_view");
+                    this.component.currentRecord["register_pending_grid"] = null;
+                    this.controller.notify("User "+ request["payload"].fullName + " has been updated & approved successfully.!");                    
+                })
+                .catch((e) => {
+                    this.controller.notify(e.message, "error");                    
+                });
+            }
+
         }
 
     };
@@ -135,11 +186,21 @@ export default function ServiceContext(_component) {
 
         this.controller.docker.dock(request).then((_res) => {
             this.controller.notify("User "+ _record.fullName + " has been approved successfully.!");
-            pendingGrid.initFetch();
+            if (pendingGrid) {
+                pendingGrid.initFetch();
+            } else {
+                this.controller.switchView("main_view");
+                this.component.currentRecord["register_pending_grid"] = null;
+            }            
         })
         .catch((e) => {
             this.controller.notify(e.message, "error");
-            pendingGrid.initFetch();
+            if (pendingGrid) {
+                pendingGrid.initFetch();
+            } else {
+                this.controller.switchView("main_view");
+                this.component.currentRecord["register_pending_grid"] = null;
+            }
         });
 
     };
@@ -154,11 +215,21 @@ export default function ServiceContext(_component) {
 
         this.controller.docker.dock(request).then((_res) => {
             this.controller.notify("User "+ _record.fullName + " has been rejected successfully.!");
-            pendingGrid.initFetch();
+            if (pendingGrid) {
+                pendingGrid.initFetch();
+            } else {
+                this.controller.switchView("main_view");
+                this.component.currentRecord["register_pending_grid"] = null;
+            }
         })
         .catch((e) => {
             this.controller.notify(e.message, "error");
-            pendingGrid.initFetch();
+            if (pendingGrid) {
+                pendingGrid.initFetch();
+            } else {
+                this.controller.switchView("main_view");
+                this.component.currentRecord["register_pending_grid"] = null;
+            }
         });
         
     };

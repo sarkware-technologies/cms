@@ -26,6 +26,7 @@ const HeaderCell = ({
     handleFilterClick, 
     handleSeedCheck, 
     handleFilterBlur,
+    handleCheckAllRecord,
     getDataSource }) => {
         
     const cssProperties = {
@@ -90,6 +91,8 @@ const HeaderCell = ({
             widget = <div className="pharmarack-cms-header-filter-box"><span>{widget}</span><button onClick={(_e) => handleFilterClick(_e, config)}><i className="fa fa-filter"></i></button></div>
         }
         
+    } else if (config.field.type == "check") {
+        widget = <input type="checkbox" onChange={(e) => handleCheckAllRecord(e)} />
     }
 
     
@@ -103,7 +106,7 @@ const HeaderCell = ({
  * Header row component
  *
  */
-const TableHeader =  memo(({ headers, lastSearch, lastFilter, handleSearch, handleSearchClick, handleSearchBlur, handleFilterClick, handleSeedCheck, handleFilterBlur, getDataSource }) => {        
+const TableHeader =  memo(({ headers, lastSearch, lastFilter, handleSearch, handleSearchClick, handleSearchBlur, handleFilterClick, handleSeedCheck, handleFilterBlur, handleCheckAllRecord, getDataSource }) => {        
 
     return (
         <thead><tr>{
@@ -119,6 +122,7 @@ const TableHeader =  memo(({ headers, lastSearch, lastFilter, handleSearch, hand
                     handleFilterClick={handleFilterClick} 
                     handleSeedCheck={handleSeedCheck}
                     handleFilterBlur={handleFilterBlur} 
+                    handleCheckAllRecord={handleCheckAllRecord}
                     getDataSource={getDataSource} />
                 })}</tr></thead>
     );
@@ -453,6 +457,31 @@ const DataGrid = (props, ref) => {
 
     };
 
+    const handleCheckRecord = (_e, _record) => {
+
+        if(props.config.link.key) {
+            const _records = [...state.records]
+            for (let i = 0; i < _records.length; i++) {
+                if (_records[i][props.config.link.key] == _record[props.config.link.key]) {
+                    _records[i]["__isChecked"] = _e.target.checked;
+                }
+            }
+            setState((prevState) => ({...prevState, records: _records}));
+        }
+
+    };
+
+    const handleCheckAllRecord = (_e) => {
+
+        const _records = [...state.records];
+        for (let i = 0; i < _records.length; i++) {
+            _records[i]["__isChecked"] = _e.target.checked;
+        }
+
+        setState((prevState) => ({...prevState, records: _records}));
+
+    };
+
     const handleSeedCheck = (_config, _checked) => {        
         lastFilterByRef.current = _checked;
         fetchRecords();
@@ -503,13 +532,6 @@ const DataGrid = (props, ref) => {
 
     };
 
-    const handleRecordCheckClick = (_e, _field, _record) => {
-
-        _e.preventDefault();
-        
-
-    };
-
     const handleRecordLinkClick = (_e, _gridName, _targetContext, _value) => {
 
         _e.preventDefault();
@@ -541,7 +563,7 @@ const DataGrid = (props, ref) => {
                 contextObj.currentRecord[props.config.handle] = null;
 
                 window._controller.docker.dock(request)
-                .then((_res) => {  console.log("Insid eresponse handler : "+ props.config.handle);
+                .then((_res) => {
                     contextObj.currentRecord[props.config.handle] = _res;                        
                     switchView();
                 })
@@ -756,7 +778,6 @@ const DataGrid = (props, ref) => {
             </table>
         )
 
-
     }
 
     const RecordCell = (_props) => {
@@ -776,7 +797,7 @@ const DataGrid = (props, ref) => {
         } else if (_props.config.field.type === "collapse") {
             return <td style={cssProperties}><button className="" onClick={e => handleCollapseBtnClick(e, _props.config.field, _props.record)}><i className="fa fa-chevron-down"></i></button></td>;
         } else if (_props.config.field.type === "check") {
-            return <td style={cssProperties}><input type="checkbox" onChange={e => handleRecordCheckClick(e, _props.config.field, _props.record)} /></td>;
+            return <td style={cssProperties}><input type="checkbox" checked={_props.record["__isChecked"]} onChange={e => handleCheckRecord(e, _props.record)} /></td>;
         }
 
         return <td style={cssProperties}>{_props.data}</td>;
@@ -961,7 +982,7 @@ const DataGrid = (props, ref) => {
 
         }
 
-        return <></>;
+        return null;
 
     });
 
@@ -1064,10 +1085,12 @@ const DataGrid = (props, ref) => {
                     pRecords.push(state.source[i]);
                 }
 
+                let _records = checkForCheckedRecord(pRecords);
+
                 setState((prevState) => ({
                     ...prevState, 
                     progress: false,
-                    records: pRecords,                    
+                    records: _records,                    
                     currentRecord: {},                     
                 }));
 
@@ -1085,6 +1108,8 @@ const DataGrid = (props, ref) => {
                     _records = contextObj.beforeLoadingDatagrid(props.config.handle, _res.payload);
                 } 
 
+                _records = checkForCheckedRecord(_records);
+
                 setState((prevState) => ({
                     ...prevState, 
                     progress: false,
@@ -1100,7 +1125,27 @@ const DataGrid = (props, ref) => {
 
         }       
                
-    }
+    };
+
+    const checkForCheckedRecord = (_records) => {
+
+        let hasChecked = false;
+        for (let i = 0; i < state.headers.length; i++) {
+            if (state.headers[i].field.type == "check") {
+                hasChecked = true;
+            }
+        }
+
+        const newRecords = [..._records];
+        if (hasChecked) {
+            for (let i = 0; i < newRecords.length; i++) {                
+                newRecords[i]["__isChecked"] = false;
+            }
+        }
+
+        return newRecords;
+
+    };
 
     // Handler function for the escape key
     const handleEscapeKey = (event) => {
@@ -1159,6 +1204,15 @@ const DataGrid = (props, ref) => {
             }
 
             return null;
+        },
+        getCheckedRecords: () => {
+            const checked = [];
+            for (let i = 0; i < state.records.length; i++) {
+                if (state.records[i]["__isChecked"]) {
+                    checked.push(state.records[i]);
+                }
+            } 
+            return checked;
         }
     };    
 
@@ -1191,7 +1245,8 @@ const DataGrid = (props, ref) => {
                     handleSearchBlur={handleSearchBlur}                     
                     handleFilterClick={handleFilterClick} 
                     handleSeedCheck={handleSeedCheck} 
-                    handleFilterBlur={handleFilterBlur}
+                    handleFilterBlur={handleFilterBlur}                    
+                    handleCheckAllRecord={handleCheckAllRecord}
                     getDataSource={getDataSource} 
                 />
                 <TableRecords records={state.records} />

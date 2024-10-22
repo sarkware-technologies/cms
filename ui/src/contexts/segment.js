@@ -88,7 +88,8 @@ export default function SegmentContext(_component) {
 
                 const selectedRetailers = retailerWidget.getSelectedRecords();
 
-                if (!selectedRetailers || selectedRetailers.length == 0) {
+                if (!selectedRetailers || selectedRetailers.length == 0 || selectedRetailers == "none") {
+                    this.controller.notify("Nothing to add", "error");
                     return;
                 }
 
@@ -168,30 +169,10 @@ export default function SegmentContext(_component) {
      * Called whenever user click on the datagrid record (button type)
      * 
      */
-    this.onRecordButtonClick = (_e, _field, _grid, _record) => {  console.log(_field, _grid, _record);
+    this.onRecordButtonClick = (_e, _field, _grid, _record) => {
 
         if (_grid == "retailer_grid" && _field == "REMOVE") {
-
-            const request = {};    
-            const segment = this.component.currentRecord["segment_grid"];
-            const retailerGrid = this.controller.getField("retailer_grid");
-
-            if (segment) {
-                
-                request["method"] = "PUT";
-                request["endpoint"] = "/system/segment/" + segment._id +"/deleteRetailers";
-                request["payload"] = [_record.RetailerId];
-
-                this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(_record.RetailerName + " were removed successfully.!");
-                    retailerGrid.initFetch();    
-                })
-                .catch((e) => {
-                    this.controller.notify(e.message, "error");
-                });
-
-            }
-
+            this.removeRetailersFromSegment([_record.RetailerId]);
         }
 
     };
@@ -203,7 +184,7 @@ export default function SegmentContext(_component) {
      * This handler called for any ( context specific ) action button click events 
      * 
      */
-    this.onActionBtnClick = (_action) => {  console.log("onActionBtnClick : "+ _action);
+    this.onActionBtnClick = (_action) => {
 
         if (_action === "NEW_SEGMENT") {
             this.component.currentRecord["segment_grid"] = null;
@@ -218,8 +199,41 @@ export default function SegmentContext(_component) {
             if (newRetailerSelector) {
                 newRetailerSelector.showPopup();
             }
+        } else if (_action === "REMOVE_RETAILER") {
+            const retailerGrid = this.controller.getField("retailer_grid");
+            if (retailerGrid) {
+                const checkedRecords = retailerGrid.getCheckedRecords();
+                if (checkedRecords.length > 0) {
+                    const retailerIds = checkedRecords.map(record => record.RetailerId);
+                    this.removeRetailersFromSegment(retailerIds);
+                } else {
+                    this.controller.notify("Select retailers to remove", "error");
+                }
+            }
         }
 
+    };
+
+    this.removeRetailersFromSegment = (_retailersIds) => {
+        const request = {};    
+        const segment = this.component.currentRecord["segment_grid"];
+        const retailerGrid = this.controller.getField("retailer_grid");
+
+        if (segment) {
+            
+            request["method"] = "PUT";
+            request["endpoint"] = "/system/segment/" + segment._id +"/deleteRetailers";
+            request["payload"] = _retailersIds;
+
+            this.controller.docker.dock(request).then((_res) => {
+                this.controller.notify("Retailer(s) were removed successfully.!");
+                retailerGrid.initFetch();    
+            })
+            .catch((e) => {
+                this.controller.notify(e.message, "error");
+            });
+
+        }
     };
 
     this.saveSegment = () => {
