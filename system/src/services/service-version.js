@@ -9,7 +9,7 @@ export default class ServiceVersionService {
 
         try {
 
-            let _users = [];
+            let _versions = [];
 
             const page = parseInt(_req.query.page) || 1;
             const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
@@ -35,9 +35,9 @@ export default class ServiceVersionService {
             }
 
             const _count = await ServiceVersionModel.countDocuments({});
-            _users = await ServiceVersionModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
+            _versions = await ServiceVersionModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
             
-            return Utils.response(_count, page, _users);
+            return Utils.response(_count, page, _versions);
 
         } catch (e) {
             throw _e;
@@ -60,9 +60,9 @@ export default class ServiceVersionService {
         try {
 
             const _count = await ServiceVersionModel.countDocuments({ [_field]: { $regex: new RegExp(_search, 'i') } });
-            const _roles = await ServiceVersionModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _versions = await ServiceVersionModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _versions);
 
         } catch (_e) {
             throw _e;
@@ -75,7 +75,6 @@ export default class ServiceVersionService {
         try {
             return await ServiceVersionModel.distinct(_field).exec();
         } catch (_e) {
-
             throw _e;
         }
 
@@ -91,9 +90,9 @@ export default class ServiceVersionService {
             }
 
             const _count = await ServiceVersionModel.countDocuments(query);
-            const _roles = await ServiceVersionModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _versions = await ServiceVersionModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _versions);
 
         } catch (_e) {
             throw _e;
@@ -165,12 +164,12 @@ export default class ServiceVersionService {
 
             body["createdBy"] = _req.user._id
             const model = new ServiceVersionModel(body);
-            const module = await model.save();     
+            const version = await model.save();     
 
             return {
                 status: true,
-                message: "Service version "+ module.route +" is created successfully",
-                payload: module
+                message: "Service version "+ version.route +" is created successfully",
+                payload: version
             };
 
         } catch (e) {

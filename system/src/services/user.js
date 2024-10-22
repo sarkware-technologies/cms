@@ -51,9 +51,9 @@ export default class UserService {
         try {
 
             const _count = await UserModel.countDocuments({ [_field]: { $regex: new RegExp(_search, 'i') } });
-            const _roles = await UserModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _users = await UserModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _users);
 
         } catch (_e) {
             throw _e;
@@ -82,9 +82,9 @@ export default class UserService {
             }
 
             const _count = await UserModel.countDocuments(query);
-            const _roles = await UserModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _users = await UserModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _users);
 
         } catch (_e) {
             throw _e;

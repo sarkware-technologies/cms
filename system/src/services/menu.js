@@ -66,9 +66,9 @@ export default class MenuService {
         try {
 
             const _count = await MenuModel.countDocuments({ [_field]: { $regex: new RegExp(_search, 'i') } });
-            const _roles = await MenuModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _menus = await MenuModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _menus);
 
         } catch (_e) {
             throw _e;
@@ -97,9 +97,9 @@ export default class MenuService {
             }
 
             const _count = await MenuModel.countDocuments(query);
-            const _roles = await MenuModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _menus = await MenuModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _menus);
 
         } catch (_e) {
             throw _e;

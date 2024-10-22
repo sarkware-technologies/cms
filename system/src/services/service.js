@@ -13,7 +13,7 @@ export default class ServiceService {
 
         try {
 
-            let _users = [];
+            let _services = [];
 
             const page = parseInt(_req.query.page) || 1;
             const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
@@ -39,9 +39,9 @@ export default class ServiceService {
             }
 
             const _count = await ServiceModel.countDocuments({});
-            _users = await ServiceModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
+            _services = await ServiceModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
             
-            return Utils.response(_count, page, _users);
+            return Utils.response(_count, page, _services);
 
         } catch (e) {
             throw _e;
@@ -123,9 +123,9 @@ export default class ServiceService {
         try {
 
             const _count = await ServiceModel.countDocuments({ [_field]: { $regex: new RegExp(_search, 'i') } });
-            const _roles = await ServiceModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _services = await ServiceModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _services);
 
         } catch (_e) {
             throw _e;
@@ -154,9 +154,9 @@ export default class ServiceService {
             }
 
             const _count = await ServiceModel.countDocuments(query);
-            const _roles = await ServiceModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _services = await ServiceModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _services);
 
         } catch (_e) {
             throw _e;

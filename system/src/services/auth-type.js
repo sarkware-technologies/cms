@@ -9,7 +9,7 @@ export default class AuthTypeService {
 
         try {
 
-            let _users = [];
+            let _authTypes = [];
 
             const page = parseInt(_req.query.page) || 1;
             const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
@@ -35,9 +35,9 @@ export default class AuthTypeService {
             }
 
             const _count = await AuthTypeModel.countDocuments({});
-            _users = await AuthTypeModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
+            _authTypes = await AuthTypeModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
             
-            return Utils.response(_count, page, _users);
+            return Utils.response(_count, page, _authTypes);
 
         } catch (e) {
             throw _e;
@@ -60,9 +60,9 @@ export default class AuthTypeService {
         try {
 
             const _count = await AuthTypeModel.countDocuments({ [_field]: { $regex: new RegExp(_search, 'i') } });
-            const _roles = await AuthTypeModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _authTypes = await AuthTypeModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _authTypes);
 
         } catch (_e) {
             throw _e;
@@ -91,9 +91,9 @@ export default class AuthTypeService {
             }
 
             const _count = await AuthTypeModel.countDocuments(query);
-            const _roles = await AuthTypeModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _authTypes = await AuthTypeModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _authTypes);
 
         } catch (_e) {
             throw _e;

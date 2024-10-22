@@ -3,6 +3,7 @@ import React, {forwardRef, useImperativeHandle, useState, useRef} from "react";
 const CheckBox = (props, ref) => {
 
     const dom = useRef(null);
+    const contextObj = window._controller.getCurrentModuleInstance();
 
     const [state, setState] = useState({
         classes: ('classes' in props.config) ? props.config.classes : "",
@@ -48,14 +49,6 @@ const CheckBox = (props, ref) => {
                             selected.push(state.choices[i]);
                         }
                     }
-
-                    for (let i = 0; i < state.choices.length; i++) {
-                        for (let j = 0; j < state.checked.length; j++) {
-                            if (state.checked[j]) {
-                                selected.push(state.choices[i][props.config.value_key]);
-                            }
-                        }
-                    }
                     return selected;
                 }
             },
@@ -79,17 +72,28 @@ const CheckBox = (props, ref) => {
         }
     });
 
-    const handleOnChange = (_index, _e) => {
+    const handleOnChange = (_e, _index) => {
+
         let currentChoices = state.checked; 
         currentChoices[_index] = !currentChoices[_index];
+
         setState({...state, checked: currentChoices});
+
+
+
+        if (props.onChange) {
+            props.onChange(_e);
+        } else if (contextObj && contextObj.onFieldChange) {
+            contextObj.onFieldChange((props.namespace + props.config.handle), _e.target.value, _e);
+        }
+
     }
 
-    const buildChoice = (_label, _index) => {
+    const buildChoice = (_label, _value, _index) => {
         if (props.config.align === "left") {
-            return <li key={"choice_"+ _index} ><label>{_label} <input type="checkbox" checked={state.checked[_index]} onChange={() => handleOnChange(_index)} /></label></li>
+            return <li key={"choice_"+ _index} ><label>{_label} <input type="checkbox" checked={state.checked[_index]} value={_value} onChange={(e) => handleOnChange(e, _index)} /></label></li>
         } else {
-            return <li key={"choice_"+ _index}><label><input type="checkbox" checked={state.checked[_index]} onChange={() => handleOnChange(_index)} /> {_label} </label></li>
+            return <li key={"choice_"+ _index}><label><input type="checkbox" checked={state.checked[_index]} value={_value} onChange={(e) => handleOnChange(e, _index)} /> {_label} </label></li>
         } 
     }
 
@@ -97,7 +101,7 @@ const CheckBox = (props, ref) => {
         if (props.config.choice === "single") { 
             return buildChoice(props.config.label, 0);                       
         } else {
-            return state.choices.map((_item, _index) => { return buildChoice(_item[props.config.label_key], _index) });
+            return state.choices.map((_item, _index) => { return buildChoice(_item[props.config.label_key], _item[props.config.value_key], _index) });
         }
     }
 

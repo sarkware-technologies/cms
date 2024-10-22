@@ -20,7 +20,7 @@ export default class SegmentService {
 
         try {
 
-            let _users = [];
+            let _segments = [];
 
             const page = parseInt(_req.query.page) || 1;
             const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
@@ -46,9 +46,9 @@ export default class SegmentService {
             }
 
             const _count = await SegmentModel.countDocuments({});
-            _users = await SegmentModel.find({}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
+            _segments = await SegmentModel.find({}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
             
-            return Utils.response(_count, page, _users);
+            return Utils.response(_count, page, _segments);
 
         } catch (e) {
             throw _e;
@@ -71,9 +71,9 @@ export default class SegmentService {
         try {
 
             const _count = await SegmentModel.countDocuments({ [_field]: { $regex: new RegExp(_search, 'i') } });
-            const _roles = await SegmentModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _segments = await SegmentModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _segments);
 
         } catch (_e) {
             throw _e;
@@ -102,9 +102,9 @@ export default class SegmentService {
             }
 
             const _count = await SegmentModel.countDocuments(query);
-            const _roles = await SegmentModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _segments = await SegmentModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _segments);
 
         } catch (_e) {
             throw _e;
@@ -484,7 +484,7 @@ export default class SegmentService {
                         callback(await SegmentModel.find().lean(), null);
                     } else if (_entity === "distributor") {                        
                         callback(await MYDBM.queryWithConditions("select StoreId, StoreName, StoreCode from stores", []), null);
-                    } else if (_entity === "company") {
+                    } else if (_entity === "companies") {
                         //callback(await MYDBM.queryWithConditions("select CompanyId, CompanyName from companies", []), null);
                         callback(
                             [

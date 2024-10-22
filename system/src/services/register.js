@@ -83,9 +83,9 @@ export default class RegisterService {
         try {
 
             const _count = await RegisterModel.countDocuments({ [_field]: { $regex: new RegExp(_search, 'i') } });
-            const _roles = await RegisterModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _registers = await RegisterModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _registers);
 
         } catch (_e) {
             throw _e;
@@ -113,9 +113,9 @@ export default class RegisterService {
             }
 
             const _count = await RegisterModel.countDocuments(query);
-            const _roles = await RegisterModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _registers = await RegisterModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _registers);
 
         } catch (_e) {
             throw _e;

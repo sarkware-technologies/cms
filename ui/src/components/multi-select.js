@@ -217,6 +217,34 @@ const MultiSelect = (props, ref) => {
             return selected;
 
         },
+        getSelectedRecordsLabel: () => {
+
+            let selected = "none";
+
+            if (mode === "all") {
+                selected = mode;
+            } else if(Array.isArray(state.selectedRecords)) {
+                
+                selected = [];
+
+                for (let i = 0; i < state.selectedRecords.length; i++) {
+                    for (let j = 0; j < state.records.length; j++) {                        
+                        if (state.selectedRecords[i] == state.records[j][props.config.value_key]) {
+                            selected.push(state.records[j][props.config.label_key]);
+                            break;
+                        }
+                    }
+                }
+
+                selected = selected.length == 0 ? "none" : selected;
+
+            } else if (state.selectedRecords && state.selectedRecords == "all") {
+                selected = "all";
+            }            
+
+            return selected;
+
+        },
         getOriginalRecords: () => original,
         getRecords: () => state.source,
         getMode: () => mode,    

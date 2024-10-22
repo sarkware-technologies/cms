@@ -9,7 +9,7 @@ export default class HostService {
 
         try {
 
-            let _users = [];
+            let _hosts = [];
 
             const page = parseInt(_req.query.page) || 1;
             const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
@@ -35,9 +35,9 @@ export default class HostService {
             }
 
             const _count = await HostModel.countDocuments({});
-            _users = await HostModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
+            _hosts = await HostModel.find({}).sort({ name: 1 }).skip(skip).limit(limit).lean();
             
-            return Utils.response(_count, page, _users);
+            return Utils.response(_count, page, _hosts);
 
         } catch (e) {
             throw _e;
@@ -60,9 +60,9 @@ export default class HostService {
         try {
 
             const _count = await HostModel.countDocuments({ [_field]: { $regex: new RegExp(_search, 'i') } });
-            const _roles = await HostModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _hosts = await HostModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _hosts);
 
         } catch (_e) {
             throw _e;
@@ -91,9 +91,9 @@ export default class HostService {
             }
 
             const _count = await HostModel.countDocuments(query);
-            const _roles = await HostModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _hosts = await HostModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _hosts);
 
         } catch (_e) {
             throw _e;

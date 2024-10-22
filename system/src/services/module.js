@@ -68,9 +68,9 @@ export default class ModuleService {
         try {
 
             const _count = await ModuleModel.countDocuments({ [_field]: { $regex: new RegExp(_search, 'i') } });
-            const _roles = await ModuleModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _modules = await ModuleModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _modules);
 
         } catch (_e) {
             throw _e;
@@ -99,9 +99,9 @@ export default class ModuleService {
             }
 
             const _count = await ModuleModel.countDocuments(query);
-            const _roles = await ModuleModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _modules = await ModuleModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _modules);
 
         } catch (_e) {
             throw _e;

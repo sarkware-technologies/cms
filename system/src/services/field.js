@@ -109,9 +109,9 @@ export default class FieldService {
             }
 
             const _count = await FieldModel.countDocuments(query);
-            const _roles = await FieldModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const _fields = await FieldModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
-            return Utils.response(_count, _page, _roles);
+            return Utils.response(_count, _page, _fields);
 
         } catch (_e) {
             throw _e;

@@ -1,6 +1,8 @@
 import React from "react";
+import { createRoot } from 'react-dom/client';
 import { v4 as uuidv4 } from 'uuid';
 import SegmentPreview from "../components/segment-preview";
+import MultiSelect from "../components/multi-select";
 
 export default function SegmentContext(_component) {
 
@@ -8,6 +10,8 @@ export default function SegmentContext(_component) {
     this.config = this.component.config;
     this.controller = window._controller;
     this.segmentPreviewRef = null;
+
+    this.geographySelectorRef = null
 
     /**
      * 
@@ -53,22 +57,124 @@ export default function SegmentContext(_component) {
      */
     this.onFieldChange = ( _handle, _value, _e ) => {
 
-        if (_handle == "new_segment_form_segmentType") {
-            const segmentFormTab = this.controller.getField("segment_form_tab");
-            if (segmentFormTab) {
-                const tabView = (_value == 1) ? "dynamic_segment_tab" : "static_segment_tab";
-                segmentFormTab.switchTab(tabView);
-            } 
-        }
-
         if (this.segmentPreviewRef.current) {
+
             if (_handle == "new_segment_form_segmentType") {
                 this.segmentPreviewRef.current.setSegmentType(_value);
             } else if (_handle == "segment_form_tab_title") {
                 this.segmentPreviewRef.current.setSegmentTitle(_value);
             } else if (_handle == "segment_form_tab_description") {
                 this.segmentPreviewRef.current.setSegmentDescription(_value);
+            } else if (_handle == "segment_form_tab_from") {
+                this.segmentPreviewRef.current.setFromDate(_value);
+            } else if (_handle == "segment_form_tab_to") {
+                this.segmentPreviewRef.current.setToDate(_value);
+            } else if (_handle == "segment_form_tab_geography") {
+                this.segmentPreviewRef.current.setGeographyType(_value == 1 ? "State" : "Region");
+                this.segmentPreviewRef.current.setGeographyTarget("Yet to be selected");
+            } else if (_handle == "segment_form_tab_geography_target") {
+                this.segmentPreviewRef.current.setGeographyTarget(_value == 1 ? "Product" : "Brand");
+            } else if (_handle == "segment_form_tab_orderStatus") {
+                const orderStatus = this.controller.getField("segment_form_tab_orderStatus");
+                if (orderStatus) {
+                    const _checkedRecords = orderStatus.getChecked();
+                    const _checked = _checkedRecords.map((item) => item.label);
+                    this.segmentPreviewRef.current.setOrderStatus(_checked.join(", "));
+                }
+            } else if (_handle == "segment_form_tab_salesType") {
+                this.segmentPreviewRef.current.setSalesType(_value);
+            } else if (_handle == "segment_form_tab_retailerStatus") {
+                this.segmentPreviewRef.current.setRetailerStatus(_value == 1 ? "All" : "Authorized");
+            } else if (_handle == "segment_form_tab_distributorStatus") {
+                this.segmentPreviewRef.current.setDistributorStatus(_value == 1 ? "All" : "Authorized");
             }
+
+        }
+
+        if (_handle == "new_segment_form_segmentType") {
+            
+            const segmentFormTab = this.controller.getField("segment_form_tab");
+            if (segmentFormTab) {
+                const tabView = (_value == 1) ? "dynamic_segment_tab" : "static_segment_tab";
+                segmentFormTab.switchTab(tabView);
+            } 
+
+        } else if (_handle == "segment_form_tab_geography") {
+
+            let fieldConfig = null;
+            
+            if (_value == 1) {
+                fieldConfig = {
+                    type: "multiselect", 
+                    label: "", 
+                    handle: "geography_target", 
+                    value : "", 
+                    parents: {},
+                    placeholder: "States", 
+                    searchprompt: "Search for states",
+                    search_class: "", 
+                    popup_class: "",
+                    behaviour: "dropdown",
+                    mandatory: false, 
+                    readonly: false, 
+                    disabled: false, 
+                    tabindex: 1, 
+                    align: "right", 
+                    label_width: 0, 
+                    recordsPerPage: 10,
+                    label_position: "top", 
+                    prompt_message: "", 
+                    validation_message: "", 
+                    value_key: "StateId", 
+                    label_key: "Statename", 
+                    source: "remote",
+                    endpoint: "/system/api/segment/segment/multi_select_list?entity=state&select=_id|StateId|Statename"
+                };
+            } else {
+                fieldConfig = {
+                    type: "multiselect", 
+                    label: "", 
+                    handle: "geography_target", 
+                    value : "", 
+                    parents: {},
+                    placeholder: "Regions", 
+                    searchprompt: "Search for regions",
+                    search_class: "", 
+                    popup_class: "",
+                    behaviour: "dropdown",
+                    mandatory: false, 
+                    readonly: false, 
+                    disabled: false, 
+                    tabindex: 1, 
+                    align: "right", 
+                    label_width: 0, 
+                    recordsPerPage: 10,
+                    label_position: "top", 
+                    prompt_message: "", 
+                    validation_message: "", 
+                    value_key: "RegionId", 
+                    label_key: "RegionName", 
+                    source: "remote",
+                    endpoint: "/system/api/segment/segment/multi_select_list?entity=region&select=_id|RegionId|RegionName"
+                };
+            }
+
+            const _holder = document.getElementById('segment_geography_container');
+            const root = createRoot(_holder);
+
+            this.geographySelectorRef = React.createRef();                
+            root.render(            
+                <MultiSelect
+                    ref={this.geographySelectorRef}
+                    key={uuidv4()}
+                    config={fieldConfig}
+                    original={null}
+                    selected={[]}
+                    parent={null}
+                    child={null}
+                />
+            );
+
         }
 
     };
@@ -115,6 +221,41 @@ export default function SegmentContext(_component) {
 
             }
         }
+        
+        if (this.segmentPreviewRef.current) {
+            if(_handle == "geography_target") {                        
+
+                let _selected = this.geographySelectorRef.current.getSelectedRecordsLabel();
+                if(_selected && Array.isArray(_selected)) {
+                    _selected = _selected.join(", ");
+                }
+                this.segmentPreviewRef.current.setGeographyTarget(_selected);    
+                
+            } else if (_handle == "companies") {
+                
+                const companySelector = this.controller.getField("segment_form_tab_companies");
+                
+                if (companySelector) {
+                    let _selected = companySelector.getSelectedRecordsLabel();
+                    if(_selected && Array.isArray(_selected)) {
+                        _selected = _selected.join(", ");
+                    }  console.log(_selected);
+                    this.segmentPreviewRef.current.setCompanies(_selected);
+                }
+                
+            } else if (_handle == "distributors") {
+
+                const distributorSelector = this.controller.getField("segment_form_tab_distributors");
+                if (distributorSelector) {
+                    let _selected = distributorSelector.getSelectedRecordsLabel();
+                    if(_selected && Array.isArray(_selected)) {
+                        _selected = _selected.join(", ");
+                    }  console.log(_selected);
+                    this.segmentPreviewRef.current.setDistributorExclude(_selected);
+                }
+                
+            }
+        }
 
     };
 
@@ -147,6 +288,20 @@ export default function SegmentContext(_component) {
 
     };
 
+    /**
+     * 
+     * @param {*} _tabHandle 
+     * @param {*} _tabItemHandle 
+     * 
+     * Called whenever a Tab Item is go to visible state 
+     * 
+     */
+    this.onTabViewMounted = ( _tabHandle, _tabItemHandle ) => {        
+        if (_tabHandle == "segment_form_tab" && _tabItemHandle == "dynamic_segment_tab") {
+            this.onFieldChange("segment_form_tab_geography", 1);
+        }
+    };
+
     /**     
      * 
      * @param {*} _handle 
@@ -157,7 +312,18 @@ export default function SegmentContext(_component) {
      */
     this.beforeViewMount = (_handle, _viewConfig) => {
         return _viewConfig;
-    };        
+    };       
+    
+    /**
+     * 
+     * @param {*} _handle 
+     * 
+     * Called whenever view is mounted on the DOM
+     * 
+     */
+    this.onViewMounted = (_handle) => {
+
+    };
 
     /**
      * 

@@ -123,6 +123,12 @@ const Tab = (props, ref) => {
                 widget.push(renderRow(_config.rows[i]));
             }
 
+        } else if (_config.type === "placeholder") {
+
+            const holderRef = React.createRef();
+            widget = <div ref={holderRef} id={_config.placeholder} className="pharmarack-cms-placeholder-container"></div>;
+            window._controller.registerField(_config.placeholder, _config.type, holderRef);
+
         } else if (_config.type === "tab") {            
             /* Nested tab not yet supported */
         } else {
