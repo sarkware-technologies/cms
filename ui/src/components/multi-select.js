@@ -282,6 +282,9 @@ const MultiSelect = (props, ref) => {
                     props.child.current.reset();
                 }
             }
+            if (contextObj && contextObj.onMultiSelectRecordDone) {
+                setTimeout(() => contextObj.onMultiSelectRecordDone(props.config.handle), 1000);                
+            }
         },
         showPopup: () => {
             if (behave == "popup") {

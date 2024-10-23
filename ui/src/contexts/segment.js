@@ -288,9 +288,9 @@ export default function SegmentContext(_component) {
                     this.segmentPreviewRef.current.setCompanies(_selected);
                 }
                 
-            } else if (_handle == "distributors") {
+            } else if (_handle == "excludeDistributors") {
 
-                const distributorSelector = this.controller.getField("segment_form_tab_distributors");
+                const distributorSelector = this.controller.getField("segment_form_tab_excludeDistributors");
                 if (distributorSelector) {
                     let _selected = distributorSelector.getSelectedRecordsLabel();
                     if(_selected && Array.isArray(_selected)) {
@@ -690,7 +690,7 @@ export default function SegmentContext(_component) {
 
             const orderStatusField = this.controller.getField("segment_form_tab_orderStatus");
             if (orderStatusField && record.orderStatus) {
-                orderStatusField.setChoices(record.orderStatus);
+                orderStatusField.setChoices(record.orderStatus);                
             }
 
             const retailerStatusField = this.controller.getField("segment_form_tab_retailerStatus");
@@ -701,6 +701,19 @@ export default function SegmentContext(_component) {
             const distributorStatusField = this.controller.getField("segment_form_tab_distributorStatus");
             if (distributorStatusField && record.distributorStatus) {
                 distributorStatusField.setVal(record.distributorStatus);
+            }
+
+            if (this.segmentPreviewRef && this.segmentPreviewRef.current) {
+
+                this.segmentPreviewRef.current.setSegmentTitle(record.title);                
+                this.segmentPreviewRef.current.setSegmentDescription(record.description);
+                this.segmentPreviewRef.current.setFromDate(record.fromDate);
+                this.segmentPreviewRef.current.setToDate(record.toDate);                
+                this.segmentPreviewRef.current.setGeographyType(record.geography == 1 ? "State" : "Region");
+                this.segmentPreviewRef.current.setSalesType(record.salesType);
+                this.segmentPreviewRef.current.setRetailerStatus(record.retailerStatus == 1 ? "All" : "Authorized");
+                this.segmentPreviewRef.current.setDistributorStatus(record.distributorStatus == 1 ? "All" : "Authorized");
+
             }
 
         }

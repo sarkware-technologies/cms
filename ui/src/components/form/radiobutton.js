@@ -7,7 +7,7 @@ const RadioButton = (props, ref) => {
     const [state, setState] = useState({
         classes: props.config.classes || "",
         choices: props.config.choices || [],
-        selected: props.config.value || "", // Store selected value, since radio buttons allow only one selection
+        selected: props.config.value || "", 
     });
 
     useImperativeHandle(ref, () => ({
@@ -15,15 +15,14 @@ const RadioButton = (props, ref) => {
             setState((prevState) => ({
                 ...prevState,
                 choices: _choices,
-                selected: "", // Clear the selection when loading new options
+                selected: "", 
             }));
         },
         setVal: (_choice) => {
             setState((prevState) => ({
                 ...prevState,
-                selected: _choice, // Update the selected value
-            }));
-            // Manually trigger the change event for the radio group
+                selected: _choice,
+            }));            
             const event = {
                 target: { value: _choice }
             };

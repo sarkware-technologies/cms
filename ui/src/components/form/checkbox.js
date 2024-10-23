@@ -31,9 +31,17 @@ const CheckBox = (props, ref) => {
             
                 for (let i = 0; i < state.choices.length; i++) {
                     currentChoices[i] = _choices.includes(state.choices[i][props.config.value_key]); 
+                    if (_choices.includes(state.choices[i][props.config.value_key])) {
+                        const event = {
+                            target: { value: _choices.includes(state.choices[i][props.config.value_key]) }
+                        };
+                        handleOnChange(event, i);
+                    }
                 }
                 
                 setState({ ...state, checked: currentChoices });
+                
+
             },
             getChecked: () => {
                 if (props.config.choice === "single") {
