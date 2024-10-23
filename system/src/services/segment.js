@@ -11,6 +11,7 @@ import SegmentRetailerModel from "../models/segment-retailer.js";
 import SegmentType from "../enums/segment-type.js";
 import SegmentRetailerInclusionModel from "../models/segment-retailer-inclusion.js";
 import SegmentRetailerExclusionModel from "../models/segment-retailer-exclusion.js";
+import SegmentRuleModel from "../models/segment-rules.js";
 
 export default class SegmentService {
 
@@ -129,7 +130,9 @@ export default class SegmentService {
         }
 
         try {
-            return await SegmentModel.findOne({ _id: _req.params.id }).lean();
+            const segment = await SegmentModel.findOne({ _id: _req.params.id }).lean();
+            segment["rules"] = await SegmentRuleModel.find({ segment: _req.params.id }).lean();
+            return segment;
         } catch (_e) {
             throw _e;
         }
@@ -142,8 +145,58 @@ export default class SegmentService {
             throw new Error("Segment id is missing");
         }
 
+        const errors = [];
+        const { body } = _req;
+
+        if (!body) {
+            throw new Error('Request body is required');
+        }
+
         try {
+
+            if (body.rules) {
+                /* Before anything - clear the rules (even if it is for static segment) */
+                await SegmentRuleModel.deleteMany({ segment: _req.params.id });
+            }
+
+            if (body.retailers) {
+                /* Also clear the retailer list */
+                await SegmentRetailerModel.deleteMany({ segment: _req.params.id });
+            }            
+
+            if (body.segmentType == SegmentType.DYNAMIC) {
+                if (body.rules && Array.isArray(body.rules)) {
+                    /** Insert the rules */
+                    for (let i = 0; i < body.rules.length; i++) {
+                        try {
+                            const ruleModel = new SegmentRuleModel({...body.rules[i], segment: _req.params.id, createdBy: body["createdBy"]});
+                            await ruleModel.save();
+                        } catch (e) {
+                            console.log(e);
+                            errors.push(e.message);
+                        }
+                    }
+                }                
+            } else {
+                if (body.retailers && Array.isArray(body.retailers)) {
+                    await Promise.all(body.retailers.map(async (retilerId) => {
+                        try {     
+                            const srModel = new SegmentRetailerModel({
+                                segment: segment._id,
+                                retailer: retilerId,
+                                createdBy: body["createdBy"]
+                            });          
+                            await srModel.save();
+                        } catch (e) {
+                            console.log(e);
+                            errors.push(e.message);
+                        }
+                    }));
+                }
+            }
+
             return await SegmentModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
+
         } catch (_e) {
             throw _e;
         }
@@ -157,7 +210,14 @@ export default class SegmentService {
         }
 
         try {
+
+            await SegmentRuleModel.deleteMany({ segment: _req.params.id });            
+            await SegmentRetailerModel.deleteMany({ segment: _req.params.id });
+            await SegmentRetailerExclusionModel.deleteMany({ segment: _req.params.id });
+            await SegmentRetailerInclusionModel.deleteMany({ segment: _req.params.id });
+
             return await SegmentModel.deleteOne({ _id: _req.params.id });            
+
         } catch (_e) {
             throw _e;
         }
@@ -168,38 +228,64 @@ export default class SegmentService {
 
         try {
 
+            const errors = [];
             const { body } = _req;
 
             if (!body) {
                 throw new Error('Request body is required');
             }
 
-            body["createdBy"] = _req.user._id
+            body["createdBy"] = _req.user._id;
             const model = new SegmentModel(body);
             const segment = await model.save();     
 
-            if (segment.segmentType == SegmentType.STATIC && body.retailers && Array.isArray(body.retailers)) {
-                await Promise.all(body.retailers.map(async (retilerId) => {
-                    try {     
-                        const srModel = SegmentRetailerModel({
-                            segment: segment._id,
-                            retailer: retilerId,
-                            createdBy: body["createdBy"]
-                        });          
-                        await srModel.save();
+            if (segment.segmentType == SegmentType.STATIC) {
+
+                if (Array.isArray(body.retailers)) {
+                    await Promise.all(body.retailers.map(async (retilerId) => {
+                        try {     
+                            const srModel = new SegmentRetailerModel({
+                                segment: segment._id,
+                                retailer: retilerId,
+                                createdBy: body["createdBy"]
+                            });          
+                            await srModel.save();
+                        } catch (e) {
+                            console.log(e);
+                            errors.push(e.message);
+                        }
+                    }));
+                }
+                
+            } else {
+
+                const rules = [...body.rules];                
+
+                /* It's a dynamic segment */
+                for (let i = 0; i < rules.length; i++) {
+                    try {
+                        const ruleModel = new SegmentRuleModel({...rules[i], segment: segment._id, createdBy: body["createdBy"]});
+                        await ruleModel.save();
                     } catch (e) {
                         console.log(e);
+                        errors.push(e.message);
                     }
-                }));
-            } else {
-                console.log("retailer list is empty");
+                }          
+
             }
 
-            return {
-                status: true,
-                message: "Segment "+ segment.title +" is created successfully",
-                payload: segment
-            };
+            if (errors.length == 0) {
+                return {
+                    status: true,
+                    message: "Segment "+ segment.title +" is created successfully",
+                    payload: segment
+                };
+            } else {
+                return {
+                    status: false,
+                    message: errors                    
+                };
+            }
 
         } catch (e) {
 
@@ -373,7 +459,7 @@ export default class SegmentService {
                                     retailer: retilerId,
                                     createdBy: body["createdBy"]
                                 });          
-                                await srModel.save();
+                                return await srModel.save();
                             }
 
                         } catch (e) {
@@ -393,7 +479,7 @@ export default class SegmentService {
                                     retailer: retilerId,
                                     createdBy: body["createdBy"]
                                 });          
-                                await srModel.save();
+                                return await srModel.save();
                             }
 
                         } catch (e) {
@@ -430,7 +516,7 @@ export default class SegmentService {
             const segment = await SegmentModel.findById(_req.params.id).lean();
             
             if (segment) {
-                if (segment.segmentType == SegmentType.STATIC) {  console.log("It's a static segment");
+                if (segment.segmentType == SegmentType.STATIC) {
 
                     /* It's a static segment */
                     deleted = await SegmentRetailerModel.deleteMany({retailer: { $in: body}});
@@ -450,7 +536,7 @@ export default class SegmentService {
                                     retailer: retilerId,
                                     createdBy: body["createdBy"]
                                 });          
-                                await sreModel.save();
+                                return await sreModel.save();
                             }
 
                         } catch (e) {

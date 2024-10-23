@@ -97,7 +97,7 @@ class Helper {
 							}
 				
 							if (inputFields.indexOf(_fields[k].type) !== -1) {
-				
+
 								value = window._controller.getInputFieldVal(_namespace + _fields[k].handle);									
 
 								if (_fields[k].mandatory) {

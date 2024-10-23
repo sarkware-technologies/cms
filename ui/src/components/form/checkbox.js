@@ -19,25 +19,21 @@ const CheckBox = (props, ref) => {
             setChecked: (_choice, _state) => {
                 let currentChoices = state.checked;    
                 for (let i = 0; i < state.choices.length; i++) {
-                    if (state.choices[i][props.config.value_key] === _choice) {
+                    if (state.choices[i][props.config.value_key] == _choice) {
                         currentChoices[i] = _state;
                         break;
                     }
                 }
                 setState({...state, checked: currentChoices});
             },           
-            setChoices: (_choices) => {                
-                let currentChoices = state.checked;                
+            setChoices: (_choices) => {
+                let currentChoices = [...state.checked];
+            
                 for (let i = 0; i < state.choices.length; i++) {
-                    for (let j = 0; j < _choices.length; j++) {
-                        if (state.choices[i][props.config.value_key] === _choices[j]) {
-                            currentChoices[i] = true;
-                        } else {
-                            currentChoices[i] = false;
-                        }
-                    }
-                }                
-                setState({...state, checked: currentChoices});
+                    currentChoices[i] = _choices.includes(state.choices[i][props.config.value_key]); 
+                }
+                
+                setState({ ...state, checked: currentChoices });
             },
             getChecked: () => {
                 if (props.config.choice === "single") {

@@ -5,7 +5,6 @@ const SegmentPreview = (props, ref) => {
     const [segmentType, setSegmentType] = useState(1);
     const [segmentTitle, setSegmentTitle] = useState("");
     const [segmentDescription, setSegmentDescription] = useState("");
-
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
     const [salesType, setSalesType] = useState(1);
@@ -16,6 +15,7 @@ const SegmentPreview = (props, ref) => {
     const [distributorStatus, setDistributorStatus] = useState("All");
     const [companies, setCompanies] = useState("None");
     const [excludeDistributors, setDistributorExclude] = useState([]);
+    const [segmentRules, setSegmentRules] = useState([]);
 
     const self = {
 
@@ -32,6 +32,7 @@ const SegmentPreview = (props, ref) => {
         setDistributorStatus: (_status) => setDistributorStatus(_status),
         setCompanies: (_companies) => setCompanies(_companies),
         setDistributorExclude: (_distributors) => setDistributorExclude(_distributors),
+        setSegmentRules: (_rules) => setSegmentRules(_rules)
     };
     /* Expose the component to the consumer */
     useImperativeHandle(ref, () => self);
@@ -50,21 +51,23 @@ const SegmentPreview = (props, ref) => {
 
     };
 
-    const renderOrderStatus = () => {
+    const renderSegmentRule = () => {
 
-        let statusLabel = "";
-        for (let i = 0; i < orderStatus.length; i++) {
-            if (orderStatus[i] == 1) {
-                statusLabel += "Placed ";
-            } else if (orderStatus[i] == 2) {
-                statusLabel += "Processed ";
-            } else if (orderStatus[i] == 3) {
-                statusLabel += "Uploaded ";
+        return segmentRules.map((rule, index) => {
+
+            if (!rule.mdmProductCode) {
+                return null;
             }
-        }
 
-        return statusLabel;
-        
+            return (
+                <tr key={`rules_${(index+1)}`}>
+                    <td><p>{rule.mdmProductCode}</p></td>
+                    <td><p>{rule.from} - {rule.to}</p></td>
+                </tr>
+            );
+
+        });
+
     };
 
     const renderDynamicSegmentPreview = () => {
@@ -114,6 +117,23 @@ const SegmentPreview = (props, ref) => {
                         </tbody>
                     </table>                    
                 </div>
+
+                <div className="pharmarack-cms-segment-preview-section">
+                    <table className="pharmarack-cms-segment-preview-rule-table">
+                        <tbody>
+                            <tr key="rules_0">
+                                <td>
+                                    <label>Product MDM code</label>                                    
+                                </td>
+                                <td>
+                                    <label>Quantity</label>                                    
+                                </td>
+                            </tr>
+                            {renderSegmentRule()}
+                        </tbody>
+                    </table>                    
+                </div>
+
                 <div className="pharmarack-cms-segment-preview-section">
                     <label>Retailers</label>
                     <p>Status : {retailerStatus}</p>

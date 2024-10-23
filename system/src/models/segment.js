@@ -14,10 +14,11 @@ const SegmentSchema = new mongoose.Schema({
     states                  : { type: Array, default: null },
     regions                 : { type: Array, default: null },
     salesType               : { type: Number, default: SegmentOrder.PROCESSED },
-    orderStatus             : { type: Number, default: SegmentOrder.PROCESSED },
+    orderStatus             : { type: Array, default: null },
     retailerStatus          : { type: Number, default: SegmentRetailer.ALL },
     companies               : { type: Array, default: null },
     distributorStatus       : { type: Number, default: SegmentDistributor.ALL },    
+    excludeDistributors     : { type: Array, default: null },
     status                  : { type: Boolean, default: false },
     createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
     updatedBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }

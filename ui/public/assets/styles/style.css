@@ -3255,3 +3255,83 @@ div.pharmarack-cms-progress-notifier {
     margin-bottom: 30px;
     margin-top: -18px;
 }
+
+.pharmarack-cms-segment-rules-container {    
+    background-color: #FAFAFA;
+    border-radius: 4px;
+    padding: 20px 10px;
+    font-size: 15px;
+    margin-bottom: 20px;
+    margin-top: -10px;
+}
+
+.pharmarack-cms-segment-rules-container > a {
+    display: block;
+    margin-left: 15px;
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.pharmarack-cms-segment-rule-box {
+    margin-bottom: 15px;
+}
+
+.pharmarack-cms-segment-rule-box table {
+    
+}
+
+.pharmarack-cms-segment-rule-box table td {
+    padding: 0px 15px;
+    width: 50%;
+    vertical-align: bottom;
+}
+
+.pharmarack-cms-segment-rule-box table td a {
+    color: #d92550;
+    font-family: 'ProximaNovaBold';
+}  
+
+.pharmarack-cms-segment-rule-box table td a:hover {
+    
+}
+
+.pharmarack-cms-segment-rule-box table td:first-child > label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.pharmarack-cms-segment-rule-box:first-child table td:last-child > a {
+    visibility: hidden;
+}
+
+.pharmarack-cms-segment-rule-box table td:last-child {
+    width: 65px;
+    vertical-align: bottom;
+    padding-bottom: 8px;
+}
+
+.pharmarack-cms-segment-preview-rule-table td {
+    padding: 5px 0px;
+}
+
+.pharmarack-cms-segment-rule-type-box {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 5px;
+}
+
+.pharmarack-cms-segment-rule-type-box > label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.pharmarack-cms-segment-rule-qty-box {
+    display: flex;
+    gap: 15px;
+}
+
+.pharmarack-cms-segment-rule-qty-box > input {
+    
+}

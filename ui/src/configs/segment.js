@@ -193,7 +193,7 @@ let segment_config = {
                                                                                 layout: "horizontal",
                                                                                 classes: "",
                                                                                 fields: [                                                                        
-                                                                                    { type: "text", label: "", handle: "title", value : "", placeholder: "Segment Name", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },                                                                    
+                                                                                    { type: "text", label: "", handle: "title", value : "", placeholder: "Segment Name", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },                                                                    
                                                                                     { type: "textarea", label: "", handle: "description", value : "", placeholder: "Description", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
                                                                                 ]
                                                                             }                            
@@ -221,7 +221,7 @@ let segment_config = {
                                                                                                 layout: "horizontal",
                                                                                                 classes: "",
                                                                                                 fields: [                                                                        
-                                                                                                    { type: "date", label: "", handle: "from", value : "", placeholder: "From", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                                                                                    { type: "date", label: "", handle: "fromDate", value : "", placeholder: "From", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                                                                                 ]
                                                                                             },
                                                                                             {
@@ -232,7 +232,7 @@ let segment_config = {
                                                                                                 layout: "horizontal",
                                                                                                 classes: "",
                                                                                                 fields: [                                                                        
-                                                                                                    { type: "date", label: "", handle: "to", value : "", placeholder: "To", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                                                                                    { type: "date", label: "", handle: "toDate", value : "", placeholder: "To", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                                                                                 ]
                                                                                             }                            
                                                                                         ]
@@ -296,7 +296,7 @@ let segment_config = {
                                                                                 title: "",
                                                                                 sub_title: "",
                                                                                 type: "placeholder",
-                                                                                width: "50%",
+                                                                                width: "100%",
                                                                                 layout: "horizontal",
                                                                                 collapsible: false,
                                                                                 classes: "",
@@ -360,7 +360,7 @@ let segment_config = {
                                                                                     {
                                                                                         type: "multiselect", 
                                                                                         label: "Exclude distributors", 
-                                                                                        handle: "distributors", 
+                                                                                        handle: "excludeDistributors", 
                                                                                         value : "", 
                                                                                         parents: {},
                                                                                         placeholder: "Select Distributors", 
@@ -506,6 +506,7 @@ let segment_config = {
                 breadcrumb: "title",
                 actions: [
                     { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Delete Segment", theme: "danger", method: "delete", action: "DELETE_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
                     { label: "Edit Segment Rules", theme: "primary", method: "post", action: "EDIT_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
@@ -561,7 +562,7 @@ let segment_config = {
             header: {
                 show: true,
                 actions: [                 
-                    { label: "Remove Retailers", theme: "danger", method: "delete", action: "REMOVE_RETAILER", classes: "bulk-retailer-removed", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Delete Retailers", theme: "warning", method: "delete", action: "REMOVE_RETAILER", classes: "bulk-retailer-removed", icon: "", tabindex : 8, status: true, shortcut: "" },
                     { label: "Add new Retailers", theme: "primary", method: "post", action: "ADD_RETAILER", classes: "bulk-retailer-added", icon: "", tabindex : 8, status: true, shortcut: "" }
                 ]
             },
