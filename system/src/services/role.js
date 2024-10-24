@@ -3,6 +3,8 @@ import ModuleModel from "../models/module.js";
 import MenuModel from "../models/menu.js"
 import RoleModel from "../models/role.js";
 import Utils from "../utils/utils.js";
+import PrivilegeModel from "../models/privilege.js";
+import RolePrivilegeMappingModel from "../models/role-privilege-mapping.js";
 
 export default class RoleService {
 
@@ -302,6 +304,106 @@ export default class RoleService {
         }
 
         return menus;
+
+    };
+
+    loadPrivileges = async (_req) => {
+
+        if (!_req.params.id) {
+          throw new Error("Role id is missing");
+        }
+    
+        let _count = 0;
+        let _privileges = [];
+    
+        try {
+
+            _privileges = await RolePrivilegeMappingModel.find({
+                role: _req.params.id,
+            }).lean();
+        
+            if (_privileges) {
+                _count = _privileges.length;
+            }        
+            
+            const rolePrivileges = _privileges;
+            const allPrivileges = await PrivilegeModel.find({}).lean();
+            _count = allPrivileges.length;
+    
+            _privileges = {
+                privileges: allPrivileges,
+                assigned: rolePrivileges,
+            };            
+    
+            return Utils.response(_count, 0, _privileges);
+
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+    
+      addPrivilege = async (_req) => {
+
+        if (!_req.params.id) {
+            throw new Error("Role id is missing");
+        }
+    
+        if (!_req.body.privilege) {
+            throw new Error("Privilege is missing");
+        }
+    
+        try {
+            const model = new RolePrivilegeMappingModel({
+                role: _req.params.id,
+                privilege: _req.body.privilege,
+            });
+            await model.save();
+        
+            const rolePrivileges = await RolePrivilegeMappingModel.find({
+                role: _req.params.id,
+            }).lean();
+            const allPrivileges = await PrivilegeModel.find({}).lean();
+        
+            return {
+                privileges: allPrivileges,
+                assigned: rolePrivileges,
+            };
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+    
+      removePrivilege = async (_req) => {
+
+        if (!_req.params.id) {
+            throw new Error("Role id is missing");
+        }
+    
+        if (!_req.body.privilege) {
+            throw new Error("Privilege is missing");
+        }
+    
+        try {
+            await RolePrivilegeMappingModel.deleteOne({
+                role: _req.params.id,
+                privilege: _req.body.privilege,
+            });
+    
+            const rolePrivileges = await RolePrivilegeMappingModel.find({
+                role: _req.params.id,
+            }).lean();
+            const allPrivileges = await PrivilegeModel.find({}).lean();
+    
+            return {
+                privileges: allPrivileges,
+                assigned: rolePrivileges,
+            };
+
+        } catch (_e) {
+            throw _e;
+        }
 
     };
 

@@ -12,9 +12,12 @@ export default class RoleRouter {
         this.router.get("/role/:id/capabilities", this.loadCapabilities);
         this.router.get("/role/:id", this.get);
         this.router.get("/roles", this.list);     
+        this.router.get("/role/:id/privileges", this.loadPrivileges);
         this.router.put("/role/:id/capabilities", this.updateCapabilities);   
         this.router.put("/role/:id", this.update);
+        this.router.delete("/role/:id/privileges", this.removePrivilege);
         this.router.delete("/role/:id", this.delete);
+        this.router.post("/role/:id/privileges", this.addPrivilege);
         this.router.post("/role", this.create);
 
     }
@@ -78,5 +81,29 @@ export default class RoleRouter {
             Utils.handleError(_e, _res);
         }
     };
+
+    loadPrivileges = async (_req, _res) => {
+        try {
+          _res.status(200).json(await this.roleService.loadPrivileges(_req));
+        } catch (_e) {
+          Utils.handleError(_e, _res);
+        }
+      };
+    
+      addPrivilege = async (_req, _res) => {
+        try {
+          _res.status(200).json(await this.roleService.addPrivilege(_req));
+        } catch (_e) {
+          Utils.handleError(_e, _res);
+        }
+      };
+    
+      removePrivilege = async (_req, _res) => {
+        try {
+          _res.status(200).json(await this.roleService.removePrivilege(_req));
+        } catch (_e) {
+          Utils.handleError(_e, _res);
+        }
+      };
 
 }

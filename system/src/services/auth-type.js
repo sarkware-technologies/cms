@@ -165,7 +165,7 @@ export default class AuthTypeService {
 
             body["createdBy"] = _req.user._id
             const model = new AuthTypeModel(body);
-            const authType = await model.save();     
+            const authType = await model.save();
 
             return {
                 status: true,

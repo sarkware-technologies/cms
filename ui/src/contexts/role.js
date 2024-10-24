@@ -1,4 +1,5 @@
 import Capability from "../components/capability";
+import Privilege from "../components/privilege";
 
 export default function RoleContext(_component) {
 
@@ -8,6 +9,7 @@ export default function RoleContext(_component) {
 
     this.authPolicies = [];
     this.authTypes = [];
+    this.privilegeList = [];
 
     /**
      * 
@@ -16,11 +18,21 @@ export default function RoleContext(_component) {
      **/
     this.init = () => {
 
-        window._controller.docker.dock({
+        this.controller.docker.dock({
             method: "GET",
             endpoint: "/system/auth-type-all"
         }).then((response) => {
             this.authTypes = response;
+        })
+        .catch((e) => {
+            console.log(e);
+        });
+
+        this.controller.docker.dock({
+            method: "GET",
+            endpoint: "/system/privileges-all"
+        }).then((response) => {
+            this.privilegeList = response;
         })
         .catch((e) => {
             console.log(e);
@@ -80,7 +92,8 @@ export default function RoleContext(_component) {
     this.onViewSectionRendering = (_handle, _config, _section) => {    
 
         let _widget = [];
-        if (_section === "content" && this.component.currentRecord["role_grid"]) {           
+        if (_section === "content" && this.component.currentRecord["role_grid"]) {     
+            _widget.push(<Privilege roleId={this.component.currentRecord["role_grid"]._id} privileges={this.privilegeList} />);      
             _widget.push(<Capability roleId={this.component.currentRecord["role_grid"]._id} />);
         }
 

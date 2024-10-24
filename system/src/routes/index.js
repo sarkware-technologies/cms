@@ -13,6 +13,7 @@ import FieldRouter from './field.js';
 import VersionRouter from './service-version.js';
 import SegmentRouter from './segment.js';
 import ApiRouter from './api.js';
+import PrivilegeRouter from './privilege.js';
 
 const ping = (_req, _res) => {
     _res.status(200).send("Its working");
@@ -34,5 +35,6 @@ routes.use(new FieldRouter().getRoutes());
 routes.use(new VersionRouter().getRoutes());
 routes.use(new SegmentRouter().getRoutes());
 routes.use(new ApiRouter().getRoutes());
+routes.use(new PrivilegeRouter().getRoutes());
 
 export default routes;

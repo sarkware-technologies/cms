@@ -11,5 +11,7 @@ const RolePrivilegeMappingSchema = new mongoose.Schema({
     timestamps              : true
 });
 
+RolePrivilegeMappingSchema.index({ role: 1, privilege: 1 }, { unique: true });
+
 const RolePrivilegeMappingModel = mongoose.model('cms_system_role_privilege', RolePrivilegeMappingSchema);
 export default RolePrivilegeMappingModel;
