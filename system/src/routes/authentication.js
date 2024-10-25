@@ -8,14 +8,15 @@ export default class AuthRouter {
 
         this.router = new Router();
         this.authService = new AuthService();
+        this.moduleHandle = "auth";
 
-        this.router.post("/auth/sign-in", this.signIn);
-        this.router.post("/auth/sign-out", this.signOut);
-        this.router.post("/auth/refresh-access-token", this.refreshAccessToken);
-        this.router.post("/auth/reset-password", this.resetPassword);        
-        this.router.post("/auth/select-role", this.selectRole);
-        this.router.post("/auth/send-forgot-password-token", this.sendForgotPasswordToken);
-        this.router.post("/auth/submit-forgot-password", this.submitForgotPassword);
+        this.router.post(`/${this.moduleHandle}/sign-in`, this.signIn);
+        this.router.post(`/${this.moduleHandle}/sign-out`, this.signOut);
+        this.router.post(`/${this.moduleHandle}/refresh-access-token`, this.refreshAccessToken);
+        this.router.post(`/${this.moduleHandle}/reset-password`, this.resetPassword);        
+        this.router.post(`/${this.moduleHandle}/select-role`, this.selectRole);
+        this.router.post(`/${this.moduleHandle}/send-forgot-password-token`, this.sendForgotPasswordToken);
+        this.router.post(`/${this.moduleHandle}/submit-forgot-password`, this.submitForgotPassword);
     
     }
 

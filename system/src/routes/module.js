@@ -8,13 +8,14 @@ export default class ModuleRouter {
 
         this.router = new Router();
         this.moduleService = new ModuleService();
+        this.moduleHandle = "module";
 
-        this.router.get("/module/all", this.listAll);
-        this.router.get("/module/:id", this.get);        
-        this.router.get("/modules", this.list);     
-        this.router.put("/module/:id", this.update);
-        this.router.delete("/module/:id", this.delete);
-        this.router.post("/module", this.create);
+        this.router.get(`/${this.moduleHandle}/all`, this.listAll);
+        this.router.get(`/${this.moduleHandle}/:id`, this.get);        
+        this.router.get(`/${this.moduleHandle}`, this.list);     
+        this.router.put(`/${this.moduleHandle}/:id`, this.update);
+        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);
+        this.router.post(`/${this.moduleHandle}`, this.create);
 
     }
 

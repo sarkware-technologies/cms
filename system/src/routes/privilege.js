@@ -8,14 +8,16 @@ export default class PrivilegeRouter {
  
         this.router = new Router();
         this.privilegeService = new PrivilegeService(); 
+        this.moduleHandle = "privilege";
 
-        this.router.get("/privileges-all", this.listAll);                
-        this.router.get("/privileges", this.list);                
-        this.router.get("/privilege/count", this.count);                
-        this.router.get("/privilege/:id", this.get);     
-        this.router.post("/privilege", this.create);                                
-        this.router.put("/privilege/:id", this.update);       
-        this.router.delete("/privilege/:id", this.delete);       
+        this.router.get(`/${this.moduleHandle}/count`, this.count);                
+        this.router.get(`/${this.moduleHandle}/all`, this.listAll);                
+        this.router.get(`/${this.moduleHandle}/:id`, this.get);
+        this.router.get(`/${this.moduleHandle}`, this.list);
+        
+        this.router.post(`/${this.moduleHandle}`, this.create);                                
+        this.router.put(`/${this.moduleHandle}/:id`, this.update);       
+        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);       
  
     }
 

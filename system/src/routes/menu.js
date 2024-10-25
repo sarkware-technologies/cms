@@ -8,13 +8,14 @@ export default class MenuRouter {
 
         this.router = new Router();
         this.menuService = new MenuService();
+        this.moduleHandle = "menu";
 
-        this.router.get("/menu/all", this.listAll);
-        this.router.get("/menu/:id", this.get);             
-        this.router.get("/menus", this.list);
-        this.router.put("/menu/:id", this.update);
-        this.router.delete("/menu/:id", this.delete);
-        this.router.post("/menu", this.create);
+        this.router.get(`/${this.moduleHandle}/all`, this.listAll);
+        this.router.get(`/${this.moduleHandle}/:id`, this.get);             
+        this.router.get(`/${this.moduleHandle}`, this.list);
+        this.router.put(`/${this.moduleHandle}/:id`, this.update);
+        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);
+        this.router.post(`/${this.moduleHandle}`, this.create);
 
     }
 

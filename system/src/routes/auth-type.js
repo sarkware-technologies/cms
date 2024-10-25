@@ -8,13 +8,15 @@ export default class AuthTypeRouter {
 
         this.router = new Router();
         this.authTypeService = new AuthTypeService();
+        this.moduleHandle = "auth_type";
 
-        this.router.get("/auth-type/:id", this.get);
-        this.router.get("/auth-types", this.list); 
-        this.router.get("/auth-type-all", this.listAll);       
-        this.router.put("/auth-type/:id", this.update);
-        this.router.delete("/auth-type/:id", this.delete);
-        this.router.post("/auth-type", this.create);
+        this.router.get(`/${this.moduleHandle}/all`, this.listAll);       
+        this.router.get(`/${this.moduleHandle}/:id`, this.get);
+        this.router.get(`/${this.moduleHandle}`, this.list); 
+
+        this.router.put(`/${this.moduleHandle}/:id`, this.update);
+        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);
+        this.router.post(`/${this.moduleHandle}`, this.create);
 
     }
 

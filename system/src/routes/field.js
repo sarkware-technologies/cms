@@ -7,14 +7,16 @@ export default class FieldRouter {
     constructor() {
  
         this.router = new Router();
-        this.fieldService = new FieldService();         
+        this.fieldService = new FieldService();  
+        this.moduleHandle = "field";       
 
-        this.router.get("/field/count", this.count);                
-        this.router.get("/field", this.list);        
-        this.router.post("/field", this.create);
-        this.router.get("/field/:id", this.get);                             
-        this.router.put("/field/:id", this.update);       
-        this.router.delete("/field/:id", this.delete);        
+        this.router.get(`/${this.moduleHandle}/count`, this.count);                
+        this.router.get(`/${this.moduleHandle}/:id`, this.get);                             
+        this.router.get(`/${this.moduleHandle}`, this.list);        
+
+        this.router.post(`/${this.moduleHandle}`, this.create);
+        this.router.put(`/${this.moduleHandle}/:id`, this.update);       
+        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);        
  
     }
 

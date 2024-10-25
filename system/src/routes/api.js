@@ -7,12 +7,13 @@ export default class ApiRouter {
     constructor() {
 
         AP.init();
-        this.router = new Router();        
+        this.router = new Router();  
+        this.moduleHandle = "api";      
 
-        this.router.get("/api/*", this.handleGet);
-        this.router.post("/api/*", this.handlePost);
-        this.router.put("/api/*", this.handlePut);
-        this.router.delete("/api/*", this.handleDelete);
+        this.router.get(`/${this.moduleHandle}/*`, this.handleGet);
+        this.router.post(`/${this.moduleHandle}/*`, this.handlePost);
+        this.router.put(`/${this.moduleHandle}/*`, this.handlePut);
+        this.router.delete(`/${this.moduleHandle}/*`, this.handleDelete);
 
     }
 

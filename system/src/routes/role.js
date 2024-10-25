@@ -8,17 +8,21 @@ export default class RoleRouter {
 
         this.router = new Router();
         this.roleService = new RoleService();
+        this.moduleHandle = "role";
 
-        this.router.get("/role/:id/capabilities", this.loadCapabilities);
-        this.router.get("/role/:id", this.get);
-        this.router.get("/roles", this.list);     
-        this.router.get("/role/:id/privileges", this.loadPrivileges);
-        this.router.put("/role/:id/capabilities", this.updateCapabilities);   
-        this.router.put("/role/:id", this.update);
-        this.router.delete("/role/:id/privileges", this.removePrivilege);
-        this.router.delete("/role/:id", this.delete);
-        this.router.post("/role/:id/privileges", this.addPrivilege);
-        this.router.post("/role", this.create);
+        this.router.get(`/${this.moduleHandle}/:id/privileges`, this.loadPrivileges);
+        this.router.get(`/${this.moduleHandle}/:id/capabilities`, this.loadCapabilities);
+        this.router.get(`/${this.moduleHandle}/:id`, this.get);        
+        this.router.get(`/${this.moduleHandle}`, this.list);
+        
+        this.router.put(`/${this.moduleHandle}/:id/capabilities`, this.updateCapabilities);   
+        this.router.put(`/${this.moduleHandle}/:id`, this.update);
+
+        this.router.delete(`/${this.moduleHandle}/:id/privileges`, this.removePrivilege);
+        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);
+        
+        this.router.post(`/${this.moduleHandle}/:id/privileges`, this.addPrivilege);
+        this.router.post(`/${this.moduleHandle}`, this.create);
 
     }
 

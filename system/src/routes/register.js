@@ -8,17 +8,19 @@ export default class RegisterRouter {
 
         this.router = new Router();
         this.registerService = new RegisterService();
+        this.moduleHandle = "register";
 
-        this.router.get("/register/user-types", this.getRoles);
-        this.router.get("/register/:id", this.get);
-        this.router.get("/registers", this.list);        
-        this.router.put("/register/:id", this.update);
-        this.router.delete("/register/:id", this.delete);
-        this.router.post("/register", this.create);
-        
-        this.router.put("/register/:id/update-approve", this.approveAndUpdate);
-        this.router.put("/register/:id/approve", this.approve);
-        this.router.put("/register/:id/reject", this.reject);
+        this.router.get(`/${this.moduleHandle}/user-types`, this.getRoles);
+        this.router.get(`/${this.moduleHandle}/:id`, this.get);
+        this.router.get(`/${this.moduleHandle}`, this.list);        
+
+        this.router.put(`/${this.moduleHandle}/:id/update-approve`, this.approveAndUpdate);
+        this.router.put(`/${this.moduleHandle}/:id/approve`, this.approve);
+        this.router.put(`/${this.moduleHandle}/:id/reject`, this.reject);
+        this.router.put(`/${this.moduleHandle}/:id`, this.update);
+
+        this.router.post(`/${this.moduleHandle}`, this.create);
+        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);
 
     }
 

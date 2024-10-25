@@ -8,13 +8,14 @@ export default class VersionRouter {
  
         this.router = new Router();
         this.versionService = new ServiceVersionService(); 
+        this.moduleHandle = "service_version";
 
-        this.router.get("/versions", this.list);        
-        this.router.post("/version", this.create);        
-        this.router.get("/version/count", this.count);                
-        this.router.get("/version/:id", this.get);                             
-        this.router.put("/version/:id", this.update);       
-        this.router.delete("/version/:id", this.delete);       
+        this.router.get(`/${this.moduleHandle}`, this.list);        
+        this.router.post(`/${this.moduleHandle}`, this.create);        
+        this.router.get(`/${this.moduleHandle}/count`, this.count);                
+        this.router.get(`/${this.moduleHandle}/:id`, this.get);                             
+        this.router.put(`/${this.moduleHandle}/:id`, this.update);       
+        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);       
  
     }
 

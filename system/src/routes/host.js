@@ -8,12 +8,13 @@ export default class HostRouter {
 
         this.router = new Router();
         this.hostService = new HostService();
+        this.moduleHandle = "host";
         
-        this.router.get("/host/:id", this.get);             
-        this.router.get("/hosts", this.list);
-        this.router.put("/host/:id", this.update);
-        this.router.delete("/host/:id", this.delete);
-        this.router.post("/host", this.create);
+        this.router.get(`/${this.moduleHandle}/:id`, this.get);             
+        this.router.get(`/${this.moduleHandle}`, this.list);
+        this.router.put(`/${this.moduleHandle}/:id`, this.update);
+        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);
+        this.router.post(`/${this.moduleHandle}`, this.create);
 
     }
 

@@ -8,16 +8,16 @@ export default class ServiceRouter {
 
         this.router = new Router();
         this.serviceService = new ServiceService();
+        this.moduleHandle = "service";
 
-        this.router.get("/service/all", this.listAll);
-        this.router.get("/service/:id", this.get);
-        this.router.get("/services", this.list);     
-        this.router.put("/service/:id", this.update);
-        this.router.delete("/service/:id", this.delete);
-        this.router.post("/service", this.create);
-
-        this.router.get("/services/:id/modules", this.listModules);
-        this.router.get("/services/:id/versions", this.listVersions);
+        this.router.get(`/${this.moduleHandle}/all`, this.listAll);
+        this.router.get(`/${this.moduleHandle}/:id/modules`, this.listModules);
+        this.router.get(`/${this.moduleHandle}/:id/versions`, this.listVersions);
+        this.router.get(`/${this.moduleHandle}/:id`, this.get);
+        this.router.get(`/${this.moduleHandle}`, this.list);     
+        this.router.put(`/${this.moduleHandle}/:id`, this.update);
+        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);
+        this.router.post(`/${this.moduleHandle}`, this.create);
 
     }
 

@@ -8,16 +8,19 @@ export default class SegmentRouter {
 
         this.router = new Router();
         this.segmentService = new SegmentService();
+        this.moduleHandle = "segment";
 
-        this.router.get("/segments", this.list); 
-        this.router.get("/segment-all", this.listAll);       
-        this.router.get("/segment/:id/retailers", this.listSegmentRetailers);
-        this.router.get("/segment/:id", this.get);
-        this.router.put("/segment/:id/deleteRetailers", this.deleteRetailersFromSegment);
-        this.router.put("/segment/:id/retailers", this.addRetailersToSegment);
-        this.router.put("/segment/:id", this.update);        
-        this.router.delete("/segment/:id", this.delete);
-        this.router.post("/segment", this.create);
+        this.router.get(`/${this.moduleHandle}/all`, this.listAll);       
+        this.router.get(`/${this.moduleHandle}/:id/retailers`, this.listSegmentRetailers);        
+        this.router.get(`/${this.moduleHandle}/:id`, this.get);
+        this.router.get(`/${this.moduleHandle}`, this.list);        
+        
+        this.router.put(`/${this.moduleHandle}/:id/deleteRetailers`, this.deleteRetailersFromSegment);
+        this.router.put(`/${this.moduleHandle}/:id/retailers`, this.addRetailersToSegment);
+
+        this.router.put(`/${this.moduleHandle}/:id`, this.update);        
+        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);
+        this.router.post(`/${this.moduleHandle}`, this.create);
 
     }
 

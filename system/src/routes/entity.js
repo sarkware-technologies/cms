@@ -7,15 +7,16 @@ export default class EntityRouter {
     constructor() {
  
         this.router = new Router();
-        this.entityService = new EntityService();         
+        this.entityService = new EntityService();     
+        this.moduleHandle = "entity";    
         
-        this.router.get("/entity/count", this.count);          
-        this.router.get("/entity/:id/fields", this.listFields);        
-        this.router.get("/entity/:id", this.get);
-        this.router.get("/entity", this.list);        
-        this.router.post("/entity", this.create);      
-        this.router.put("/entity/:id", this.update);       
-        this.router.delete("/entity/:id", this.delete);
+        this.router.get(`/${this.moduleHandle}/count`, this.count);
+        this.router.get(`/${this.moduleHandle}/:id/fields`, this.listFields);                          
+        this.router.get(`/${this.moduleHandle}/:id`, this.get);
+        this.router.get(`/${this.moduleHandle}`, this.list);        
+        this.router.post(`/${this.moduleHandle}`, this.create);      
+        this.router.put(`/${this.moduleHandle}/:id`, this.update);       
+        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);
  
     }
 
