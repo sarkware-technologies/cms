@@ -1,103 +1,109 @@
 import { Router } from "express";
 import Utils from "../utils/utils.js";
 import SegmentService from "../services/segment.js";
+import RC from "../utils/request-interceptor.js";
 
-export default class SegmentRouter {
+const router = Router();
+const segmentService = new SegmentService();
+const moduleHandle = "segment";
 
-    constructor() {
-
-        this.router = new Router();
-        this.segmentService = new SegmentService();
-        this.moduleHandle = "segment";
-
-        this.router.get(`/${this.moduleHandle}/all`, this.listAll);       
-        this.router.get(`/${this.moduleHandle}/:id/retailers`, this.listSegmentRetailers);        
-        this.router.get(`/${this.moduleHandle}/:id`, this.get);
-        this.router.get(`/${this.moduleHandle}`, this.list);        
-        
-        this.router.put(`/${this.moduleHandle}/:id/deleteRetailers`, this.deleteRetailersFromSegment);
-        this.router.put(`/${this.moduleHandle}/:id/retailers`, this.addRetailersToSegment);
-
-        this.router.put(`/${this.moduleHandle}/:id`, this.update);        
-        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);
-        this.router.post(`/${this.moduleHandle}`, this.create);
-
-    }
-
-    getRoutes = () => {
-        return this.router;
-    };
-
-    list = async (_req, _res) => {
+router.get(
+    `/${moduleHandle}/all`,
+    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.segmentService.list(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await segmentService.listAll(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    listAll = async (_req, _res) => {
+router.get(
+    `/${moduleHandle}/:id/retailers`,
+    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.segmentService.listAll(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await segmentService.listSegmentRetailers(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    get = async (_req, _res) => {
+router.get(
+    `/${moduleHandle}/:id`,
+    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.segmentService.get(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await segmentService.get(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    update = async (_req, _res) => {
+router.get(
+    `/${moduleHandle}`,
+    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.segmentService.update(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await segmentService.list(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    delete = async (_req, _res) => {
+router.put(
+    `/${moduleHandle}/:id/deleteRetailers`,
+    await RC.interceptRequest(moduleHandle, 'put', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.segmentService.delete(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await segmentService.deleteRetailersFromSegment(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    create = async (_req, _res) => {
+router.put(
+    `/${moduleHandle}/:id/retailers`,
+    await RC.interceptRequest(moduleHandle, 'put', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.segmentService.create(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await segmentService.addRetailersToSegment(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    listSegmentRetailers = async (_req, _res) => {
+router.put(
+    `/${moduleHandle}/:id`,
+    await RC.interceptRequest(moduleHandle, 'put', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.segmentService.listSegmentRetailers(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await segmentService.update(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    addRetailersToSegment = async (_req, _res) => {
+router.delete(
+    `/${moduleHandle}/:id`,
+    await RC.interceptRequest(moduleHandle, 'delete', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.segmentService.addRetailersToSegment(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await segmentService.delete(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    deleteRetailersFromSegment = async (_req, _res) => {
+router.post(
+    `/${moduleHandle}`,
+    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.segmentService.deleteRetailersFromSegment(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await segmentService.create(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-}
+export default router;

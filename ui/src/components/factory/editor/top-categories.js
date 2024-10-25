@@ -71,7 +71,7 @@ const TopCategories = (props, ref) => {
         /* Update the crm bar item status */
         const request = {};        
         request["method"] = "PUT";
-        request["endpoint"] = "/system/api/component/component/update?id="+ _item._id
+        request["endpoint"] = "/system/v1/api/component/component/update?id="+ _item._id
         request["payload"] = {};                        
         request["payload"]["status"] = _e.target.checked;
 
@@ -141,7 +141,7 @@ const TopCategories = (props, ref) => {
 
         const request = {};
         request["method"] = "POST";
-        request["endpoint"] = "/system/api/component/component/remove_asset";
+        request["endpoint"] = "/system/v1/api/component/component/remove_asset";
         request["payload"] = {
             componentId: currentItem._id,
             property: _handle
@@ -244,7 +244,7 @@ const TopCategories = (props, ref) => {
 
         const request = {};
         request["method"] = "POST";
-        request["endpoint"] = "/system/api/component/component/update_sequence?id="+ record._id;
+        request["endpoint"] = "/system/v1/api/component/component/update_sequence?id="+ record._id;
         request["payload"] = getTopCatItemSequence();                    
         
         window._controller.dock(request, 
@@ -398,7 +398,7 @@ const TopCategories = (props, ref) => {
 
                 const request = {};
                 request["method"] = "POST";
-                request["endpoint"] = "/system/api/component/component/create";
+                request["endpoint"] = "/system/v1/api/component/component/create";
                 request["payload"] = topCatItem;                    
                 
                 window._controller.dock(request, 
@@ -445,7 +445,7 @@ const TopCategories = (props, ref) => {
 
                 const request = {};
                 request["method"] = "PUT";
-                request["endpoint"] = "/system/api/component/component/update?id="+ currentItem._id;
+                request["endpoint"] = "/system/v1/api/component/component/update?id="+ currentItem._id;
                 request["payload"] = topCatItem;
 
                 window._controller.dock(request, 
@@ -469,7 +469,7 @@ const TopCategories = (props, ref) => {
 
                 const request = {};
                 request["method"] = "DELETE";
-                request["endpoint"] = "/system/api/component/component/delete?id="+ currentItem._id;               
+                request["endpoint"] = "/system/v1/api/component/component/delete?id="+ currentItem._id;               
 
                 window._controller.dock(request, 
                     (_req, _res) => {
@@ -497,7 +497,7 @@ const TopCategories = (props, ref) => {
 
         let request = {};
         request["method"] = "DELETE";
-        request["endpoint"] = "/system/api/component/rule/bulk_filter_delete?field=component&value="+ _id;     
+        request["endpoint"] = "/system/v1/api/component/rule/bulk_filter_delete?field=component&value="+ _id;     
 
         window._controller.dock(request, 
             (_req, _res) => {
@@ -510,7 +510,7 @@ const TopCategories = (props, ref) => {
 
         request = {};
         request["method"] = "DELETE";
-        request["endpoint"] = "/system/api/component/rules_group/bulk_filter_delete?field=component&value="+ _id;  
+        request["endpoint"] = "/system/v1/api/component/rules_group/bulk_filter_delete?field=component&value="+ _id;  
         
         window._controller.dock(request, 
             (_req, _res) => {
@@ -527,7 +527,7 @@ const TopCategories = (props, ref) => {
 
         const request = {};
         request["method"] = "PUT";
-        request["endpoint"] = "/system/api/component/rule/bulk_update?id="+ currentItem._id;
+        request["endpoint"] = "/system/v1/api/component/rule/bulk_update?id="+ currentItem._id;
         request["payload"] = groupsRef.current.getGroupRules();  
                       
         window._controller.dock(request, 
@@ -571,7 +571,7 @@ const TopCategories = (props, ref) => {
     const fetchChildrens = () => {
         window._controller.dock({
             method: "GET",
-            endpoint: "/system/api/component/component/childrens?id="+ record._id
+            endpoint: "/system/v1/api/component/component/childrens?id="+ record._id
             }, 
             (_req, _res) => {                                            
                 setChildrens((prevState) => (_res)); 

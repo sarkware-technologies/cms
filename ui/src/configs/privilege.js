@@ -36,8 +36,8 @@ let privilege_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No privilege found.!",
-                                    datasource: {endpoint: "/system/privileges", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "privilege", target_type: "view", view: "privilege_form", data: "remote", endpoint: "/system/privilege/"},
+                                    datasource: {endpoint: "/system/v1/privilege", page: 0, populate: false, handler: "dedicated"},
+                                    link: {key: "_id", context: "privilege", target_type: "view", view: "privilege_form", data: "remote", endpoint: "/system/v1/privilege/"},
                                     columns: [
                                         {
                                             show: true, 

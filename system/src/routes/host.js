@@ -1,65 +1,65 @@
 import { Router } from "express";
 import Utils from "../utils/utils.js";
 import HostService from "../services/host.js";
+import RC from "../utils/request-interceptor.js";
 
-export default class HostRouter {
+const router = Router();
+const hostService = new HostService();
+const moduleHandle = "host";
 
-    constructor() {
-
-        this.router = new Router();
-        this.hostService = new HostService();
-        this.moduleHandle = "host";
-        
-        this.router.get(`/${this.moduleHandle}/:id`, this.get);             
-        this.router.get(`/${this.moduleHandle}`, this.list);
-        this.router.put(`/${this.moduleHandle}/:id`, this.update);
-        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);
-        this.router.post(`/${this.moduleHandle}`, this.create);
-
-    }
-
-    getRoutes = () => {
-        return this.router;
-    };
-
-    list = async (_req, _res) => {
+router.get(
+    `/${moduleHandle}/:id`,
+    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.hostService.list(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await hostService.get(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    get = async (_req, _res) => {
+router.get(
+    `/${moduleHandle}`,
+    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.hostService.get(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await hostService.list(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    update = async (_req, _res) => {
+router.put(
+    `/${moduleHandle}/:id`,
+    await RC.interceptRequest(moduleHandle, 'put', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.hostService.update(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await hostService.update(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    delete = async (_req, _res) => {
+router.delete(
+    `/${moduleHandle}/:id`,
+    await RC.interceptRequest(moduleHandle, 'delete', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.hostService.delete(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await hostService.delete(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    create = async (_req, _res) => {
+router.post(
+    `/${moduleHandle}`,
+    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.hostService.create(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await hostService.create(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-}
+export default router;

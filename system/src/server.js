@@ -6,7 +6,7 @@ import express from "express";
 import routes from "./routes/index.js"
 import MDBM from "./utils/mongo.js";
 import MYDBM from "./utils/mysql.js";
-import RequestInterceptor from "./utils/middleware.js";
+import RC from "./utils/request-interceptor.js";
 import cache from "./utils/cache.js";
 
 /**
@@ -45,14 +45,13 @@ class SystemServer {
         this.app.use(cors());
         this.app.use(express.json());  
 
-        const RC = new RequestInterceptor(this.app);
-        RC.init();
+        RC.init(this.app);
 
     };
 
     setupRoutes = () => {    
 
-        this.app.use('/system', cors(), routes);   
+        this.app.use('/system/v1', cors(), routes);   
         
         this.app.use('/health', (req, res) => {
             res.status(200).json({ status: 'success', message: 'Application is running fine' });

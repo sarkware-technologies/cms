@@ -36,8 +36,8 @@ let menu_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No menu configured yet.!",
-                                    datasource: {endpoint: "/system/menus?populate=true", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "menu", target_type: "view", view: "menu_form", data: "remote", endpoint: "/system/menu/"},
+                                    datasource: {endpoint: "/system/v1/menu?populate=true", page: 0, populate: false, handler: "dedicated"},
+                                    link: {key: "_id", context: "menu", target_type: "view", view: "menu_form", data: "remote", endpoint: "/system/v1/menu/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -124,8 +124,8 @@ let menu_config = {
                                     { type: "text", label: "Handle", handle: "handle", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "select", label: "Icon Type", handle: "iconType", value : "1", value_key: "value", label_key: "label", options: [{label: "ASSET", value: "1", selected: true, disabled: false},{label: "SVG", value: "2", selected: false, disabled: false},{label: "FONTAWESOME", value: "3", selected: false, disabled: false}], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },
                                     { type: "text", label: "Icon", handle: "icon", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "select", label: "Parent", handle: "parent", value : "1", value_key: "_id", label_key: "title", options: [], placeholder: "-- Select Parent --", classes : "", mandatory : false, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/menu/all" },
-                                    { type: "select", label: "Module", handle: "module", value : "1", value_key: "_id", label_key: "title", options: [], placeholder: "-- Select Module --", classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/module/all" },
+                                    { type: "select", label: "Parent", handle: "parent", value : "1", value_key: "_id", label_key: "title", options: [], placeholder: "-- Select Parent --", classes : "", mandatory : false, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/v1/menu/all" },
+                                    { type: "select", label: "Module", handle: "module", value : "1", value_key: "_id", label_key: "title", options: [], placeholder: "-- Select Module --", classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/v1/module/all" },
                                     { type: "number", label: "Order", handle: "order", value : "0", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
                                 ]
                             }

@@ -36,7 +36,7 @@ const ArrayFieldConfig = (props, ref) => { console.log(props);
         validation_message: "", 
         value_key: "_id", 
         label_key: "title", 
-        datasource: {endpoint: "/system/entity", page: 0}
+        datasource: {endpoint: "/system/v1/entity", page: 0}
     };
 
     const handleRequiredChange = (_e) => {

@@ -36,8 +36,8 @@ let entity_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No entity configured yet.!",
-                                    datasource: {endpoint: "/system/entity", page: 0, populate: "", handler: "dedicated"},
-                                    link: {key: "_id", context: "entity", target_type: "view", view: "entity_form", data: "remote", endpoint: "/system/entity/"},
+                                    datasource: {endpoint: "/system/v1/entity", page: 0, populate: "", handler: "dedicated"},
+                                    link: {key: "_id", context: "entity", target_type: "view", view: "entity_form", data: "remote", endpoint: "/system/v1/entity/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -157,7 +157,7 @@ let entity_config = {
                                 width: "100%",
                                 layout: "vertical",
                                 classes: "",
-                                taxonomy: { handle: "entity_taxonomies", type: "taxonomy", record_key: "entity_grid", endpoint: "/system/entity" }
+                                taxonomy: { handle: "entity_taxonomies", type: "taxonomy", record_key: "entity_grid", endpoint: "/system/v1/entity" }
                             }
                         ]
                     }

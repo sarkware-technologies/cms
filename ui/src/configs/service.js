@@ -36,8 +36,8 @@ let service_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No service configured yet.!",
-                                    datasource: {endpoint: "/system/services", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "service", target_type: "view", view: "service_form", data: "remote", endpoint: "/system/service/"},
+                                    datasource: {endpoint: "/system/v1/service", page: 0, populate: false, handler: "dedicated"},
+                                    link: {key: "_id", context: "service", target_type: "view", view: "service_form", data: "remote", endpoint: "/system/v1/service/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -170,8 +170,8 @@ let service_config = {
                                                                     full_row_select: false,
                                                                     is_main_grid: false,
                                                                     empty_message: "No version configured for this service.!",
-                                                                    datasource: {endpoint: "/system/versions", page: 0, populate: false},
-                                                                    link: {key: "_id", context: "service", target_type: "tab", tab: "service_tab", tab_item: "version_form_tab", data: "remote", endpoint: "/system/version"},                                                                    
+                                                                    datasource: {endpoint: "/system/v1/service_version", page: 0, populate: false},
+                                                                    link: {key: "_id", context: "service", target_type: "tab", tab: "service_tab", tab_item: "version_form_tab", data: "remote", endpoint: "/system/v1/service_version"},                                                                    
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -249,8 +249,8 @@ let service_config = {
                                                                     full_row_select: false,
                                                                     is_main_grid: false,
                                                                     empty_message: "No module mapped for this service.!",
-                                                                    datasource: {endpoint: "/system/modules", page: 0, populate: false},
-                                                                    link: {key: "_id", context: "service", target_type: "tab", tab: "service_tab", tab_item: "module_form_tab", data: "remote", endpoint: "/system/module"},                                                                    
+                                                                    datasource: {endpoint: "/system/v1/module", page: 0, populate: false},
+                                                                    link: {key: "_id", context: "service", target_type: "tab", tab: "service_tab", tab_item: "module_form_tab", data: "remote", endpoint: "/system/v1/module"},                                                                    
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -359,7 +359,7 @@ let service_config = {
                                                                 fields: [
                                                                     { type: "text", label: "Version", handle: "version", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                                                     { type: "text", label: "Route", handle: "route", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },                                                                
-                                                                    { type: "search", label: "Host", handle: "host", value : "", placeholder: "Click to search for host", searchprompt: "Search for host",search_class: "", popup_class: "",mandatory: true, disabled: false, tabindex: 1, align: "right", label_width: 0, label_position: "top", validation_message: "", value_key: "_id", label_key: "name", datasource: {endpoint: "/system/hosts", page: 0}}
+                                                                    { type: "search", label: "Host", handle: "host", value : "", placeholder: "Click to search for host", searchprompt: "Search for host",search_class: "", popup_class: "",mandatory: true, disabled: false, tabindex: 1, align: "right", label_width: 0, label_position: "top", validation_message: "", value_key: "_id", label_key: "name", datasource: {endpoint: "/system/v1/hosts", page: 0}}
                                                                 ]
                                                             }
                                                         ]

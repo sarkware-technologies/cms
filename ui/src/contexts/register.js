@@ -121,11 +121,11 @@ export default function ServiceContext(_component) {
         if (register) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/register/" + register._id;
+            request["endpoint"] = "/system/v1/register/" + register._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/register";
+            request["endpoint"] = "/system/v1/register";
         }
 
         const registerForm = this.controller.getField("register_form");
@@ -156,7 +156,7 @@ export default function ServiceContext(_component) {
             
             const request = {};    
             request["method"] = "PUT";
-            request["endpoint"] = "/system/register/"+ record._id +"/update-approve";
+            request["endpoint"] = "/system/v1/register/"+ record._id +"/update-approve";
     
             const registerForm = this.controller.getField("register_form");
 
@@ -180,7 +180,7 @@ export default function ServiceContext(_component) {
 
         const request = {};    
         request["method"] = "PUT";
-        request["endpoint"] = "/system/register/"+ _record._id +"/approve";
+        request["endpoint"] = "/system/v1/register/"+ _record._id +"/approve";
 
         const pendingGrid = this.controller.getField("register_pending_grid");
 
@@ -209,7 +209,7 @@ export default function ServiceContext(_component) {
 
         const request = {};    
         request["method"] = "PUT";
-        request["endpoint"] = "/system/register/"+ _record._id +"/reject";
+        request["endpoint"] = "/system/v1/register/"+ _record._id +"/reject";
 
         const pendingGrid = this.controller.getField("register_pending_grid");
 

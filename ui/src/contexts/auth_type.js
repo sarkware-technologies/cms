@@ -78,11 +78,11 @@ export default function AuthTypeContext(_component) {
         if (authType) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/auth-type/" + authType._id;
+            request["endpoint"] = "/system/v1/auth_type/" + authType._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/auth-type";
+            request["endpoint"] = "/system/v1/auth_type";
         }
 
         const authTypeForm = this.controller.getField("auth_type_form");

@@ -36,8 +36,8 @@ let host_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No host configured yet.!",
-                                    datasource: {endpoint: "/system/hosts", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "host", target_type: "view", view: "host_form", data: "remote", endpoint: "/system/host/"},
+                                    datasource: {endpoint: "/system/v1/host", page: 0, populate: false, handler: "dedicated"},
+                                    link: {key: "_id", context: "host", target_type: "view", view: "host_form", data: "remote", endpoint: "/system/v1/host/"},
                                     columns: [
                                         {
                                             show: true, 

@@ -51,7 +51,7 @@ export default function ServiceContext(_component) {
 
             const request = {};
             request["method"] = "PUT";  
-            request["endpoint"] = "/system/module/"+ _record._id;          
+            request["endpoint"] = "/system/v1/module/"+ _record._id;          
 
             request["payload"] = {
                 status: _status
@@ -134,11 +134,11 @@ export default function ServiceContext(_component) {
         if (module) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/module/" + module._id;
+            request["endpoint"] = "/system/v1/module/" + module._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/module";
+            request["endpoint"] = "/system/v1/module";
         }
 
         const moduleForm = this.controller.getField("module_form");

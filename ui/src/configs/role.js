@@ -36,8 +36,8 @@ let role_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No role configured yet.!",
-                                    datasource: {endpoint: "/system/roles", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "role", target_type: "view", view: "role_form", data: "remote", endpoint: "/system/role/"},
+                                    datasource: {endpoint: "/system/v1/role", page: 0, populate: false, handler: "dedicated"},
+                                    link: {key: "_id", context: "role", target_type: "view", view: "role_form", data: "remote", endpoint: "/system/v1/role/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -112,7 +112,7 @@ let role_config = {
                                 fields: [                                    
                                     { type: "text", label: "Title", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "text", label: "Handle", handle: "handle", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "select", label: "Auth Type", handle: "authType", value : "1", value_key: "_id", label_key: "title", options: [], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/auth-type-all" }
+                                    { type: "select", label: "Auth Type", handle: "authType", value : "1", value_key: "_id", label_key: "title", options: [], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/v1/auth-type-all" }
                                 ]
                             }
                         ]

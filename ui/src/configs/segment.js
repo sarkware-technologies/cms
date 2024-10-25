@@ -36,8 +36,8 @@ let segment_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No segment configured yet.!",
-                                    datasource: {endpoint: "/system/segments", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/system/segment/"},
+                                    datasource: {endpoint: "/system/v1/segment", page: 0, populate: false, handler: "dedicated"},
+                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/system/v1/segment/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -354,7 +354,7 @@ let segment_config = {
                                                                                         value_key: "CompanyId", 
                                                                                         label_key: "CompanyName", 
                                                                                         source: "remote",
-                                                                                        endpoint: "/system/api/segment/segment/multi_select_list?entity=companies&select=_id|CompanyId|CompanyName"
+                                                                                        endpoint: "/system/v1/api/segment/segment/multi_select_list?entity=companies&select=_id|CompanyId|CompanyName"
                                                                                     },                                                             
                                                                                     { type: "radio", label: "", handle: "distributorStatus", value : "1", value_key: "value", label_key: "label", choices: [{label: "All", value: "1", selected: true, disabled: false},{label: "Only Authorized", value: "2", selected: false, disabled: false}], layout: "horizontal", classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },
                                                                                     {
@@ -380,7 +380,7 @@ let segment_config = {
                                                                                         value_key: "RetailerId", 
                                                                                         label_key: "RetailerName", 
                                                                                         source: "remote",
-                                                                                        endpoint: "/system/api/segment/segment/multi_select_list?entity=retailer&select=_id|RetailerId|RetailerName"
+                                                                                        endpoint: "/system/v1/api/segment/segment/multi_select_list?entity=retailer&select=_id|RetailerId|RetailerName"
                                                                                     }
                                                                                 ]
                                                                             }                       
@@ -456,7 +456,7 @@ let segment_config = {
                                                                                         value_key: "RetailerId", 
                                                                                         label_key: "RetailerName", 
                                                                                         source: "remote",
-                                                                                        endpoint: "/system/api/segment/segment/multi_select_list?entity=retailer&select=_id|RetailerId|RetailerName"
+                                                                                        endpoint: "/system/v1/api/segment/segment/multi_select_list?entity=retailer&select=_id|RetailerId|RetailerName"
                                                                                     }
                                                                                 ]
                                                                             }                            
@@ -591,8 +591,8 @@ let segment_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No retailer mapped for this segment yet.!",
-                                    datasource: {endpoint: "/system/segment/:id/retailers", page: 0, populate: false, handler: "dedicated", cached: false},
-                                    link: {key: "RetailerId", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/system/segment/"},
+                                    datasource: {endpoint: "/system/v1/segment/:id/retailers", page: 0, populate: false, handler: "dedicated", cached: false},
+                                    link: {key: "RetailerId", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/system/v1/segment/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -699,7 +699,7 @@ let segment_config = {
                                         value_key: "RetailerId", 
                                         label_key: "RetailerName", 
                                         source: "remote",
-                                        endpoint: "/system/api/segment/segment/multi_select_list?entity=retailer&select=_id|RetailerId|RetailerName"
+                                        endpoint: "/system/v1/api/segment/segment/multi_select_list?entity=retailer&select=_id|RetailerId|RetailerName"
                                     }
                                 ]
                             }

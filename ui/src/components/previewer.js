@@ -127,7 +127,7 @@ const Previewer = (props, ref) => {
         prompt_message: "", 
         validation_message: "", 
         source: "remote", 
-        endpoint: "/system/api/page/page_type/pagetype_list" 
+        endpoint: "/system/v1/api/page/page_type/pagetype_list" 
     };
 
     const self = {

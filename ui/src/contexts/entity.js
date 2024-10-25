@@ -106,11 +106,11 @@ export default function EntityContext(_component) {
         if (entity) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/entity/" + entity._id;
+            request["endpoint"] = "/system/v1/entity/" + entity._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/entity";
+            request["endpoint"] = "/system/v1/entity";
         }
 
         const entityForm = this.controller.getField("entity_form");

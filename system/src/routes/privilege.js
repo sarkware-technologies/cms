@@ -1,82 +1,87 @@
 import { Router } from 'express';
 import PrivilegeService from '../services/privilege.js';
 import Utils from '../utils/utils.js';
+import RC from '../utils/request-interceptor.js';
 
-export default class PrivilegeRouter {
-     
-    constructor() {
- 
-        this.router = new Router();
-        this.privilegeService = new PrivilegeService(); 
-        this.moduleHandle = "privilege";
+const router = Router();
+const privilegeService = new PrivilegeService();
+const moduleHandle = "privilege";
 
-        this.router.get(`/${this.moduleHandle}/count`, this.count);                
-        this.router.get(`/${this.moduleHandle}/all`, this.listAll);                
-        this.router.get(`/${this.moduleHandle}/:id`, this.get);
-        this.router.get(`/${this.moduleHandle}`, this.list);
-        
-        this.router.post(`/${this.moduleHandle}`, this.create);                                
-        this.router.put(`/${this.moduleHandle}/:id`, this.update);       
-        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);       
- 
-    }
-
-    getRoutes = () => { return this.router; }
-
-    get = async (_req, _res) => {
+router.get(
+    `/${moduleHandle}/count`,
+    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.privilegeService.get(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await privilegeService.count(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    }
+    })
+);
 
-    listAll = async (_req, _res) => {
+router.get(
+    `/${moduleHandle}/all`,
+    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.privilegeService.listAll(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await privilegeService.listAll(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    }
+    })
+);
 
-    list = async (_req, _res) => {
+router.get(
+    `/${moduleHandle}/:id`,
+    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.privilegeService.list(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await privilegeService.get(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    }
+    })
+);
 
-    count = async (_req, _res) => {
+router.get(
+    `/${moduleHandle}`,
+    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.privilegeService.count(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await privilegeService.list(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    }
+    })
+);
 
-    create = async (_req, _res) => {
+router.post(
+    `/${moduleHandle}`,
+    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.privilegeService.create(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await privilegeService.create(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    }
+    })
+);
 
-    update = async (_req, _res) => {
+router.put(
+    `/${moduleHandle}/:id`,
+    await RC.interceptRequest(moduleHandle, 'put', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.privilegeService.update(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await privilegeService.update(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    }
+    })
+);
 
-    delete = async (_req, _res) => {
+router.delete(
+    `/${moduleHandle}/:id`,
+    await RC.interceptRequest(moduleHandle, 'delete', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.privilegeService.delete(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await privilegeService.delete(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    }
+    })
+);
 
-}
+export default router;

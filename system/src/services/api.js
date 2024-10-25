@@ -71,7 +71,7 @@ class ApiManager {
 
         }
 
-        if ((_method === "POST" || _method === "PUT") && !_req.body) {
+        if ((_method === "post" || _method === "put") && !_req.body) {
             throw new Error("Un supported method - request body not found");            
         }
 

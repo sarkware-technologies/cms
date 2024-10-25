@@ -68,7 +68,7 @@ const FieldEditor = (props, ref) => {
         
         const request = {
             method: "GET",
-            endpoint: "/system/entity/"+ props.record._id +"/fields"
+            endpoint: "/system/v1/entity/"+ props.record._id +"/fields"
         };    
         
         window._controller.docker.dock(request).then((_res) => {
@@ -119,7 +119,7 @@ const FieldEditor = (props, ref) => {
         const request = {};                   
         /* It's a new record */
         request["method"] = "PUT";
-        request["endpoint"] = "/system/field/"+ _config._id;            
+        request["endpoint"] = "/system/v1/field/"+ _config._id;            
         request["payload"] = payload;
 
         window._controller.docker.dock(request).then((_res) => {
@@ -137,7 +137,7 @@ const FieldEditor = (props, ref) => {
         const request = {};                   
         /* It's a new record */
         request["method"] = "DELETE";
-        request["endpoint"] = "/system/field/"+ _id;   
+        request["endpoint"] = "/system/v1/field/"+ _id;   
         
         window._controller.docker.dock(request).then((_res) => {
             window._controller.notify("Removed successfully.!"); 
@@ -172,7 +172,7 @@ const FieldEditor = (props, ref) => {
 
         const request = {};
         request["method"] = "PUT";
-        request["endpoint"] = "/system/field/"+ _record._id;
+        request["endpoint"] = "/system/v1/field/"+ _record._id;
         request["payload"] = {};                        
         request["payload"][_property] = _e.target.checked;
 
@@ -285,7 +285,7 @@ const FieldEditor = (props, ref) => {
             const request = {};                   
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/field";            
+            request["endpoint"] = "/system/v1/field";            
 
             request["payload"] = {};
             request["payload"]["type"] = typeSelect.current.value; 

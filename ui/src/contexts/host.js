@@ -83,11 +83,11 @@ export default function HostContext(_component) {
         if (host) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/host/" + host._id;
+            request["endpoint"] = "/system/v1/host/" + host._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/host";
+            request["endpoint"] = "/system/v1/host";
         }
 
         const hostForm = this.controller.getField("host_form");

@@ -39,7 +39,7 @@ const RuleGroups = (props, ref) => {
 
         const request = {};
         request["method"] = "PUT";
-        request["endpoint"] = "/system/api/component/rules_group/persist_group_rules?id="+ props.id;
+        request["endpoint"] = "/system/v1/api/component/rules_group/persist_group_rules?id="+ props.id;
         request["payload"] = self.getGroupRules();  
                       
         window._controller.dock(request, 
@@ -78,7 +78,7 @@ const RuleGroups = (props, ref) => {
 
         const request = {};
         request["method"] = "POST";
-        request["endpoint"] = "/system/api/component/rules_group/create_rule?gid="+ _groupKey;
+        request["endpoint"] = "/system/v1/api/component/rules_group/create_rule?gid="+ _groupKey;
         request["payload"] = _rule;     
 
         window._controller.dock(request, 
@@ -100,7 +100,7 @@ const RuleGroups = (props, ref) => {
         /* Update the group table  */
         const request = {};
         request["method"] = "POST";
-        request["endpoint"] = "/system/api/component/rules_group/create"
+        request["endpoint"] = "/system/v1/api/component/rules_group/create"
         request["payload"] = {
             component: props.id,
             rules: []
@@ -127,7 +127,7 @@ const RuleGroups = (props, ref) => {
 
         const request = {};
         request["method"] = "GET";
-        request["endpoint"] = "/system/api/component/rules_group/remove_rule?gid="+ _groupKey +"&rid="+ _ruleId;       
+        request["endpoint"] = "/system/v1/api/component/rules_group/remove_rule?gid="+ _groupKey +"&rid="+ _ruleId;       
 
         window._controller.dock(request, 
             (_req, _res) => {                    
@@ -255,7 +255,7 @@ const RuleGroups = (props, ref) => {
         
         window._controller.dock({
             method: "GET",
-            endpoint: "/system/api/component/component/fetch_rule_groups?id="+ props.id
+            endpoint: "/system/v1/api/component/component/fetch_rule_groups?id="+ props.id
             }, 
             (_req, _res) => {
                 setGroups(_res);

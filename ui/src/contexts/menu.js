@@ -99,11 +99,11 @@ export default function ServiceContext(_component) {
         if (menu) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/menu/" + menu._id;
+            request["endpoint"] = "/system/v1/menu/" + menu._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/menu";
+            request["endpoint"] = "/system/v1/menu";
         }
 
         const menuForm = this.controller.getField("menu_form");

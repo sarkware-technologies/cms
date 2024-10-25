@@ -1,6 +1,9 @@
 import RedisClient from "./redis.js";
 import ServiceService from "../services/service.js";
 import EntityService from "../services/entity.js";
+import CapabilityModel from "../models/capability.js";
+import MenuModel from "../models/menu.js";
+import RoleModel from "../models/role.js";
 
 /**
  * 
@@ -32,6 +35,8 @@ class Cache {
 
             await this.setEntities();  
             await this.setRoutes();
+            await this.setCapabilities();
+
             return true;
 
         } catch (e) {
@@ -39,6 +44,89 @@ class Cache {
         }
 
     };    
+
+    setCapabilities = async () => {
+        try {
+            const roles = await RoleModel.find().lean();
+    
+            if (Array.isArray(roles)) {
+                
+                await Promise.all(
+                    roles.map(async (role) => {
+                        const capabilities = await CapabilityModel.find({ role: role._id }).populate('module').lean().exec();
+    
+                        if (Array.isArray(capabilities)) {
+                            
+                            const redisPromises = capabilities.map(async (capability) => {
+                                const roleCaps = {
+                                    read: capability.can_read,
+                                    create: capability.can_create,
+                                    delete: capability.can_delete,
+                                    update: capability.can_update
+                                };
+                                try {
+                                    return await this.redisClient.put(
+                                        "pharmarack_cms_caps",
+                                        `${role._id}_${capability.module.handle}`,
+                                        JSON.stringify(roleCaps)
+                                    );
+                                } catch (e) {
+                                    console.error("Error storing capability in Redis:", e);
+                                }
+                            });
+    
+                            await Promise.all(redisPromises);
+                        }
+                    })
+                );
+            }
+        } catch (e) {
+            console.error("Critical error. Setting up capabilities cache failed", e);
+        }
+    };
+
+    setCapability = async (_roleId) => {
+
+        try {
+            const capabilities = await CapabilityModel.find({ role: _roleId }).populate('module').lean().exec();
+            
+            if (Array.isArray(capabilities)) {
+                const redisPromises = capabilities.map(async (capability) => {
+                    const roleCaps = {
+                        read: capability.can_read,
+                        create: capability.can_create,
+                        delete: capability.can_delete,
+                        update: capability.can_update
+                    };
+                    
+                    try {
+                        return await this.redisClient.put(
+                            "pharmarack_cms_caps",
+                            `${_roleId}_${capability.module.handle}`,
+                            JSON.stringify(roleCaps)
+                        );
+                    } catch (e) {
+                        console.error("Error storing capability in Redis:", e);
+                    }
+                });
+    
+                await Promise.all(redisPromises);
+            }
+    
+        } catch (e) {
+            console.log("Error setting capability:", e);
+        }
+        
+    };
+    
+
+    setPrivileges = async () => {
+
+    };
+
+    setPrivilege = async (_key, _value) => {
+        
+    };
 
     setEntities = async () => {
         

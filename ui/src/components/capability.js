@@ -220,7 +220,7 @@ const Capability = (props, ref) => {
 
         const request = {
             method: "PUT",
-            endpoint: "/system/role/"+ props.roleId+"/capabilities"
+            endpoint: "/system/v1/role/"+ props.roleId+"/capabilities"
         }
         request["payload"] = uC;
 
@@ -429,7 +429,7 @@ const Capability = (props, ref) => {
 
         const request = {
             method: "GET",
-            endpoint: "/system/role/"+ props.roleId+"/capabilities"
+            endpoint: "/system/v1/role/"+ props.roleId+"/capabilities"
         }
 
         window._controller.docker.dock(request)

@@ -1,113 +1,120 @@
 import { Router } from "express";
 import Utils from "../utils/utils.js";
 import RoleService from "../services/role.js";
+import RC from "../utils/request-interceptor.js";
 
-export default class RoleRouter {
+const router = Router();
+const roleService = new RoleService();
+const moduleHandle = "role";
 
-    constructor() {
-
-        this.router = new Router();
-        this.roleService = new RoleService();
-        this.moduleHandle = "role";
-
-        this.router.get(`/${this.moduleHandle}/:id/privileges`, this.loadPrivileges);
-        this.router.get(`/${this.moduleHandle}/:id/capabilities`, this.loadCapabilities);
-        this.router.get(`/${this.moduleHandle}/:id`, this.get);        
-        this.router.get(`/${this.moduleHandle}`, this.list);
-        
-        this.router.put(`/${this.moduleHandle}/:id/capabilities`, this.updateCapabilities);   
-        this.router.put(`/${this.moduleHandle}/:id`, this.update);
-
-        this.router.delete(`/${this.moduleHandle}/:id/privileges`, this.removePrivilege);
-        this.router.delete(`/${this.moduleHandle}/:id`, this.delete);
-        
-        this.router.post(`/${this.moduleHandle}/:id/privileges`, this.addPrivilege);
-        this.router.post(`/${this.moduleHandle}`, this.create);
-
-    }
-
-    getRoutes = () => {
-        return this.router;
-    };
-
-    list = async (_req, _res) => {
+router.get(
+    `/${moduleHandle}/:id/privileges`,
+    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.roleService.list(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await roleService.loadPrivileges(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    get = async (_req, _res) => {
+router.get(
+    `/${moduleHandle}/:id/capabilities`,
+    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.roleService.get(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await roleService.loadCapabilities(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    update = async (_req, _res) => {
+router.get(
+    `/${moduleHandle}/:id`,
+    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.roleService.update(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await roleService.get(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    delete = async (_req, _res) => {
+router.get(
+    `/${moduleHandle}`,
+    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.roleService.delete(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await roleService.list(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    create = async (_req, _res) => {
+router.put(
+    `/${moduleHandle}/:id/capabilities`,
+    await RC.interceptRequest(moduleHandle, 'put', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.roleService.create(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await roleService.updateCapabilities(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    loadCapabilities = async (_req, _res) => {
+router.put(
+    `/${moduleHandle}/:id`,
+    await RC.interceptRequest(moduleHandle, 'put', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.roleService.loadCapabilities(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await roleService.update(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    updateCapabilities = async (_req, _res) => {
+router.delete(
+    `/${moduleHandle}/:id/privileges`,
+    await RC.interceptRequest(moduleHandle, 'delete', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-            _res.status(200).json(await this.roleService.updateCapabilities(_req));
-        } catch (_e) {
-            Utils.handleError(_e, _res);
+            res.status(200).json(await roleService.removePrivilege(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-    };
+    })
+);
 
-    loadPrivileges = async (_req, _res) => {
+router.delete(
+    `/${moduleHandle}/:id`,
+    await RC.interceptRequest(moduleHandle, 'delete', [{ roles: [], privileges: [] }], async (req, res) => {
         try {
-          _res.status(200).json(await this.roleService.loadPrivileges(_req));
-        } catch (_e) {
-          Utils.handleError(_e, _res);
+            res.status(200).json(await roleService.delete(req));
+        } catch (error) {
+            Utils.handleError(error, res);
         }
-      };
-    
-      addPrivilege = async (_req, _res) => {
-        try {
-          _res.status(200).json(await this.roleService.addPrivilege(_req));
-        } catch (_e) {
-          Utils.handleError(_e, _res);
-        }
-      };
-    
-      removePrivilege = async (_req, _res) => {
-        try {
-          _res.status(200).json(await this.roleService.removePrivilege(_req));
-        } catch (_e) {
-          Utils.handleError(_e, _res);
-        }
-      };
+    })
+);
 
-}
+router.post(
+    `/${moduleHandle}/:id/privileges`,
+    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
+        try {
+            res.status(200).json(await roleService.addPrivilege(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.post(
+    `/${moduleHandle}`,
+    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
+        try {
+            res.status(200).json(await roleService.create(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+export default router;

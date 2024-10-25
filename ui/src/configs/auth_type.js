@@ -36,8 +36,8 @@ let auth_type_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No auth type configured yet.!",
-                                    datasource: {endpoint: "/system/auth-types", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "auth_type", target_type: "view", view: "auth_type_form", data: "remote", endpoint: "/system/auth-type/"},
+                                    datasource: {endpoint: "/system/v1/auth_type", page: 0, populate: false, handler: "dedicated"},
+                                    link: {key: "_id", context: "auth_type", target_type: "view", view: "auth_type_form", data: "remote", endpoint: "/system/v1/auth-type/"},
                                     columns: [
                                         {
                                             show: true, 

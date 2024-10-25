@@ -20,7 +20,7 @@ export default function RoleContext(_component) {
 
         this.controller.docker.dock({
             method: "GET",
-            endpoint: "/system/auth-type-all"
+            endpoint: "/system/v1/auth_type/all"
         }).then((response) => {
             this.authTypes = response;
         })
@@ -30,7 +30,7 @@ export default function RoleContext(_component) {
 
         this.controller.docker.dock({
             method: "GET",
-            endpoint: "/system/privileges-all"
+            endpoint: "/system/v1/privilege/all"
         }).then((response) => {
             this.privilegeList = response;
         })
@@ -143,11 +143,11 @@ export default function RoleContext(_component) {
         if (role) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/role/" + role._id;
+            request["endpoint"] = "/system/v1/role/" + role._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/role";
+            request["endpoint"] = "/system/v1/role";
         }
 
         const roleForm = this.controller.getField("role_form");

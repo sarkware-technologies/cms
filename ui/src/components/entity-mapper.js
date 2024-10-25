@@ -33,7 +33,7 @@ const EntityMapper = (props, ref) => {
     const fetchEntities = () => {
         const request = {
             method: "GET",
-            endpoint: "/system/module/"+ props.record._id +"/entities"
+            endpoint: "/system/v1/module/"+ props.record._id +"/entities"
         };        
         
         window._controller.dock(request, 
@@ -50,7 +50,7 @@ const EntityMapper = (props, ref) => {
 
         const request = {};        
         request["method"] = "PUT";
-        request["endpoint"] = "/system/module/"+ props.record._id +"/entities?mapping_id="+ _record._id;
+        request["endpoint"] = "/system/v1/module/"+ props.record._id +"/entities?mapping_id="+ _record._id;
         request["payload"] = {
             [_property]: _e.target.checked
         };
@@ -71,7 +71,7 @@ const EntityMapper = (props, ref) => {
 
         const request = {};        
         request["method"] = "DELETE";
-        request["endpoint"] = "/system/module/"+ props.record._id +"/entities?mapping_id="+ _record._id;
+        request["endpoint"] = "/system/v1/module/"+ props.record._id +"/entities?mapping_id="+ _record._id;
 
         window._controller.dock(request, 
             (_req, _res) => {                    
@@ -91,7 +91,7 @@ const EntityMapper = (props, ref) => {
 
             const request = {};        
             request["method"] = "POST";
-            request["endpoint"] = "/system/module/"+ props.record._id +"/entities";
+            request["endpoint"] = "/system/v1/module/"+ props.record._id +"/entities";
             request["payload"] = {
                 entity          : entitySelect.current.value,                                         
                 exposed         : exposeToggle.current.getStatus(),

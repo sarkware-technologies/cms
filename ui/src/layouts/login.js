@@ -77,7 +77,7 @@ const Login = (props) => {
 
                     const response = await window._controller.docker.dock({
                         method: "POST",
-                        endpoint: "/system/auth/select-role",
+                        endpoint: "/system/v1/auth/select-role",
                         payload: { 
                             user: state.username,
                             password: state.password,
@@ -99,7 +99,7 @@ const Login = (props) => {
 
                 const response = await window._controller.docker.dock({
                     method: "POST",
-                    endpoint: "/system/auth/sign-in",
+                    endpoint: "/system/v1/auth/sign-in",
                     payload: { 
                         user: state.username,
                         password: state.password

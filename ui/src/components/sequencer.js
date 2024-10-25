@@ -28,7 +28,7 @@ const Sequencer = (props, ref) => {
         
         const request = {
             method: "GET",
-            endpoint: "/system/api/component/component_type/designer_data?page="+ props.record._id
+            endpoint: "/system/v1/api/component/component_type/designer_data?page="+ props.record._id
         };        
         
         window._controller.dock(request, 
@@ -75,7 +75,7 @@ const Sequencer = (props, ref) => {
 
         const request = {};
         request["method"] = "PUT";
-        request["endpoint"] = "/system/api/page/page/update?id="+ props.record._id;
+        request["endpoint"] = "/system/v1/api/page/page/update?id="+ props.record._id;
         request["payload"] = getComponentSequence();                    
 
         if (request["payload"]) {
@@ -107,7 +107,7 @@ const Sequencer = (props, ref) => {
 
         const request = {
             method: "GET",
-            endpoint: "/system/api/component/component/get_page_component?page="+ props.record._id +"&position="+ (_id +"_"+ pos)
+            endpoint: "/system/v1/api/component/component/get_page_component?page="+ props.record._id +"&position="+ (_id +"_"+ pos)
         };        
         
         window._controller.dock(request, 
@@ -174,7 +174,7 @@ const Sequencer = (props, ref) => {
 
             const request = {
                 method: "GET",
-                endpoint: "/system/api/component/component/get_page_component?page="+ props.record._id +"&position="+ (_id +"_"+ pos)
+                endpoint: "/system/v1/api/component/component/get_page_component?page="+ props.record._id +"&position="+ (_id +"_"+ pos)
             };        
             
             window._controller.dock(request, 

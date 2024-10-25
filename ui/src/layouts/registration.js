@@ -92,7 +92,7 @@ const Login = (props) => {
 
             const roles = await window._controller.docker.dock({
                 method: "GET",
-                endpoint: "/system/register/user-types",
+                endpoint: "/system/v1/register/user-types",
             }, false);
 
             setRoles(roles);
@@ -118,7 +118,7 @@ const Login = (props) => {
 
             const response = await window._controller.docker.dock({
                 method: "POST",
-                endpoint: "/system/register",
+                endpoint: "/system/v1/register",
                 payload: { 
                     fullName: state.fullName,
                     email: state.email,

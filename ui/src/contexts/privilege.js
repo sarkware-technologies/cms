@@ -72,11 +72,11 @@ export default function PrivilegeContext(_component) {
         if (privilege) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/privilege/" + privilege._id;
+            request["endpoint"] = "/system/v1/privilege/" + privilege._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/privilege";
+            request["endpoint"] = "/system/v1/privilege";
         }
 
         const privilegeForm = this.controller.getField("privilege_form");

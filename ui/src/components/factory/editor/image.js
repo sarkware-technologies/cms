@@ -36,7 +36,7 @@ const Image = (props, ref) => {
 
         const request = {};
         request["method"] = "PUT";
-        request["endpoint"] = "/system/api/component/rule/bulk_update?id="+ record._id;
+        request["endpoint"] = "/system/v1/api/component/rule/bulk_update?id="+ record._id;
         request["payload"] = groupsRef.current.getGroupRules();  
                       
         window._controller.dock(request, 

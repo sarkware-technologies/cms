@@ -36,8 +36,8 @@ let module_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No module configured yet.!",
-                                    datasource: {endpoint: "/system/modules?populate=true", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "module", target_type: "view", view: "module_form", data: "remote", endpoint: "/system/module/"},
+                                    datasource: {endpoint: "/system/v1/module?populate=true", page: 0, populate: false, handler: "dedicated"},
+                                    link: {key: "_id", context: "module", target_type: "view", view: "module_form", data: "remote", endpoint: "/system/v1/module/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -133,7 +133,7 @@ let module_config = {
                                     { type: "toggle", label: "Status", handle: "status", value : false, classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" },                                   
                                     { type: "text", label: "Title", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "text", label: "Handle", handle: "handle", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "select", label: "Service", handle: "service", value : "1", value_key: "_id", label_key: "title", options: [], placeholder: "-- Select Service --", classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/service/all" },
+                                    { type: "select", label: "Service", handle: "service", value : "1", value_key: "_id", label_key: "title", options: [], placeholder: "-- Select Service --", classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/v1/service/all" },
                                     { type: "textarea", label: "Description", handle: "description", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "textarea", label: "Offline Message", handle: "offline_message", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
                                 ]

@@ -1,49 +1,49 @@
 import { Router } from 'express';
 import Utils from '../utils/utils.js';
 import AP from '../services/api.js';
+import RC from '../utils/request-interceptor.js';
 
-export default class ApiRouter {
+const router = Router();
+const moduleHandle = "api";
 
-    constructor() {
+AP.init();
 
-        AP.init();
-        this.router = new Router();  
-        this.moduleHandle = "api";      
-
-        this.router.get(`/${this.moduleHandle}/*`, this.handleGet);
-        this.router.post(`/${this.moduleHandle}/*`, this.handlePost);
-        this.router.put(`/${this.moduleHandle}/*`, this.handlePut);
-        this.router.delete(`/${this.moduleHandle}/*`, this.handleDelete);
-
+const processRequest = async (req, res, method) => {
+    try {
+        const result = await AP.handle(req, res, method);
+        res.status(200).json(result);
+    } catch (error) {
+        Utils.handleError(error, res);
     }
+};
 
-    getRoutes = () => { return this.router; }
+router.get(
+    `/${moduleHandle}/*`,
+    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
+        await processRequest(req, res, "get");
+    })
+);
 
-    handleGet = async (_req, _res) => {
-        await this.processRequest(_req, _res, "GET");
-    };
+router.post(
+    `/${moduleHandle}/*`,
+    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
+        await processRequest(req, res, "post");
+    })
+);
 
-    handlePost = async (_req, _res) => {
-        await this.processRequest(_req, _res, "POST");
-    };
+router.put(
+    `/${moduleHandle}/*`,
+    await RC.interceptRequest(moduleHandle, 'put', [{ roles: [], privileges: [] }], async (req, res) => {
+        await processRequest(req, res, "put");
+    })
+);
 
-    handlePut = async (_req, _res) => {
-        await this.processRequest(_req, _res, "PUT");
-    };
+router.delete(
+    `/${moduleHandle}/*`,
+    await RC.interceptRequest(moduleHandle, 'delete', [{ roles: [], privileges: [] }], async (req, res) => {
+        await processRequest(req, res, "delete");
+    })
+);
 
-    handleDelete = async (_req, _res) => {
-        await this.processRequest(_req, _res, "DELETE");
-    };
 
-    processRequest = async (_req, _res, _method) => {
-
-        try {           
-            const result = await AP.handle(_req, _res, _method);
-            _res.status(200).json(result);
-        } catch (_e) {
-            Utils.handleError(_e, _res);
-        }
-
-    };
-
-}
+export default router;

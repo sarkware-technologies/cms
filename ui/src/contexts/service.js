@@ -29,9 +29,9 @@ export default function ServiceContext(_component) {
 
         if (currentService) {
             if (_handle === "module_grid") {                
-                datasource["endpoint"] = "/system/services/"+ currentService._id +"/modules";
+                datasource["endpoint"] = "/system/v1/service/"+ currentService._id +"/modules";
             } else if (_handle === "version_grid") {            
-                datasource["endpoint"] = "/system/services/"+ currentService._id +"/versions";
+                datasource["endpoint"] = "/system/v1/service/"+ currentService._id +"/versions";
             }
         }
 
@@ -58,7 +58,7 @@ export default function ServiceContext(_component) {
 
             const request = {};
             request["method"] = "PUT";  
-            request["endpoint"] = "/system/service/"+ _record._id;          
+            request["endpoint"] = "/system/v1/service/"+ _record._id;          
 
             request["payload"] = {
                 status: _status
@@ -235,11 +235,11 @@ export default function ServiceContext(_component) {
         if (service) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/service/" + service._id;
+            request["endpoint"] = "/system/v1/service/" + service._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/service";
+            request["endpoint"] = "/system/v1/service";
         }
 
         const serviceForm = this.controller.getField("service_form");
@@ -274,11 +274,11 @@ export default function ServiceContext(_component) {
         if (this.component.currentRecord["version_grid"]) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/version/"+ this.component.currentRecord["version_grid"]._id;
+            request["endpoint"] = "/system/v1/version/"+ this.component.currentRecord["version_grid"]._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/version";
+            request["endpoint"] = "/system/v1/version";
         }
 
         request["payload"] = {};
@@ -310,11 +310,11 @@ export default function ServiceContext(_component) {
         if (this.component.currentRecord["module_grid"]) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/module/"+ this.component.currentRecord["module_grid"]._id;
+            request["endpoint"] = "/system/v1/module/"+ this.component.currentRecord["module_grid"]._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/module";
+            request["endpoint"] = "/system/v1/module";
         }
 
         request["payload"] = {};

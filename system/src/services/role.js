@@ -299,7 +299,7 @@ export default class RoleService {
 
             }
 
-        } catch (_e) { console.log(_e);
+        } catch (_e) {
             throw _e;
         }
 
@@ -343,7 +343,7 @@ export default class RoleService {
 
     };
     
-      addPrivilege = async (_req) => {
+    addPrivilege = async (_req) => {
 
         if (!_req.params.id) {
             throw new Error("Role id is missing");
@@ -375,7 +375,7 @@ export default class RoleService {
 
     };
     
-      removePrivilege = async (_req) => {
+    removePrivilege = async (_req) => {
 
         if (!_req.params.id) {
             throw new Error("Role id is missing");

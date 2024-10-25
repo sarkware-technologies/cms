@@ -14,12 +14,12 @@ const Privilege = (props, ref) => {
 
         const request = {
             method: "GET",
-            endpoint: "/system/role/"+ props.roleId+"/privileges"
+            endpoint: "/system/v1/role/"+ props.roleId+"/privileges"
         }
 
         window._controller.docker.dock({
             method: "GET",
-            endpoint: "/system/role/"+ props.roleId+"/privileges"
+            endpoint: "/system/v1/role/"+ props.roleId+"/privileges"
         }).then((_res) => {
             const _assigned = [];
             for (let i =0 ; i < _res.payload.assigned.length; i++) {
@@ -36,7 +36,7 @@ const Privilege = (props, ref) => {
 
     const handlePrivilegeChange = (_e) => {
 
-        const request = {endpoint: "/system/role/"+ props.roleId+"/privileges"}
+        const request = {endpoint: "/system/v1/role/"+ props.roleId+"/privileges"}
         request["payload"] = {privilege: _e.target.value}
 
         if (_e.target.checked) {
@@ -59,7 +59,7 @@ const Privilege = (props, ref) => {
 
     }
 
-    const renderPrivileges = () => { console.log("render privileges called");
+    const renderPrivileges = () => {
 
         if (!privileges) {
             return <p>Loading privileges...</p>;

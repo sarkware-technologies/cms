@@ -44,7 +44,7 @@ const ForgotPassword = (props) => {  console.log("ForgotPassword is called");
 
             const response = await window._controller.docker.dock({
                 method: "POST",
-                endpoint: "/system/auth/sign-in",
+                endpoint: "/system/v1/auth/sign-in",
                 payload: { 
                     user: state.username,
                     password: state.password

@@ -62,8 +62,8 @@ let register_config = {
                                                             full_row_select: false,
                                                             is_main_grid: true,
                                                             empty_message: "No register submitted yet.!",
-                                                            datasource: {endpoint: "/system/registers?populate=true&isApproved=null", page: 0, populate: false, handler: "dedicated"},
-                                                            link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/system/register/"},
+                                                            datasource: {endpoint: "/system/v1/register?populate=true&isApproved=null", page: 0, populate: false, handler: "dedicated"},
+                                                            link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/system/v1/register/"},
                                                             columns: [
                                                                 {
                                                                     show: true, 
@@ -176,8 +176,8 @@ let register_config = {
                                                             full_row_select: false,
                                                             is_main_grid: true,
                                                             empty_message: "No approved register yet.!",
-                                                            datasource: {endpoint: "/system/registers?populate=true&&isApproved=true", page: 0, populate: false, handler: "dedicated"},
-                                                            link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/system/register/"},
+                                                            datasource: {endpoint: "/system/v1/register?populate=true&&isApproved=true", page: 0, populate: false, handler: "dedicated"},
+                                                            link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/system/v1/register/"},
                                                             columns: [
                                                                 {
                                                                     show: true, 
@@ -194,9 +194,9 @@ let register_config = {
                                                                     width: "32",
                                                                     search: false,
                                                                     filter: false,
-                                                                    header: {title: "Full Name", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                                                    header: {title: "Full Name", align: "left", filterable: false, searchable: false, sortable: false}, 
                                                                     footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "fullName", type: "link", align: "left", editable: false},
+                                                                    field: {handle: "fullName", type: "alphanumeric", align: "left", editable: false},
                                                                     prompt: ""
                                                                 },
                                                                 {
@@ -270,8 +270,8 @@ let register_config = {
                                                             full_row_select: false,
                                                             is_main_grid: true,
                                                             empty_message: "No rejected register yet.!",
-                                                            datasource: {endpoint: "/system/registers?populate=true&&isApproved=false", page: 0, populate: false, handler: "dedicated"},
-                                                            link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/system/register/"},
+                                                            datasource: {endpoint: "/system/v1/register?populate=true&&isApproved=false", page: 0, populate: false, handler: "dedicated"},
+                                                            link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/system/v1/register/"},
                                                             columns: [
                                                                 {
                                                                     show: true, 
@@ -288,9 +288,9 @@ let register_config = {
                                                                     width: "32",
                                                                     search: false,
                                                                     filter: false,
-                                                                    header: {title: "Full Name", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                                                    header: {title: "Full Name", align: "left", filterable: false, searchable: false, sortable: false}, 
                                                                     footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "fullName", type: "link", align: "left", editable: false},
+                                                                    field: {handle: "fullName", type: "alphanumeric", align: "left", editable: false},
                                                                     prompt: ""
                                                                 },
                                                                 {
@@ -386,7 +386,7 @@ let register_config = {
                                     { type: "text", label: "Name", handle: "fullName", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "text", label: "Email", handle: "email", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "number", label: "Mobile", handle: "mobile", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "select", label: "User Type", handle: "userType", value : "1", value_key: "_id", label_key: "title", options: [], placeholder: "-- Select User Type --", classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/register/user-types" },
+                                    { type: "select", label: "User Type", handle: "userType", value : "1", value_key: "_id", label_key: "title", options: [], placeholder: "-- Select User Type --", classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/v1/register/user-types" },
                                 ]
                             }
                         ]

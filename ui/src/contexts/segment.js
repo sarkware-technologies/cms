@@ -40,7 +40,7 @@ export default function SegmentContext(_component) {
         if (_handle === "retailer_grid") {
             const segment = this.component.currentRecord["segment_grid"]; 
             if (segment) {
-                 datasource.endpoint = "/system/segment/"+ segment._id +"/retailers"; 
+                 datasource.endpoint = "/system/v1/segment/"+ segment._id +"/retailers"; 
             }
         }
 
@@ -96,7 +96,7 @@ export default function SegmentContext(_component) {
                     value_key: "StateId", 
                     label_key: "Statename", 
                     source: "remote",
-                    endpoint: "/system/api/segment/segment/multi_select_list?entity=state&select=_id|StateId|Statename"
+                    endpoint: "/system/v1/api/segment/segment/multi_select_list?entity=state&select=_id|StateId|Statename"
                 };
             } else {
                 fieldConfig = {
@@ -123,7 +123,7 @@ export default function SegmentContext(_component) {
                     value_key: "RegionId", 
                     label_key: "RegionName", 
                     source: "remote",
-                    endpoint: "/system/api/segment/segment/multi_select_list?entity=region&select=_id|RegionId|RegionName"
+                    endpoint: "/system/v1/api/segment/segment/multi_select_list?entity=region&select=_id|RegionId|RegionName"
                 };
             }
 
@@ -251,7 +251,7 @@ export default function SegmentContext(_component) {
                 if (segment) {
                     
                     request["method"] = "PUT";
-                    request["endpoint"] = "/system/segment/" + segment._id +"/retailers";
+                    request["endpoint"] = "/system/v1/segment/" + segment._id +"/retailers";
                     request["payload"] = selectedRetailers;
 
                     this.controller.docker.dock(request).then((_res) => {
@@ -475,7 +475,7 @@ export default function SegmentContext(_component) {
             if (segment) {
                 
                 request["method"] = "DELETE";
-                request["endpoint"] = "/system/segment/" + segment._id;                
+                request["endpoint"] = "/system/v1/segment/" + segment._id;                
 
                 this.controller.docker.dock(request).then((_res) => {
                     this.controller.notify(segment.title + " deleted successfully.!");
@@ -503,7 +503,7 @@ export default function SegmentContext(_component) {
         if (segment) {
             
             request["method"] = "PUT";
-            request["endpoint"] = "/system/segment/" + segment._id +"/deleteRetailers";
+            request["endpoint"] = "/system/v1/segment/" + segment._id +"/deleteRetailers";
             request["payload"] = _retailersIds;
 
             this.controller.docker.dock(request).then((_res) => {
@@ -526,11 +526,11 @@ export default function SegmentContext(_component) {
         if (segment) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/segment/" + segment._id;
+            request["endpoint"] = "/system/v1/segment/" + segment._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/segment";
+            request["endpoint"] = "/system/v1/segment";
         }
 
         request["payload"] = null;

@@ -1,14 +1,23 @@
 import TokenManager from "./token-manager.js";
 import Utils from "./utils.js";
 
-export default class RequestInterceptor {
+class RequestInterceptor {
     
-    constructor(_express) {
-        this.express = _express;
+    constructor() {
+
+        if (RequestInterceptor.instance) {
+            return RequestInterceptor.instance; // Return the existing instance if it exists
+        }
+
+        this.express = null;
         this.tokenManager = new TokenManager();
+        RequestInterceptor.instance = this;
+
     }
   
-    init = () => {
+    init = (_express) => {
+
+        this.express = _express;
 
         /* Error handler */
 
@@ -31,11 +40,11 @@ export default class RequestInterceptor {
 
             const publicPaths = [
                 "/health",
-                "/system/auth/sign-in",
-                "/system/auth/select-role",
-                "/system/register",
-                "/system/register/user-types",
-                "/system/auth/send-forgot-password-token"
+                "/system/v1/auth/sign-in",
+                "/system/v1/auth/select-role",
+                "/system/v1/register",
+                "/system/v1/register/user-types",
+                "/system/v1/auth/send-forgot-password-token"
             ];
 
             if (publicPaths.includes(_req.path)) {
@@ -58,7 +67,7 @@ export default class RequestInterceptor {
             let tokenValidationResult;
 
             switch (_req.path) {
-                case "/system/auth/submit-forgot-password":
+                case "/system/v1/auth/submit-forgot-password":
                     tokenValidationResult = await this.verifyAndSetUser(token, "forgot", _req);
                     break;
                 default:
@@ -114,10 +123,14 @@ export default class RequestInterceptor {
 
     };
 
+    checkPermissions = async (_permissions, req) => {
+        return true;
+    };
+
     interceptRequest = async (_module, _method, _permissions, _routeHandler) => {
 
         return (req, res, next) => {
-            if (checkPermissions(_permissions, req)) {                
+            if (this.checkPermissions(_permissions, req)) {                
                 return _routeHandler(req, res, next);
             } else {                
                 return res.status(403).json({ message: 'Forbidden: Insufficient Permissions' });
@@ -127,3 +140,6 @@ export default class RequestInterceptor {
     };
 
 }
+
+// Exporting a single instance to enforce singleton behavior
+export default new RequestInterceptor();

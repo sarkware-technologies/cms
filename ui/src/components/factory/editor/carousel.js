@@ -81,7 +81,7 @@ const Carousel = (props, ref) => {
         /* Update the carousel item status */
         const request = {};        
         request["method"] = "PUT";
-        request["endpoint"] = "/system/api/component/component/update?id="+ _item._id
+        request["endpoint"] = "/system/v1/api/component/component/update?id="+ _item._id
         request["payload"] = {};                        
         request["payload"]["status"] = _e.target.checked;
 
@@ -136,7 +136,7 @@ const Carousel = (props, ref) => {
         formData.append('componentId', currentItem._id);
 
         try {
-            const response = await window._controller.upload('/system/api/component/component/s3_upload_for_child', formData);
+            const response = await window._controller.upload('/system/v1/api/component/component/s3_upload_for_child', formData);
             if (response) {
 
                 /* Update the childrens array too */
@@ -158,7 +158,7 @@ const Carousel = (props, ref) => {
 
         const request = {};
         request["method"] = "POST";
-        request["endpoint"] = "/system/api/component/component/remove_asset";
+        request["endpoint"] = "/system/v1/api/component/component/remove_asset";
         request["payload"] = {
             componentId: currentItem._id,
             property: _handle
@@ -271,7 +271,7 @@ const Carousel = (props, ref) => {
 
         const request = {};
         request["method"] = "POST";
-        request["endpoint"] = "/system/api/component/component/update_sequence?id="+ record._id;
+        request["endpoint"] = "/system/v1/api/component/component/update_sequence?id="+ record._id;
         request["payload"] = getCarouselItemSequence();                    
         
         window._controller.dock(request, 
@@ -458,7 +458,7 @@ const Carousel = (props, ref) => {
                 
                 const request = {};
                 request["method"] = "POST";
-                request["endpoint"] = "/system/api/component/component/create";
+                request["endpoint"] = "/system/v1/api/component/component/create";
                 request["payload"] = carouselItem;                    
                 
                 window._controller.dock(request, 
@@ -516,7 +516,7 @@ const Carousel = (props, ref) => {
 
                 const request = {};
                 request["method"] = "PUT";
-                request["endpoint"] = "/system/api/component/component/update?id="+ currentItem._id;
+                request["endpoint"] = "/system/v1/api/component/component/update?id="+ currentItem._id;
                 request["payload"] = carouselItem;
 
                 window._controller.dock(request, 
@@ -540,7 +540,7 @@ const Carousel = (props, ref) => {
 
                 const request = {};
                 request["method"] = "DELETE";
-                request["endpoint"] = "/system/api/component/component/delete?id="+ currentItem._id;               
+                request["endpoint"] = "/system/v1/api/component/component/delete?id="+ currentItem._id;               
 
                 window._controller.dock(request, 
                     (_req, _res) => {
@@ -563,7 +563,7 @@ const Carousel = (props, ref) => {
 
                 const request = {};   
                 request["method"] = "POST";
-                request["endpoint"] = "/system/api/component/component/clone?component="+ currentItem._id;
+                request["endpoint"] = "/system/v1/api/component/component/clone?component="+ currentItem._id;
 
                 window._controller.dock(request, 
                     (_req, _res) => {     
@@ -594,7 +594,7 @@ const Carousel = (props, ref) => {
 
         let request = {};
         request["method"] = "DELETE";
-        request["endpoint"] = "/system/api/component/rule/bulk_filter_delete?field=component&value="+ _id;     
+        request["endpoint"] = "/system/v1/api/component/rule/bulk_filter_delete?field=component&value="+ _id;     
 
         window._controller.dock(request, 
             (_req, _res) => {
@@ -607,7 +607,7 @@ const Carousel = (props, ref) => {
 
         request = {};
         request["method"] = "DELETE";
-        request["endpoint"] = "/system/api/component/rules_group/bulk_filter_delete?field=component&value="+ _id;  
+        request["endpoint"] = "/system/v1/api/component/rules_group/bulk_filter_delete?field=component&value="+ _id;  
         
         window._controller.dock(request, 
             (_req, _res) => {
@@ -624,7 +624,7 @@ const Carousel = (props, ref) => {
 
         const request = {};
         request["method"] = "PUT";
-        request["endpoint"] = "/system/api/component/rule/bulk_update?id="+ currentItem._id;
+        request["endpoint"] = "/system/v1/api/component/rule/bulk_update?id="+ currentItem._id;
         request["payload"] = groupsRef.current.getGroupRules();  
                       
         window._controller.dock(request, 
@@ -669,7 +669,7 @@ const Carousel = (props, ref) => {
     const fetchChildrens = () => {
         window._controller.dock({
             method: "GET",
-            endpoint: "/system/api/component/component/childrens?id="+ record._id
+            endpoint: "/system/v1/api/component/component/childrens?id="+ record._id
             }, 
             (_req, _res) => {
                 setChildrens((prevState) => (_res)); 
