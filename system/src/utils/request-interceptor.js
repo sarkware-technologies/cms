@@ -1,5 +1,6 @@
 import TokenManager from "./token-manager.js";
 import Utils from "./utils.js";
+import cache from "./cache.js";
 
 class RequestInterceptor {
     
@@ -123,21 +124,74 @@ class RequestInterceptor {
 
     };
 
-    checkPermissions = async (_permissions, req) => {
-        return true;
+    checkPermissions = async (_privileges, _method, _req, _res) => {  console.log(_privileges, _method);
+
+        if (_privileges.length == 1 && _privileges[0] == "*") {
+            return true;
+        }
+
+        if (!_req.user) {
+            return false;
+        }
+
+        if (!_req.user.role) {
+            return false;
+        }
+
+        const sourceUrl = `${_req.protocol}://${_req.get("host")}${_req.originalUrl}`;
+        const [_service, _version, _module] = this.getUrlPathParts(sourceUrl);   
+        
+        if (_service && _version && _module) {
+
+            const caps = await cache.getCapabilities(`${_req.user.role}_${_module}`);  
+
+            if (caps) {
+
+                if (caps[_method]) {
+                    return true;
+                }
+
+                const privileges = await cache.getPrivileges(`${_req.user.role}_privileges`);
+                if (Array.isArray(privileges)) {
+                    return _privileges.some(item => privileges.includes(item));
+                }                 
+
+            } 
+
+        }
+
+        return false;
+
     };
 
-    interceptRequest = async (_module, _method, _permissions, _routeHandler) => {
+    interceptRequest = async (_module, _method, _privileges, _routeHandler) => {
 
-        return (req, res, next) => {
-            if (this.checkPermissions(_permissions, req)) {                
+        const prevs = Array.isArray(_privileges) ? _privileges : [];
+
+        return async (req, res, next) => {
+            if (await this.checkPermissions(prevs, _method, req, res)) {  console.log("check permission is success");
                 return _routeHandler(req, res, next);
-            } else {                
+            } else {                 console.log("check permission is failed");
                 return res.status(403).json({ message: 'Forbidden: Insufficient Permissions' });
             }
         };
         
     };
+
+    getUrlPathParts = (_url) => {
+        
+        const parsedUrl = new URL(_url);
+        const pathname = parsedUrl.pathname;
+        const parts = pathname.split("/").filter((part) => part !== "");
+    
+        if (parts && Array.isArray(parts) && parts.length >= 3) {
+          return [parts[0], parts[1], parts[2]];
+        }
+    
+        return [null, null, null];
+
+    };
+      
 
 }
 

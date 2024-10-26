@@ -9,7 +9,7 @@ const moduleHandle = "auth_type";
 
 router.get(
     `/${moduleHandle}/all`,
-    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
             res.status(200).json(await authTypeService.listAll(req));
         } catch (error) {
@@ -20,7 +20,7 @@ router.get(
 
 router.get(
     `/${moduleHandle}/:id`,
-    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
             res.status(200).json(await authTypeService.get(req));
         } catch (error) {
@@ -31,7 +31,7 @@ router.get(
 
 router.get(
     `/${moduleHandle}`,
-    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
             res.status(200).json(await authTypeService.list(req));
         } catch (error) {
@@ -42,7 +42,7 @@ router.get(
 
 router.put(
     `/${moduleHandle}/:id`,
-    await RC.interceptRequest(moduleHandle, 'put', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'put', [], async (req, res) => {
         try {
             res.status(200).json(await authTypeService.update(req));
         } catch (error) {
@@ -53,7 +53,7 @@ router.put(
 
 router.delete(
     `/${moduleHandle}/:id`,
-    await RC.interceptRequest(moduleHandle, 'delete', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'delete', [], async (req, res) => {
         try {
             res.status(200).json(await authTypeService.delete(req));
         } catch (error) {
@@ -64,7 +64,7 @@ router.delete(
 
 router.post(
     `/${moduleHandle}`,
-    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'post', [], async (req, res) => {
         try {
             res.status(200).json(await authTypeService.create(req));
         } catch (error) {

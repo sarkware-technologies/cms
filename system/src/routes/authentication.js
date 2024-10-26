@@ -9,7 +9,7 @@ const moduleHandle = "auth";
 
 router.post(
     `/${moduleHandle}/sign-in`,
-    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'post', ["*"], async (req, res) => {
         try {
             res.status(200).json(await authService.signIn(req));
         } catch (error) {
@@ -20,7 +20,7 @@ router.post(
 
 router.post(
     `/${moduleHandle}/sign-out`,
-    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'post', ["*"], async (req, res) => {
         try {
             res.status(200).json(await authService.signOut(req));
         } catch (error) {
@@ -31,7 +31,7 @@ router.post(
 
 router.post(
     `/${moduleHandle}/refresh-access-token`,
-    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'post', [], async (req, res) => {
         try {
             res.status(200).json(await authService.refreshAccessToken(req));
         } catch (error) {
@@ -42,7 +42,7 @@ router.post(
 
 router.post(
     `/${moduleHandle}/reset-password`,
-    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'post', [], async (req, res) => {
         try {
             res.status(200).json(await authService.resetPassword(req));
         } catch (error) {
@@ -53,7 +53,7 @@ router.post(
 
 router.post(
     `/${moduleHandle}/select-role`,
-    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'post', ["*"], async (req, res) => {
         try {
             res.status(200).json(await authService.selectRole(req));
         } catch (error) {
@@ -64,7 +64,7 @@ router.post(
 
 router.post(
     `/${moduleHandle}/send-forgot-password-token`,
-    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'post', ["*"], async (req, res) => {
         try {
             res.status(200).json(await authService.sendForgotPasswordToken(req));
         } catch (error) {
@@ -75,7 +75,7 @@ router.post(
 
 router.post(
     `/${moduleHandle}/submit-forgot-password`,
-    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'post', [], async (req, res) => {
         try {
             res.status(200).json(await authService.submitForgotPassword(req));
         } catch (error) {

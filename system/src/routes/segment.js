@@ -9,7 +9,7 @@ const moduleHandle = "segment";
 
 router.get(
     `/${moduleHandle}/all`,
-    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
             res.status(200).json(await segmentService.listAll(req));
         } catch (error) {
@@ -20,7 +20,7 @@ router.get(
 
 router.get(
     `/${moduleHandle}/:id/retailers`,
-    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
             res.status(200).json(await segmentService.listSegmentRetailers(req));
         } catch (error) {
@@ -31,7 +31,7 @@ router.get(
 
 router.get(
     `/${moduleHandle}/:id`,
-    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
             res.status(200).json(await segmentService.get(req));
         } catch (error) {
@@ -42,7 +42,7 @@ router.get(
 
 router.get(
     `/${moduleHandle}`,
-    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
             res.status(200).json(await segmentService.list(req));
         } catch (error) {
@@ -53,7 +53,7 @@ router.get(
 
 router.put(
     `/${moduleHandle}/:id/deleteRetailers`,
-    await RC.interceptRequest(moduleHandle, 'put', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'put', [], async (req, res) => {
         try {
             res.status(200).json(await segmentService.deleteRetailersFromSegment(req));
         } catch (error) {
@@ -64,7 +64,7 @@ router.put(
 
 router.put(
     `/${moduleHandle}/:id/retailers`,
-    await RC.interceptRequest(moduleHandle, 'put', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'put', [], async (req, res) => {
         try {
             res.status(200).json(await segmentService.addRetailersToSegment(req));
         } catch (error) {
@@ -75,7 +75,7 @@ router.put(
 
 router.put(
     `/${moduleHandle}/:id`,
-    await RC.interceptRequest(moduleHandle, 'put', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'put', [], async (req, res) => {
         try {
             res.status(200).json(await segmentService.update(req));
         } catch (error) {
@@ -86,7 +86,7 @@ router.put(
 
 router.delete(
     `/${moduleHandle}/:id`,
-    await RC.interceptRequest(moduleHandle, 'delete', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'delete', [], async (req, res) => {
         try {
             res.status(200).json(await segmentService.delete(req));
         } catch (error) {
@@ -97,7 +97,7 @@ router.delete(
 
 router.post(
     `/${moduleHandle}`,
-    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'post', [], async (req, res) => {
         try {
             res.status(200).json(await segmentService.create(req));
         } catch (error) {

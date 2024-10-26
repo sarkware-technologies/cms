@@ -9,7 +9,7 @@ const moduleHandle = "role";
 
 router.get(
     `/${moduleHandle}/:id/privileges`,
-    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
             res.status(200).json(await roleService.loadPrivileges(req));
         } catch (error) {
@@ -20,7 +20,7 @@ router.get(
 
 router.get(
     `/${moduleHandle}/:id/capabilities`,
-    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
             res.status(200).json(await roleService.loadCapabilities(req));
         } catch (error) {
@@ -31,7 +31,7 @@ router.get(
 
 router.get(
     `/${moduleHandle}/:id`,
-    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
             res.status(200).json(await roleService.get(req));
         } catch (error) {
@@ -42,7 +42,7 @@ router.get(
 
 router.get(
     `/${moduleHandle}`,
-    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
             res.status(200).json(await roleService.list(req));
         } catch (error) {
@@ -53,7 +53,7 @@ router.get(
 
 router.put(
     `/${moduleHandle}/:id/capabilities`,
-    await RC.interceptRequest(moduleHandle, 'put', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'put', [], async (req, res) => {
         try {
             res.status(200).json(await roleService.updateCapabilities(req));
         } catch (error) {
@@ -64,7 +64,7 @@ router.put(
 
 router.put(
     `/${moduleHandle}/:id`,
-    await RC.interceptRequest(moduleHandle, 'put', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'put', [], async (req, res) => {
         try {
             res.status(200).json(await roleService.update(req));
         } catch (error) {
@@ -75,7 +75,7 @@ router.put(
 
 router.delete(
     `/${moduleHandle}/:id/privileges`,
-    await RC.interceptRequest(moduleHandle, 'delete', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'delete', [], async (req, res) => {
         try {
             res.status(200).json(await roleService.removePrivilege(req));
         } catch (error) {
@@ -86,7 +86,7 @@ router.delete(
 
 router.delete(
     `/${moduleHandle}/:id`,
-    await RC.interceptRequest(moduleHandle, 'delete', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'delete', [], async (req, res) => {
         try {
             res.status(200).json(await roleService.delete(req));
         } catch (error) {
@@ -97,7 +97,7 @@ router.delete(
 
 router.post(
     `/${moduleHandle}/:id/privileges`,
-    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'post', [], async (req, res) => {
         try {
             res.status(200).json(await roleService.addPrivilege(req));
         } catch (error) {
@@ -108,7 +108,7 @@ router.post(
 
 router.post(
     `/${moduleHandle}`,
-    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'post', [], async (req, res) => {
         try {
             res.status(200).json(await roleService.create(req));
         } catch (error) {

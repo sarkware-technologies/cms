@@ -19,28 +19,28 @@ const processRequest = async (req, res, method) => {
 
 router.get(
     `/${moduleHandle}/*`,
-    await RC.interceptRequest(moduleHandle, 'get', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         await processRequest(req, res, "get");
     })
 );
 
 router.post(
     `/${moduleHandle}/*`,
-    await RC.interceptRequest(moduleHandle, 'post', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'post', [], async (req, res) => {
         await processRequest(req, res, "post");
     })
 );
 
 router.put(
     `/${moduleHandle}/*`,
-    await RC.interceptRequest(moduleHandle, 'put', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'put', [], async (req, res) => {
         await processRequest(req, res, "put");
     })
 );
 
 router.delete(
     `/${moduleHandle}/*`,
-    await RC.interceptRequest(moduleHandle, 'delete', [{ roles: [], privileges: [] }], async (req, res) => {
+    await RC.interceptRequest(moduleHandle, 'delete', [], async (req, res) => {
         await processRequest(req, res, "delete");
     })
 );

@@ -5,6 +5,7 @@ import RoleModel from "../models/role.js";
 import Utils from "../utils/utils.js";
 import PrivilegeModel from "../models/privilege.js";
 import RolePrivilegeMappingModel from "../models/role-privilege-mapping.js";
+import cache from "../utils/cache.js"
 
 export default class RoleService {
 
@@ -210,6 +211,10 @@ export default class RoleService {
     }
 
     updateCapabilities = async (_req) => {
+
+        if (!_req.params.id) {
+            throw new Error("Role id is missing");
+        }
         
         try {
 
@@ -221,6 +226,8 @@ export default class RoleService {
                 delete capabilities[i]._id;
                 await CapabilityModel.findByIdAndUpdate(cId, { $set: { ...capabilities[i], updatedBy: _req.user._id } }, { runValidators: true, new: false });                               
             }
+
+            cache.setCapability(_req.params.id);
 
             return {status: true};
 
@@ -364,6 +371,8 @@ export default class RoleService {
                 role: _req.params.id,
             }).lean();
             const allPrivileges = await PrivilegeModel.find({}).lean();
+
+            await cache.setPrivilege(_req.params.id);
         
             return {
                 privileges: allPrivileges,
@@ -395,6 +404,8 @@ export default class RoleService {
                 role: _req.params.id,
             }).lean();
             const allPrivileges = await PrivilegeModel.find({}).lean();
+
+            await cache.setPrivilege(_req.params.id);
     
             return {
                 privileges: allPrivileges,

@@ -270,7 +270,7 @@ export default class ServiceService {
             let host = {},
                 _hosts = {},
                 _versions = {},
-                _features = [];
+                _modules = [];
     
             const routes = {
                 hosts: {},
@@ -290,19 +290,19 @@ export default class ServiceService {
 
                 routes.services[_services[i].handle] = {
                     service: _services[i],
-                    features: {},
+                    modules: {},
                     versions: {},
                 };
     
-                _features = await ModuleModel.find({ service: _services[i]._id });            
+                _modules = await ModuleModel.find({ service: _services[i]._id });            
                 _versions = await ServiceVersionModel.find({ service: _services[i]._id });
     
                 for (let j = 0; j < _versions.length; j++) {
                     routes.services[_services[i].handle].versions[_versions[j].route] = _versions[j];
                 }
     
-                for (let j = 0; j < _features.length; j++) {
-                    routes.services[_services[i].handle].features[_features[j].handle] = _features[j];
+                for (let j = 0; j < _modules.length; j++) {
+                    routes.services[_services[i].handle].modules[_modules[j].handle] = _modules[j];
                 }
             }
                 

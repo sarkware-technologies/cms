@@ -1,10 +1,14 @@
 import EntityModel from "../models/entity.js";
 import FieldModel from "../models/field.js";
 import Utils from "../utils/utils.js";
+import cache from "../utils/cache.js";
+import EntityService from "./entity.js";
 
 export default class FieldService {
 
-    constructor() {}
+    constructor() {
+        this.entityService = new EntityService();
+    }
 
     get = async (_req) => {
 
@@ -141,7 +145,9 @@ export default class FieldService {
 
             body["createdBy"] = _req.user._id;
             const model = new FieldModel(body);
-            const field = await model.save();  
+            const field = await model.save(); 
+            
+            await this.updateEntityCache(field.entity);
             
             return {
                 status: true,
@@ -196,7 +202,11 @@ export default class FieldService {
         }
 
         try {
-            return await FieldModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
+
+            const field = await FieldModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
+            await this.updateEntityCache(field.entity);
+            return field;
+
         } catch (_e) {
             throw _e;
         }
@@ -209,8 +219,29 @@ export default class FieldService {
             throw new Error("Field id is missing");
         }
 
-        try {            
-            return await FieldModel.deleteOne({ _id: _req.params.id });
+        try {                        
+            const field = await FieldModel.findById(_req.params.id).lean();
+            const res = await FieldModel.deleteOne({ _id: _req.params.id });
+            if (field) {
+                this.updateEntityCache(field.entity);
+            }
+            return res;
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+
+    updateEntityCache = async (_entityId) => {
+        
+        try {
+
+            const entityObj = await EntityModel.findOne({_id: _entityId}).lean();
+            if (entityObj) {
+                const entityCacheObj = await this.entityService.prepareEntity(_entityId);
+                cache.setEntity(entityObj.handle, entityCacheObj);
+            }
+
         } catch (_e) {
             throw _e;
         }

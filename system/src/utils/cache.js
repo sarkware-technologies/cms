@@ -2,8 +2,8 @@ import RedisClient from "./redis.js";
 import ServiceService from "../services/service.js";
 import EntityService from "../services/entity.js";
 import CapabilityModel from "../models/capability.js";
-import MenuModel from "../models/menu.js";
 import RoleModel from "../models/role.js";
+import RolePrivilegeMappingModel from "../models/role-privilege-mapping.js";
 
 /**
  * 
@@ -36,6 +36,7 @@ class Cache {
             await this.setEntities();  
             await this.setRoutes();
             await this.setCapabilities();
+            await this.setPrivileges();
 
             return true;
 
@@ -46,7 +47,9 @@ class Cache {
     };    
 
     setCapabilities = async () => {
+
         try {
+
             const roles = await RoleModel.find().lean();
     
             if (Array.isArray(roles)) {
@@ -59,11 +62,12 @@ class Cache {
                             
                             const redisPromises = capabilities.map(async (capability) => {
                                 const roleCaps = {
-                                    read: capability.can_read,
-                                    create: capability.can_create,
+                                    get: capability.can_read,
+                                    post: capability.can_create,
                                     delete: capability.can_delete,
-                                    update: capability.can_update
+                                    put: capability.can_update
                                 };
+
                                 try {
                                     return await this.redisClient.put(
                                         "pharmarack_cms_caps",
@@ -83,6 +87,7 @@ class Cache {
         } catch (e) {
             console.error("Critical error. Setting up capabilities cache failed", e);
         }
+
     };
 
     setCapability = async (_roleId) => {
@@ -92,11 +97,12 @@ class Cache {
             
             if (Array.isArray(capabilities)) {
                 const redisPromises = capabilities.map(async (capability) => {
+
                     const roleCaps = {
-                        read: capability.can_read,
-                        create: capability.can_create,
+                        get: capability.can_read,
+                        post: capability.can_create,
                         delete: capability.can_delete,
-                        update: capability.can_update
+                        put: capability.can_update
                     };
                     
                     try {
@@ -108,6 +114,7 @@ class Cache {
                     } catch (e) {
                         console.error("Error storing capability in Redis:", e);
                     }
+
                 });
     
                 await Promise.all(redisPromises);
@@ -119,12 +126,87 @@ class Cache {
         
     };
     
+    getCapabilities = async (_handle) => {
 
-    setPrivileges = async () => {
+        try {
+            return await this.redisClient.get("pharmarack_cms_caps", _handle);            
+        } catch (e) {  console.log(e);
+            return null;
+        }
 
     };
 
-    setPrivilege = async (_key, _value) => {
+    setPrivileges = async () => {
+
+        try {
+
+            const roles = await RoleModel.find().lean();
+    
+            if (Array.isArray(roles)) {
+                await Promise.all(
+                    roles.map(async (_role) => {
+
+                        const privileges = await RolePrivilegeMappingModel.find({ role: _role._id }).populate("privilege").lean().exec();
+                        if (Array.isArray(privileges)) {
+
+                            try {
+                                const rolePrivileges = privileges.map((_priv) => _priv.privilege.handle);   
+
+                                return await this.redisClient.put(
+                                    "pharmarack_cms_prevs",
+                                    `${_role._id}_privileges`,
+                                    JSON.stringify(rolePrivileges)
+                                );
+                            } catch (e) {
+
+                            }
+
+                        }
+
+                    })
+                )
+            }
+            
+        } catch (e) {
+            console.log(e);
+        }
+
+    };
+
+    setPrivilege = async (_roleId) => {
+        
+        try {
+
+            const privileges = await RolePrivilegeMappingModel.find({ role: _roleId }).populate("privilege").lean().exec();
+            if (Array.isArray(privileges)) {
+
+                try {
+                    const rolePrivileges = privileges.map((_priv) => _priv.privilege.handle);
+
+                    return await this.redisClient.put(
+                        "pharmarack_cms_prevs",
+                        `${_roleId}_privileges`,
+                        JSON.stringify(rolePrivileges)
+                    );
+                } catch (e) {
+
+                }
+
+            }
+
+        } catch (e) {
+            console.log(e);
+        }
+
+    };
+
+    getPrivileges = async (_handle) => {
+
+        try {
+            return await this.redisClient.get("pharmarack_cms_prevs", _handle);
+        } catch (e) { console.log(e);
+            return null;
+        }
         
     };
 
@@ -133,11 +215,17 @@ class Cache {
         try {
 
             const entities = await this.entity.prepareEntites();
-            const eKeys = Object.keys(entities);
+            const entityKeys = Object.keys(entities);
 
-            for (let i = 0; i < eKeys.length; i++) {
-                await this.redisClient.put("pharmarack_cms_entities", eKeys[i], JSON.stringify(entities[eKeys[i]]));
-            }
+            const redisPromises = entityKeys.map(async (_eKey) => {
+                try {
+                    return await this.redisClient.put("pharmarack_cms_entities", _eKey, JSON.stringify(entities[_eKey]));
+                } catch (e) {
+                    console.log(e);
+                }
+            });
+
+            await Promise.all(redisPromises);
 
         } catch (e) {
             console.log("Critical error. Setting up entity cache is failed", e);            
@@ -145,22 +233,34 @@ class Cache {
 
     };
 
-    setEntity = async (_key, _value) => {
+    setEntity = async (_handle, _entityObj) => {
         
         try {
-            await this.redisClient.put("pharmarack_cms_entities", _key, JSON.stringify(_value));
+            await this.redisClient.put("pharmarack_cms_entities", _handle, JSON.stringify(_entityObj));
         } catch (e) {
             console.log(e);            
         }
 
     }; 
 
-    getEntity = async (_key) => {
-        return await this.redisClient.get("pharmarack_cms_entities", _key);
+    getEntity = async (_handle) => {
+
+        try {
+            return await this.redisClient.get("pharmarack_cms_entities", _handle);
+        } catch (e) {
+            return null;
+        }
+        
     };
 
-    hasEntity = async (_key) => {
-        return await this.redisClient.exists("pharmarack_cms_entities", _key);
+    hasEntity = async (_handle) => {
+
+        try {
+            return await this.redisClient.exists("pharmarack_cms_entities", _handle);
+        } catch (e) {
+            return null;
+        }
+
     };
     
     setRoutes = async () => {
@@ -174,10 +274,17 @@ class Cache {
 
     };
 
+    getRoutes = async () => {
+
+        try {
+            return await this.redisClient.get("pharmarack_cms_routes", "services");
+        } catch (e) {
+            return null;
+        }
+
+    };
+
 }
   
-// Create a single instance of the Cache class
-const cache = new Cache();
-  
-// Export the instance to make it accessible from other modules
+const cache = new Cache();  
 export default cache;
