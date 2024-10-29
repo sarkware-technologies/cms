@@ -64,18 +64,7 @@ export default function EntityContext(_component) {
      * 
      */
     this.beforeViewMount = (_handle, _viewConfig) => {
-
-        if (!_handle) {
-            return _viewConfig;
-        }
-
-        const entity = this.component.currentRecord["entity_grid"];
-        if (!entity) {
-            _viewConfig.sidebar = null;            
-        }
-
         return _viewConfig;
-
     };    
 
     /**

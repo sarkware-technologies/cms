@@ -7,8 +7,7 @@ const LayoutLoader = () => {
 
     let layout = null;
     let layoutConfig = null;
-    const controller = window["_controller"];
-    //const _pathName =  location.pathname.replace(/^\//, '');
+    const controller = window["_controller"];    
     const _pathName =  location.pathname;
 
     if (controller.utils.isAuthenticated()) {
@@ -16,7 +15,8 @@ const LayoutLoader = () => {
             location.href = "/main";
         } else {
             layoutConfig = app_config.routes.unauthorized.find(item => item.layout === "main"); 
-        }           
+        }
+        window._controller.menuConfig = JSON.parse(localStorage.getItem("pharmarack_cms_menus"));
     } else {
 
         if (location.pathname === "" || location.pathname === "/") {

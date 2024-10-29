@@ -55,8 +55,8 @@ class ApiManager {
         if (this.actions.indexOf(action) === -1) {
 
             const eventName = ("on_"+ module +"_"+ entity +"_"+ action);
-
             const listeners = this.event.listeners(eventName);
+
             if (listeners.length > 0) {  
 
                 try {
@@ -113,7 +113,7 @@ class ApiManager {
                 }    
             }
 
-        } catch (_e) { 
+        } catch (_e) {  console.log(_e);
             throw _e;
         }
 
@@ -703,8 +703,8 @@ class ApiManager {
         const pathname = parsedUrl.pathname;
         const parts = pathname.split("/").filter((part) => part !== "");
     
-        if (parts && Array.isArray(parts) && parts.length >= 4) {
-          return [parts[2], parts[3], parts[4]];
+        if (parts && Array.isArray(parts) && parts.length >= 5) {
+          return [parts[3], parts[4], parts[5]];
         }
     
         return [null, null, null];

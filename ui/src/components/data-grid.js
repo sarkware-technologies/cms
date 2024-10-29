@@ -896,7 +896,7 @@ const DataGrid = (props, ref) => {
 
     }
 
-    const TableRecords = memo(({ records }) => {
+    const TableRecords = memo(({ records, access }) => {
       
         let widget = null;
 
@@ -908,8 +908,9 @@ const DataGrid = (props, ref) => {
                 let msg = "No record found.!";
                 if (props.config.empty_message) {
                     msg = props.config.empty_message;
-                }        
-                widget = <tbody key={uuidv4()} id="pharmarack-cms-data-grid-record-body"><tr><td colSpan={state.headers.length}><h2 className="pharmarack-cms-data-grid-no-record">{msg}</h2></td></tr></tbody>;
+                }     
+                msg = access ? msg : "Read access forbidden.!";  
+                widget = <tbody key={uuidv4()} id="pharmarack-cms-data-grid-record-body"><tr><td colSpan={state.headers.length}><h2 className={`pharmarack-cms-data-grid-no-record ${ access ? "" : "access-restricted" }`}>{msg}</h2></td></tr></tbody>;
             }        
 
         } else {
@@ -987,6 +988,18 @@ const DataGrid = (props, ref) => {
     });
 
     const fetchRecords = async() => { 
+
+        if (!props.access) {
+            setState((prevState) => ({
+                ...prevState, 
+                progress: false,
+                records: [],
+                totalPages: 0,       
+                recordsPerPage: 0, 
+                currentRecord: {},                     
+            }));
+            return;
+        }
 
         if (contextObj && contextObj.onDatagridRequest) {
             if ((!datasource)) {
@@ -1249,7 +1262,7 @@ const DataGrid = (props, ref) => {
                     handleCheckAllRecord={handleCheckAllRecord}
                     getDataSource={getDataSource} 
                 />
-                <TableRecords records={state.records} />
+                <TableRecords records={state.records} access={props.access} />
                 <TableFooter />                
             </table>           
             <Paginator />     

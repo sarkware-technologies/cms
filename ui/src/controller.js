@@ -72,6 +72,13 @@ export default class Controller extends React.Component {
          * 
          * 
          */
+        this.menuConfig = [];
+
+        /**
+         * 
+         * 
+         * 
+         */
         this.utils = new Utils();
 
         /**
@@ -341,6 +348,28 @@ export default class Controller extends React.Component {
         if (contextObj && contextObj.handleMediaDelete) {
             contextObj.handleMediaDelete(_handle);
         }
+    };
+
+    getModuleCapability = (_handle) => {
+
+        if (Array.isArray(this.menuConfig)) {
+            for (let i = 0; i < this.menuConfig.length; i++) {
+                if (this.menuConfig[i].handle == _handle) {
+                    const capability = this.menuConfig[i].capability;
+                    capability["cancel"] = true;
+                    return capability;
+                }
+            }
+        }
+
+        return {
+            get: true,
+            post: false,
+            delete: false,
+            put: false,
+            cancel: true
+        };
+
     };
 
     notify = (_msg, _type) => {

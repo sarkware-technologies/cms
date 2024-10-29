@@ -1,5 +1,5 @@
 {
-    "name": "pharmarack_system",
+    "name": "pharmarack_segment",
     "version": "1.0.0",
     "description": "",
     "main": "src/server.js",

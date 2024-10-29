@@ -27,6 +27,18 @@ const View = (props, ref) => {
 
     const contextObj = window._controller.getCurrentModuleInstance();
     const config = {...props.config};
+
+    let caps = {
+        get: true,
+        post: false,
+        delete: false,
+        put: false,
+        cancel: true
+    };
+
+    if (config.context) {
+        caps = window._controller.getModuleCapability(config.context);
+    }
     
     const renderView = () => {
 
@@ -168,11 +180,11 @@ const View = (props, ref) => {
             } 
             widget = fields; 
 
-        } else if (_config.type === "datagrid") {            
+        } else if (_config.type === "datagrid") {                        
             
             const gridRef = React.createRef();
-            widget = <DataGrid ref={gridRef} source="records" config={_config.datagrid} />                       
-            window._controller.registerField(_config.datagrid.handle, _config.type, gridRef);   
+            widget = <DataGrid ref={gridRef} source="records" config={_config.datagrid} access={caps["get"]} />                       
+            window._controller.registerField(_config.datagrid.handle, _config.type, gridRef);        
 
         } else if (_config.type === "tab") {
            

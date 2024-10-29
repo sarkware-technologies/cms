@@ -2,6 +2,7 @@ let service_config = {
 
     views: {
         main_view: { 
+            context: "service",
             context_header: {
                 show: true,
                 title: "Services",
@@ -44,6 +45,7 @@ let service_config = {
                                             width: "5", 
                                             search: false,
                                             filter: false,
+                                            classes: "",
                                             header: {title: "S.No", align: "left"}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                             field: {handle: "#", type: "serial", align: "left", editable: false},
@@ -54,6 +56,7 @@ let service_config = {
                                             width: "85",
                                             search: false,
                                             filter: false,
+                                            classes: "",
                                             header: {title: "Title", align: "left", filterable: false, searchable: true, sortable: false}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                             field: {handle: "title", type: "link", align: "left", editable: false},
@@ -64,6 +67,7 @@ let service_config = {
                                             width: "10", 
                                             search: false,
                                             filter: false,
+                                            classes: "",
                                             header: {title: "Status", align: "right"}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                             field: {handle: "status", type: "toggle", align: "right", label_key: "title", value_key: "_id"},
@@ -83,6 +87,7 @@ let service_config = {
             manage: true             
         },
         service_form: {
+            context: "service",
             context_header: {
                 show: true,
                 title: "Service",
@@ -144,7 +149,8 @@ let service_config = {
                                         version_tab: { 
                                             custom: false,                                                           
                                             icon: "far fa-code-fork",                                            
-                                            title: "Versions",					                                                                                
+                                            title: "Versions",
+                                            context: "service_version",					                                                                                
                                             header: {show: false},                    
                                             content: {
                                                 show: true,
@@ -176,6 +182,9 @@ let service_config = {
                                                                         {
                                                                             show: true, 
                                                                             width: "5", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
                                                                             header: {title: "S.No", align: "center"}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                                                             field: {handle: "#", type: "serial", align: "center"},
@@ -184,6 +193,9 @@ let service_config = {
                                                                         {
                                                                             show: true, 
                                                                             width: "65", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
                                                                             header: {title: "Version", align: "left", filterable: false, searchable: false}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                                                             field: {handle: "version", type: "link", align: "left"},
@@ -192,6 +204,9 @@ let service_config = {
                                                                         {
                                                                             show: true, 
                                                                             width: "15", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
                                                                             header: {title: "Route", align: "left", filterable: false, searchable: false}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                                                             field: {handle: "route", type: "alphanumeric", align: "left"},
@@ -200,6 +215,9 @@ let service_config = {
                                                                         {
                                                                             show: true, 
                                                                             width: "15", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
                                                                             header: {title: "Status", align: "right", filterable: false, searchable: false}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                                                             field: {handle: "status", type: "toggle", align: "right", label_key: "version", value_key: "_id"},
@@ -221,7 +239,8 @@ let service_config = {
                                         module_tab: { 
                                             custom: false,                                                       
                                             icon: "fa fa-folder-gear",
-                                            title: "Modules",					                                                                         
+                                            title: "Modules",
+                                            context: "module",					                                                                         
                                             header: {
                                                 show: false                                            
                                             },                    
@@ -255,6 +274,9 @@ let service_config = {
                                                                         {
                                                                             show: true, 
                                                                             width: "5", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
                                                                             header: {title: "S.No", align: "center"}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                                                             field: {handle: "#", type: "serial", align: "center"},
@@ -263,6 +285,9 @@ let service_config = {
                                                                         {
                                                                             show: true, 
                                                                             width: "65", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
                                                                             header: {title: "Module", align: "left", filterable: false, searchable: false}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                                                             field: {handle: "title", type: "link", align: "left"},
@@ -271,6 +296,9 @@ let service_config = {
                                                                         {
                                                                             show: true, 
                                                                             width: "15", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
                                                                             header: {title: "Route", align: "left", filterable: false, searchable: false}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                                                             field: {handle: "handle", type: "alphanumeric", align: "left"},
@@ -279,6 +307,9 @@ let service_config = {
                                                                         {
                                                                             show: true, 
                                                                             width: "15", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
                                                                             header: {title: "Status", align: "right"}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                                                             field: {handle: "status", type: "toggle", align: "right", label_key: "title", value_key: "_id"},
@@ -300,7 +331,8 @@ let service_config = {
                                         module_form_tab: {  
                                             custom: true,                                                           
                                             icon: "far fa-server",
-                                            title: "Module",					                                            
+                                            title: "Module",
+                                            context: "module",					                                            
                                             header: {
                                                 show: false
                                             },                    
@@ -340,7 +372,8 @@ let service_config = {
                                         version_form_tab: {
                                             custom: true,
                                             icon: "far fa-server",
-                                            title: "Version",					                                            
+                                            title: "Version",
+                                            context: "service_version",					                                            
                                             header: {
                                                 show: false
                                             },                    

@@ -14,6 +14,7 @@ import version from './service-version.js';
 import segment from './segment.js';
 import api from './api.js';
 import privilege from './privilege.js';
+import user from './user.js'
 
 const ping = (_req, _res) => {
     _res.status(200).send("Its working");
@@ -36,5 +37,6 @@ routes.use(version);
 routes.use(segment);
 routes.use(api);
 routes.use(privilege);
+routes.use(user);
 
 export default routes;

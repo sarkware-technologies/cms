@@ -12,6 +12,7 @@ import SegmentType from "../enums/segment-type.js";
 import SegmentRetailerInclusionModel from "../models/segment-retailer-inclusion.js";
 import SegmentRetailerExclusionModel from "../models/segment-retailer-exclusion.js";
 import SegmentRuleModel from "../models/segment-rules.js";
+import SegmentStatus from "../enums/segment-status.js";
 
 export default class SegmentService {
 
@@ -27,6 +28,7 @@ export default class SegmentService {
             const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
             const limit = parseInt(process.env.PAGE_SIZE);
 
+            const result = _req.query.result ? _req.query.result : "";
             const searchFor = _req.query.search ? _req.query.search : "";
             const searchFrom = _req.query.field ? _req.query.field : "";
 
@@ -46,8 +48,24 @@ export default class SegmentService {
                 }
             }
 
-            const _count = await SegmentModel.countDocuments({});
-            _segments = await SegmentModel.find({}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
+            let _count = 0;
+
+            if (result == "dynamic") {
+                _count = await SegmentModel.countDocuments({segmentType: SegmentType.DYNAMIC});
+                _segments = await SegmentModel.find({segmentType: SegmentType.DYNAMIC}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
+            } else if (result == "static") {
+                _count = await SegmentModel.countDocuments({segmentType: SegmentType.STATIC});
+                _segments = await SegmentModel.find({segmentType: SegmentType.STATIC}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
+            } else if (result == "progress") {
+                _count = await SegmentModel.countDocuments({status: SegmentStatus.PROGRESS});
+                _segments = await SegmentModel.find({status: SegmentStatus.PROGRESS}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
+            } else if (result == "disabled") {
+                _count = await SegmentModel.countDocuments({status: SegmentStatus.DISABLED});
+                _segments = await SegmentModel.find({status: SegmentStatus.DISABLED}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
+            } else {
+                _count = await SegmentModel.countDocuments({});
+                _segments = await SegmentModel.find({}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
+            }
             
             return Utils.response(_count, page, _segments);
 
@@ -71,8 +89,25 @@ export default class SegmentService {
 
         try {
 
-            const _count = await SegmentModel.countDocuments({ [_field]: { $regex: new RegExp(_search, 'i') } });
-            const _segments = await SegmentModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            let _count = 0;
+            let _segments = [];
+
+            if (result == "dynamic") {
+                _count = await SegmentModel.countDocuments({ segmentType: SegmentType.DYNAMIC, [_field]: { $regex: new RegExp(_search, 'i') }});
+                _segments = await SegmentModel.find({ segmentType: SegmentType.DYNAMIC, [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
+            } else if (result == "static") {
+                _count = await SegmentModel.countDocuments({ segmentType: SegmentType.STATIC, [_field]: { $regex: new RegExp(_search, 'i') }});
+                _segments = await SegmentModel.find({ segmentType: SegmentType.STATIC, [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
+            } else if (result == "progress") {
+                _count = await SegmentModel.countDocuments({ status: SegmentStatus.PROGRESS, [_field]: { $regex: new RegExp(_search, 'i') }});
+                _segments = await SegmentModel.find({ status: SegmentStatus.PROGRESS, [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
+            } else if (result == "disabled") {
+                _count = await SegmentModel.countDocuments({ status: SegmentStatus.DISABLED, [_field]: { $regex: new RegExp(_search, 'i') } });
+                _segments = await SegmentModel.find({ status: SegmentStatus.DISABLED, [_field]: { $regex: new RegExp(_search, 'i') }}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
+            } else {
+                _count = await SegmentModel.countDocuments({[_field]: { $regex: new RegExp(_search, 'i') }});
+                _segments = await SegmentModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
+            }
 
             return Utils.response(_count, _page, _segments);
 
@@ -557,7 +592,7 @@ export default class SegmentService {
 
     init = async () => {
 
-        AP.event.on('on_segment_segment_multi_select_list', async (_params, callback) => { 
+        AP.event.on('on_segment_segment_multi_select_list', async (_params, callback) => {   console.log("on_segment_segment_multi_select_list is called");
 
             try {
 

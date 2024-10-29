@@ -2,6 +2,7 @@ let segment_config = {
 
     views: {
         main_view: { 
+            context: "segment",
             context_header: {
                 show: true,
                 title: "Segments",
@@ -13,93 +14,572 @@ let segment_config = {
             },
             content: {
                 show: true,
-                rows: [
+                rows: [                    
                     {
                         seperator: false,
                         columns: [
                             {
                                 title: "",
                                 sub_title: "",
-                                type: "datagrid",
+                                type: "tab",
                                 width: "100%",
                                 layout: "horizontal",
-                                collapsible: false,
-                                datagrid: {
-                                    handle: "segment_grid",        
-                                    layout: "fluid",		
-                                    height: "",
-                                    header: true,
-                                    content: true,
-                                    footer: true,	
-                                    grid_lines: true,								
-                                    multi_select: false,
-                                    full_row_select: false,
-                                    is_main_grid: true,
-                                    empty_message: "No segment configured yet.!",
-                                    datasource: {endpoint: "/system/v1/segment", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/system/v1/segment/"},
-                                    columns: [
-                                        {
-                                            show: true, 
-                                            width: "5", 
-                                            search: false,
-                                            filter: false,
-                                            header: {title: "S.No", align: "left"}, 
-                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "#", type: "serial", align: "left", editable: false},
-                                            prompt: ""
+                                tab: {
+                                    title: "",                        
+                                    handle: "segment_tab",							                                    
+                                    position: "top",                                    
+                                    default_tab: "all_segment_tab",
+                                    tabview: true,
+                                    type: "fluid",		
+                                    width: "100%",  
+                                    items: {
+                                        all_segment_tab: {
+                                            custom: false,
+                                            icon: "fa fa-sitemap",
+                                            title: "All",
+                                            context: "segment",					
+                                            header: {show: false},                    
+                                            content: {
+                                                show: true,
+                                                rows: [
+                                                    {
+                                                        seperator: false,
+                                                        columns: [
+                                                            {
+                                                                title: "",
+                                                                sub_title: "",
+                                                                type: "datagrid",
+                                                                width: "100%",
+                                                                layout: "horizontal",
+                                                                collapsible: false,
+                                                                datagrid: {
+                                                                    handle: "all_segment_grid",        
+                                                                    layout: "fluid",		
+                                                                    height: "",
+                                                                    header: true,
+                                                                    content: true,
+                                                                    footer: true,	
+                                                                    grid_lines: true,								
+                                                                    multi_select: false,
+                                                                    full_row_select: false,
+                                                                    is_main_grid: true,
+                                                                    empty_message: "No segment configured yet.!",
+                                                                    datasource: {endpoint: "/system/v1/segment?result=all", page: 0, populate: false, handler: "dedicated"},
+                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/system/v1/segment/"},
+                                                                    columns: [
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "5", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "S.No", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "25",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Title", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "title", type: "link", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "30",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Description", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "description", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "15", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Created By", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "createdBy", type: "search", align: "left", label_key: "fullName", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "15", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Modified By", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "updatedBy", type: "search", align: "left", label_key: "fullName", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "10", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Status", align: "right"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "status", type: "toggle", align: "right", label_key: "title", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        }                                     
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]                                            
+                                            },
+                                            footer: {
+                                                show: false                                        
+                                            }
                                         },
-                                        {
-                                            show: true, 
-                                            width: "25",
-                                            search: false,
-                                            filter: false,
-                                            header: {title: "Title", align: "left", filterable: false, searchable: true, sortable: false}, 
-                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "title", type: "link", align: "left", editable: false},
-                                            prompt: ""
+                                        dynamic_segment_tab: {
+                                            custom: false,
+                                            icon: "fa fa-gears",
+                                            title: "Dynamic",	
+                                            context: "segment",				
+                                            header: {show: false},                    
+                                            content: {
+                                                show: true,
+                                                rows: [
+                                                    {
+                                                        seperator: false,
+                                                        columns: [
+                                                            {
+                                                                title: "",
+                                                                sub_title: "",
+                                                                type: "datagrid",
+                                                                width: "100%",
+                                                                layout: "horizontal",
+                                                                collapsible: false,
+                                                                datagrid: {
+                                                                    handle: "dynamic_segment_grid",        
+                                                                    layout: "fluid",		
+                                                                    height: "",
+                                                                    header: true,
+                                                                    content: true,
+                                                                    footer: true,	
+                                                                    grid_lines: true,								
+                                                                    multi_select: false,
+                                                                    full_row_select: false,
+                                                                    is_main_grid: true,
+                                                                    empty_message: "No dynamic segment found",
+                                                                    datasource: {endpoint: "/system/v1/segment?result=dynamic", page: 0, populate: false, handler: "dedicated"},
+                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/system/v1/segment/"},
+                                                                    columns: [
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "5", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "S.No", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "25",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Title", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "title", type: "link", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "30",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Description", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "description", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "15", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Created By", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "createdBy", type: "search", align: "left", label_key: "fullName", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "15", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Modified By", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "updatedBy", type: "search", align: "left", label_key: "fullName", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "10", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Status", align: "right"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "status", type: "toggle", align: "right", label_key: "title", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        }                                     
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]                                            
+                                            },
+                                            footer: {
+                                                show: false                                            
+                                            }
                                         },
-                                        {
-                                            show: true, 
-                                            width: "30",
-                                            search: false,
-                                            filter: false,
-                                            header: {title: "Description", align: "left", filterable: false, searchable: false, sortable: false}, 
-                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "description", type: "alphanumeric", align: "left", editable: false},
-                                            prompt: ""
+                                        static_segment_tab: {
+                                            custom: false,
+                                            icon: "fa fa-bolt",
+                                            title: "Static",	
+                                            context: "segment",				
+                                            header: {show: false},                    
+                                            content: {
+                                                show: true,
+                                                rows: [
+                                                    {
+                                                        seperator: false,
+                                                        columns: [
+                                                            {
+                                                                title: "",
+                                                                sub_title: "",
+                                                                type: "datagrid",
+                                                                width: "100%",
+                                                                layout: "horizontal",
+                                                                collapsible: false,
+                                                                datagrid: {
+                                                                    handle: "static_segment_grid",        
+                                                                    layout: "fluid",		
+                                                                    height: "",
+                                                                    header: true,
+                                                                    content: true,
+                                                                    footer: true,	
+                                                                    grid_lines: true,								
+                                                                    multi_select: false,
+                                                                    full_row_select: false,
+                                                                    is_main_grid: true,
+                                                                    empty_message: "No static segment found",
+                                                                    datasource: {endpoint: "/system/v1/segment?result=static", page: 0, populate: false, handler: "dedicated"},
+                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/system/v1/segment/"},
+                                                                    columns: [
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "5", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "S.No", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "25",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Title", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "title", type: "link", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "30",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Description", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "description", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "15", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Created By", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "createdBy", type: "search", align: "left", label_key: "fullName", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "15", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Modified By", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "updatedBy", type: "search", align: "left", label_key: "fullName", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "10", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Status", align: "right"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "status", type: "toggle", align: "right", label_key: "title", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        }                                     
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]                                            
+                                            },
+                                            footer: {
+                                                show: false                                            
+                                            }
                                         },
-                                        {
-                                            show: true, 
-                                            width: "15", 
-                                            search: false,
-                                            filter: false,
-                                            header: {title: "Created By", align: "left"}, 
-                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "createdBy", type: "search", align: "left", label_key: "fullName", value_key: "_id"},
-                                            prompt: ""
+                                        in_progress_segment_tab: {
+                                            custom: false,
+                                            icon: "fa fa-loader",
+                                            title: "Scheduled",	
+                                            context: "segment",				
+                                            header: {show: false},                    
+                                            content: {
+                                                show: true,
+                                                rows: [
+                                                    {
+                                                        seperator: false,
+                                                        columns: [
+                                                            {
+                                                                title: "",
+                                                                sub_title: "",
+                                                                type: "datagrid",
+                                                                width: "100%",
+                                                                layout: "horizontal",
+                                                                collapsible: false,
+                                                                datagrid: {
+                                                                    handle: "progress_segment_grid",        
+                                                                    layout: "fluid",		
+                                                                    height: "",
+                                                                    header: true,
+                                                                    content: true,
+                                                                    footer: true,	
+                                                                    grid_lines: true,								
+                                                                    multi_select: false,
+                                                                    full_row_select: false,
+                                                                    is_main_grid: true,
+                                                                    empty_message: "No in progress segment found",
+                                                                    datasource: {endpoint: "/system/v1/segment?result=scheduled", page: 0, populate: false, handler: "dedicated"},
+                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/system/v1/segment/"},
+                                                                    columns: [
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "5", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "S.No", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "25",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Title", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "title", type: "link", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "40",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Description", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "description", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "15", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Created By", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "createdBy", type: "search", align: "left", label_key: "fullName", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "15", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Modified By", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "updatedBy", type: "search", align: "left", label_key: "fullName", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        }                               
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]                                            
+                                            },
+                                            footer: {
+                                                show: false                                            
+                                            }
                                         },
-                                        {
-                                            show: true, 
-                                            width: "15", 
-                                            search: false,
-                                            filter: false,
-                                            header: {title: "Modified By", align: "left"}, 
-                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "updatedBy", type: "search", align: "left", label_key: "fullName", value_key: "_id"},
-                                            prompt: ""
-                                        },
-                                        {
-                                            show: true, 
-                                            width: "10", 
-                                            search: false,
-                                            filter: false,
-                                            header: {title: "Status", align: "right"}, 
-                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "status", type: "toggle", align: "right", label_key: "title", value_key: "_id"},
-                                            prompt: ""
-                                        }                                     
-                                    ]
+                                        disabled_segment_tab: {
+                                            custom: false,
+                                            icon: "fa fa-ban",
+                                            title: "Disabled",	
+                                            context: "segment",				
+                                            header: {show: false},                    
+                                            content: {
+                                                show: true,
+                                                rows: [
+                                                    {
+                                                        seperator: false,
+                                                        columns: [
+                                                            {
+                                                                title: "",
+                                                                sub_title: "",
+                                                                type: "datagrid",
+                                                                width: "100%",
+                                                                layout: "horizontal",
+                                                                collapsible: false,
+                                                                datagrid: {
+                                                                    handle: "disabled_segment_grid",        
+                                                                    layout: "fluid",		
+                                                                    height: "",
+                                                                    header: true,
+                                                                    content: true,
+                                                                    footer: true,	
+                                                                    grid_lines: true,								
+                                                                    multi_select: false,
+                                                                    full_row_select: false,
+                                                                    is_main_grid: true,
+                                                                    empty_message: "No disabled segment found.!",
+                                                                    datasource: {endpoint: "/system/v1/segment?result=disabled", page: 0, populate: false, handler: "dedicated"},
+                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/system/v1/segment/"},
+                                                                    columns: [
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "5", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "S.No", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "25",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Title", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "title", type: "link", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "30",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Description", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "description", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "15", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Created By", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "createdBy", type: "search", align: "left", label_key: "fullName", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "15", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Modified By", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "updatedBy", type: "search", align: "left", label_key: "fullName", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "10", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Status", align: "right"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "status", type: "toggle", align: "right", label_key: "title", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        }                                     
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]                                            
+                                            },
+                                            footer: {
+                                                show: false                                            
+                                            }
+                                        }
+        
+                                    }
+        
                                 }
                             }
                         ]
@@ -113,6 +593,7 @@ let segment_config = {
             manage: true             
         },
         new_segment_form: {
+            context: "segment",
             context_header: {
                 show: true,
                 title: "Segment",
@@ -177,7 +658,8 @@ let segment_config = {
                                                         dynamic_segment_tab: { 
                                                             custom: true,                                                           
                                                             icon: "",                                            
-                                                            title: "Dynamic",					                                                                                
+                                                            title: "Dynamic",	
+                                                            context: "segment",				                                                                                
                                                             header: {show: false},                    
                                                             content: {
                                                                 show: true,
@@ -397,7 +879,8 @@ let segment_config = {
                                                         static_segment_tab: { 
                                                             custom: false,                                                       
                                                             icon: "",
-                                                            title: "Static",					                                                                         
+                                                            title: "Static",	
+                                                            context: "segment",				                                                                         
                                                             header: {
                                                                 show: false                                            
                                                             },                    
@@ -500,6 +983,7 @@ let segment_config = {
             manage: false 
         },
         segment_form: {
+            context: "segment",
             context_header: {
                 show: true,
                 title: "Segment",
@@ -556,6 +1040,7 @@ let segment_config = {
             manage: true
         },
         segment_retaler_form: {
+            context: "segment",
             context_header: {
                 show: false                
             },           
@@ -714,7 +1199,12 @@ let segment_config = {
             manage: false
         }
     },
-    enums: {}
+    enums: {
+        segmentStatus: {
+            1: "ready",
+            2: "In Progress"
+        }
+    }
 
 };
 

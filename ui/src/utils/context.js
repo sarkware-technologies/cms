@@ -58,14 +58,18 @@ const ContextWrapper = (props, ref) => {
         
         /* Holds the configuration from the corresponding module's configuration file */
         config: null,
+
         /* Reference for this module state object - so that Usercomponent can have access to it */
         getState: () => stateRef.current,
+
         /* Reference for state setter method - so that Usercomponent can have access to it */
         setState: setState,
+
         /* Reference for field's reference object - so that Usercomponent can have access to it */
         fields: fields,        
         /* */
         mainGrid: "",
+
         /* Reference to the current working record - (happens when user click on any records in the datagrids) */
         currentRecord: {},
 
@@ -74,6 +78,8 @@ const ContextWrapper = (props, ref) => {
         currentGrid: null,
 
         viewMode: "archive",
+
+        capability: null,
         
         /**
          * 
@@ -212,8 +218,9 @@ const ContextWrapper = (props, ref) => {
                 Object.setPrototypeOf(self, new _module.default(self));
                 props.registerInstance(context);
 
-            } catch (_e) {
-                console.error(_e);
+                self.capability = window._controller.getModuleCapability(context);
+
+            } catch (_e) {                
                 return;
             }
 

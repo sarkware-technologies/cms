@@ -10,6 +10,15 @@ class RequestInterceptor {
             return RequestInterceptor.instance; // Return the existing instance if it exists
         }
 
+        this.whiteListUrls = [
+                "/health",
+                "/system/v1/register",
+                "/system/v1/auth/sign-in",
+                "/system/v1/auth/select-role",                
+                "/system/v1/register/user-types",
+                "/system/v1/auth/send-forgot-password-token"
+        ]
+
         this.express = null;
         this.tokenManager = new TokenManager();
         RequestInterceptor.instance = this;
@@ -21,11 +30,9 @@ class RequestInterceptor {
         this.express = _express;
 
         /* Error handler */
-
         this.express.use((_err, _req, _res, _next) => {
             if (!_err) return _next();
-            
-            console.error('Error:', _err); // Log the error for debugging
+            console.error('Error:', _err);
             _res.status(500).json({ message: 'Internal server error' });
         });
 
@@ -33,27 +40,14 @@ class RequestInterceptor {
             console.error('Uncaught Exception:', err);        
         });
 
-        
-
-        this.express.use(async (_req, _res, _next) => { 
+        this.express.use(async (_req, _res, _next) => {  console.log(_req.path);
 
             /* Public route handler */
-
-            const publicPaths = [
-                "/health",
-                "/system/v1/auth/sign-in",
-                "/system/v1/auth/select-role",
-                "/system/v1/register",
-                "/system/v1/register/user-types",
-                "/system/v1/auth/send-forgot-password-token"
-            ];
-
-            if (publicPaths.includes(_req.path)) {
-                return _next(); // Skip authorization for public paths
+            if (this.whiteListUrls.includes(_req.path) || (_req.method == "POST" && _req.path == "/system/v1/register")) {
+                return _next();
             }
 
-            /* For private routes */
-            
+            /* For private routes */            
             const authHeader = _req.headers["authorization"];
 
             if (!authHeader) {
@@ -124,13 +118,13 @@ class RequestInterceptor {
 
     };
 
-    checkPermissions = async (_privileges, _method, _req, _res) => {  console.log(_privileges, _method);
+    checkPermissions = async (_privileges, _method, _req, _res) => {  console.log(_req.originalUrl);
 
-        if (_privileges.length == 1 && _privileges[0] == "*") {
+        if (this.whiteListUrls.includes(_req.originalUrl) || (_privileges.length == 1 && _privileges[0] == "*")) {
             return true;
         }
 
-        if (!_req.user) {
+        if (!_req.user) {   
             return false;
         }
 
@@ -138,12 +132,12 @@ class RequestInterceptor {
             return false;
         }
 
-        const sourceUrl = `${_req.protocol}://${_req.get("host")}${_req.originalUrl}`;
-        const [_service, _version, _module] = this.getUrlPathParts(sourceUrl);   
+        const sourceUrl = `${_req.protocol}://${_req.get("host")}${_req.originalUrl}`;  console.log(sourceUrl);
+        const [_service, _version, _module] = this.getUrlPathParts(sourceUrl);    console.log([_service, _version, _module]);
         
         if (_service && _version && _module) {
 
-            const caps = await cache.getCapabilities(`${_req.user.role}_${_module}`);  
+            const caps = await cache.getCapabilities(`${_req.user.role}_${_module}`);  console.log(caps);
 
             if (caps) {
 
@@ -190,10 +184,8 @@ class RequestInterceptor {
     
         return [null, null, null];
 
-    };
-      
+    };      
 
 }
 
-// Exporting a single instance to enforce singleton behavior
 export default new RequestInterceptor();

@@ -785,6 +785,7 @@ ul.pharmarack-cms-sidebar-main-nav-ul a i,
 
 table.pharmarack-cms-data-table {
     font-size: 16px;
+    table-layout: fixed;
 }
 
 table.pharmarack-cms-data-table thead {
@@ -946,6 +947,10 @@ div.pharmarack-cms-data-table-paginator > a.disable {
 .pharmarack-cms-data-grid-no-record i {
     color: var(--primary-background);
     font-size: 22px;
+}
+
+.pharmarack-cms-data-grid-no-record.access-restricted {
+    color: var(--error-msg-color);
 }
 
 input.pharmarack-cms-search-text {

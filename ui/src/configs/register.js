@@ -1,7 +1,10 @@
+import context from "../utils/context";
+
 let register_config = {
 
     views: {
         main_view: { 
+            context: "register",
             context_header: {
                 show: true,
                 title: "Registers",
@@ -14,336 +17,353 @@ let register_config = {
             content: {
                 show: true,
                 rows: [
-                {                        
-                    seperator: false,
-                    columns: [
-                        {
-                        title: "",
-                        sub_title: "",
-                        type: "tab",
-                        width: "100%",
-                        layout: "horizontal",
-                        tab: {
-                            title: "",                        
-                            handle: "pending_tab",							                                    
-                            position: "top",                                    
-                            default_tab: "pending_tab",
-                            tabview: true,
-                            type: "fluid",		
-                            width: "100%",  
-                            items: {
-                                pending_tab: {
-                                    custom: false,
-                                    icon: "fa fa-hourglass-half",
-                                    title: "Pendings",					
-                                    header: {show: false},                    
-                                    content: {
-                                        show: true,
-                                        rows: [
-                                            {
-                                                seperator: false,
-                                                columns: [
+                    {                        
+                        seperator: false,
+                        columns: [
+                            {
+                                title: "",
+                                sub_title: "",
+                                type: "tab",
+                                width: "100%",
+                                layout: "horizontal",
+                                tab: {
+                                    title: "",                        
+                                    handle: "pending_tab",							                                    
+                                    position: "top",                                    
+                                    default_tab: "pending_tab",
+                                    tabview: true,
+                                    type: "fluid",		
+                                    width: "100%",  
+                                    items: {
+                                        pending_tab: {
+                                            custom: false,
+                                            icon: "fa fa-hourglass-half",
+                                            title: "Pendings",
+                                            context: "register",					
+                                            header: {show: false},                    
+                                            content: {
+                                                show: true,
+                                                rows: [
                                                     {
-                                                        title: "",
-                                                        sub_title: "",
-                                                        type: "datagrid",
-                                                        width: "100%",
-                                                        layout: "horizontal",
-                                                        collapsible: false,
-                                                        datagrid: {
-                                                            handle: "register_pending_grid",        
-                                                            layout: "fluid",		
-                                                            height: "",
-                                                            header: true,
-                                                            content: true,
-                                                            footer: true,	
-                                                            grid_lines: true,								
-                                                            multi_select: false,
-                                                            full_row_select: false,
-                                                            is_main_grid: true,
-                                                            empty_message: "No register submitted yet.!",
-                                                            datasource: {endpoint: "/system/v1/register?populate=true&isApproved=null", page: 0, populate: false, handler: "dedicated"},
-                                                            link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/system/v1/register/"},
-                                                            columns: [
-                                                                {
-                                                                    show: true, 
-                                                                    width: "5", 
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "S.No", align: "left"}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "#", type: "serial", align: "left", editable: false},
-                                                                    prompt: ""
-                                                                },
-                                                                {
-                                                                    show: true, 
-                                                                    width: "22",
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "Full Name", align: "left", filterable: false, searchable: true, sortable: false}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "fullName", type: "link", align: "left", editable: false},
-                                                                    prompt: ""
-                                                                },
-                                                                {
-                                                                    show: true, 
-                                                                    width: "27",
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "Email Id", align: "left", filterable: false, searchable: false, sortable: false}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "email", type: "alphanumeric", align: "left", editable: false},
-                                                                    prompt: ""
-                                                                },
-                                                                {
-                                                                    show: true, 
-                                                                    width: "16",
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "Mobile", align: "left", filterable: false, searchable: false, sortable: false}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "mobile", type: "alphanumeric", align: "left", editable: false},
-                                                                    prompt: ""
-                                                                },
-                                                                {
-                                                                    show: true, 
-                                                                    width: "10",
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "User Type", align: "left", filterable: false, searchable: false, sortable: false}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "userType", type: "search", label_key: "title", value_key: "_id"},
-                                                                    prompt: ""
-                                                                },
-                                                                {
-                                                                    show: true, 
-                                                                    width: "10",
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "Approve", align: "center", filterable: false, searchable: false, sortable: false}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "", type: "button", label: "Approve", action: "APPROVE", align: "center", icon: "", classes: "icon-left approve-btn"},
-                                                                    prompt: ""
-                                                                },
-                                                                {
-                                                                    show: true, 
-                                                                    width: "10",
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "Reject", align: "center", filterable: false, searchable: false, sortable: false}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "", type: "button", label: "Reject", action: "REJECT", align: "center", icon: "", classes: "icon-left reject-btn"},
-                                                                    prompt: ""
-                                                                }                                    
-                                                            ]
-                                                        }
+                                                        seperator: false,
+                                                        columns: [
+                                                            {
+                                                                title: "",
+                                                                sub_title: "",
+                                                                type: "datagrid",
+                                                                width: "100%",
+                                                                layout: "horizontal",
+                                                                collapsible: false,
+                                                                datagrid: {
+                                                                    handle: "register_pending_grid",        
+                                                                    layout: "fluid",		
+                                                                    height: "",
+                                                                    header: true,
+                                                                    content: true,
+                                                                    footer: true,	
+                                                                    grid_lines: true,								
+                                                                    multi_select: false,
+                                                                    full_row_select: false,
+                                                                    is_main_grid: true,
+                                                                    empty_message: "No register submitted yet.!",
+                                                                    datasource: {endpoint: "/system/v1/register?populate=true&isApproved=null", page: 0, populate: false, handler: "dedicated"},
+                                                                    link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/system/v1/register/"},
+                                                                    columns: [
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "5", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "S.No", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "22",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Full Name", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "fullName", type: "link", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "27",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Email Id", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "email", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "16",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Mobile", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "mobile", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "10",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "User Type", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "userType", type: "search", label_key: "title", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "10",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Approve", align: "center", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "", type: "button", label: "Approve", action: "APPROVE", align: "center", icon: "", classes: "icon-left approve-btn"},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "10",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Reject", align: "center", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "", type: "button", label: "Reject", action: "REJECT", align: "center", icon: "", classes: "icon-left reject-btn"},
+                                                                            prompt: ""
+                                                                        }                                    
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
                                                     }
-                                                ]
+                                                ]                                            
+                                            },
+                                            footer: {
+                                                show: false                                        
                                             }
-                                        ]                                            
-                                    },
-                                    footer: {
-                                        show: false                                        
-                                    }
-                                },
-                                approved_tab: {
-                                    custom: false,
-                                    icon: "fa fa-thumbs-up",
-                                    title: "Approved",					
-                                    header: {show: false},                    
-                                    content: {
-                                        show: true,
-                                        rows: [
-                                            {
-                                                seperator: false,
-                                                columns: [
+                                        },
+                                        approved_tab: {
+                                            custom: false,
+                                            icon: "fa fa-thumbs-up",
+                                            title: "Approved",	
+                                            context: "register",				
+                                            header: {show: false},                    
+                                            content: {
+                                                show: true,
+                                                rows: [
                                                     {
-                                                        title: "",
-                                                        sub_title: "",
-                                                        type: "datagrid",
-                                                        width: "100%",
-                                                        layout: "horizontal",
-                                                        collapsible: false,
-                                                        datagrid: {
-                                                            handle: "register_approved_grid",        
-                                                            layout: "fluid",		
-                                                            height: "",
-                                                            header: true,
-                                                            content: true,
-                                                            footer: true,	
-                                                            grid_lines: true,								
-                                                            multi_select: false,
-                                                            full_row_select: false,
-                                                            is_main_grid: true,
-                                                            empty_message: "No approved register yet.!",
-                                                            datasource: {endpoint: "/system/v1/register?populate=true&&isApproved=true", page: 0, populate: false, handler: "dedicated"},
-                                                            link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/system/v1/register/"},
-                                                            columns: [
-                                                                {
-                                                                    show: true, 
-                                                                    width: "5", 
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "S.No", align: "left"}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "#", type: "serial", align: "left", editable: false},
-                                                                    prompt: ""
-                                                                },
-                                                                {
-                                                                    show: true, 
-                                                                    width: "32",
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "Full Name", align: "left", filterable: false, searchable: false, sortable: false}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "fullName", type: "alphanumeric", align: "left", editable: false},
-                                                                    prompt: ""
-                                                                },
-                                                                {
-                                                                    show: true, 
-                                                                    width: "32",
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "Email Id", align: "left", filterable: false, searchable: false, sortable: false}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "email", type: "alphanumeric", align: "left", editable: false},
-                                                                    prompt: ""
-                                                                },
-                                                                {
-                                                                    show: true, 
-                                                                    width: "15",
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "Mobile", align: "left", filterable: false, searchable: false, sortable: false}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "mobile", type: "alphanumeric", align: "left", editable: false},
-                                                                    prompt: ""
-                                                                },
-                                                                {
-                                                                    show: true, 
-                                                                    width: "16",
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "User Type", align: "left", filterable: false, searchable: false, sortable: false}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "userType", type: "search", label_key: "title", value_key: "_id"},
-                                                                    prompt: ""
-                                                                }                                   
-                                                            ]
-                                                        }
+                                                        seperator: false,
+                                                        columns: [
+                                                            {
+                                                                title: "",
+                                                                sub_title: "",
+                                                                type: "datagrid",
+                                                                width: "100%",
+                                                                layout: "horizontal",
+                                                                collapsible: false,
+                                                                datagrid: {
+                                                                    handle: "register_approved_grid",        
+                                                                    layout: "fluid",		
+                                                                    height: "",
+                                                                    header: true,
+                                                                    content: true,
+                                                                    footer: true,	
+                                                                    grid_lines: true,								
+                                                                    multi_select: false,
+                                                                    full_row_select: false,
+                                                                    is_main_grid: true,
+                                                                    empty_message: "No approved register yet.!",
+                                                                    datasource: {endpoint: "/system/v1/register?populate=true&&isApproved=true", page: 0, populate: false, handler: "dedicated"},
+                                                                    link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/system/v1/register/"},
+                                                                    columns: [
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "5", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "S.No", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "32",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Full Name", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "fullName", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "32",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Email Id", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "email", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "15",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Mobile", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "mobile", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "16",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "User Type", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "userType", type: "search", label_key: "title", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        }                                   
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
                                                     }
-                                                ]
+                                                ]                                            
+                                            },
+                                            footer: {
+                                                show: false                                            
                                             }
-                                        ]                                            
-                                    },
-                                    footer: {
-                                        show: false                                            
-                                    }
-                                },
-                                rejected_tab: {
-                                    custom: false,
-                                    icon: "fa fa-thumbs-down",
-                                    title: "Rejected",					
-                                    header: {show: false},                    
-                                    content: {
-                                        show: true,
-                                        rows: [
-                                            {
-                                                seperator: false,
-                                                columns: [
+                                        },
+                                        rejected_tab: {
+                                            custom: false,
+                                            icon: "fa fa-thumbs-down",
+                                            title: "Rejected",	
+                                            context: "register",				
+                                            header: {show: false},                    
+                                            content: {
+                                                show: true,
+                                                rows: [
                                                     {
-                                                        title: "",
-                                                        sub_title: "",
-                                                        type: "datagrid",
-                                                        width: "100%",
-                                                        layout: "horizontal",
-                                                        collapsible: false,
-                                                        datagrid: {
-                                                            handle: "register_rejected_grid",        
-                                                            layout: "fluid",		
-                                                            height: "",
-                                                            header: true,
-                                                            content: true,
-                                                            footer: true,	
-                                                            grid_lines: true,								
-                                                            multi_select: false,
-                                                            full_row_select: false,
-                                                            is_main_grid: true,
-                                                            empty_message: "No rejected register yet.!",
-                                                            datasource: {endpoint: "/system/v1/register?populate=true&&isApproved=false", page: 0, populate: false, handler: "dedicated"},
-                                                            link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/system/v1/register/"},
-                                                            columns: [
-                                                                {
-                                                                    show: true, 
-                                                                    width: "5", 
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "S.No", align: "left"}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "#", type: "serial", align: "left", editable: false},
-                                                                    prompt: ""
-                                                                },
-                                                                {
-                                                                    show: true, 
-                                                                    width: "32",
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "Full Name", align: "left", filterable: false, searchable: false, sortable: false}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "fullName", type: "alphanumeric", align: "left", editable: false},
-                                                                    prompt: ""
-                                                                },
-                                                                {
-                                                                    show: true, 
-                                                                    width: "32",
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "Email Id", align: "left", filterable: false, searchable: false, sortable: false}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "email", type: "alphanumeric", align: "left", editable: false},
-                                                                    prompt: ""
-                                                                },
-                                                                {
-                                                                    show: true, 
-                                                                    width: "15",
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "Mobile", align: "left", filterable: false, searchable: false, sortable: false}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "mobile", type: "alphanumeric", align: "left", editable: false},
-                                                                    prompt: ""
-                                                                },
-                                                                {
-                                                                    show: true, 
-                                                                    width: "16",
-                                                                    search: false,
-                                                                    filter: false,
-                                                                    header: {title: "User Type", align: "left", filterable: false, searchable: false, sortable: false}, 
-                                                                    footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                    field: {handle: "userType", type: "search", label_key: "title", value_key: "_id"},
-                                                                    prompt: ""
-                                                                }                                   
-                                                            ]
-                                                        }
+                                                        seperator: false,
+                                                        columns: [
+                                                            {
+                                                                title: "",
+                                                                sub_title: "",
+                                                                type: "datagrid",
+                                                                width: "100%",
+                                                                layout: "horizontal",
+                                                                collapsible: false,
+                                                                datagrid: {
+                                                                    handle: "register_rejected_grid",        
+                                                                    layout: "fluid",		
+                                                                    height: "",
+                                                                    header: true,
+                                                                    content: true,
+                                                                    footer: true,	
+                                                                    grid_lines: true,								
+                                                                    multi_select: false,
+                                                                    full_row_select: false,
+                                                                    is_main_grid: true,
+                                                                    empty_message: "No rejected register yet.!",
+                                                                    datasource: {endpoint: "/system/v1/register?populate=true&&isApproved=false", page: 0, populate: false, handler: "dedicated"},
+                                                                    link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/system/v1/register/"},
+                                                                    columns: [
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "5", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "S.No", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "32",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Full Name", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "fullName", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "32",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Email Id", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "email", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "15",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Mobile", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "mobile", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "16",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "User Type", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "userType", type: "search", label_key: "title", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        }                                   
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
                                                     }
-                                                ]
+                                                ]                                            
+                                            },
+                                            footer: {
+                                                show: false                                            
                                             }
-                                        ]                                            
-                                    },
-                                    footer: {
-                                        show: false                                            
+                                        }
+
                                     }
+
                                 }
-
                             }
-
-                        }
+                        ]
                     }
-
-                ]
-            }
-
-
 
                 ]
             },
@@ -354,6 +374,7 @@ let register_config = {
             manage: true             
         },
         register_form: {
+            context: "register",
             context_header: {
                 show: true,
                 title: "Register",

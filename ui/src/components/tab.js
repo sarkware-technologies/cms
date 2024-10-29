@@ -27,16 +27,27 @@ const Tab = (props, ref) => {
         config: {...props.config},  
         currentView: null,
         currentViewMode: "archive",
-        lastActive: props.config.default_tab 
+        lastActive: props.config.default_tab,
+        capability: { get: true, post: false, delete: false, put: false } 
     });
     
     const handleTabItemClick = (_currentView) => { 
         if (contextObj && contextObj.beforeTabViewSwitch) {
             if (contextObj.beforeTabViewSwitch(state.config.handle, state.config.currentView, _currentView)) {
-                setState({...state, currentView: _currentView, lastActive: _currentView}); 
+                setState({
+                    ...state, 
+                    currentView: _currentView, 
+                    lastActive: _currentView,
+                    capability: window._controller.getModuleCapability(state.config.items[_currentView].context)
+                }); 
             }                
         } else {
-            setState({...state, currentView: _currentView, lastActive: _currentView}); 
+            setState({
+                ...state, 
+                currentView: _currentView, 
+                lastActive: _currentView,
+                capability: window._controller.getModuleCapability(state.config.items[_currentView].context)
+            }); 
         }         
     };       
 
@@ -45,7 +56,7 @@ const Tab = (props, ref) => {
         let rows = [];
         const sections = [];             
         let tabConfig = state.config.items[state.currentView]; 
-        
+
         /* Render Header Part */
         if (tabConfig.header.show) {            
             sections.push(<Actions key={uuidv4()} config={tabConfig.header} type="header" />);
@@ -113,7 +124,7 @@ const Tab = (props, ref) => {
         } else if (_config.type === "datagrid") {            
             
             let gridRef = React.createRef();
-            widget = <DataGrid ref={gridRef} source="records" config={_config.datagrid} />                       
+            widget = <DataGrid ref={gridRef} source="records" config={_config.datagrid} access={state.capability["get"]} />                       
             window._controller.registerField(_config.datagrid.handle, _config.type, gridRef);   
 
         } else if (_config.type === "rows") {

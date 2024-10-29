@@ -295,10 +295,10 @@ export default class RoleService {
                         delete menu["updatedBy"];
 
                         menu["capability"] = {
-                            read: capabilities[i].can_read,
-                            create: capabilities[i].can_create,
+                            get: capabilities[i].can_read,
+                            post: capabilities[i].can_create,
                             delete: capabilities[i].can_delete,
-                            update: capabilities[i].can_update
+                            put: capabilities[i].can_update
                         }
                         menus.push(menu);
                     }

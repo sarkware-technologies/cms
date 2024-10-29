@@ -3,6 +3,7 @@ import SegmentType from '../enums/segment-type.js';
 import SegmentOrder from '../enums/segment-order.js';
 import SegmentRetailer from '../enums/segment-retailer.js';
 import SegmentDistributor from '../enums/segment-distributor.js';
+import SegmentStatus from '../enums/segment-status.js';
 
 const SegmentSchema = new mongoose.Schema({ 
     title                   : { type: String, required: true },
@@ -20,6 +21,7 @@ const SegmentSchema = new mongoose.Schema({
     distributorStatus       : { type: Number, default: SegmentDistributor.ALL },    
     excludeDistributors     : { type: Array, default: null },
     status                  : { type: Boolean, default: false },
+    segmentStatus           : { type: Number, default: SegmentStatus.DISABLED },
     createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
     updatedBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 },
