@@ -2,9 +2,7 @@ import MYDBM from "./mysql";
 
 class OrderImporter {
 
-    constructor() {
-
-    }
+    constructor() {}
 
     check = async () => {
 

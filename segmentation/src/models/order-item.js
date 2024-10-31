@@ -8,8 +8,7 @@ const OrderItemSchema = new mongoose.Schema({
     brandName               : { type: String, default: null },
     productQty              : { type: Number, default: 0 },
     receivedQty             : { type: Number, default: 0 },
-    ptr                     : { type: Number, default: 0 },
-    mrp                     : { type: Number, default: 0 },
+    ptr                     : { type: Number, default: 0 },    
     orderId                 : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_order", default: null }
 },
 {  

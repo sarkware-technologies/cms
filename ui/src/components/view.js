@@ -27,6 +27,7 @@ const View = (props, ref) => {
 
     const contextObj = window._controller.getCurrentModuleInstance();
     const config = {...props.config};
+    let record = null;
 
     let caps = {
         get: true,
@@ -365,7 +366,10 @@ const View = (props, ref) => {
 
     const self =  {
 
+        getRecord: () => record,
         setFormFields: (_payload) => {
+
+            record = _payload;
 
             if (config.header.show && config.header.rows) {
                 Helper.setFieldValues(_namespace, config.header.rows, _payload);

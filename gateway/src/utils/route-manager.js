@@ -10,7 +10,7 @@ export default class RouterManager {
     initRequestHandler = () => {
 
         this.express.use("/system", async (_req, _res, _next) => {
-    console.log(process.env.SYSTEM_SERVER);
+    
             try {
                 createProxyMiddleware({ target: process.env.SYSTEM_SERVER })( _req, _res, _next );
             } catch (_e) {
@@ -31,7 +31,7 @@ export default class RouterManager {
 
         });  
 
-        this.express.use("/segment", async (_req, _res, _next) => {
+        this.express.use("/segmentation", async (_req, _res, _next) => {
 
             try {
                 createProxyMiddleware({ target: process.env.SEGMENT_SERVER })( _req, _res, _next );

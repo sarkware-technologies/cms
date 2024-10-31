@@ -120,6 +120,16 @@ export default class RoleService {
 
     };
 
+    getAll = async (_req) => {
+
+        try {
+            return await RoleModel.find().lean();
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+
     update = async (_req) => {
 
         if (!_req.params.id) {

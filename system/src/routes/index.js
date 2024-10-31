@@ -11,7 +11,6 @@ import host from './host.js';
 import entity from './entity.js';
 import field from './field.js';
 import version from './service-version.js';
-import segment from './segment.js';
 import api from './api.js';
 import privilege from './privilege.js';
 import user from './user.js'
@@ -34,7 +33,6 @@ routes.use(host);
 routes.use(entity);
 routes.use(field);
 routes.use(version);
-routes.use(segment);
 routes.use(api);
 routes.use(privilege);
 routes.use(user);

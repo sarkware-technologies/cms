@@ -142,7 +142,7 @@ let user_config = {
                                     {
                                         type: "multiselect", 
                                         label: "", 
-                                        handle: "c", 
+                                        handle: "roles", 
                                         value : "", 
                                         parents: {},
                                         placeholder: "Select Roles", 
@@ -162,7 +162,7 @@ let user_config = {
                                         value_key: "_id", 
                                         label_key: "title", 
                                         source: "remote",
-                                        endpoint: "/system/v1/register/user-types"
+                                        endpoint: "/system/v1/role/all"
                                     }
                                 ]
                             }

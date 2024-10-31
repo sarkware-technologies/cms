@@ -8,6 +8,17 @@ const userService = new UserService();
 const moduleHandle = "user";
 
 router.get(
+    `/${moduleHandle}/:id/roles`,
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
+        try {
+            res.status(200).json(await userService.getRoles(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.get(
     `/${moduleHandle}/:id`,
     await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {

@@ -67,11 +67,14 @@ const ContextWrapper = (props, ref) => {
 
         /* Reference for field's reference object - so that Usercomponent can have access to it */
         fields: fields,        
+        
         /* */
         mainGrid: "",
 
         /* Reference to the current working record - (happens when user click on any records in the datagrids) */
         currentRecord: {},
+
+        tab: {},
 
         currentField: null,
 

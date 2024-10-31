@@ -6,7 +6,6 @@ import MYDBM from "../utils/mysql.js";
 
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import multer from 'multer';
-import SegmentModel from "../models/segment.js";
 
 export default class ComponentService {
 
@@ -658,9 +657,7 @@ export default class ComponentService {
 
                 if (_entity) {
 
-                    if (_entity === "segment") {  
-                        callback(await SegmentModel.find().lean(), null);
-                    } else if (_entity === "distributor") {                        
+                    if (_entity === "distributor") {                        
                         callback(await MYDBM.queryWithConditions("select StoreId, StoreName, StoreCode from stores", []), null);
                     } else if (_entity === "company") {
                         //callback(await MYDBM.queryWithConditions("select CompanyId, CompanyName from companies", []), null);

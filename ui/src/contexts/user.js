@@ -27,6 +27,48 @@ export default function UserContext(_component) {
 
     /**
      * 
+     * @param {*} _handle 
+     * 
+     * Called whenever view is mounted on the DOM
+     * 
+     */
+    this.onViewMounted = (_handle) => {        
+
+        if (_handle == "user_form") {
+
+            const user = this.component.currentRecord["user_grid"];
+            if (user) {
+                this.controller.docker.dock({
+                    method: "GET",
+                    endpoint: `/system/v1/user/${user._id}/roles`
+                }).then((response) => {
+                    
+                    if (Array.isArray(response)) {
+
+                        const selectedRoles = [];
+                        for (let i = 0; i < response.length; i++) {
+                            selectedRoles.push(response[i].role);
+                        }
+
+                        const rolesSelector = this.controller.getField("user_form_roles");
+                        if (rolesSelector) {
+                            rolesSelector.setSelectedRecords(selectedRoles);
+                        }
+
+                    }
+
+                })
+                .catch((e) => {
+                    console.log(e);
+                });
+            }
+
+        }
+
+    };
+
+    /**
+     * 
      * @param {*} _action 
      * 
      * This handler called for any ( context specific ) action button click events 
@@ -64,7 +106,7 @@ export default function UserContext(_component) {
         const userForm = this.controller.getField("user_form");
         if (userForm) {
 
-            request["payload"] = userForm.getFormFields();   
+            request["payload"] = userForm.getFormFields();               
 
             if (request["payload"] && Object.keys(request["payload"]).length > 0) {
 

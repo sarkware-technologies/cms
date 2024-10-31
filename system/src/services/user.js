@@ -116,6 +116,20 @@ export default class UserService {
 
     };
 
+    getRoles = async (_req) => {
+
+        if (!_req.params.id) {
+            throw new Error("User id is missing");
+        }
+
+        try {
+            return await UserRoleMappingModel.find({ user: _req.params.id }).lean();
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+
     update = async (_req) => {
 
         if (!_req.params.id) {
@@ -123,6 +137,26 @@ export default class UserService {
         }
 
         try {
+
+            const { roles } = _req.body;
+            delete _req.body["roles"];
+
+            if (roles && Array.isArray(roles)) {
+
+                await UserRoleMappingModel.deleteMany({user: _req.user._id});
+
+                for (let i = 0; i < roles.length; i++) {
+
+                    const roleMapping = new UserRoleMappingModel({
+                        role: roles[i],
+                        user: _req.user._id
+                    });
+                    await roleMapping.save();
+
+                }
+                
+            }
+
             return await UserModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
         } catch (_e) {
             throw _e;

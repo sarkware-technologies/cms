@@ -2,8 +2,6 @@ import ModuleModel from "../models/module.js";
 import EntityModel from "../models/entity.js";
 import EM from "../utils/entity.js";
 import AP from "./api.js";
-import EntityModuleMappingModel from "../models/entity-module.js";
-import { EventEmitter } from 'events';
 
 import Utils from "../utils/utils.js";
 import SegmentModel from "../models/segment.js";

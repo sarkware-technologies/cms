@@ -19,7 +19,7 @@ import Button from "./form/button";
 
 const Tab = (props, ref) => {
  
-    const handle = props.handle;    
+    const handle = props.config.handle;    
     const _namespace = props.config.handle +"_";
     const contextObj = window._controller.getCurrentModuleInstance(); 
 
@@ -32,6 +32,7 @@ const Tab = (props, ref) => {
     });
     
     const handleTabItemClick = (_currentView) => { 
+        contextObj.tabs[handle] = _currentView;  
         if (contextObj && contextObj.beforeTabViewSwitch) {
             if (contextObj.beforeTabViewSwitch(state.config.handle, state.config.currentView, _currentView)) {
                 setState({
@@ -39,7 +40,7 @@ const Tab = (props, ref) => {
                     currentView: _currentView, 
                     lastActive: _currentView,
                     capability: window._controller.getModuleCapability(state.config.items[_currentView].context)
-                }); 
+                });                 
             }                
         } else {
             setState({
@@ -338,7 +339,7 @@ const Tab = (props, ref) => {
             } else {
                 setState({...state, currentView: state.config.default_tab});
             }           
-        },
+        },        
         switchTab: (_view) => {   
             if (state.config.items[_view]) {
                 setState({...state, currentView: _view});
@@ -421,7 +422,8 @@ const Tab = (props, ref) => {
         }
     }, [state]);
     
-    useEffect(() => {
+    useEffect(() => {        
+        contextObj.tab[handle] = state.config.default_tab;
         window._controller.onTabMount(state.config.handle, state.config.default_tab);
     }, []);    
 

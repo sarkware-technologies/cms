@@ -3,9 +3,7 @@ import EntityModel from "../models/entity.js";
 import EM from "../utils/entity.js";
 import EntityModuleMappingModel from "../models/entity-module.js";
 import Utils from "../utils/utils.js";
-import ComponentService from "./component.js";
-import MasterService from "./master.js";
-import PageService from "./page.js";
+import SegmentService from "./segment.js";
 
 import { EventEmitter } from 'events';
 import multer from 'multer';
@@ -23,13 +21,9 @@ class ApiManager {
     }
 
     init = async() => {
-
-        this.pageService = new PageService();
-        this.pageService.init();
-        this.componentService = new ComponentService();
-        this.componentService.init();
-        this.masterService = new MasterService();
-        this.masterService.init();        
+        
+        this.segmentService = new SegmentService();
+        this.segmentService.init();
 
     };
 
