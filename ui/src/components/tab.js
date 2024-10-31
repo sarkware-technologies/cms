@@ -32,7 +32,7 @@ const Tab = (props, ref) => {
     });
     
     const handleTabItemClick = (_currentView) => { 
-        contextObj.tabs[handle] = _currentView;  
+        contextObj.tab[handle] = _currentView;  
         if (contextObj && contextObj.beforeTabViewSwitch) {
             if (contextObj.beforeTabViewSwitch(state.config.handle, state.config.currentView, _currentView)) {
                 setState({

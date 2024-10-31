@@ -565,13 +565,15 @@ export default function SegmentContext(_component) {
 
                     if (dynamicFields) {
                         request["payload"] = dynamicFields;
-                        request["payload"]["segmentType"] = sType;
+                        request["payload"]["segmentType"] = sType;  
+                        request["payload"]["segmentStatus"] = 2;
                     }
 
                 } else {
                     /* It is is static segment */
                     request["payload"] = segmentTab.getFormFields();                                       
                     request["payload"]["segmentType"] = sType;
+                    request["payload"]["segmentStatus"] = 2;
 
                     if (!request["payload"].title) {
                         this.controller.notify("Title is required", "error");

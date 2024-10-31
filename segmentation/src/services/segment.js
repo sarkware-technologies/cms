@@ -55,11 +55,11 @@ export default class SegmentService {
                 _count = await SegmentModel.countDocuments({segmentType: SegmentType.STATIC});
                 _segments = await SegmentModel.find({segmentType: SegmentType.STATIC}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
             } else if (result == "progress") {
-                _count = await SegmentModel.countDocuments({status: SegmentStatus.PROGRESS});
+                _count = await SegmentModel.countDocuments({segmentStatus: SegmentStatus.SCHEDULED});
                 _segments = await SegmentModel.find({status: SegmentStatus.PROGRESS}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
             } else if (result == "disabled") {
-                _count = await SegmentModel.countDocuments({status: SegmentStatus.DISABLED});
-                _segments = await SegmentModel.find({status: SegmentStatus.DISABLED}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
+                _count = await SegmentModel.countDocuments({status: false});
+                _segments = await SegmentModel.find({status: false}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
             } else {
                 _count = await SegmentModel.countDocuments({});
                 _segments = await SegmentModel.find({}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
@@ -88,7 +88,7 @@ export default class SegmentService {
         try {
 
             let _count = 0;
-            let _segments = [];
+            let _segments = [];  console.log("Result : "+ result);
 
             if (result == "dynamic") {
                 _count = await SegmentModel.countDocuments({ segmentType: SegmentType.DYNAMIC, [_field]: { $regex: new RegExp(_search, 'i') }});
@@ -97,9 +97,9 @@ export default class SegmentService {
                 _count = await SegmentModel.countDocuments({ segmentType: SegmentType.STATIC, [_field]: { $regex: new RegExp(_search, 'i') }});
                 _segments = await SegmentModel.find({ segmentType: SegmentType.STATIC, [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
             } else if (result == "progress") {
-                _count = await SegmentModel.countDocuments({ status: SegmentStatus.PROGRESS, [_field]: { $regex: new RegExp(_search, 'i') }});
+                _count = await SegmentModel.countDocuments({ segmentStatus: SegmentStatus.SCHEDULED, [_field]: { $regex: new RegExp(_search, 'i') }});
                 _segments = await SegmentModel.find({ status: SegmentStatus.PROGRESS, [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
-            } else if (result == "disabled") {
+            } else if (result == "disabled") {  console.log("in the disabled block");
                 _count = await SegmentModel.countDocuments({ status: SegmentStatus.DISABLED, [_field]: { $regex: new RegExp(_search, 'i') } });
                 _segments = await SegmentModel.find({ status: SegmentStatus.DISABLED, [_field]: { $regex: new RegExp(_search, 'i') }}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
             } else {
