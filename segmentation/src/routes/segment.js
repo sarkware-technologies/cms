@@ -30,6 +30,28 @@ router.get(
 );
 
 router.get(
+    `/${moduleHandle}/:id/exclusiveRetailers`,
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
+        try {
+            res.status(200).json(await segmentService.listExclusiveRetailers(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.get(
+    `/${moduleHandle}/:id/inclusiveRetailers`,
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
+        try {
+            res.status(200).json(await segmentService.listInclusiveRetailers(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.get(
     `/${moduleHandle}/:id`,
     await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {

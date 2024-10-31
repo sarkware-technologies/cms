@@ -33,29 +33,15 @@ export default function SegmentContext(_component) {
      * Called before making request to server - for datagrid
      * 
      */
-    this.onDatagridRequest = (_handle, _datasource) => {  console.log("onDatagridRequest is called : "+ _handle);
+    this.onDatagridRequest = (_handle, _datasource) => {
 
         let datasource = JSON.parse(JSON.stringify(_datasource));        
 
         if (_handle === "retailer_grid") {
 
-            let _grid = null;
-            const _tab = this.component.tab["segment_tab"];
-
-            if (_tab == "all_segment_tab") {
-                _grid = "all_segment_grid";
-            } else if (_tab == "dynamic_segment_tab") {
-                _grid = "dynamic_segment_grid";
-            } else if (_tab == "static_segment_tab") {
-                _grid = "static_segment_grid";
-            } else if (_tab == "in_progress_segment_tab") {
-                _grid = "progress_segment_grid";
-            } else {
-                _grid = "disabled_segment_grid";
-            }
-
-            if (this.component.currentRecord[_grid]) {               
-                datasource.endpoint = "/segmentation/v1/segment/"+ this.component.currentRecord[_grid]._id +"/retailers"; 
+            const segment = this.getCurrentSegmentRecord();
+            if (segment) {               
+                datasource.endpoint = "/segmentation/v1/segment/"+ segment._id +"/retailers"; 
             }
 
         }
@@ -211,7 +197,7 @@ export default function SegmentContext(_component) {
      */
     this.onMultiSelectRecordLoaded = (_handle) => {
 
-        const record = this.component.currentRecord["segment_grid"];
+        const record = this.getCurrentSegmentRecord();
         if (record) {
 
             if (_handle == "companies") {
@@ -369,7 +355,7 @@ export default function SegmentContext(_component) {
                 const root = createRoot(_holder);
 
                 this.segmentRuleContainer = React.createRef(); 
-                const record = this.component.currentRecord["segment_grid"];
+                const record = this.getCurrentSegmentRecord();
                 if (record) {                
                     root.render(<SegmentRules ref={this.segmentRuleContainer} rules={record.rules} />);
                 } else {
@@ -673,7 +659,7 @@ export default function SegmentContext(_component) {
 
     this.loadSegmentView = () => {
 
-        const record = this.component.currentRecord["segment_grid"];
+        const record = this.getCurrentSegmentRecord();
         if (record) {
 
             const titleField = this.controller.getField("segment_form_tab_title");
@@ -701,11 +687,6 @@ export default function SegmentContext(_component) {
                 geographyField.setVal(record.geography);
             }
 
-            const salesTypeField = this.controller.getField("segment_form_tab_salesType");
-            if (salesTypeField && record.salesType) {
-                salesTypeField.setVal(record.salesType);
-            }
-
             const orderStatusField = this.controller.getField("segment_form_tab_orderStatus");
             if (orderStatusField && record.orderStatus) {
                 orderStatusField.setChoices(record.orderStatus);                
@@ -727,8 +708,7 @@ export default function SegmentContext(_component) {
                 this.segmentPreviewRef.current.setSegmentDescription(record.description);
                 this.segmentPreviewRef.current.setFromDate(record.fromDate);
                 this.segmentPreviewRef.current.setToDate(record.toDate);                
-                this.segmentPreviewRef.current.setGeographyType(record.geography == 1 ? "State" : "Region");
-                this.segmentPreviewRef.current.setSalesType(record.salesType);
+                this.segmentPreviewRef.current.setGeographyType(record.geography == 1 ? "State" : "Region");                
                 this.segmentPreviewRef.current.setRetailerStatus(record.retailerStatus == 1 ? "All" : "Authorized");
                 this.segmentPreviewRef.current.setDistributorStatus(record.distributorStatus == 1 ? "All" : "Authorized");
 
@@ -736,6 +716,25 @@ export default function SegmentContext(_component) {
 
         }
 
+    };
+
+    this.getCurrentSegmentRecord = () => {
+        let _grid = null;
+        const _tab = this.component.tab["segment_tab"];
+
+        if (_tab == "all_segment_tab") {
+            _grid = "all_segment_grid";
+        } else if (_tab == "dynamic_segment_tab") {
+            _grid = "dynamic_segment_grid";
+        } else if (_tab == "static_segment_tab") {
+            _grid = "static_segment_grid";
+        } else if (_tab == "in_progress_segment_tab") {
+            _grid = "progress_segment_grid";
+        } else {
+            _grid = "disabled_segment_grid";
+        }
+
+        return this.component.currentRecord[_grid];
     };
 
 };

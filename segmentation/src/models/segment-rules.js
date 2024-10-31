@@ -1,10 +1,12 @@
 import mongoose from'mongoose';
 import SegmentRuleType from '../enums/segment-rule-type.js';
+import SegmentRuleQtyType from '../enums/segment-rule-qty-type.js';
 
 const SegmentRuleSchema = new mongoose.Schema({ 
     segment                 : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_segment", default: null },
-    mdmProductCode          : { type: String, default: null },
-    ruleType                : { type: Number, default: SegmentRuleType.QUANTITY },
+    ruleType                : { type: Number, default: SegmentRuleType.PRODUCT },
+    target                  : { type: String, default: null },    
+    qtyType                 : { type: Number, default: SegmentRuleQtyType.PRICE },
     from                    : { type: Number, default: -1 },
     to                      : { type: Number, default: -1 },
     createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },

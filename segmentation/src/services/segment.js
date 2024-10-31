@@ -389,6 +389,95 @@ export default class SegmentService {
 
     };
 
+    listInclusiveRetailers = async (_req) => {
+
+        try {
+
+            if (!_req.params.id) {
+                throw new Error("Segment id is missing");
+            }
+
+            const limit = 10;
+            const page = parseInt(_req.query.page) || 1;
+            const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
+            
+            const searchFor = _req.query.search ? _req.query.search : "";
+            const searchFrom = _req.query.field ? _req.query.field : "";
+
+            const filter = _req.query.filter ? _req.query.filter : "";
+            const filterBy = _req.query.filter_by ? _req.query.filter_by : "";
+            const filterType = _req.query.filter_type ? _req.query.filter_type : "";
+
+            if (searchFrom !== "") {
+                return this.retailerSearch(_req, page, skip, limit, searchFrom, searchFor);
+            }
+
+            if (filter !== "") {
+                if (filterType === "seeds") {
+                    return this.retailerGroupSeed(_req, filter);
+                } else {
+                    return this.retailerGroupBy(_req, page, skip, limit, filter, filterBy);
+                }
+            }
+
+            let _retailers = [];                 
+            const segmentRetailers = await SegmentRetailerModel.find({segment: _req.params.id}).select("retailer").lean();
+            // Extract retailer ids into an array
+            const retailerIds = segmentRetailers.map(record => record.retailer);           
+
+            if (retailerIds.length > 0) {
+                const retailerModel = await EM.getModel("retailer");
+                if (retailerModel) {
+                    _retailers = await retailerModel.find({ RetailerId: { $in: retailerIds } }).skip(skip).limit(limit).lean();
+                }                
+            }      
+
+            return Utils.response(retailerIds.length, 1, _retailers);
+
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+
+    listExclusiveRetailers = async (_req) => {
+
+    };
+
+    retailerInclusiveSearch = async (_req, _page, _skip, _limit, _field, _search) => {
+
+        try {
+
+            SegmentRetailerInclusionModel.aggregate([
+                {
+                    $lookup: {
+                        from: 'cms_system_segment_retailer_inclusion',
+                        localField: 'retailer',
+                        foreignField: '_id',
+                        as: 'retailers'
+                    }
+                },
+                { 
+                    $unwind: '$retailers'
+                },
+                {
+                    $match: { 'retailers.RetailerName': _search }
+                },
+                {
+                    $project: {                     
+                        'retailers.RetailerId': 1,   
+                        'retailers.RetailerName': 1,                        
+                        'retailers.MobileNumber': 1
+                    }
+                }
+            ]);
+
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+
     retailerSearch = async (_req, _page, _skip, _limit, _field, _search) => {
 
         try {

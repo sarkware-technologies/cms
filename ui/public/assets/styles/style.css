@@ -3188,8 +3188,9 @@ div.pharmarack-cms-progress-notifier {
     display: inline-block;
 }
 
+.pharmarack-cms-segment-preview-rule-table,
 .pharmarack-cms-segment-preview-section table {
-    width: 100%;
+    width: auto !important;
 }
 
 .pharmarack-cms-segment-preview-section table td {
@@ -3197,16 +3198,32 @@ div.pharmarack-cms-progress-notifier {
 }
 
 .pharmarack-cms-segment-preview-section table td:first-child {
-    width: 30%;
+    width: 40%;
+}
+
+.pharmarack-cms-segment-preview-section table td:nth-child(1) {
+    width: 40%;
 }
 
 .pharmarack-cms-segment-preview-section table td:last-child {
-    width: 70%;
+    width: 20%;
 }
 
 .pharmarack-cms-segment-preview-section table td p {
     max-height: 60px;
     overflow: auto;
+}
+
+table.preview-table {
+    width: 100%;
+}
+
+table.preview-table td:first-child{
+    width: 25%;
+}
+
+table.preview-table td:last-child{
+    width: 75%;
 }
 
 .pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-form-field-wrap.label label {
@@ -3275,8 +3292,7 @@ div.pharmarack-cms-progress-notifier {
     border-radius: 4px;
     padding: 20px 10px;
     font-size: 15px;
-    margin-bottom: 20px;
-    margin-top: -10px;
+    margin-bottom: 20px;    
 }
 
 .pharmarack-cms-segment-rules-container > a {
@@ -3291,13 +3307,31 @@ div.pharmarack-cms-progress-notifier {
 }
 
 .pharmarack-cms-segment-rule-box table {
-    
+    width: 100%;   
 }
 
 .pharmarack-cms-segment-rule-box table td {
     padding: 0px 15px;
     width: 50%;
     vertical-align: bottom;
+}
+
+.pharmarack-cms-segment-rule-box table td label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.pharmarack-cms-segment-rule-box table td.rule-type {
+    width: 30%;
+}
+
+.pharmarack-cms-segment-rule-box table td.target-td,
+.pharmarack-cms-segment-rule-box table td.qty-td {
+    width: 35%;
+}
+
+.pharmarack-cms-segment-rule-box table td.remove-td {
+    width: 5%;
 }
 
 .pharmarack-cms-segment-rule-box table td a {

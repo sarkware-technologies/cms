@@ -1,6 +1,6 @@
-const SegmentRuleType = Object.freeze({
-    QUANTITY    : 1,
-    PRICE       : 2
+const SegmentRuleType = Object.freeze({    
+    PRODUCT         : 1,
+    BRAND           : 2
 });
 
 export default SegmentRuleType;

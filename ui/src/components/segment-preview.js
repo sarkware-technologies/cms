@@ -55,13 +55,14 @@ const SegmentPreview = (props, ref) => {
 
         return segmentRules.map((rule, index) => {
 
-            if (!rule.mdmProductCode) {
+            if (!rule.target) {
                 return null;
             }
 
             return (
                 <tr key={`rules_${(index+1)}`}>
-                    <td><p>{rule.mdmProductCode}</p></td>
+                    <td><p>{rule.ruleType == 1 ? "Product" : "Brand"}</p></td>
+                    <td><p>{rule.target}</p></td>
                     <td><p>{rule.from} - {rule.to}</p></td>
                 </tr>
             );
@@ -86,7 +87,7 @@ const SegmentPreview = (props, ref) => {
                     <p>{fromDate} <span>to</span> {toDate}</p>
                 </div>
                 <div className="pharmarack-cms-segment-preview-section">                    
-                    <table>
+                    <table className="preview-table">
                         <tbody>
                             <tr>
                                 <td>
@@ -102,28 +103,14 @@ const SegmentPreview = (props, ref) => {
                     </table>
                 </div>
                 <div className="pharmarack-cms-segment-preview-section">
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <label>Sales</label>
-                                    <p>{salesType == 1 ? "Product" : "Band"}</p>
-                                </td>
-                                <td>
-                                    <label>Order Status</label>
-                                    <p>{orderStatus}</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>                    
-                </div>
-
-                <div className="pharmarack-cms-segment-preview-section">
                     <table className="pharmarack-cms-segment-preview-rule-table">
                         <tbody>
                             <tr key="rules_0">
                                 <td>
-                                    <label>Product MDM code</label>                                    
+                                    <label>Rule Type</label>                                    
+                                </td>
+                                <td>
+                                    <label>Target</label>                                    
                                 </td>
                                 <td>
                                     <label>Quantity</label>                                    
@@ -133,13 +120,16 @@ const SegmentPreview = (props, ref) => {
                         </tbody>
                     </table>                    
                 </div>
-
+                <div className="pharmarack-cms-segment-preview-section">
+                    <label>Order Status</label>
+                    <p>{orderStatus}</p>
+                </div>
                 <div className="pharmarack-cms-segment-preview-section">
                     <label>Retailers</label>
                     <p>Status : {retailerStatus}</p>
                 </div>
                 <div className="pharmarack-cms-segment-preview-section">
-                    <table>
+                    <table className="preview-table">
                         <tbody>
                             <tr>
                                 <td>

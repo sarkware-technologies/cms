@@ -5,15 +5,16 @@ const SegmentRule = (props, ref) => {
     const contextObj = window._controller.getCurrentModuleInstance();
 
     const [rules, setRules] = useState(('rules' in props) ? props.rules : [{
-        mdmProductCode: "",
+        target: "",
         ruleType: 1,
+        qtyType: 1,
         from: "",
         to: ""
     }]);
 
-    const handleMdmProductCodeChange = (_e, _index) => {
+    const handleTargetChange = (_e, _index) => {
         const _rules = [...rules];
-        _rules[_index].mdmProductCode = _e.target.value;
+        _rules[_index].target = _e.target.value;
         setRules(_rules);
     };
 
@@ -29,9 +30,15 @@ const SegmentRule = (props, ref) => {
         setRules(_rules);
     };
 
-    const handleRuleTypeChange = (_ruleType, _index) => {  
+    const handleRuleTypeChange = (_e, _index) => {  
+        const _rules = [...rules];     
+        _rules[_index].ruleType = _e.target.value;
+        setRules(_rules);
+    };
+
+    const handleQtyTypeChange = (_value, _index) => {
         const _rules = [...rules];
-        _rules[_index].ruleType = _ruleType;
+        _rules[_index].qtyType = _value;
         setRules(_rules);
     };
 
@@ -39,8 +46,9 @@ const SegmentRule = (props, ref) => {
         _e.preventDefault();
         const _rules = [...rules];
         _rules.push({
-            mdmProductCode: "",
+            target: "",
             ruleType: 1,
+            qtyType: 1,
             from: "",
             to: ""
         });
@@ -67,10 +75,11 @@ const SegmentRule = (props, ref) => {
             getRules: () => {
                 const _rules = [];
                 for (let i = 0; i < rules.length; i++) {
-                    if (rules[i].mdmProductCode && rules[i].ruleType && (rules[i].from || rules[i].to)) {
+                    if (rules[i].target && rules[i].ruleType && (rules[i].from || rules[i].to)) {
                         _rules.push({
-                            mdmProductCode: rules[i].mdmProductCode,
+                            target: rules[i].target,
                             ruleType: rules[i].ruleType,
+                            qtyType: rules[i].qtyType,
                             from: rules[i].from ? rules[i].from : -1,
                             to: rules[i].to ? rules[i].to : -1
                         });
@@ -90,21 +99,28 @@ const SegmentRule = (props, ref) => {
                 <table>
                     <tbody>
                         <tr>
-                            <td>
-                                <label>Product MDM Code</label>
-                                <input type="text" value={rule.mdmProductCode} onChange={(e) => handleMdmProductCodeChange(e, index)} />
+                            <td className="rule-type">
+                                <label>Rule Type</label>
+                                <select onChange={(e) => handleRuleTypeChange(e, index)} value={rule.ruleType} >
+                                    <option value="1">Product</option>
+                                    <option value="2">Company</option>
+                                </select>
                             </td>
-                            <td>
+                            <td className="target-td">
+                                <label>{rule.ruleType == 1 ? "MDM Code" : "Company Code"}</label>
+                                <input type="text" value={rule.target} onChange={(e) => handleTargetChange(e, index)} />
+                            </td>
+                            <td className="qty-td">
                                 <div className="pharmarack-cms-segment-rule-type-box">
-                                    <label><input type="radio" name="pharmarack-cms-segment-rule-type" checked={rule.ruleType == 1} onChange={(e) => handleRuleTypeChange(1, index)} /> Quantity</label>
-                                    <label><input type="radio" name="pharmarack-cms-segment-rule-type" checked={rule.ruleType == 2} onChange={(e) => handleRuleTypeChange(2, index)} /> Amount</label>
+                                    <label><input type="radio" name={`pharmarack-cms-segment-qty-type-${index}`} checked={rule.qtyType == 1} onChange={(e) => handleQtyTypeChange(1, index)} /> Quantity</label>
+                                    <label><input type="radio" name={`pharmarack-cms-segment-qty-type-${index}`} checked={rule.qtyType == 2} onChange={(e) => handleQtyTypeChange(2, index)} /> Amount</label>
                                 </div>
                                 <div className="pharmarack-cms-segment-rule-qty-box">
-                                    <input type="number" value={rule.from} onChange={(e) => handleFromChange(e, index)} />
-                                    <input type="number" value={rule.to} onChange={(e) => handleToChange(e, index)} />
+                                    <input type="number" value={rule.from} onChange={(e) => handleFromChange(e, index)} placeholder="From" />
+                                    <input type="number" value={rule.to} onChange={(e) => handleToChange(e, index)} placeholder="To" />
                                 </div>
                             </td>
-                            <td>
+                            <td className="remove-td">
                                 <a href="#" onClick={(e) => handleRemoveRuleBtnClick(e, index)}><i className="fa fa-times"></i></a>
                             </td>
                         </tr>

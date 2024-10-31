@@ -758,24 +758,7 @@ let segment_config = {
                                                                         seperator: false,
                                                                         columns: [
                                                                             {
-                                                                                title: "Sales",
-                                                                                sub_title: "",
-                                                                                type: "fields",
-                                                                                width: "100%",
-                                                                                layout: "horizontal",
-                                                                                classes: "",
-                                                                                fields: [                                                                        
-                                                                                    { type: "radio", label: "", handle: "salesType", value : "1", value_key: "value", label_key: "label", choices: [{label: "Product", value: "1", selected: true, disabled: false},{label: "Brand", value: "2", selected: false, disabled: false}], layout: "horizontal", classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },
-                                                                                    { type: "check", label: "Order Status", handle: "orderStatus", value : "1", value_key: "value", label_key: "label", choice: "multi", choices: [{label: "Placed", value: "1", selected: true, disabled: false},{label: "Processed", value: "2", selected: false, disabled: false},{label: "Uploaded", value: "3", selected: false, disabled: false}], layout: "horizontal", classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },
-                                                                                ]
-                                                                            }                                                                                               
-                                                                        ]
-                                                                    },
-                                                                    {
-                                                                        seperator: false,
-                                                                        columns: [
-                                                                            {
-                                                                                title: "",
+                                                                                title: "Sale Rules",
                                                                                 sub_title: "",
                                                                                 type: "placeholder",
                                                                                 width: "100%",
@@ -784,6 +767,22 @@ let segment_config = {
                                                                                 classes: "",
                                                                                 placeholder: "segment_rules_container"
                                                                             }                       
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        seperator: false,
+                                                                        columns: [
+                                                                            {
+                                                                                title: "Order Status",
+                                                                                sub_title: "",
+                                                                                type: "fields",
+                                                                                width: "100%",
+                                                                                layout: "horizontal",
+                                                                                classes: "",
+                                                                                fields: [                                                                                                                                             
+                                                                                    { type: "check", label: "", handle: "orderStatus", value : "1", value_key: "value", label_key: "label", choice: "multi", choices: [{label: "Placed", value: "1", selected: true, disabled: false},{label: "Processed", value: "2", selected: false, disabled: false},{label: "Uploaded", value: "3", selected: false, disabled: false}], layout: "horizontal", classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },
+                                                                                ]
+                                                                            }                                                                                               
                                                                         ]
                                                                     },
                                                                     {
