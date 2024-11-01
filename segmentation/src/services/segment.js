@@ -518,7 +518,6 @@ export default class SegmentService {
             }
             return _seeds;
         } catch (_e) {
-
             throw _e;
         }
 

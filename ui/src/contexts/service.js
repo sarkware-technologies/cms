@@ -170,10 +170,6 @@ export default function ServiceContext(_component) {
      * 
      */
     this.beforeViewMount = (_handle, _viewConfig) => {
-        
-        if (!_handle) {
-            return _viewConfig;
-        }
 
         if (_handle === "service_form") {
             const service = this.component.currentRecord["service_grid"];  

@@ -6,7 +6,7 @@ let entity_config = {
                 show: true,
                 title: "Entities",
                 breadcrumb: "",
-                actions: [{ label: "New Entity", theme: "primary", action: "NEW_ENTITY", classes: "icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ label: "New Entity", theme: "primary", method: "post", action: "NEW_ENTITY", classes: "icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -102,8 +102,8 @@ let entity_config = {
                 title: "Entity",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", action: "CANCEL_ENTITY", classes: "fields-factory-action-cancel icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Save", theme: "primary", action: "SAVE_ENTITY", classes: "fields-factory-action-save icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_ENTITY", classes: "fields-factory-action-cancel icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Save", theme: "primary", method: "post", action: "SAVE_ENTITY", classes: "fields-factory-action-save icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {

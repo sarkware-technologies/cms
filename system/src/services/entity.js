@@ -62,6 +62,16 @@ export default class EntityService {
 
     };
 
+    listAll = async (_req) => {
+
+        try {
+            return await EntityModel.find().lean();
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+
     search = async (_req, _page, _skip, _limit, _field, _search) => {
 
         try {

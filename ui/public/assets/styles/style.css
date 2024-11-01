@@ -2226,8 +2226,7 @@ table.mapped-entity-list-record-table td {
     padding: 15px 20px;
 }
 
-table.mapped-entity-list-factory-table td > label {
-    font-weight: bold;
+table.mapped-entity-list-factory-table td > label {    
     display: block;
     margin-bottom: 5px;
 }

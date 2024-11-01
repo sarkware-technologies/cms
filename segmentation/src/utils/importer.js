@@ -47,7 +47,24 @@ class OrderImporter {
 
     };
 
-    begin = async () => {
+    doOrderImport = async () => {
+
+        try {
+
+            const orders = await MYDBM.queryWithConditions(this.orderListQuery, []); 
+
+            /* Estimate the batch processing */
+            
+                 
+
+
+        } catch (e) {
+            console.log(e);
+        }
+
+    };
+
+    doRetailerImport = async () => {
 
         try {
 

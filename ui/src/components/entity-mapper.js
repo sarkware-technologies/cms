@@ -19,9 +19,9 @@ const EntityMapper = (props, ref) => {
         handle: "hasform_toggle",
         value: false
     };
-
+console.log(props.entities);
     const [state, setState] = useState({
-        entities: [],
+        entities: props.entities,
         mapped: []
     });
 
@@ -31,19 +31,19 @@ const EntityMapper = (props, ref) => {
     useImperativeHandle(ref, () => self);
 
     const fetchEntities = () => {
+
         const request = {
             method: "GET",
             endpoint: "/system/v1/module/"+ props.record._id +"/entities"
-        };        
+        }; 
         
-        window._controller.dock(request, 
-            (_req, _res) => {                                            
-                setState((prevState) => ({..._res})); 
-            }, 
-            (_req, _res) => {
-                console.error(_req);
-            }
-        );
+        window._controller.docker.dock(request).then((_res) => {
+            setState((prevState) => ({ ...prevState, mapped: _res}));
+        })
+        .catch((e) => {
+            console.error(_req);
+        });
+        
     };
 
     const handleFieldToggleChange = (_e, _property, _record) => {
@@ -132,7 +132,7 @@ const EntityMapper = (props, ref) => {
 
     };
 
-    const renderEntityList = () => {
+    const renderEntityList = () => { console.log("renderEntityList is called");   console.log(state.entities);
 
         const options = [];
 
@@ -213,21 +213,6 @@ const EntityMapper = (props, ref) => {
                         </td>    
                     </tr>  
                 </tbody>              
-            </table>
-
-            <table className="mapped-entity-list-record-table">
-
-                <thead>
-                    <tr>
-                        <th className="sno">S.No</th>
-                        <th className="entity">Entity</th>
-                        <th className="exposed">Exposed</th>
-                        <th className="has_form">Has Form</th>
-                        <th className="action"></th>
-                    </tr>
-                </thead>
-                <tbody>{renderFields()}</tbody>
-
             </table>
 
         </div>

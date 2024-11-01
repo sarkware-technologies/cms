@@ -149,7 +149,108 @@ let module_config = {
             },
             footer: {
                 show: true,
-                rows: []
+                rows: [
+                    {
+                        seperator: false,
+                        columns: [
+                            {
+                                title: "",
+                                sub_title: "",
+                                type: "placeholder",
+                                width: "100%",
+                                layout: "horizontal",
+                                collapsible: false,
+                                classes: "",
+                                placeholder: "entity_mapper_container"
+                            }
+                        ]
+                    },
+                    {
+                        seperator: false,
+                        columns: [
+                            {
+                                title: "",
+                                sub_title: "",
+                                type: "datagrid",
+                                width: "100%",
+                                layout: "horizontal",
+                                collapsible: false,
+                                datagrid: {
+                                    handle: "module_entity_grid",        
+                                    layout: "fluid",		
+                                    height: "",
+                                    header: true,
+                                    content: true,
+                                    footer: true,	
+                                    grid_lines: true,								
+                                    multi_select: false,
+                                    full_row_select: false,
+                                    is_main_grid: true,
+                                    empty_message: "No module configured yet.!",
+                                    datasource: {endpoint: "/system/v1/module/:id/entities", page: 0, populate: false, handler: "dedicated"},
+                                    link: {key: "_id", context: "module", target_type: "view", view: "module_form", data: "remote", endpoint: "/system/v1/module/"},
+                                    columns: [
+                                        {
+                                            show: true, 
+                                            width: "10", 
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "S.No", align: "left"}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "60",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Entity", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "entity", type: "search", label_key: "title", value_key: "_id"},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "10", 
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Exposed", align: "right"}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "exposed", type: "toggle", align: "right", label_key: "title", value_key: "_id"},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "10", 
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Has Form", align: "right"}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "status", type: "toggle", align: "right", label_key: "title", value_key: "_id"},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "10",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "", align: "center", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "", type: "button", label: "", action: "DELETE", align: "center", icon: "fa fa-trash", classes: "reject-btn"},
+                                            prompt: ""
+                                        }                                  
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
             sidebar: null,
             manage: true 

@@ -1,8 +1,15 @@
+import React from "react";
+import { createRoot } from 'react-dom/client';
+import EntityMapper from "../components/entity-mapper";
+
 export default function ServiceContext(_component) {
 
     this.component = _component;
     this.config = this.component.config;
     this.controller = window._controller;
+
+    this.entityMapper = null;
+    this.entities = [];
 
     /**
      * 
@@ -10,8 +17,44 @@ export default function ServiceContext(_component) {
      *
      **/
     this.init = () => {
+
+        this.controller.docker.dock({
+            method: "GET",
+            endpoint: "/system/v1/entity/all"
+        }).then((response) => {  console.log(response);
+            this.entities = response;
+        })
+        .catch((e) => {
+            console.log(e);
+        });
+
         this.controller.switchView("main_view");
+
     };  
+
+    /**
+     * 
+     * @param {*} _handle 
+     * @param {*} _datasource 
+     * @returns 
+     * 
+     * Called before making request to server - for datagrid
+     * 
+     */
+    this.onDatagridRequest = (_handle, _datasource) => {
+
+        let datasource = JSON.parse(JSON.stringify(_datasource));
+        const currentEntity = this.component.currentRecord["module_grid"];
+
+        if (currentEntity) {
+            if (_handle === "module_entity_grid") {                
+                datasource["endpoint"] = "/system/v1/module/"+ currentEntity._id +"/entities";
+            }
+        }
+
+        return datasource;
+
+    };
 
     /**
      * 
@@ -20,7 +63,7 @@ export default function ServiceContext(_component) {
      * Called after the select box component option's loaded (happens only remote config)
      * 
      */
-    this.afterSelectBoxLoaded = (_handle) => {  console.log(_handle);
+    this.afterSelectBoxLoaded = (_handle) => {
 
         if (_handle == "module_form_service") {
             const serviceSelect = this.controller.getField("module_form_service");
@@ -102,8 +145,43 @@ export default function ServiceContext(_component) {
      * 
      */
     this.beforeViewMount = (_handle, _viewConfig) => {
+
+        if (_handle === "module_form") {
+            const currentEntity = this.component.currentRecord["module_grid"];
+            if (currentEntity) {    
+                _viewConfig.footer.show = true;
+            } else {
+                _viewConfig.footer.show = false;
+            }
+        }
+
         return _viewConfig;
+
     };
+
+    /**     
+     * 
+     * @param {*} _handle 
+     * @returns 
+     * 
+     * Called right before a view is mounting
+     * 
+     */
+    this.onViewMounted = (_handle) => {
+
+        if (_handle == "module_form") {
+
+            const record = this.component.currentRecord["module_grid"];
+            if (record) {                            
+                const _holder = document.getElementById('entity_mapper_container');
+                const root = createRoot(_holder);
+                this.entityMapper = React.createRef();             
+                root.render(<EntityMapper record={record} entities={this.entities} ref={this.entityMapper} />);
+            }
+
+        }
+
+    }
 
     /**
      * 

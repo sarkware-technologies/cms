@@ -2,6 +2,8 @@ import CapabilityModel from "../models/capability.js";
 import ModuleModel from "../models/module.js";
 import RoleModel from "../models/role.js";
 import Utils from "../utils/utils.js";
+import EntityModel from "../models/entity.js";
+import EntityModuleMappingModel from "../models/entity-module.js";
 
 export default class ModuleService {
 
@@ -59,6 +61,20 @@ export default class ModuleService {
             return await ModuleModel.find({}).sort({ title: 1 }).lean();
         } catch (e) {
             throw e;
+        }
+
+    };
+
+    listEntities = async (_req) => {
+
+        if (!_req.params.id) {
+            throw new Error("Module id is missing");
+        }
+
+        try {
+            return await EntityModuleMappingModel.find({module: _req.params.id, status: true}).populate("entity").lean().exec();            
+        } catch (_e) {
+            throw _e; 
         }
 
     };
