@@ -1,4 +1,4 @@
-import React, {useState, useEffect, forwardRef, useImperativeHandle, createRef} from "react";
+import React, {useState, useEffect, forwardRef, useImperativeHandle, memo} from "react";
 import { v4 as uuidv4 } from 'uuid';
 import StringFieldConfig from "./string-config";
 import NumberFieldConfig from "./number-config"
@@ -12,9 +12,12 @@ import MixedConfig from "./mixed-config";
 const FieldEditor = (props, ref) => {
 
     const [state, setState] = useState({
-        currentField: null,
-        storage: props.record,
-        fields: []
+        currentField: null,        
+        records: [],
+        currentPage: 1,
+        currentRecord: {},
+        totalPages: 0,       
+        recordsPerPage: 5
     });
 
     const fieldsEnum = {
@@ -68,11 +71,18 @@ const FieldEditor = (props, ref) => {
         
         const request = {
             method: "GET",
-            endpoint: "/system/v1/entity/"+ props.record._id +"/fields"
+            endpoint: "/system/v1/entity/"+ props.record._id +"/fields?page="+ state.currentPage
         };    
         
         window._controller.docker.dock(request).then((_res) => {
-            setState((prevState) => ({...prevState, fields: _res.payload})); 
+            setState((prevState) => ({
+                    ...prevState, 
+                    records: _res.payload,
+                    currentPage: _res.currentPage,                    
+                    totalPages:  _res.totalPages,       
+                    recordsPerPage:  _res.recordPerPage
+                }
+            )); 
         })
         .catch((e) => {
             window._controller.notify("Failed to fetch fields.!", "error");
@@ -160,7 +170,7 @@ const FieldEditor = (props, ref) => {
 
     const handleFieldToggleChange = (_e, _property, _record) => {
 
-        const _fields = state.fields;
+        const _fields = state.records;
         for (let i = 0; i < _fields.length; i++) {
 
             if (_fields[i]._id === _record._id) {
@@ -339,16 +349,93 @@ const FieldEditor = (props, ref) => {
     }
 
     const renderFields = () => {
-        if (state.fields.length > 0) {
-            return state.fields.map((_item, _index) => <RenderField key={uuidv4()} record={_item} sno={(_index + 1)} />);
+        if (state.records.length > 0) {
+            return state.records.map((_item, _index) => <RenderField key={uuidv4()} record={_item} sno={((_index + 1) + ((state.currentPage - 1) * state.recordsPerPage))} />);
         } else {
             return <tr><td colSpan="5" key={uuidv4()} className="pharmarack-cms-fields-empty-msg">Entity has no fields</td></tr>;
         }        
-    }
+    };
+
+    const handlePageClick = (_e, _page) => {
+
+        _e.preventDefault(); 
+        _e.stopPropagation();      
+
+        let _currentPage = state.currentPage;
+
+        if (_page === "PREV") {
+            _currentPage = _currentPage - 1;            
+        } else if (_page === "NEXT") {
+            _currentPage = _currentPage + 1;            
+        } else if (_page === "FIRST") {
+            _currentPage = 1; 
+        } else if (_page === "LAST") {
+            _currentPage = state.totalPages; 
+        } else {
+            _currentPage = _page;            
+        } 
+        
+        setState((prevState) => ({...prevState, currentPage: _currentPage}));            
+        
+    };
+
+    const Paginator = () => {
+        
+        const pages = []; 
+        let disableClass, currentPageClass; 
+        
+        const maxPagesToShow = 11;
+        const halfMaxPagesToShow = Math.floor(maxPagesToShow / 2);
+
+        let startPage = Math.max(state.currentPage - halfMaxPagesToShow, 0);
+        let endPage = Math.min(state.currentPage + halfMaxPagesToShow, state.totalPages);
+
+        if (endPage - startPage + 1 < maxPagesToShow) {
+            if (state.currentPage <= halfMaxPagesToShow) {
+                endPage = maxPagesToShow;
+            } else {
+                if (state.totalPages <= (maxPagesToShow + 1)) {
+                    startPage = 1;
+                } else {
+                    startPage = state.totalPages - maxPagesToShow + 1;
+                }                
+            }
+        }
+
+        if (endPage > state.totalPages) {
+            endPage = state.totalPages;
+        }
+
+        if (state.totalPages && state.totalPages > 1) {
+
+            disableClass = (state.currentPage === 1) ? "disable" : "";        
+            pages.push(<a key="first" href="FIRST" className={disableClass} onClick={(e) => handlePageClick(e, "FIRST")} ><i className="far fa-chevrons-left"></i></a>);
+            pages.push(<a key="prev" href="PREV" className={disableClass} onClick={(e) => handlePageClick(e, "PREV")} ><i className="far fa-chevron-left"></i></a>);
+
+            for (let i = startPage; i < endPage; i++) {
+                currentPageClass = (i === (state.currentPage - 1)) ? "current" : "";
+                pages.push(<a key={i} href={i} className={currentPageClass} onClick={(e) => handlePageClick(e, (i + 1))} >{(i + 1)}</a>);
+            }
+
+            disableClass = (state.currentPage === state.totalPages) ? "disable" : "";        
+            pages.push(<a key="next" href="NEXT" className={disableClass} onClick={(e) => handlePageClick(e, "NEXT")} ><i className="far fa-chevron-right"></i></a>);
+            pages.push(<a key="last" href="LAST" className={disableClass} onClick={(e) => handlePageClick(e, "LAST")} ><i className="far fa-chevrons-right"></i></a>);
+
+            return <div className={`pharmarack-cms-data-table-paginator ${state.progress ? "disabled" : ""}`}>{pages}</div>;
+
+        }
+
+        return null;
+
+    };
 
     useEffect(() => {            
         fetchFields();
     }, []);
+
+    useEffect(() => {            
+        fetchFields();
+    }, [state.currentPage]);
 
     return (
         <div className="pharmarack-cms-field-editor">
@@ -396,8 +483,10 @@ const FieldEditor = (props, ref) => {
                         <th className="status">Status</th>
                     </tr>
                 </thead>
-                <tbody>{renderFields()}</tbody>
+                <tbody>{renderFields()}</tbody>                
             </table>
+
+            <Paginator />
 
         </div>
     );

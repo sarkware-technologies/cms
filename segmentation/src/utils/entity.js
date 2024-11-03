@@ -215,7 +215,7 @@ class EntityManager {
 
     getEntityHandle = async(_id, _collectionName) => {
 
-        const eCahceList = cache.getAll();
+        const eCahceList = cache.getAllEntities();
         if (eCahceList) {
             const keys = Object.keys(eCahceList);
             for (let i = 0; i < keys.length; i++) {

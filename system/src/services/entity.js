@@ -217,12 +217,12 @@ export default class EntityService {
             throw new Error("Entity id is missing");
         }
 
+        const limit = 10;
         let _entity = null;
         let _targetId = null;
         const populate = _req.query.populate ? _req.query.populate : false; 
         const page = parseInt(_req.query.page) || 1;
-        const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
-        const limit = parseInt(process.env.PAGE_SIZE);
+        const skip = (page - 1) * limit;             
 
         try {
 
@@ -258,7 +258,7 @@ export default class EntityService {
                 }
             }
             
-            return Utils.response(_count, page, _fields);            
+            return Utils.response(_count, page, _fields, limit);            
 
         } catch (_e) {
             throw _e; 

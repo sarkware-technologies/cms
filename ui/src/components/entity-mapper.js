@@ -19,7 +19,7 @@ const EntityMapper = (props, ref) => {
         handle: "hasform_toggle",
         value: false
     };
-console.log(props.entities);
+
     const [state, setState] = useState({
         entities: props.entities,
         mapped: []
@@ -85,7 +85,7 @@ console.log(props.entities);
 
     };
 
-    const handleNewFieldClick = () => {
+    const handleNewMappingClick = () => {
 
         if (entitySelect.current && entitySelect.current.value) {
 
@@ -100,16 +100,14 @@ console.log(props.entities);
 
             const entityIndex = entitySelect.current.selectedIndex;
             const entityLabel = entitySelect.current.options[entityIndex].label;
-            
-            window._controller.dock(request, 
-                (_req, _res) => {                    
-                    setState((prevState) => ({...prevState, mapped: _res}));                              
-                    window._controller.notify( entityLabel + " mapped successfully" );                  
-                }, 
-                (_req, _res) => {
-                    this.controller.notify( entityLabel + " failed to map.!", "error" );                                
-                }
-            );
+
+            window._controller.docker.dock(request).then((_res) => {
+                setState((prevState) => ({...prevState, mapped: _res}));                              
+                window._controller.notify( entityLabel + " mapped successfully" ); 
+            })
+            .catch((e) => {
+                window._controller.notify( entityLabel + " failed to map.!", "error" ); 
+            });           
 
         }
 
@@ -209,7 +207,7 @@ console.log(props.entities);
                             <Toggle ref={hasFormToggle} namespace={_namespace} config={hasFormConfig} />
                         </td>    
                         <td className="action">
-                            <button className="pharmarack-cms-btn icon-left primary" onClick={handleNewFieldClick} ><i className="fa fa-link"></i> Map Entity</button>        
+                            <button className="pharmarack-cms-btn icon-left primary" onClick={handleNewMappingClick} ><i className="fa fa-link"></i> Map Entity</button>        
                         </td>    
                     </tr>  
                 </tbody>              

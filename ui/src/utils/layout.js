@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useEffect } from 'react';
 import app_config from '../configs/config';
 import Spinner from '../components/spiner';
 import Notification from '../components/notification';
+import Confirm from '../components/confirm';
 
 const LayoutLoader = () => {
 
@@ -39,17 +40,13 @@ const LayoutLoader = () => {
         layout = 'login';
     }
 
-    let appLayout = React.createRef();
     const LayoutComponent = lazy(() => import(`../layouts/${layout}`));
-
-    useEffect(() => {
-        //window._controller.layout = appLayout;
-    }, []);
 
     return (
         <Suspense fallback={<Spinner />}>
             <LayoutComponent />
             <Notification ref={window._controller.notification} />
+            <Confirm ref={window._controller.confirm} />
         </Suspense>
     );
 

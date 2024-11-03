@@ -9,7 +9,8 @@ const OrderBatchSchema = new mongoose.Schema({
     pendingBatch            : { type: Number, default: 0 },
     startTime               : { type: Date, default: null },
     endTime                 : { type: Date, default: null },
-    status                  : { type: Boolean, default: false }    
+    status                  : { type: String, default: false },
+    task                    : { type: String, default: false }    
 },
 {  
     strict          : true,

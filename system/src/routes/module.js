@@ -52,6 +52,17 @@ router.get(
 );
 
 router.put(
+    `/${moduleHandle}/:id/entities`,
+    await RC.interceptRequest(moduleHandle, 'put', [], async (req, res) => {
+        try {
+            res.status(200).json(await moduleService.updateEntityMapping(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.put(
     `/${moduleHandle}/:id`,
     await RC.interceptRequest(moduleHandle, 'put', [], async (req, res) => {
         try {
@@ -63,10 +74,32 @@ router.put(
 );
 
 router.delete(
+    `/${moduleHandle}/:id/entities`,
+    await RC.interceptRequest(moduleHandle, 'delete', [], async (req, res) => {
+        try {
+            res.status(200).json(await moduleService.deleteEntityMapping(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.delete(
     `/${moduleHandle}/:id`,
     await RC.interceptRequest(moduleHandle, 'delete', [], async (req, res) => {
         try {
             res.status(200).json(await moduleService.delete(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.post(
+    `/${moduleHandle}/:id/entities`,
+    await RC.interceptRequest(moduleHandle, 'post', [], async (req, res) => {
+        try {
+            res.status(200).json(await moduleService.addEntityMapping(req));
         } catch (error) {
             Utils.handleError(error, res);
         }

@@ -63,21 +63,7 @@ export default class ModuleService {
             throw e;
         }
 
-    };
-
-    listEntities = async (_req) => {
-
-        if (!_req.params.id) {
-            throw new Error("Module id is missing");
-        }
-
-        try {
-            return await EntityModuleMappingModel.find({module: _req.params.id, status: true}).populate("entity").lean().exec();            
-        } catch (_e) {
-            throw _e; 
-        }
-
-    };
+    };    
 
     search = async (_req, _page, _skip, _limit, _field, _search) => {
 
@@ -234,6 +220,78 @@ export default class ModuleService {
                 message: e.message || 'An error occurred while creating module'
             };
 
+        }
+
+    };
+
+    listEntities = async (_req) => {
+
+        if (!_req.params.id) {
+            throw new Error("Module id is missing");
+        }
+
+        try {
+            return await EntityModuleMappingModel.find({module: _req.params.id, status: true}).populate("entity").lean().exec();            
+        } catch (_e) {
+            throw _e; 
+        }
+
+    };
+
+    addEntityMapping = async (_req) => {
+
+        if (!_req.params.id) {
+            throw new Error("Module id is missing");
+        }
+
+        try {
+
+            const model = new EntityModuleMappingModel({
+                entity          : _req.body.entity,          
+                module          : _req.params.id,   
+                exposed         : _req.body.exposed, 
+                has_form        : _req.body.has_form,
+                status          : true
+            });
+
+            await model.save();
+
+            return await EntityModuleMappingModel.find({module: _req.params.id, status: true}).populate("entity").lean().exec();
+
+        } catch (_e) {
+            throw _e; 
+        }
+
+    };
+
+    updateEntityMapping = async (_req) => {
+
+        if (!_req.params.id) {
+            throw new Error("Module id is missing");
+        }
+
+        try {
+            await EntityModuleMappingModel.findByIdAndUpdate(_req.query.mapping_id, { $set: { ..._req.body } }, { runValidators: true, new: true });
+            return await EntityModuleMappingModel.find({module: _req.params.id, status: true}).populate("entity").lean().exec();
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+
+    deleteEntityMapping = async (_req) => {
+
+        if (!_req.query.mapping_id) {
+            throw new Error("Mapping id is missing");
+        }
+
+        try {   
+            
+            await EntityModuleMappingModel.deleteMany({ _id: _req.query.mapping_id });
+            return await EntityModuleMappingModel.find({module: _req.params.id, status: true}).populate("entity").lean().exec();
+
+        } catch (_e) {
+            throw _e;
         }
 
     };

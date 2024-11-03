@@ -2,28 +2,32 @@ import React, {useState, forwardRef, useImperativeHandle} from "react";
 
 const Confirm = (props, ref) => {
 
-    let timer = null;
-    let visibility = "";    
-    const [state, setState] = useState({msg: "", type: "info", visible: false});
+    const contextObj = window._controller.getCurrentModuleInstance(); 
+    const [state, setState] = useState({msg: "", task: null, visible: false});
 
     const self = {        
-        probe: (_msg, _type) => { 
-            if (timer) {
-                clearTimeout(timer);
-            }
-            setState({msg: _msg, type: _type, visible: true}); 
-        }
+        show: (_msg, _task) => setState({msg: _msg, task: _task, visible: true}),
+        hide: () => setState({msg: "", visible: false})
     };
 
-    /* Expose the component to the consumer */
     useImperativeHandle(ref, () => self);
 
-    if (state.visible) {
-        visibility = "visible";
-        //timer = setTimeout(() => { setState({...state, visible: false}) }, 3500);
-    }   
+    const handleUserClick = (_choice) => {
+        if (contextObj && contextObj.onUserConfirm) { 
+            contextObj.onUserConfirm(state.task, (_choice == 1 ? false : true));
+        }
+        self.hide();
+    };
 
-    return <div className={`pharmarack-cms-confirm-bar ${state.type} ${visibility}`}>{state.msg}</div>;
+    return (
+        <div className={`pharmarack-cms-confirm-bar ${state.type} ${state.visible ? "visible" : ""}`}>
+           <p>{state.msg}</p>
+           <div className="actions">
+                <button className="pharmarack-cms-btn secondary" onClick={(e) => handleUserClick(1)}>Cancel</button>
+                <button className="pharmarack-cms-btn primary" onClick={(e) => handleUserClick(2)}>Proceed</button>
+           </div>
+        </div>
+    );
 
 }
 

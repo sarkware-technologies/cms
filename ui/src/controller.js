@@ -57,6 +57,13 @@ export default class Controller extends React.Component {
          * 
          * 
          */
+        this.confirm = createRef();
+
+        /**
+         * 
+         * 
+         * 
+         */
         this.layout = createRef();
         
         /**

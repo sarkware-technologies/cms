@@ -7,6 +7,7 @@ import routes from "./routes/index.js"
 import MDBM from "./utils/mongo.js";
 import MYDBM from "./utils/mysql.js";
 import RC from "./utils/request-interceptor.js";
+import OI from "./utils/importer.js";
 
 /**
  * 
@@ -65,7 +66,8 @@ class SegmentServer {
 
     listen = async () => {
 
-        await MDBM.connect();        
+        await MDBM.connect();   
+        await OI.doOrderImport();     
         
         if (MDBM.checkConnection()) {
             this.app.listen(process.env.SYSTEM_PORT);

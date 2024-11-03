@@ -9,46 +9,63 @@ import mongoose from "mongoose";
  *                  After that you don't need to interact with db directly
  *
  */
-class DbManager {
+class MongoManager {
 
     constructor() {
-
-        this.db = null;          
-        this.errorMessage = null;        
-        this.reconnectCount = 0;
-        this.disconnectedCount = 0;
-        this.options = {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        };
-
-    }
-
-    connect = async () => {
-
-        try {
-            await mongoose.connect(process.env.MONGO_HOST, this.options);
-        } catch (error) {
-            console.error('MongoDB connection error:', error.message);
-            return;
+        if (!MongoManager.instance) {
+            MongoManager.instance = this;
+            
+            this.db = null;          
+            this.errorMessages = [];
+            this.reconnectCount = 0;
+            this.disconnectedCount = 0;
+            this.options = {
+                useNewUrlParser: true,
+                useUnifiedTopology: true,
+            };
         }
 
+        return MongoManager.instance;
+    }
+
+    connect = async (retryCount = 5) => {
+
+        let attempts = 0;
+        
+        const connectWithRetry = async () => {
+            try {
+                await mongoose.connect(process.env.MONGO_HOST, this.options);
+            } catch (error) {
+                attempts++;
+                console.error(`MongoDB connection attempt ${attempts} failed:`, error.message);
+                this.errorMessages.push(error.message);
+                if (attempts < retryCount) {
+                    console.log(`Retrying connection in 5 seconds... (${attempts}/${retryCount})`);
+                    setTimeout(connectWithRetry, 5000); // Retry after delay
+                } else {
+                    console.error('MongoDB connection failed after max retries');
+                    return;
+                }
+            }
+        };
+
+        await connectWithRetry();
         this.db = mongoose.connection;
         this.db.on("connected", this.handleConnected);
-        this.db.on("reconnect", this.handleReConnected);
         this.db.on("disconnected", this.handleDisconnected);
         this.db.on("error", this.handleError);
 
         process.on('SIGINT', this.handleExitSignal);
-
     };
 
-    handleError = _err => {
-        console.error('MongoDB connection error: ', _err.message);
+    handleError = (err) => {
+        console.error('MongoDB connection error: ', err.message);
+        this.errorMessages.push(err.message); // Store error for later review
     };
 
     handleConnected = () => {
         console.log('Connected to MongoDB!');
+        this.reconnectCount++;
     };
 
     handleDisconnected = () => {
@@ -56,33 +73,37 @@ class DbManager {
         console.log('MongoDB disconnected!');
     };
 
-    handleReConnected = () => {
-        this.reconnectCount++;
-        console.log('MongoDB reconnected!');
+    handleExitSignal = () => {
+        this.close()
+            .then(() => {
+                console.log('MongoDB connection closed due to app termination');
+                process.exit(0);
+            })
+            .catch((err) => {
+                console.error('Error during MongoDB shutdown:', err);
+                process.exit(1);
+            });
     };
 
-    handleExitSignal = () => {
+    close = async () => {
         if (this.db) {
             try {
-                this.db.close();
-                console.log('MongoDB connection closed due to app termination');
-            } catch (_e) {  
-                console.error(_e);
+                await this.db.close();
+                console.log('MongoDB connection closed');
+            } catch (error) {
+                console.error('Error closing MongoDB connection:', error);
             }
-            
-            process.exit(0);
-        }        
+        }
     };
-    
-    getErrorMesage = () => this.errorMessage;
 
-    checkConnection = () => (this.db.readyState === 1) ? true : false;    
-    
+    getErrorMessages = () => this.errorMessages;
+
+    checkConnection = () => (this.db.readyState === 1);
+
     getReconnectedCount = () => this.reconnectCount;
 
     getDisconnectedCount = () => this.disconnectedCount;
-    
 }
 
-const DBM = new DbManager();
+const DBM = new MongoManager();
 export default DBM;

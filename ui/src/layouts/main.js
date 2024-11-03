@@ -6,16 +6,14 @@ import PageNotfound from './page-not-found';
 
 const System = (props) => {
 
-    let currentModule = React.createRef();
-    let appLayout = React.createRef();
+    let currentModule = React.createRef();    
     const [modules, setModules] = useState([]);
 
     const registerCurrentInstance = (_moduleName) => {
         window._controller.setCurrentModuleInstance(_moduleName, currentModule.current);
     }
 
-    useEffect(() => {
-        window._controller.layout = appLayout;
+    useEffect(() => {       
         try {
             const _modules = JSON.parse(localStorage.getItem("pharmarack_cms_menus"));
             if (_modules && Array.isArray(_modules)) {
@@ -34,7 +32,7 @@ const System = (props) => {
         <BrowserRouter>
             <Routes>
                 {/* Render the AppLayout component */}
-                <Route path="/main" element={<AppLayout ref={appLayout} />}>
+                <Route path="/main" element={<AppLayout ref={window._controller.layout} />}>
                     {/* Dynamically render routes based on modules */}
                     {modules.map((module) => (
                         <Route
