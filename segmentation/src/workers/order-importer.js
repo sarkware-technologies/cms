@@ -7,8 +7,6 @@ async function processBatch(data) {
 
     const { batch, orderIds } = data;
 
-    console.log(`Starting batch ${batch}`);
-
     let orderSuccess = 0;
     let orderItemSuccess = 0;
     let orderFailed = 0;
@@ -212,8 +210,6 @@ async function processBatch(data) {
             console.error("Error during cleanup:", closeError);
         }
         
-        // Explicit exit to ensure worker closes
-        console.log(`Exiting batch ${batch}`);
         process.exit(0);
 
     }

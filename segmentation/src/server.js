@@ -66,13 +66,21 @@ class SegmentServer {
 
     listen = async () => {
 
-        await MDBM.connect();   
-        await OI.doOrderImport();     
-        
-        if (MDBM.checkConnection()) {
-            this.app.listen(process.env.SYSTEM_PORT);
-        } else {
-            console.log("MongoDB connection error");
+        try {
+
+            await MDBM.connect();   
+            await MYDBM.connect(true);
+
+            await OI.start();     
+            
+            if (MDBM.checkConnection()) {
+                this.app.listen(process.env.SYSTEM_PORT);
+            } else {
+                console.log("MongoDB connection error");
+            }
+
+        } catch (e) {
+            console.log(e);
         }
         
     };

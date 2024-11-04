@@ -5,28 +5,24 @@ import EM from "./entity.js";
 class OrderImporter {
 
     constructor() {
+
         if (!OrderImporter.instance) {
             OrderImporter.instance = this;
             this.orderPerBatch = 1000;
-            this.orderIdsLoadBatch = 10000;
+            this.orderIdsLoadBatch = 25000;
             this.orderCountQuery = `select COUNT(o.OrderId) as Count from orders o`;
+            this.orderIdLoadQuery = `SELECT OrderId FROM orders ORDER BY OrderId LIMIT ? OFFSET ?`;
             this.activeWorkers = 0;
             this.batchQueue = [];
-            this.maxThread = 10;
+            this.maxThread = 20;
             this.currentOffset = 0;  // Offset for loading more OrderIds
+            this.loadComplete = false;
+            this.shouldPause = false;
         }
+
         return OrderImporter.instance;
+
     }
-
-    queryDatabase = async (query, params) => {
-        return await MYDBM.queryWithConditions(query, params);
-    };
-
-    handleWorkerRequest = (worker, payload) => {
-        this.queryDatabase(payload.query, payload.params)
-            .then(result => worker.postMessage({ success: true, type: "query", result }))
-            .catch(error => worker.postMessage({ success: false, type: "query", error }));
-    };
 
     startWorker = (batch, orderIds) => {
 
@@ -35,45 +31,63 @@ class OrderImporter {
         const worker = new Worker('./src/utils/order-import-worker.js', {
             workerData: { batch, orderIds }
         });
-    
-        worker.on('message', (payload) => {
-            if (payload.type === "query") {
-                this.handleWorkerRequest(worker, payload);
-            } else if (payload.type === "completed") {
-                this.activeWorkers--;
-                this.startNextWorker();
-            }
-        });
-    
-        worker.on('error', (err) => {
-            console.error(`Worker encountered an error:`, err);
-            this.activeWorkers--;
-            this.startNextWorker();
-        });
-    
-        worker.on('exit', (code) => {
+
+        worker.once('exit', (code) => { 
+
             if (code !== 0) {
                 console.error(`Worker stopped with exit code ${code}`);
             }
-        });
+
+            this.activeWorkers--; 
+            this.startNextWorker();
+
+        }); 
 
     };
 
     startNextWorker = () => {
 
-        if (this.batchQueue.length === 0 || this.activeWorkers >= this.maxThread) return;
+        if (this.shouldPause || this.batchQueue.length === 0 || this.activeWorkers >= this.maxThread) {
+            console.log("Not starting new worker, since the threshold is reachexd");
+             return;
+        }
 
         const { index, oIds } = this.batchQueue.shift();
         this.startWorker(index, oIds);
 
     };
 
-    doOrderImport = async () => {
+    loadOrderIds = async (batchCount) => {
+
+        while (this.currentOffset < batchCount * this.orderPerBatch && !this.shouldPause) {
+
+            const orderIds = await MYDBM.queryWithConditions(
+                this.orderIdLoadQuery,
+                [this.orderIdsLoadBatch, this.currentOffset]
+            );
+            
+            if (orderIds.length === 0) break;
+
+            for (let i = 0; i < orderIds.length; i += this.orderPerBatch) {
+
+                const chunk = orderIds.slice(i, i + this.orderPerBatch).map(row => row.OrderId);
+                this.batchQueue.push({ index: this.currentOffset / this.orderPerBatch + 1, oIds: chunk });
+                this.currentOffset += this.orderPerBatch;
+               
+                if (this.batchQueue.length >= 100) await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+
+        this.loadComplete = true;
+
+    };
+
+    start = async () => {
 
         try {
 
             const orders = await MYDBM.query(this.orderCountQuery);
-    
+
             if (Array.isArray(orders) && orders.length === 1) {
 
                 const orderCount = parseInt(orders[0]["Count"]);
@@ -105,29 +119,33 @@ class OrderImporter {
                 } else {
                     return null;
                 }
-    
-                let currentBatch = orderBatch.completedBatch || 0;
-    
-                for (let i = currentBatch; i < batchCount; i++) {                    
-                    const orderIds = await MYDBM.queryWithConditions(
-                        "SELECT OrderId FROM orders ORDER BY OrderId LIMIT ? OFFSET ?", 
-                        [this.orderPerBatch, i * this.orderPerBatch]
-                    );
-                    this.batchQueue.push({ index: (i+1), oIds: orderIds.map(row => row.OrderId)});
-                }
 
-                for (let i = 0; i < this.maxThread; i++) {
-                    this.startNextWorker();
-                }
-    
-                while (this.activeWorkers > 0 || this.batchQueue.length > 0) {
+                let currentBatch = orderBatch.completedBatch || 0;
+                this.currentOffset = currentBatch * this.orderPerBatch;
+
+                this.loadComplete = false;
+                this.loadOrderIds(batchCount);
+
+                while ((!this.loadComplete || this.batchQueue.length > 0 || this.activeWorkers > 0) && !this.shouldPause) {
+                    while (this.batchQueue.length > 0 && this.activeWorkers < this.maxThread && !this.shouldPause) {
+                        this.startNextWorker();
+                    }
                     await new Promise(resolve => setTimeout(resolve, 1000));
+                }   
+                
+                if (this.shouldPause) {
+                    await batchProgressModel.findByIdAndUpdate(orderBatch._id, {
+                        currentBatch: currentBatch + this.batchQueue.length,
+                        pendingBatch: batchCount - (currentBatch + this.batchQueue.length),
+                        status: false
+                    });
+                } else {
+                    await batchProgressModel.findByIdAndUpdate(orderBatch._id, {
+                        endTime: new Date(),
+                        status: false
+                    });
+                    console.log("All batches processed successfully.");
                 }
-    
-                await batchProgressModel.findByIdAndUpdate(orderBatch._id, {
-                    endTime: new Date(),
-                    status: false
-                });
     
                 console.log("All batches processed successfully.");
             }
@@ -136,8 +154,22 @@ class OrderImporter {
             console.log("Error in doOrderImport:", e);
         }
 
+    }
+
+    stop = async () => {
+
+        console.log("Pausing processing...");
+        this.shouldPause = true;
+
+        /* Wait until all active workers finish processing */
+        while (this.activeWorkers > 0) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+        console.log("All active workers finished. Batch progress has been updated.");
+
     };
-    
+
 }
 
 const OI = new OrderImporter();

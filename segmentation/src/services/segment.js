@@ -11,6 +11,7 @@ import SegmentRetailerInclusionModel from "../models/segment-retailer-inclusion.
 import SegmentRetailerExclusionModel from "../models/segment-retailer-exclusion.js";
 import SegmentRuleModel from "../models/segment-rules.js";
 import SegmentStatus from "../enums/segment-status.js";
+import SegmentGeography from "../enums/segment-geography.js";
 
 export default class SegmentService {
 
@@ -672,6 +673,48 @@ export default class SegmentService {
 
         } catch (_e) {
             throw _e;
+        }
+
+    };
+
+    prepareRetailersForSegment = async (_segmentId) => {
+
+        try {
+
+            const segment = await SegmentModel.findById(_segmentId).lean();
+
+            if (segment) {
+
+                const filterQuery = {};
+
+                if (segment.fromDate) {
+                    filterQuery["orderDate"] = { $gte: new Date(segment.fromDate) };
+                }
+
+                if (segment.toDate) {
+                    filterQuery["orderDate"] = { $lte: new Date(segment.toDate) };
+                }
+
+                if ((segment.geography == SegmentGeography.STATE) && (Array.isArray(segment.states) && segment.states.length > 0 )) {
+                    filterQuery["states"] = { $in: segment.states };
+                }
+
+                if ((segment.geography == SegmentGeography.REGION) && (Array.isArray(segment.regions) && segment.regions.length > 0 )) {
+                    filterQuery["regions"] = { $in: segment.regions };
+                }
+
+                if (Array.isArray(segment.orderStatus) && segment.orderStatus.length > 0) {
+                    filterQuery["orderStatus"] = { $in: segment.orderStatus };
+                }
+
+                
+
+            }
+
+            
+
+        } catch (e) {
+            console.log(e);
         }
 
     };

@@ -63,14 +63,12 @@ class MongoManager {
         this.errorMessages.push(err.message); // Store error for later review
     };
 
-    handleConnected = () => {
-        console.log('Connected to MongoDB!');
+    handleConnected = () => {        
         this.reconnectCount++;
     };
 
     handleDisconnected = () => {
-        this.disconnectedCount++;
-        console.log('MongoDB disconnected!');
+        this.disconnectedCount++;        
     };
 
     handleExitSignal = () => {
@@ -88,8 +86,7 @@ class MongoManager {
     close = async () => {
         if (this.db) {
             try {
-                await this.db.close();
-                console.log('MongoDB connection closed');
+                await this.db.close();                
             } catch (error) {
                 console.error('Error closing MongoDB connection:', error);
             }
