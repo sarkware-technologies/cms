@@ -2,6 +2,7 @@ import { parentPort, workerData } from "worker_threads";
 import MDBM from "./mongo.js";
 import MYDBM from "./mysql.js";
 import EM from "./entity.js";
+import ImportType from '../enums/importer-type.js';
 
 async function processBatch(data) {
 
@@ -19,9 +20,17 @@ async function processBatch(data) {
 
         const orderModel = await EM.getModel("cms_master_order");
         const orderItemModel = await EM.getModel("cms_master_order_item");
-        const batchProgressModel = await EM.getModel("cms_scheduler_batch_progress");
+        const batchProgressModel = await EM.getModel("cms_background_task_progress");
 
-        const batchProgress = await batchProgressModel.findOne({ type: "ORDER_IMPORTER" }).lean();
+        const batchProgress = await batchProgressModel.findOne({ type: ImportType.ORDER_IMPORTER }).lean();
+
+        try {
+            await batchProgressModel.findByIdAndUpdate(batchProgress._id, {
+                $max: { currentBatch: batch }
+            });
+        } catch (e) {
+            console.log(e.message);
+        }
 
         const orders = await MYDBM.queryWithConditions(`
             SELECT 

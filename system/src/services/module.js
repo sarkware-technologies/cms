@@ -231,7 +231,43 @@ export default class ModuleService {
         }
 
         try {
-            return await EntityModuleMappingModel.find({module: _req.params.id, status: true}).populate("entity").lean().exec();            
+
+            let _entities = [];
+
+            const page = parseInt(_req.query.page) || 1;
+            const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
+            const limit = parseInt(process.env.PAGE_SIZE);
+            const populate = _req.query.populate ? _req.query.populate : false;
+
+            const searchFor = _req.query.search ? _req.query.search : "";
+            const searchFrom = _req.query.field ? _req.query.field : "";
+
+            const filter = _req.query.filter ? _req.query.filter : "";
+            const filterBy = _req.query.filter_by ? _req.query.filter_by : "";
+            const filterType = _req.query.filter_type ? _req.query.filter_type : "";
+
+            if (searchFrom !== "") {
+                return this.search(_req, page, skip, limit, searchFrom, searchFor);
+            }
+
+            if (filter !== "") {
+                if (filterType === "seeds") {
+                   // return this.groupSeed(_req, filter);
+                } else {
+                   // return this.groupBy(_req, page, skip, limit, filter, filterBy);
+                }
+            }
+
+            const _count = await EntityModuleMappingModel.countDocuments({module: _req.params.id, status: true});
+
+            if (populate) {                
+                _entities = await EntityModuleMappingModel.find({module: _req.params.id, status: true}).populate('entity').sort({ title: 1 }).skip(skip).limit(limit).lean().exec();                
+            } else {
+                _entities = await EntityModuleMappingModel.find({module: _req.params.id, status: true}).sort({ title: 1 }).skip(skip).limit(limit).lean();
+            }
+            
+            return Utils.response(_count, page, _entities);
+
         } catch (_e) {
             throw _e; 
         }

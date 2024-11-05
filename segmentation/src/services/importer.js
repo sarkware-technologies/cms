@@ -3,9 +3,14 @@ import MYDBM from "../utils/mysql.js";
 import EM from "../utils/entity.js"
 import Utils from "../utils/utils.js";
 
+import OrderImporter from "../importers/orders-import.js";
+
+
 export default class ImporterService {
 
-    constructor() {}
+    constructor() {    
+
+    }
 
     startOrderImport = () => {
 
@@ -16,6 +21,10 @@ export default class ImporterService {
     };
 
     statusOrderImport = () => {
+
+    };
+
+    purgeOrderMaster = () => {
 
     };
 
@@ -31,15 +40,23 @@ export default class ImporterService {
         
     };
 
-    startDistributorImport = () => {
+    purgeRetailerMaster = () => {
+        
+    };
+
+    startStoreImport = () => {
 
     };
 
-    stopDistributorImport = () => {
+    stopStoreImport = () => {
 
     };
 
-    statusDistributorImport = () => {
+    statusStoreImport = () => {
+        
+    };
+
+    purgeStoreMaster = () => {
         
     };
 

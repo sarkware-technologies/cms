@@ -130,7 +130,7 @@ const EntityMapper = (props, ref) => {
 
     };
 
-    const renderEntityList = () => { console.log("renderEntityList is called");   console.log(state.entities);
+    const renderEntityList = () => {
 
         const options = [];
 

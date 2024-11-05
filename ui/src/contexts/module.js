@@ -48,7 +48,7 @@ export default function ServiceContext(_component) {
 
         if (currentEntity) {
             if (_handle === "module_entity_grid") {                
-                datasource["endpoint"] = "/system/v1/module/"+ currentEntity._id +"/entities";
+                datasource["endpoint"] = "/system/v1/module/"+ currentEntity._id +"/entities?populate=true";
             }
         }
 

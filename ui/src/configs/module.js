@@ -242,7 +242,7 @@ let module_config = {
                                             classes: "",
                                             header: {title: "", align: "center", filterable: false, searchable: false, sortable: false}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "", type: "button", label: "", action: "DELETE", align: "center", icon: "fa fa-trash", classes: "reject-btn"},
+                                            field: {handle: "", type: "button", label: "", action: "DELETE", align: "center", icon: "fa fa-trash", classes: "danger"},
                                             prompt: ""
                                         }                                  
                                     ]
