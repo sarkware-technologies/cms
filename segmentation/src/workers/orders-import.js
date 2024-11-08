@@ -1,17 +1,12 @@
 import { parentPort, workerData } from "worker_threads";
-import MDBM from "./mongo.js";
-import MYDBM from "./mysql.js";
-import EM from "./entity.js";
+import MDBM from "../utils/mongo.js";
+import MYDBM from "../utils/mysql.js";
+import EM from "../utils/entity.js";
 import ImportType from '../enums/importer-type.js';
 
 async function processBatch(data) {
 
     const { batch, orderIds } = data;
-
-    let orderSuccess = 0;
-    let orderItemSuccess = 0;
-    let orderFailed = 0;
-    let orderItemFailed = 0;
 
     try {
 
@@ -20,7 +15,11 @@ async function processBatch(data) {
 
         const orderModel = await EM.getModel("cms_master_order");
         const orderItemModel = await EM.getModel("cms_master_order_item");
+        const orderLogModel = await EM.getModel("cms_order_importer_log");
+        const orderItemLogModel = await EM.getModel("cms_order_item_importer_log");
         const batchProgressModel = await EM.getModel("cms_background_task_progress");
+        const retailerModel = await EM.getModel("cms_master_retailer"); 
+        const storeModel = await EM.getModel("cms_master_store");       
 
         const batchProgress = await batchProgressModel.findOne({ type: ImportType.ORDER_IMPORTER }).lean();
 
@@ -58,16 +57,20 @@ async function processBatch(data) {
                 od.PTR,      
                 spr.CompanyCode,
                 spr.Company,
+                b.Name as Brand,
                 mspm.MDM_PRODUCT_CODE 
             FROM 
                 orders o
             INNER JOIN orderdetails od ON o.OrderId = od.OrderId
             INNER JOIN stores AS s ON o.StoreId = s.StoreId
             INNER JOIN storeparties AS sp ON o.StoreId = sp.StoreId AND o.PartyCode = sp.PartyCode
-            LEFT JOIN storeproducts spr ON od.StoreId = spr.StoreId AND od.ProductCode = spr.ProductCode
+            INNER JOIN productstoreproducts psp ON psp.storeid=o.StoreId AND psp.ProductCode=od.ProductCode
+            INNER JOIN products p ON p.ProductId = psp.ProductId             
+            INNER JOIN storeproducts spr ON od.StoreId = spr.StoreId AND od.ProductCode = spr.ProductCode
             INNER JOIN retailerstoreparties rsp ON s.StoreId = rsp.StoreId AND ((o.PartyCode = rsp.PartyCode) OR ((o.PartyCode IS NULL) AND (rsp.PartyCode IS NULL)))
             INNER JOIN retailers r ON r.RetailerId = rsp.RetailerId 
             INNER JOIN users u ON o.CreatedBy = u.UserId
+            LEFT JOIN brands b ON b.BrandId = p.BrandId 
             LEFT JOIN mdm_store_product_master mspm ON mspm.PRODUCT_CODE = od.ProductCode AND mspm.STOREID = o.StoreId
             WHERE o.OrderId IN (?);`
         , [orderIds]);        
@@ -86,11 +89,11 @@ async function processBatch(data) {
 
         /* Process Orders in chunk */
         for (let i = 0; i < oIds.length; i += chunkSize) {
-
+            
             const chunk = oIds.slice(i, i + chunkSize);
+            const orderBulkOps = [];  // Clear operations for each chunk
 
-            chunk.forEach((orderId) => {
-                
+            for (const orderId of chunk) {
                 const orderData = groupedOrders[orderId][0];
                 const orderObj = {
                     grandTotal: orderData.OrderAmount,
@@ -106,47 +109,61 @@ async function processBatch(data) {
                     stateId: orderData.StateId,
                     regionId: orderData.RegionId,
                     city: orderData.City,
-                    pinCode: orderData.Pincode
+                    pinCode: orderData.Pincode,
+                    retailer: null,
+                    store: null
                 };
 
-                orderBulkOps.push({
-                    updateOne: {
-                        filter: { orderId: orderObj.orderId },
-                        update: orderObj,
-                        upsert: true,
-                    },
-                });                    
-                
-            });
+                /* Get the retailer and store references asynchronously */
+                const [retailerRecord, storeRecord] = await Promise.all([
+                    retailerModel.findOne({ RetailerId: orderData.RetailerId }).lean(),
+                    storeModel.findOne({ storeId: orderData.StoreId }).lean()
+                ]);
 
-            try {
+                if (retailerRecord) orderObj.retailer = retailerRecord._id;
+                if (storeRecord) orderObj.store = storeRecord._id;
 
-                const orderBulkResult = await orderModel.bulkWrite(orderBulkOps, { ordered: false });                                
-            
-                /* Increment order success counter */
-                const successfulOps = orderBulkResult.upsertedCount + orderBulkResult.modifiedCount;
-                orderSuccess += successfulOps;
-
-                /* Increment order failed counter */
-                const writeErrors = orderBulkResult.getWriteErrors();
-                orderFailed += writeErrors.length;
-
-                /* Map each original orderId to its new MongoDB _id */
-                Object.entries(orderBulkResult.upsertedIds).forEach(([index, mongoId]) => {                    
-                    try {
-                        const originalOrderId = orderBulkOps[index].updateOne.filter.orderId;
-                        orderIdMap[originalOrderId] = mongoId;
-                    } catch (e) {
-                        /* Safe to Ignore */
-                    }                                    
-                });
-
-                orderBulkOps.length = 0; // Clear operations after execution
-
-            } catch (e) {                
-                orderFailed += chunk.length;
+                orderBulkOps.push(orderObj);
             }
 
+            try {
+                /* Insert bulk orders */
+                const insertResponse = await orderModel.insertMany(orderBulkOps, { ordered: false });
+
+                /* Map each original orderId to its new MongoDB _id */
+                insertResponse.forEach((doc, index) => {
+                    try {
+                        const originalOrderId = orderBulkOps[index].orderId;
+                        orderIdMap[originalOrderId] = doc._id;
+                    } catch (e) {
+                        /* Safe to ignore */
+                    }
+                });
+
+            } catch (e) {
+                /* Handle partial and full failures */
+                const errorLogs = [];
+
+                if (e.writeErrors) {
+                    /* Partial failure */
+                    errorLogs.push(...e.writeErrors.map(error => ({
+                        orderId: error.err.op.orderId,
+                        message: error.err.errmsg || "Unknown error"
+                    })));
+                } else {
+                    /* Complete failure */
+                    errorLogs.push(...chunk.map(order => ({
+                        orderId: order.orderId,
+                        message: e.message || "Unknown error"
+                    })));
+                }
+
+                try {
+                    await orderLogModel.insertMany(errorLogs, { ordered: false });
+                } catch (logError) {
+                    console.log("Error logging for import order itself failed for batch:", batch);
+                }
+            }
         }
 
         /* Process Order Items in chunk */
@@ -167,6 +184,7 @@ async function processBatch(data) {
                     ptr: _item.PTR,
                     receivedQty: _item.ActualQuantityReceived,
                     order: orderIdMap[_item.OrderId],
+                    brand: _item.Brand
                 }
             })
 
@@ -174,23 +192,44 @@ async function processBatch(data) {
 
         for (let i = 0; i < allOrderItems.length; i += chunkSize) {
 
-            let bulkRes = null;
             const chunk = allOrderItems.slice(i, i + chunkSize);
 
             try {
-
-                bulkRes = await orderItemModel.insertMany(chunk, { ordered: false });
-                orderItemSuccess += bulkRes.insertedIds ? Object.keys(bulkRes.insertedIds).length : 0;
-
+                await orderItemModel.insertMany(chunk, { ordered: false });
             } catch (e) {
+                
                 if (e.writeErrors) {
-                    /* For partial success */
-                    orderItemSuccess += chunk.length - e.writeErrors.length;
-                    orderItemFailed += e.writeErrors.length;
+                    
+                    /* Partial failure */
+
+                    const errorLogs = e.writeErrors.map(error => ({
+                        itemId: error.err.op.itemId,                         
+                        message: error.err.errmsg || "Unknown error"                        
+                    }));
+
+                    try {
+                        await orderItemLogModel.insertMany(errorLogs, { ordered: false });
+                    } catch (logError) {
+                        console.log("Error logging for import order item itself failed for batch:", batch);
+                    }
+
                 } else {
+                    
                     /* Complete failure */
-                    orderItemFailed += chunk.length;
+
+                    const errorLogs = chunk.map(orderItem => ({
+                        itemId: orderItem.itemId,
+                        message: e.message || "Unknown error" 
+                    }));
+
+                    try {
+                        await orderItemLogModel.insertMany(errorLogs, { ordered: false });
+                    } catch (e) {
+                        console.log("Error logging for import order item itself failed for batch : "+ batch);
+                    }
+
                 }
+
             }
 
         }

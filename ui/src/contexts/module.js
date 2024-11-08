@@ -21,7 +21,7 @@ export default function ServiceContext(_component) {
         this.controller.docker.dock({
             method: "GET",
             endpoint: "/system/v1/entity/all"
-        }).then((response) => {  console.log(response);
+        }).then((response) => {
             this.entities = response;
         })
         .catch((e) => {
@@ -90,31 +90,83 @@ export default function ServiceContext(_component) {
      */
     this.onRecordToggleStatus = (_handle, _toggleHandle, _record, _status) => {
 
-        if (_handle == "module_grid" && _record) {
+        if (_handle == "module_entity_grid" && _record) {
 
-            const request = {};
-            request["method"] = "PUT";  
-            request["endpoint"] = "/system/v1/module/"+ _record._id;          
+            const moduleRecord = this.component.currentRecord["module_grid"];
+            const mappingGrid = window._controller.getField("module_entity_grid");
 
-            request["payload"] = {
-                status: _status
-            };  
+            if (moduleRecord) {
+
+                const request = {};
+                request["method"] = "PUT";  
+
+                if (_toggleHandle == "exposed") {
+                    request["endpoint"] = "/system/v1/module/"+ moduleRecord._id +"/entities?mapping_id="+ _record._id;          
+                    request["payload"] = { exposed: _status };  
+                } else if (_toggleHandle == "has_form") {
+                    request["endpoint"] = "/system/v1/module/"+ moduleRecord._id +"/entities?mapping_id="+ _record._id;     
+                    request["payload"] = { has_form: _status };  
+                }
+
+                this.controller.docker.dock(request).then((_res) => {
+                    window._controller.notify(_record.entity.title +" has been "+ (_status ? "enabled" : "disabled"));                                          
+                    if (mappingGrid) {
+                        mappingGrid.initFetch();
+                    }
+                })
+                .catch((e) => {
+                    if (mappingGrid) {
+                        mappingGrid.initFetch();
+                    }
+                    this.controller.notify(e.message, "error");
+                });
+    
+                return false;
+
+            }            
             
-            const moduleGrid = this.controller.getField("module_grid");
-
-            this.controller.docker.dock(request).then((_res) => {
-                window._controller.notify(_record.title +" has been "+ (_status ? "enabled" : "disabled"));                      
-                moduleGrid.initFetch(); 
-            })
-            .catch((e) => {
-                moduleGrid.initFetch();
-                this.controller.notify(e.message, "error");
-            });
-
-            return false;
         }
 
         return true;
+
+    };
+
+    /**
+     * 
+     * @param {*} _e 
+     * @param {*} _field 
+     * @param {*} _grid 
+     * @param {*} _record 
+     * 
+     * Called whenever user click on the datagrid record (button type)
+     * 
+     */
+    this.onRecordButtonClick = (_e, _field, _grid, _record) => {
+
+        const moduleRecord = this.component.currentRecord["module_grid"];
+
+        if (_grid == "module_entity_grid" && _field == "DELETE_MAPPING" && moduleRecord) {
+
+            const request = {};        
+            request["method"] = "DELETE";
+            request["endpoint"] = "/system/v1/module/"+ moduleRecord._id +"/entities?mapping_id="+ _record._id;
+            const mappingGrid = window._controller.getField("module_entity_grid");
+            
+            this.controller.docker.dock(request).then((_res) => {
+                window._controller.notify(_record.entity.title +" mapping has been removed successfully");                                          
+                if (mappingGrid) {
+                    mappingGrid.initFetch();
+                    this.entityMapper.current.initFetch();
+                }
+            })
+            .catch((e) => {
+                if (mappingGrid) {
+                    mappingGrid.initFetch();
+                }
+                this.controller.notify(e.message, "error");
+            });
+
+        }
 
     };
 
@@ -159,29 +211,38 @@ export default function ServiceContext(_component) {
 
     };
 
-    /**     
+    /**
      * 
-     * @param {*} _handle 
-     * @returns 
+     * @param {*} _tabHandle 
+     * @param {*} _tabItemHandle 
      * 
-     * Called right before a view is mounting
+     * Called whenever a Tab Item is go to visible state 
      * 
      */
-    this.onViewMounted = (_handle) => {
+    this.onTabViewMounted = ( _tabHandle, _tabItemHandle ) => {
 
-        if (_handle == "module_form") {
+        if (_tabHandle === "module_tab") {
 
-            const record = this.component.currentRecord["module_grid"];
-            if (record) {                            
-                const _holder = document.getElementById('entity_mapper_container');
-                const root = createRoot(_holder);
-                this.entityMapper = React.createRef();             
-                root.render(<EntityMapper record={record} entities={this.entities} ref={this.entityMapper} />);
+            const moduleTab = this.controller.getField("module_tab");
+            if (moduleTab) {
+
+                if (_tabItemHandle === "entity_item_tab") {
+                    
+                    const record = this.component.currentRecord["module_grid"];
+                    if (record) {                            
+                        const _holder = document.getElementById('entity_mapper_container');
+                        const root = createRoot(_holder);
+                        this.entityMapper = React.createRef();             
+                        root.render(<EntityMapper record={record} entities={this.entities} ref={this.entityMapper} />);
+                    }
+
+                }
+
             }
 
-        }
-
-    }
+        }        
+        
+    }; 
 
     /**
      * 

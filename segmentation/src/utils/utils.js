@@ -11,12 +11,14 @@ export default class Utils {
 
     };
 
-    static response = (_totalRecords, _currentPage, _records) => {
+    static response = (_totalRecords, _currentPage, _records, _recordPerPage) => {
+
+        const recordPerPage = _recordPerPage ? _recordPerPage : parseInt(process.env.PAGE_SIZE);
         
         return {
             totalRecords: _totalRecords,
-            totalPages: Math.ceil(_totalRecords / parseInt(process.env.PAGE_SIZE)),
-            recordPerPage: parseInt(process.env.PAGE_SIZE),
+            totalPages: Math.ceil(_totalRecords / recordPerPage),
+            recordPerPage: recordPerPage,
             currentPage: _currentPage,
             payload: _records,
         };

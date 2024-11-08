@@ -189,8 +189,10 @@ const FieldEditor = (props, ref) => {
         window._controller.docker.dock(request).then((_res) => {
             if (_property === "status") {
                 window._controller.notify( _record.title + (_e.target.checked ? " enabled successfully" : " disabled successfully"));                                
+            } else if (_property === "index") {
+                window._controller.notify( _record.title +" index " + (_e.target.checked ? " enabled successfully" : " disabled successfully"));                                
             } else {
-                window._controller.notify( _record.title +" unique option" + (_e.target.checked ? " enabled successfully" : " disabled successfully"));                                
+                window._controller.notify( _record.title +" unique constraint" + (_e.target.checked ? " enabled successfully" : " disabled successfully"));                                
             } 
         })
         .catch((e) => {
@@ -325,7 +327,15 @@ const FieldEditor = (props, ref) => {
                     <td><label>{props.sno}</label></td>
                     <td><a href="#" onClick={(_e) => handleFieldNameClick(_e, props.record)}>{props.record.handle}</a></td>
                     <td><label><i className={getIcon(props.record.type)}></i> {fieldsEnum[props.record.type]}</label></td>
-                    <td>
+                    <td className="toggle-switch-td index">
+                        <div className="toggle-container">
+                            <label className="pharmarack-cms-toggle-switch">
+                                <input type="checkbox" className="pharmarack-cms-toggle-field index" onChange={(_e) => handleFieldToggleChange(_e, "index", props.record)} checked={props.record.index} />
+                                <span className="pharmarack-cms-toggle-slider"></span>
+                            </label>            
+                        </div>
+                    </td>
+                    <td className="toggle-switch-td unique">
                         <div className="toggle-container">
                             <label className="pharmarack-cms-toggle-switch">
                                 <input type="checkbox" className="pharmarack-cms-toggle-field unique" onChange={(_e) => handleFieldToggleChange(_e, "unique", props.record)} checked={props.record.unique} />
@@ -333,7 +343,7 @@ const FieldEditor = (props, ref) => {
                             </label>            
                         </div>
                     </td>
-                    <td>
+                    <td className="toggle-switch-td status">
                         <div className="toggle-container">
                             <label className="pharmarack-cms-toggle-switch">
                                 <input type="checkbox" className="pharmarack-cms-toggle-field status" onChange={(_e) => handleFieldToggleChange(_e, "status", props.record)} checked={props.record.status} />
@@ -342,7 +352,7 @@ const FieldEditor = (props, ref) => {
                         </div>  
                     </td>
                 </tr>
-                <tr className="field-record-config"><td colSpan="5">{handleConfigView(props.record)}</td></tr>   
+                <tr className="field-record-config"><td colSpan="6">{handleConfigView(props.record)}</td></tr>   
             </>         
         );
 
@@ -352,7 +362,7 @@ const FieldEditor = (props, ref) => {
         if (state.records.length > 0) {
             return state.records.map((_item, _index) => <RenderField key={uuidv4()} record={_item} sno={((_index + 1) + ((state.currentPage - 1) * state.recordsPerPage))} />);
         } else {
-            return <tr><td colSpan="5" key={uuidv4()} className="pharmarack-cms-fields-empty-msg">Entity has no fields</td></tr>;
+            return <tr><td colSpan="6" key={uuidv4()} className="pharmarack-cms-fields-empty-msg">Entity has no fields</td></tr>;
         }        
     };
 
@@ -479,6 +489,7 @@ const FieldEditor = (props, ref) => {
                         <th className="sno">S.No</th>
                         <th className="handle">Handle</th>
                         <th className="type">Type</th>
+                        <th className="unique">Index</th>
                         <th className="unique">Unique</th>
                         <th className="status">Status</th>
                     </tr>

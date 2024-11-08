@@ -118,9 +118,10 @@ class RequestInterceptor {
 
     };
 
-    checkPermissions = async (_privileges, _method, _req, _res) => {  console.log(_req.originalUrl);
+    checkPermissions = async (_privileges, _method, _req, _res) => { 
 
-        if (this.whiteListUrls.includes(_req.originalUrl) || (_privileges.length == 1 && _privileges[0] == "*")) {
+        const basePath = _req.originalUrl.split('?')[0];
+        if (this.whiteListUrls.includes(basePath) || (_privileges.length == 1 && _privileges[0] == "*")) {
             return true;
         }
 

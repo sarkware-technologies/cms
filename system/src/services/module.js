@@ -224,6 +224,16 @@ export default class ModuleService {
 
     };
 
+    listAllEntities = async (_req) => {
+      
+        try {
+            return await EntityModuleMappingModel.find({module: _req.params.id, status: true}).populate('entity').sort({ title: 1 }).lean().exec();                
+        } catch (e) {
+            throw e;
+        }
+        
+    };
+
     listEntities = async (_req) => {
 
         if (!_req.params.id) {

@@ -67,7 +67,7 @@ let entity_config = {
                                             search: false,
                                             filter: false,
                                             classes: "",
-                                            header: {title: "Handle", align: "left", filterable: true, searchable: false, sortable: false, filter_type: "simple"}, 
+                                            header: {title: "Handle", align: "left", filterable: false, searchable: false, sortable: false, filter_type: "simple"}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                             field: {handle: "handle", type: "alphanumeric", align: "left", editable: false},
                                             prompt: ""

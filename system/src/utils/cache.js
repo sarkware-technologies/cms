@@ -31,7 +31,7 @@ class Cache {
 
     initCache = async () => {       
 
-        try {
+        try {            
 
             await this.setEntities();  
             await this.setRoutes();
@@ -130,7 +130,7 @@ class Cache {
 
         try {
             return await this.redisClient.get("pharmarack_cms_caps", _handle);            
-        } catch (e) {  console.log(e);
+        } catch (e) {
             return null;
         }
 

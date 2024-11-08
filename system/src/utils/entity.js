@@ -79,6 +79,11 @@ class EntityManager {
                     config["unique"] = field.unique;
                 }
 
+                /* Index */
+                if (field.index) {                    
+                    config["index"] = field.index;
+                }
+
                 if (field.options) {
                     try {
                         

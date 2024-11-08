@@ -828,6 +828,7 @@ table.pharmarack-cms-data-table th {
 }
 
 table.pharmarack-cms-data-table td > button {
+    height: 32px;
     display: inline-block;
     font-weight: normal;
 }
@@ -857,14 +858,6 @@ table.pharmarack-cms-data-table > tbody tr:nth-of-type(odd) td {
 
 table.pharmarack-cms-data-table > tbody td a {
     color: #385D8D;
-}
-
-table.pharmarack-cms-collapse-table {
-
-}
-
-table.pharmarack-cms-collapse-table td {
-    
 }
 
 table.pharmarack-cms-collapse-table td label {
@@ -1297,67 +1290,51 @@ div.pharmarack-cms-form-field-wrapper {
 
 /* Toggle widget style starts here */
 
-.pharmarack-cms-toggle-switch {
-    position: relative;
-    display: inline-block;
+.pharmarack-cms-toggle-switch {    
+    display: inline-flex;
     width: 48px;
-    height: 32px;   
+    height: 32px;
+    align-items: center;
+    justify-content: center;
 }
-    
+
 .pharmarack-cms-toggle-switch input {
     opacity: 0;
     width: 0;
     height: 0;
-}  
-  
+} 
+
 .pharmarack-cms-toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    height: 100%;
     border-radius: 4px;
     background-color: #ccc;
-    -webkit-transition: .4s;
-    transition: .4s;
-}
-  
-.pharmarack-cms-toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    left: 6px;    
-    background-color: white;
-    -webkit-transition: .4s;
-    transition: .4s;
-    border-radius: 4px;
-    top: 0;
-    bottom: 0;
-    margin: auto 0;
-}
-  
-.pharmarack-cms-toggle-switch input:checked + .pharmarack-cms-toggle-slider {
-    background-color: var(--primary-background);
-}
-  
-.pharmarack-cms-toggle-switch input:focus + .pharmarack-cms-toggle-slider {
-    box-shadow: 0 0 1px var(--primary-background);
-}
-  
-.pharmarack-cms-toggle-switch input:checked + .pharmarack-cms-toggle-slider:before {
-    -webkit-transform: translateX(16px);
-    -ms-transform: translateX(16px);
-    transform: translateX(16px);
+    transition: background-color 0.4s, justify-content 0.4s;
+    cursor: pointer;
+    padding: 0px 6px;
 }
 
-.pharmarack-cms-toggle-slider.round {
-    border-radius: 34px;
+.pharmarack-cms-toggle-slider:before {
+    content: "";
+    display: block;
+    height: 20px;
+    width: 20px;
+    background-color: white;
+    border-radius: 4px;
+    transition: transform 0.4s;
+    transition: transform 0.4s ease;
 }
-  
-.pharmarack-cms-toggle-slider.round:before {
-    border-radius: 50%;
+
+.pharmarack-cms-toggle-switch input:checked + .pharmarack-cms-toggle-slider {
+    background-color: var(--primary-background);
+    justify-content: flex-end;
+}
+
+.pharmarack-cms-toggle-switch input:focus + .pharmarack-cms-toggle-slider {
+    box-shadow: 0 0 1px var(--primary-background);
 }
 
 /* Toggle widget style ends here */
@@ -1920,10 +1897,6 @@ div.pharmarack-cms-mapped-entity-list .factory-header {
     font-weight: bold;
 }
 
-.factory-field-form-header-col > select {
-
-}
-
 .factory-field-form-header-col > button,
 .factory-field-form-header-col > select,
 .factory-field-form-header-col > input[type=text] {
@@ -1950,13 +1923,6 @@ div.pharmarack-cms-mapped-entity-list .factory-header {
 .factory-content .header.field-title > div {
     font-weight: bold;
     background: #eee;    
-}
-
-.pharmarack-cms-field-row .header > div.name,
-.pharmarack-cms-field-row .header > div.type,
-.factory-content .header.field-title > div.name,
-.factory-content .header.field-title > div.type {
-    
 }
 
 .pharmarack-cms-field-row .header > div.type i,
@@ -2000,10 +1966,6 @@ div.pharmarack-cms-mapped-entity-list .factory-header {
 
 .pharmarack-cms-field-row:last-child .header > div {
     border-bottom: none;
-}
-
-.pharmarack-cms-field-row .content {
-    
 }
 
 .pharmarack-cms-entity-factory-content {
@@ -2155,7 +2117,7 @@ div.pharmarack-cms-mapped-entity-list .factory-header {
     display: flex;
     gap: 10px;
     justify-content: end;
-    padding: 15px 20px;
+    padding: 20px;
     border-bottom: solid 2px var(--primary-background);
 }
 
@@ -2210,6 +2172,8 @@ table.mapped-entity-list-factory-table,
 table.pharmarack-cms-field-editor-factory-table  {
     width: 100%;
     border: solid 1px #eee;
+    border-right: none;
+    border-left: none;
 }
 
 table.mapped-entity-list-record-table th,
@@ -2225,7 +2189,7 @@ table.mapped-entity-list-record-table th.entity {
 
 table.mapped-entity-list-record-table td,
 table.mapped-entity-list-factory-table td {
-    padding: 20px;
+    padding: 20px 0px;
     vertical-align: bottom;
 }
 
@@ -2240,16 +2204,18 @@ table.mapped-entity-list-factory-table td > label {
 
 table.mapped-entity-list-factory-table td.exposed,
 table.mapped-entity-list-factory-table td.has_form {
-    width: 150px;
+    width: 125px;
     text-align: center;
 }
 
 table.mapped-entity-list-factory-table td.action {
-    width: 175px;
+    width: 140px;
 }
 
+table.pharmarack-cms-field-editor-factory-table th > button,
 table.mapped-entity-list-factory-table td.action > button {
     width: 100%;
+    height: 32px;
 }
 
 table.mapped-entity-list-record-table th.sno {
@@ -2289,8 +2255,10 @@ table.pharmarack-cms-field-editor-factory-table th {
     vertical-align: bottom;
 }
 
+table.pharmarack-cms-field-editor-factory-table th.action,
 table.pharmarack-cms-field-editor-factory-table th.type {
     padding-right: 0px;
+    padding-left: 0px;
 }
 
 table.pharmarack-cms-field-editor-factory-table th.handle {
@@ -2299,7 +2267,6 @@ table.pharmarack-cms-field-editor-factory-table th.handle {
 
 table.pharmarack-cms-field-editor-factory-table th.action {
     width: 200px;
-    padding-left: 0px;
 }
 
 table.pharmarack-cms-field-editor-factory-table th > label {
@@ -2309,10 +2276,7 @@ table.pharmarack-cms-field-editor-factory-table th > label {
     margin-bottom: 5px;
 }
 
-table.pharmarack-cms-field-editor-factory-table th > button {
-    width: 100%;
-}
-
+table.pharmarack-cms-field-editor-record-table th.index,
 table.pharmarack-cms-field-editor-record-table th.unique,
 table.pharmarack-cms-field-editor-record-table th.status  {
     width: 150px;
@@ -2328,14 +2292,18 @@ table.pharmarack-cms-field-editor-record-table th.type {
     text-align: left;
 }
 
-table.pharmarack-cms-field-editor-record-table td:last-child,
-table.pharmarack-cms-field-editor-record-table th.status {
-    text-align: right;
-}
-
 table.pharmarack-cms-field-editor-record-table td {
     padding: 12px 20px;
     text-align: left;
+}
+
+table.pharmarack-cms-field-editor-record-table td.toggle-switch-td {
+    text-align: center;
+}
+
+table.pharmarack-cms-field-editor-record-table td:last-child,
+table.pharmarack-cms-field-editor-record-table th.status {
+    text-align: right;
 }
 
 tr.field-record-config td {
@@ -2712,16 +2680,8 @@ a.sequence-item-field-edit-btn {
     left: 10px;
 }
 
-a.sequence-item-delete-btn {
-    
-}
-
 a.sequence-item-delete-cancel-btn {
     right: 50px;
-}
-
-a.sequence-item-edit-cancel-btn {
-    
 }
 
 .pharmarack-cms-sequence-item > a {
@@ -3157,11 +3117,6 @@ div.pharmarack-cms-progress-notifier {
     font-size: 15px;
 }
 
-.pharmarack-cms-tab-body.static_segment_tab,
-.pharmarack-cms-tab-body.dynamic_segment_tab {
-    
-}
-
 .pharmarack-cms-tab-body.static_segment_tab div.pharmarack-cms-tab-row,
 .pharmarack-cms-tab-body.dynamic_segment_tab div.pharmarack-cms-tab-row {
     margin-bottom: 15px;
@@ -3302,10 +3257,9 @@ table.preview-table td:last-child{
 }
 
 .pharmarack-cms-segment-rules-container > a {
-    display: block;
-    margin-left: 15px;
-    margin-top: 20px;
+    display: block;    
     font-weight: bold;
+    margin: 20px 15px 5px;
 }
 
 .pharmarack-cms-segment-rule-box {
@@ -3345,10 +3299,6 @@ table.preview-table td:last-child{
     font-family: 'ProximaNovaBold';
 }  
 
-.pharmarack-cms-segment-rule-box table td a:hover {
-    
-}
-
 .pharmarack-cms-segment-rule-box table td:first-child > label {
     display: block;
     margin-bottom: 5px;
@@ -3386,10 +3336,6 @@ table.preview-table td:last-child{
     gap: 15px;
 }
 
-.pharmarack-cms-segment-rule-qty-box > input {
-    
-}
-
 .pharmarack-cms-menu-pool-container.privilege div.pharmarack-cms-menu-pool-header {
     border-top: none;    
 }
@@ -3424,4 +3370,20 @@ table.preview-table td:last-child{
 
 .pharmarack-cms-privilege-container > label > input {
     margin-right: 5px;
+}
+
+table.mapped-entity-list-factory-table {
+    border-top: none;    
+}
+
+#entity_mapper_container {
+    margin-top: -10px;
+}
+
+.pharmarack-cms-view-footer-section.module_form {
+    margin-top: 0px;
+}
+
+.pharmarack-cms-tab-body.static_segment_tab a.done-btn {
+    display: none;
 }

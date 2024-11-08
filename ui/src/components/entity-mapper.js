@@ -25,16 +25,11 @@ const EntityMapper = (props, ref) => {
         mapped: []
     });
 
-    const self = {
-        
-    };
-    useImperativeHandle(ref, () => self);
-
     const fetchEntities = () => {
 
         const request = {
             method: "GET",
-            endpoint: "/system/v1/module/"+ props.record._id +"/entities"
+            endpoint: "/system/v1/module/"+ props.record._id +"/entities/all"
         }; 
         
         window._controller.docker.dock(request).then((_res) => {
@@ -44,45 +39,6 @@ const EntityMapper = (props, ref) => {
             console.error(_req);
         });
         
-    };
-
-    const handleFieldToggleChange = (_e, _property, _record) => {
-
-        const request = {};        
-        request["method"] = "PUT";
-        request["endpoint"] = "/system/v1/module/"+ props.record._id +"/entities?mapping_id="+ _record._id;
-        request["payload"] = {
-            [_property]: _e.target.checked
-        };
-
-        window._controller.dock(request, 
-            (_req, _res) => {                    
-                setState((prevState) => ({...prevState, mapped: _res}));                              
-                window._controller.notify( "Updated successfully" );                  
-            }, 
-            (_req, _res) => {
-                this.controller.notify( "Failed to update.!", "error" );                                
-            }
-        );
-
-    };
-
-    const handleRemoveBtnClick = (_e, _record) => {
-
-        const request = {};        
-        request["method"] = "DELETE";
-        request["endpoint"] = "/system/v1/module/"+ props.record._id +"/entities?mapping_id="+ _record._id;
-
-        window._controller.dock(request, 
-            (_req, _res) => {                    
-                setState((prevState) => ({...prevState, mapped: _res}));                              
-                window._controller.notify( "Removed successfully" );                  
-            }, 
-            (_req, _res) => {
-                this.controller.notify( "Failed to remove.!", "error" );                                
-            }
-        );
-
     };
 
     const handleNewMappingClick = () => {
@@ -102,8 +58,15 @@ const EntityMapper = (props, ref) => {
             const entityLabel = entitySelect.current.options[entityIndex].label;
 
             window._controller.docker.dock(request).then((_res) => {
+                
                 setState((prevState) => ({...prevState, mapped: _res}));                              
                 window._controller.notify( entityLabel + " mapped successfully" ); 
+
+                const mappingGrid = window._controller.getField("module_entity_grid");
+                if (mappingGrid) {
+                    mappingGrid.initFetch();
+                }
+
             })
             .catch((e) => {
                 window._controller.notify( entityLabel + " failed to map.!", "error" ); 
@@ -116,19 +79,6 @@ const EntityMapper = (props, ref) => {
     useEffect(() => {            
         fetchEntities();
     }, []);
-
-    const RecordToggle = (_props) => {
-
-        return (
-            <div className="toggle-container">
-                <label className="pharmarack-cms-toggle-switch">
-                    <input type="checkbox" className="pharmarack-cms-toggle-field status" onChange={(_e) => handleFieldToggleChange(_e, _props.property, _props.record)} checked={_props.record[_props.property]} />
-                    <span className="pharmarack-cms-toggle-slider"></span>
-                </label>            
-            </div>    
-        );
-
-    };
 
     const renderEntityList = () => {
 
@@ -162,34 +112,13 @@ const EntityMapper = (props, ref) => {
 
     };
 
-    const RenderMappingRecord = (props) => {
-
-        return (
-            <tr>
-                <td>{props.sno}</td>
-                <td>{props.record.entity.title}</td>
-                <td><RecordToggle property="exposed" record={props.record} /></td>
-                <td><RecordToggle property="has_form" record={props.record} /></td>
-                <td><button className="pharmarack-cms-btn danger icon-left" onClick={(_e) => handleRemoveBtnClick(_e, props.record)} ><i className="fa fa-trash"></i></button></td>
-            </tr>                
-        );
-
+    const self = {
+        initFetch: fetchEntities
     };
-
-    const renderFields = () => {
-
-        if (state && state.mapped && state.mapped.length > 0) {
-            return state.mapped.map((_item, _index) => <RenderMappingRecord key={uuidv4()} record={_item} sno={(_index + 1)} />);
-        } else {
-            return <tr key={uuidv4()}><td colSpan="5" className="pharmarack-cms-fields-empty-msg">Module has no entity</td></tr>;
-        }
-
-    };
+    useImperativeHandle(ref, () => self);
 
     return (
         <div className="pharmarack-cms-mapped-entity-list">
-
-            <h1>Entity Mapping</h1>
 
             <table className="mapped-entity-list-factory-table">
                 <tbody>
@@ -207,7 +136,7 @@ const EntityMapper = (props, ref) => {
                             <Toggle ref={hasFormToggle} namespace={_namespace} config={hasFormConfig} />
                         </td>    
                         <td className="action">
-                            <button className="pharmarack-cms-btn icon-left primary" onClick={handleNewMappingClick} ><i className="fa fa-link"></i> Map Entity</button>        
+                            <button className="pharmarack-cms-btn icon-left primary" onClick={handleNewMappingClick} >Map Entity</button>        
                         </td>    
                     </tr>  
                 </tbody>              

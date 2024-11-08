@@ -3,14 +3,14 @@ import MYDBM from "../utils/mysql.js";
 import EM from "../utils/entity.js";
 import ImportType from '../enums/importer-type.js';
 
-export default class RetailersImporter {
+export default class OrderImporter {
 
     constructor() {
 
-        this.retailerPerBatch = 1000;
-        this.retailerIdsPerBatch = 25000;
-        this.retailerCountQuery = `select COUNT(RetailerId) as Count from retailers`;
-        this.retailerIdLoadQuery = `SELECT RetailerId FROM retailers ORDER BY RetailerId LIMIT ? OFFSET ?`;
+        this.ordersPerBatch = 1000;
+        this.orderIdsPerBatch = 25000;
+        this.orderCountQuery = `select COUNT(o.OrderId) as Count from orders o`;
+        this.orderIdLoadQuery = `SELECT OrderId FROM orders ORDER BY OrderId LIMIT ? OFFSET ?`;
 
         this.activeWorkers = 0;
         this.batchQueue = [];
@@ -21,18 +21,18 @@ export default class RetailersImporter {
 
     }
 
-    startWorker = (batch, retailerIds) => {
+    startWorker = (batch, orderIds) => {
 
         this.activeWorkers++;
     
-        const worker = new Worker('./src/workers/retailers-importer.js', {
-            workerData: { batch, retailerIds }
+        const worker = new Worker('./src/workers/orders-import.js', {
+            workerData: { batch, orderIds }
         });
 
         worker.once('exit', (code) => { 
 
             if (code !== 0) {
-                console.error(`Worker stopped with exit code ${code} for batch ${batch}`);
+                console.error(`Worker stopped with exit code ${code}`);
             }
 
             this.activeWorkers--; 
@@ -48,30 +48,29 @@ export default class RetailersImporter {
             return;
         }
 
-        const { index, rIds } = this.batchQueue.shift();
-        this.startWorker(index, rIds);
+        const { index, oIds } = this.batchQueue.shift();
+        this.startWorker(index, oIds);
 
     };
 
-    loadRetailerIds = async (batchCount) => {
+    loadOrderIds = async (batchCount) => {
 
-        while (this.currentOffset < batchCount * this.retailerPerBatch && !this.shouldPause) {
+        while (this.currentOffset < batchCount * this.ordersPerBatch && !this.shouldPause) {
 
-            const retailerIds = await MYDBM.queryWithConditions(
-                this.retailerIdLoadQuery,
-                [this.retailerIdsPerBatch, this.currentOffset]
+            const orderIds = await MYDBM.queryWithConditions(
+                this.orderIdLoadQuery,
+                [this.orderIdsPerBatch, this.currentOffset]
             );
             
-            if (retailerIds.length === 0) break;
+            if (orderIds.length === 0) break;
 
-            for (let i = 0; i < retailerIds.length; i += this.retailerPerBatch) {
+            for (let i = 0; i < orderIds.length; i += this.ordersPerBatch) {
 
-                const chunk = retailerIds.slice(i, i + this.retailerPerBatch).map(row => row.OrderId);
-                this.batchQueue.push({ index: this.currentOffset / this.retailerPerBatch + 1, oIds: chunk });
-                this.currentOffset += this.retailerPerBatch;
+                const chunk = orderIds.slice(i, i + this.ordersPerBatch).map(row => row.OrderId);
+                this.batchQueue.push({ index: this.currentOffset / this.ordersPerBatch + 1, oIds: chunk });
+                this.currentOffset += this.ordersPerBatch;
                
                 if (this.batchQueue.length >= 100) await new Promise(resolve => setTimeout(resolve, 100));
-
             }
         }
 
@@ -83,22 +82,25 @@ export default class RetailersImporter {
 
         try {
 
-            const retailers = await MYDBM.query(this.retailerCountQuery);
+            const orders = await MYDBM.query(this.orderCountQuery);
 
-            if (Array.isArray(retailers) && retailers.length === 1) {
+            if (Array.isArray(orders) && orders.length === 1) {
 
-                const retailerCount = parseInt(retailers[0]["Count"]);
-                const batchCount = Math.ceil(retailerCount / this.retailerPerBatch);    
+                const orderCount = parseInt(orders[0]["Count"]);
+                /* Adjust orderIdsPerBatch value, incase the order count is less then batch count */
+                this.orderIdsPerBatch = Math.min(this.orderIdsPerBatch, orderCount);
+
+                const batchCount = Math.ceil(orderCount / this.ordersPerBatch);    
     
                 const batchProgressModel = await EM.getModel("cms_background_task_progress");
-                let retailerBatch = await batchProgressModel.findOne({ type: ImportType.RETAILER_IMPORTER }).lean();
+                let orderBatch = await batchProgressModel.findOne({ type: ImportType.ORDER_IMPORTER }).lean();
     
-                if (!retailerBatch) {
-                    retailerBatch = new batchProgressModel({
+                if (!orderBatch) {
+                    orderBatch = new batchProgressModel({
                         totalBatch: batchCount,
                         currentBatch: 0,
-                        recordPerBatch: this.retailerPerBatch,
-                        totalRecord: retailerCount,
+                        recordPerBatch: this.ordersPerBatch,
+                        totalRecord: orderCount,
                         completedBatch: 0,
                         pendingBatch: batchCount,
                         status: false,
@@ -106,23 +108,23 @@ export default class RetailersImporter {
                         endTime: null,
                         succeed: 0,
                         failed: 0,
-                        type: ImportType.RETAILER_IMPORTER
+                        type: ImportType.ORDER_IMPORTER
                     });
-                    retailerBatch = await retailerBatch.save();
-                    retailerBatch = retailerBatch.toObject();
+                    orderBatch = await orderBatch.save();
+                    orderBatch = orderBatch.toObject();
                 }
     
-                if (!retailerBatch.status) {
-                    await batchProgressModel.findByIdAndUpdate(retailerBatch._id, { startTime: new Date(), endTime: null, status: true });
+                if (!orderBatch.status) {
+                    await batchProgressModel.findByIdAndUpdate(orderBatch._id, { startTime: new Date(), status: true });
                 } else {
                     return null;
                 }
 
-                let currentBatch = retailerBatch.completedBatch || 0;
-                this.currentOffset = currentBatch * this.orderPerBatch;
+                let currentBatch = orderBatch.completedBatch || 0;
+                this.currentOffset = currentBatch * this.ordersPerBatch;
 
                 this.loadComplete = false;
-                this.loadRetailerIds(batchCount);
+                this.loadOrderIds(batchCount);
 
                 while ((!this.loadComplete || this.batchQueue.length > 0 || this.activeWorkers > 0) && !this.shouldPause) {
                     while (this.batchQueue.length > 0 && this.activeWorkers < this.maxThread && !this.shouldPause) {
@@ -132,13 +134,13 @@ export default class RetailersImporter {
                 }   
                 
                 if (this.shouldPause) {
-                    await batchProgressModel.findByIdAndUpdate(retailerBatch._id, {
+                    await batchProgressModel.findByIdAndUpdate(orderBatch._id, {
                         currentBatch: currentBatch + this.batchQueue.length,
                         pendingBatch: batchCount - (currentBatch + this.batchQueue.length),
                         status: false
                     });
                 } else {
-                    await batchProgressModel.findByIdAndUpdate(retailerBatch._id, {
+                    await batchProgressModel.findByIdAndUpdate(orderBatch._id, {
                         endTime: new Date(),
                         status: false
                     });
@@ -162,6 +164,8 @@ export default class RetailersImporter {
         while (this.activeWorkers > 0) {
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
+
+        console.log("All active workers finished. Batch progress has been updated.");
 
     };
 

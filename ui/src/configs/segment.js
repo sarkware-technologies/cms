@@ -758,21 +758,6 @@ let segment_config = {
                                                                         seperator: false,
                                                                         columns: [
                                                                             {
-                                                                                title: "Sale Rules",
-                                                                                sub_title: "",
-                                                                                type: "placeholder",
-                                                                                width: "100%",
-                                                                                layout: "horizontal",
-                                                                                collapsible: false,
-                                                                                classes: "",
-                                                                                placeholder: "segment_rules_container"
-                                                                            }                       
-                                                                        ]
-                                                                    },
-                                                                    {
-                                                                        seperator: false,
-                                                                        columns: [
-                                                                            {
                                                                                 title: "Order Status",
                                                                                 sub_title: "",
                                                                                 type: "fields",
@@ -837,11 +822,11 @@ let segment_config = {
                                                                                         source: "remote",
                                                                                         endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=companies&select=_id|CompanyId|CompanyName"
                                                                                     },                                                             
-                                                                                    { type: "radio", label: "", handle: "distributorStatus", value : "1", value_key: "value", label_key: "label", choices: [{label: "All", value: "1", selected: true, disabled: false},{label: "Only Authorized", value: "2", selected: false, disabled: false}], layout: "horizontal", classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },
+                                                                                    { type: "radio", label: "", handle: "storeStatus", value : "1", value_key: "value", label_key: "label", choices: [{label: "All", value: "1", selected: true, disabled: false},{label: "Only Authorized", value: "2", selected: false, disabled: false}], layout: "horizontal", classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },
                                                                                     {
                                                                                         type: "multiselect", 
                                                                                         label: "Exclude distributors", 
-                                                                                        handle: "excludeDistributors", 
+                                                                                        handle: "excludedStores", 
                                                                                         value : "", 
                                                                                         parents: {},
                                                                                         placeholder: "Select Distributors", 
@@ -858,12 +843,27 @@ let segment_config = {
                                                                                         label_position: "top", 
                                                                                         prompt_message: "", 
                                                                                         validation_message: "", 
-                                                                                        value_key: "RetailerId", 
-                                                                                        label_key: "RetailerName", 
+                                                                                        value_key: "storeId", 
+                                                                                        label_key: "storeName", 
                                                                                         source: "remote",
-                                                                                        endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=retailer&select=_id|RetailerId|RetailerName"
+                                                                                        endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=cms_master_store&select=_id|storeId|storeName"
                                                                                     }
                                                                                 ]
+                                                                            }                       
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        seperator: false,
+                                                                        columns: [
+                                                                            {
+                                                                                title: "Sale Rules",
+                                                                                sub_title: "",
+                                                                                type: "placeholder",
+                                                                                width: "100%",
+                                                                                layout: "horizontal",
+                                                                                collapsible: false,
+                                                                                classes: "",
+                                                                                placeholder: "segment_rules_container"
                                                                             }                       
                                                                         ]
                                                                     }
@@ -935,10 +935,10 @@ let segment_config = {
                                                                                         label_position: "top", 
                                                                                         prompt_message: "", 
                                                                                         validation_message: "", 
-                                                                                        value_key: "RetailerId", 
+                                                                                        value_key: "_id", 
                                                                                         label_key: "RetailerName", 
                                                                                         source: "remote",
-                                                                                        endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=retailer&select=_id|RetailerId|RetailerName"
+                                                                                        endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=cms_master_retailer&select=_id|RetailerId|RetailerName"
                                                                                     }
                                                                                 ]
                                                                             }                            
@@ -1180,10 +1180,10 @@ let segment_config = {
                                         label_position: "top", 
                                         prompt_message: "", 
                                         validation_message: "", 
-                                        value_key: "RetailerId", 
+                                        value_key: "_id", 
                                         label_key: "RetailerName", 
                                         source: "remote",
-                                        endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=retailer&select=_id|RetailerId|RetailerName"
+                                        endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=cms_master_retailer&select=_id|RetailerId|RetailerName"
                                     }
                                 ]
                             }

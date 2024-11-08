@@ -2,6 +2,7 @@ import ModuleModel from "../models/module.js";
 import EntityModel from "../models/entity.js";
 import EM from "../utils/entity.js";
 import AP from "./api.js";
+import MYDBM from "../utils/mysql.js";
 
 import Utils from "../utils/utils.js";
 import SegmentModel from "../models/segment.js";
@@ -12,6 +13,8 @@ import SegmentRetailerExclusionModel from "../models/segment-retailer-exclusion.
 import SegmentRuleModel from "../models/segment-rules.js";
 import SegmentStatus from "../enums/segment-status.js";
 import SegmentGeography from "../enums/segment-geography.js";
+import SegmentRetailer from "../enums/segment-retailer-status.js";
+import SegmentStoreStatus from "../enums/segment-store-status.js";
 
 export default class SegmentService {
 
@@ -347,9 +350,9 @@ export default class SegmentService {
                 throw new Error("Segment id is missing");
             }
 
+            const limit = 10;
             const page = parseInt(_req.query.page) || 1;
-            const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
-            const limit = 10;//parseInt(process.env.PAGE_SIZE);
+            const skip = (page - 1) * limit;            
 
             const searchFor = _req.query.search ? _req.query.search : "";
             const searchFrom = _req.query.field ? _req.query.field : "";
@@ -370,19 +373,14 @@ export default class SegmentService {
                 }
             }
 
-            let _retailers = [];                 
-            const segmentRetailers = await SegmentRetailerModel.find({segment: _req.params.id}).select("retailer").lean();
-            // Extract retailer ids into an array
-            const retailerIds = segmentRetailers.map(record => record.retailer);           
+            const retailerModel = await EM.getModel("cms_master_retailer");
+            const segmentRetailerModel = await EM.getModel("cms_system_segment_retailer");
 
-            if (retailerIds.length > 0) {
-                const retailerModel = await EM.getModel("retailer");
-                if (retailerModel) {
-                    _retailers = await retailerModel.find({ RetailerId: { $in: retailerIds } }).skip(skip).limit(limit).lean();
-                }                
-            }      
+            const _count = await segmentRetailerModel.countDocuments({segment: _req.params.id});
+            const _retailers = await segmentRetailerModel.find({segment: _req.params.id}).populate("retailer").skip(skip).limit(limit).lean();
+            const _result = _retailers.map((_item) => _item.retailer);
 
-            return Utils.response(retailerIds.length, 1, _retailers);
+            return Utils.response(_count, page, _result, 10);
 
         } catch (_e) {
             throw _e;
@@ -423,6 +421,7 @@ export default class SegmentService {
 
             let _retailers = [];                 
             const segmentRetailers = await SegmentRetailerModel.find({segment: _req.params.id}).select("retailer").lean();
+            
             // Extract retailer ids into an array
             const retailerIds = segmentRetailers.map(record => record.retailer);           
 
@@ -685,33 +684,44 @@ export default class SegmentService {
 
             if (segment) {
 
-                const filterQuery = {};
+                const filterOrderQuery = {};
+                const filterOrderItemQuery = {};
+                const populateOrderQuery = [];
+                const populateOrderItemQuery = [];
 
                 if (segment.fromDate) {
-                    filterQuery["orderDate"] = { $gte: new Date(segment.fromDate) };
+                    filterOrderQuery["orderDate"] = { $gte: new Date(segment.fromDate) };
                 }
 
                 if (segment.toDate) {
-                    filterQuery["orderDate"] = { $lte: new Date(segment.toDate) };
+                    filterOrderQuery["orderDate"] = { $lte: new Date(segment.toDate) };
                 }
 
                 if ((segment.geography == SegmentGeography.STATE) && (Array.isArray(segment.states) && segment.states.length > 0 )) {
-                    filterQuery["states"] = { $in: segment.states };
+                    filterOrderQuery["states"] = { $in: segment.states };
                 }
 
                 if ((segment.geography == SegmentGeography.REGION) && (Array.isArray(segment.regions) && segment.regions.length > 0 )) {
-                    filterQuery["regions"] = { $in: segment.regions };
+                    filterOrderQuery["regions"] = { $in: segment.regions };
                 }
 
                 if (Array.isArray(segment.orderStatus) && segment.orderStatus.length > 0) {
-                    filterQuery["orderStatus"] = { $in: segment.orderStatus };
+                    filterOrderQuery["orderStatus"] = { $in: segment.orderStatus };
                 }
 
-                
+                if (segment.retailerStatus == SegmentRetailer.AUTHORIZED) {
+                    populateOrderQuery.push({path: "retailer", match: { isAuthorized: { $eq: true } }});
+                }
+
+                if (segment.storeStatus == SegmentStoreStatus.AUTHORIZED) {
+                    populateOrderQuery.push({path: "store", match: { isAuthorized: { $eq: true },  }});
+                }
+
+                if (Array.isArray(segment.excludedStores) && segment.excludedStores.length > 0) {
+                    filterOrderQuery["storeId"] = { $nin: segment.excludedStores };
+                }
 
             }
-
-            
 
         } catch (e) {
             console.log(e);
@@ -732,8 +742,12 @@ export default class SegmentService {
 
                     if (_entity === "segment") {  
                         callback(await SegmentModel.find().lean(), null);
-                    } else if (_entity === "distributor") {                        
-                        callback(await MYDBM.queryWithConditions("select StoreId, StoreName, StoreCode from stores", []), null);
+                    } else if (_entity === "brands") {
+                        callback(await MYDBM.query("select * from brands b where b.IsDeleted = 0 AND b.IsApproved = 1"), null);
+                    } else if (_entity === "mdms") { 
+
+                    } else if (_entity === "categories") { 
+                        callback(await MYDBM.query("select DISTINCT(s.Category) from storeproducts s"), null);                         
                     } else if (_entity === "companies") {
                         //callback(await MYDBM.queryWithConditions("select CompanyId, CompanyName from companies", []), null);
                         callback(

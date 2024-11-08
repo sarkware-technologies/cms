@@ -1,12 +1,12 @@
 import { parentPort, workerData } from "worker_threads";
-import MDBM from "./mongo.js";
-import MYDBM from "./mysql.js";
-import EM from "./entity.js";
+import MDBM from "../utils/mongo.js";
+import MYDBM from "../utils/mysql.js";
+import EM from "../utils/entity.js";
 import ImportType from '../enums/importer-type.js';
 
 async function processBatch(data) {
 
-    const { batch, retailerIds } = data;    
+    const { batch, retailerIds } = data;      console.log("Worker started for batch no : "+ batch);
 
     try {
 
@@ -44,7 +44,9 @@ async function processBatch(data) {
                 r.StateId 
                 from retailers r 
             WHERE r.RetailerId IN (?);`
-        , [retailerIds]);   
+        , [retailerIds]); 
+        
+        console.log("Fetched retailerfs count : "+ retailers.length);
 
         for (let i = 0; i < retailers.length; i += chunkSize) {
 
@@ -72,22 +74,20 @@ async function processBatch(data) {
                 await retailerModel.insertMany(retailerBulkOps, { ordered: false });                
             } catch (e) { 
                 
-                console.log(e);
-                
                 if (e.writeErrors) {
                     
                     /* Partial failure */
 
-                    const errorLogs = e.writeErrors.map(error => ({                        
-                        retailerId: error.getOperation().RetailerId,
-                        retailerName: error.getOperation().retailerName,
-                        message: error.errmsg || "Unknown error"                        
+                    const errorLogs = e.writeErrors.map(error => ({
+                        retailerId: error.err.op.RetailerId, 
+                        retailerName: error.err.op.RetailerName,
+                        message: error.err.errmsg || "Unknown error"                        
                     }));
 
                     try {
                         await importLogModel.insertMany(errorLogs, { ordered: false });
-                    } catch (e) {
-                        console.log("Error logging for import retailer itself failed for batch : "+ batch);
+                    } catch (logError) {
+                        console.log("Error logging for import retailer itself failed for batch:", batch);
                     }
 
                 } else {
@@ -97,7 +97,7 @@ async function processBatch(data) {
                     const errorLogs = chunk.map(retailer => ({
                         retailerId: retailer.RetailerId,
                         retailerName: retailer.retailerName,
-                        message: error.errmsg || "Unknown error" 
+                        message: e.message || "Unknown error" 
                     }));
 
                     try {

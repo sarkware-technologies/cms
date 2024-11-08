@@ -19,6 +19,17 @@ router.get(
 );
 
 router.get(
+    `/${moduleHandle}/:id/entities/all`,
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
+        try {
+            res.status(200).json(await moduleService.listAllEntities(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.get(
     `/${moduleHandle}/:id/entities`,
     await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {

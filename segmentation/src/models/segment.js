@@ -1,8 +1,8 @@
 import mongoose from'mongoose';
 import SegmentType from '../enums/segment-type.js';
 import SegmentOrder from '../enums/segment-order.js';
-import SegmentRetailer from '../enums/segment-retailer.js';
-import SegmentDistributor from '../enums/segment-distributor.js';
+import RetailerStatus from '../enums/segment-retailer-status.js';
+import StoreStatus from '../enums/segment-store-status.js';
 import SegmentStatus from '../enums/segment-status.js';
 
 const SegmentSchema = new mongoose.Schema({ 
@@ -15,12 +15,12 @@ const SegmentSchema = new mongoose.Schema({
     states                  : { type: Array, default: null },
     regions                 : { type: Array, default: null },    
     orderStatus             : { type: Array, default: null },
-    retailerStatus          : { type: Number, default: SegmentRetailer.ALL },
+    retailerStatus          : { type: Number, default: RetailerStatus.ALL },
     companies               : { type: Array, default: null },
-    distributorStatus       : { type: Number, default: SegmentDistributor.ALL },    
-    excludeDistributors     : { type: Array, default: null },
+    storeStatus             : { type: Number, default: StoreStatus.ALL },    
+    excludedStores          : { type: [{type: mongoose.Schema.Types.ObjectId, ref: "cms_master_store"}], default: null },
     status                  : { type: Boolean, default: false },
-    segmentStatus           : { type: Number, default: SegmentStatus.DISABLED },
+    segmentStatus           : { type: Number, default: SegmentStatus.SCHEDULED },
     createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
     updatedBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 },

@@ -6,15 +6,14 @@ const SegmentPreview = (props, ref) => {
     const [segmentTitle, setSegmentTitle] = useState("");
     const [segmentDescription, setSegmentDescription] = useState("");
     const [fromDate, setFromDate] = useState("");
-    const [toDate, setToDate] = useState("");
-    const [salesType, setSalesType] = useState(1);
+    const [toDate, setToDate] = useState("");    
     const [retailerStatus, setRetailerStatus] = useState("All");
     const [orderStatus, setOrderStatus] = useState([]);
     const [geographyType, setGeographyType] = useState("State");
     const [geographyTarget, setGeographyTarget] = useState("");
-    const [distributorStatus, setDistributorStatus] = useState("All");
-    const [companies, setCompanies] = useState("None");
-    const [excludeDistributors, setDistributorExclude] = useState([]);
+    const [storeStatus, setStoreStatus] = useState("All");
+    const [companies, setCompanies] = useState("None"); 
+    const [excludedStores, setExcludedStores] = useState([]);
     const [segmentRules, setSegmentRules] = useState([]);
 
     const self = {
@@ -29,9 +28,9 @@ const SegmentPreview = (props, ref) => {
         setOrderStatus: (_status) => setOrderStatus(_status),
         setGeographyType: (_type) => setGeographyType(_type),
         setGeographyTarget: (_target) => setGeographyTarget(_target),
-        setDistributorStatus: (_status) => setDistributorStatus(_status),
+        setStoreStatus: (_status) => setStoreStatus(_status),
         setCompanies: (_companies) => setCompanies(_companies),
-        setDistributorExclude: (_distributors) => setDistributorExclude(_distributors),
+        setExcludedStores: (_distributors) => setExcludedStores(_distributors),
         setSegmentRules: (_rules) => setSegmentRules(_rules)
     };
     /* Expose the component to the consumer */
@@ -71,6 +70,15 @@ const SegmentPreview = (props, ref) => {
 
     };
 
+    const renderDate = (_date) => {
+        if (_date) {
+            const dateObj = new Date(_date);
+            return dateObj.toDateString();
+        } else {
+            return "";
+        }        
+    };
+
     const renderDynamicSegmentPreview = () => {
 
         return (
@@ -84,7 +92,10 @@ const SegmentPreview = (props, ref) => {
                 </div>
                 <div className="pharmarack-cms-segment-preview-section">
                     <label>Time Interval</label>
-                    <p>{fromDate} <span>to</span> {toDate}</p>
+
+                    
+
+                    <p>{renderDate(fromDate)} <span>to</span> {renderDate(toDate)}</p>
                 </div>
                 <div className="pharmarack-cms-segment-preview-section">                    
                     <table className="preview-table">
@@ -101,6 +112,34 @@ const SegmentPreview = (props, ref) => {
                             </tr>
                         </tbody>
                     </table>
+                </div>                
+                <div className="pharmarack-cms-segment-preview-section">
+                    <label>Order Status</label>
+                    <p>{orderStatus}</p>
+                </div>
+                <div className="pharmarack-cms-segment-preview-section">
+                    <label>Retailers</label>
+                    <p>Status : {retailerStatus}</p>
+                </div>
+                <div className="pharmarack-cms-segment-preview-section">
+                    <table className="preview-table">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <label>Distributors</label>
+                                    <p>Status : {storeStatus}</p>
+                                </td>
+                                <td>
+                                    <label>Companies</label>
+                                    <p>{companies}</p>                                    
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>                    
+                </div>
+                <div className="pharmarack-cms-segment-preview-section">
+                    <label>Exclude Distributors</label>
+                    <p>{excludedStores}</p>
                 </div>
                 <div className="pharmarack-cms-segment-preview-section">
                     <table className="pharmarack-cms-segment-preview-rule-table">
@@ -119,34 +158,6 @@ const SegmentPreview = (props, ref) => {
                             {renderSegmentRule()}
                         </tbody>
                     </table>                    
-                </div>
-                <div className="pharmarack-cms-segment-preview-section">
-                    <label>Order Status</label>
-                    <p>{orderStatus}</p>
-                </div>
-                <div className="pharmarack-cms-segment-preview-section">
-                    <label>Retailers</label>
-                    <p>Status : {retailerStatus}</p>
-                </div>
-                <div className="pharmarack-cms-segment-preview-section">
-                    <table className="preview-table">
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <label>Distributors</label>
-                                    <p>Status : {distributorStatus}</p>
-                                </td>
-                                <td>
-                                    <label>Companies</label>
-                                    <p>{companies}</p>                                    
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>                    
-                </div>
-                <div className="pharmarack-cms-segment-preview-section">
-                    <label>Exclude Distributors</label>
-                    <p>{excludeDistributors}</p>
                 </div>
             </>
         )

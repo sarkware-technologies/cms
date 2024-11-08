@@ -175,8 +175,8 @@ export default function SegmentContext(_component) {
                 this.segmentPreviewRef.current.setSalesType(_value);
             } else if (_handle == "segment_form_tab_retailerStatus") {
                 this.segmentPreviewRef.current.setRetailerStatus(_value == 1 ? "All" : "Authorized");
-            } else if (_handle == "segment_form_tab_distributorStatus") {
-                this.segmentPreviewRef.current.setDistributorStatus(_value == 1 ? "All" : "Authorized");
+            } else if (_handle == "segment_form_tab_storeStatus") {
+                this.segmentPreviewRef.current.setStoreStatus(_value == 1 ? "All" : "Authorized");
             } else if (_handle == "segment_previewer") {
                 if (this.segmentRuleContainer.current) {
                     const _rules = this.segmentRuleContainer.current.getRules();
@@ -215,10 +215,10 @@ export default function SegmentContext(_component) {
                     }
                 }
 
-            } else if (_handle == "excludeDistributors") {
-                const distributorField = this.controller.getField("segment_form_tab_excludeDistributors");
-                if (distributorField && record.excludeDistributors) {
-                    distributorField.setSelectedRecords(record.excludeDistributors);
+            } else if (_handle == "excludedStores") {
+                const distributorField = this.controller.getField("segment_form_tab_excludedStores");
+                if (distributorField && record.excludedStores) {
+                    distributorField.setSelectedRecords(record.excludedStores);
                 }
             }
 
@@ -247,7 +247,7 @@ export default function SegmentContext(_component) {
                 }
 
                 const request = {};    
-                const segment = this.component.currentRecord["segment_grid"];
+                const segment = this.getCurrentSegmentRecord();
                 const retailerGrid = this.controller.getField("retailer_grid");
 
                 if (segment) {
@@ -290,15 +290,15 @@ export default function SegmentContext(_component) {
                     this.segmentPreviewRef.current.setCompanies(_selected);
                 }
                 
-            } else if (_handle == "excludeDistributors") {
+            } else if (_handle == "excludedStores") {
 
-                const distributorSelector = this.controller.getField("segment_form_tab_excludeDistributors");
+                const distributorSelector = this.controller.getField("segment_form_tab_excludedStores");
                 if (distributorSelector) {
                     let _selected = distributorSelector.getSelectedRecordsLabel();
                     if(_selected && Array.isArray(_selected)) {
                         _selected = _selected.join(", ");
                     }
-                    this.segmentPreviewRef.current.setDistributorExclude(_selected);
+                    this.segmentPreviewRef.current.setExcludedStores(_selected);
                 }
                 
             }
@@ -446,10 +446,10 @@ export default function SegmentContext(_component) {
     this.onActionBtnClick = (_action) => {
 
         if (_action === "NEW_SEGMENT") {
-            this.component.currentRecord["segment_grid"] = null;
+            this.component.currentRecord = {};
             this.controller.switchView("new_segment_form");
         } else if (_action === "CANCEL_SEGMENT") {     
-            this.component.currentRecord["segment_grid"] = null;       
+            this.component.currentRecord = {};       
             this.controller.switchView("main_view");
         } else if (_action === "SAVE_SEGMENT") {
             this.saveSegment();
@@ -471,8 +471,8 @@ export default function SegmentContext(_component) {
             }
         } else if (_action === "DELETE_SEGMENT") {
 
-            const request = {};
-            const segment = this.component.currentRecord["segment_grid"];        
+            const request = {};            
+            const segment = this.getCurrentSegmentRecord();      
 
             if (segment) {
                 
@@ -482,7 +482,7 @@ export default function SegmentContext(_component) {
                 this.controller.docker.dock(request).then((_res) => {
                     this.controller.notify(segment.title + " deleted successfully.!");
                     this.controller.switchView("main_view");
-                    this.component.currentRecord["segment_grid"] = null;                
+                    this.component.currentRecord = {};                
                 })
                 .catch((e) => {
                     this.controller.notify(e.message, "error");
@@ -498,8 +498,8 @@ export default function SegmentContext(_component) {
 
     this.removeRetailersFromSegment = (_retailersIds) => {
 
-        const request = {};    
-        const segment = this.component.currentRecord["segment_grid"];
+        const request = {};            
+        const segment = this.getCurrentSegmentRecord();
         const retailerGrid = this.controller.getField("retailer_grid");
 
         if (segment) {
@@ -523,7 +523,7 @@ export default function SegmentContext(_component) {
     this.saveSegment = () => {
 
         const request = {};    
-        const segment = this.component.currentRecord["segment_grid"];
+        const segment = this.getCurrentSegmentRecord();
 
         if (segment) {
             /* It's an uppdate call */
@@ -576,7 +576,7 @@ export default function SegmentContext(_component) {
             this.controller.docker.dock(request).then((_res) => {
                 this.controller.notify(_res.title + " saved successfully.!");
                 this.controller.switchView("main_view");
-                this.component.currentRecord["segment_grid"] = null;
+                this.component.currentRecord = {};
             })
             .catch((e) => {
                 this.controller.notify(e.message, "error");
@@ -697,9 +697,9 @@ export default function SegmentContext(_component) {
                 retailerStatusField.setVal(record.retailerStatus);
             }
 
-            const distributorStatusField = this.controller.getField("segment_form_tab_distributorStatus");
-            if (distributorStatusField && record.distributorStatus) {
-                distributorStatusField.setVal(record.distributorStatus);
+            const storeStatusField = this.controller.getField("segment_form_tab_storeStatus");
+            if (storeStatusField && record.storeStatus) {
+                storeStatusField.setVal(record.storeStatus);
             }
 
             if (this.segmentPreviewRef && this.segmentPreviewRef.current) {
@@ -710,7 +710,7 @@ export default function SegmentContext(_component) {
                 this.segmentPreviewRef.current.setToDate(record.toDate);                
                 this.segmentPreviewRef.current.setGeographyType(record.geography == 1 ? "State" : "Region");                
                 this.segmentPreviewRef.current.setRetailerStatus(record.retailerStatus == 1 ? "All" : "Authorized");
-                this.segmentPreviewRef.current.setDistributorStatus(record.distributorStatus == 1 ? "All" : "Authorized");
+                this.segmentPreviewRef.current.setStoreStatus(record.storeStatus == 1 ? "All" : "Authorized");
 
             }
 
@@ -735,6 +735,6 @@ export default function SegmentContext(_component) {
         }
 
         return this.component.currentRecord[_grid];
-    };
+    };    
 
 };
