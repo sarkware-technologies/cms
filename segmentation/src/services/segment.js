@@ -747,7 +747,7 @@ export default class SegmentService {
                     } else if (_entity === "mdms") { 
 
                     } else if (_entity === "categories") { 
-                        callback(await MYDBM.query("select DISTINCT(s.Category) from storeproducts s"), null);                         
+                        callback(await MYDBM.query("select DISTINCT(s.Category) as Name from storeproducts s"), null);                         
                     } else if (_entity === "companies") {
                         //callback(await MYDBM.queryWithConditions("select CompanyId, CompanyName from companies", []), null);
                         callback(

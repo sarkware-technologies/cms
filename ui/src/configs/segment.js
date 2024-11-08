@@ -843,7 +843,7 @@ let segment_config = {
                                                                                         label_position: "top", 
                                                                                         prompt_message: "", 
                                                                                         validation_message: "", 
-                                                                                        value_key: "storeId", 
+                                                                                        value_key: "_id", 
                                                                                         label_key: "storeName", 
                                                                                         source: "remote",
                                                                                         endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=cms_master_store&select=_id|storeId|storeName"

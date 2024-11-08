@@ -1,7 +1,7 @@
 import React, {useState, useEffect, forwardRef, useImperativeHandle} from "react";
 import Search from "../../search";
 
-const ArrayFieldConfig = (props, ref) => { console.log(props);
+const ArrayFieldConfig = (props, ref) => {
     
     let options = {};
     if (props.config.options) {
@@ -36,7 +36,7 @@ const ArrayFieldConfig = (props, ref) => { console.log(props);
         validation_message: "", 
         value_key: "_id", 
         label_key: "title", 
-        datasource: {endpoint: "/system/v1/entity", page: 0}
+        datasource: {endpoint: "/system/v1/entity", cached: false}
     };
 
     const handleRequiredChange = (_e) => {

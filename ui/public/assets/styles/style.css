@@ -1062,7 +1062,7 @@ div.pharmarack-cms-confirm-bar {
     height: auto;
     line-height: 20px;
     color: #e0e0e0;
-    font-size: 16px;
+    font-size: 20px;
     text-align: right;
     background-color: #2d2f33;
     border-top: 1px solid #444;
@@ -1499,7 +1499,7 @@ div.pharmarack-cms-multi-select-search-container input {
     margin-top: 10px;    
 }
 
-.pharmarack-cms-search-paginator a {
+.pharmarack-cms-search-paginator button {
     display: flex;
     width: 30px;
     height: 30px;
@@ -1509,11 +1509,11 @@ div.pharmarack-cms-multi-select-search-container input {
     margin-right: 2px;
 }
 
-.pharmarack-cms-search-paginator a i {
+.pharmarack-cms-search-paginator button i {
     margin: 0px;
 }
 
-.pharmarack-cms-search-paginator a.done-btn {
+.pharmarack-cms-search-paginator button.done-btn {
     width: auto;
     font-weight: bold;
     margin-left: 2px;
@@ -1530,7 +1530,7 @@ div.pharmarack-cms-multi-select-search-container input {
     margin-right: auto;
 }
 
-.pharmarack-cms-search-paginator > div a {
+.pharmarack-cms-search-paginator > div button {
     width: auto;    
 }
 
@@ -2094,13 +2094,13 @@ div.pharmarack-cms-mapped-entity-list .factory-header {
 .pharmarack-cms-field-configure-row > div.config select,
 .pharmarack-cms-field-configure-row > div.config textarea {
     width: 100%;
-    height: 28px;
+    height: 35px;
     padding: 0px 10px;
     border: solid 1px #ddd;
 }
 
 .pharmarack-cms-field-configure-row > div.config div.pharmarack-cms-search-widget {
-    width: 50%;
+    width: 100%;
 }
 
 .pharmarack-cms-field-configure-row > div.config select {

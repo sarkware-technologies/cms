@@ -57,19 +57,20 @@ async function processBatch(data) {
                 od.PTR,      
                 spr.CompanyCode,
                 spr.Company,
-                b.Name as Brand,
+                b.BrandId,
+                b.Name as BrandName,
                 mspm.MDM_PRODUCT_CODE 
             FROM 
                 orders o
             INNER JOIN orderdetails od ON o.OrderId = od.OrderId
             INNER JOIN stores AS s ON o.StoreId = s.StoreId
-            INNER JOIN storeparties AS sp ON o.StoreId = sp.StoreId AND o.PartyCode = sp.PartyCode
-            INNER JOIN productstoreproducts psp ON psp.storeid=o.StoreId AND psp.ProductCode=od.ProductCode
-            INNER JOIN products p ON p.ProductId = psp.ProductId             
+            INNER JOIN storeparties AS sp ON o.StoreId = sp.StoreId AND o.PartyCode = sp.PartyCode             
             INNER JOIN storeproducts spr ON od.StoreId = spr.StoreId AND od.ProductCode = spr.ProductCode
             INNER JOIN retailerstoreparties rsp ON s.StoreId = rsp.StoreId AND ((o.PartyCode = rsp.PartyCode) OR ((o.PartyCode IS NULL) AND (rsp.PartyCode IS NULL)))
             INNER JOIN retailers r ON r.RetailerId = rsp.RetailerId 
             INNER JOIN users u ON o.CreatedBy = u.UserId
+            LEFT JOIN productstoreproducts psp ON psp.storeid=o.StoreId AND psp.ProductCode=od.ProductCode
+            LEFT JOIN products p ON p.ProductId = psp.ProductId
             LEFT JOIN brands b ON b.BrandId = p.BrandId 
             LEFT JOIN mdm_store_product_master mspm ON mspm.PRODUCT_CODE = od.ProductCode AND mspm.STOREID = o.StoreId
             WHERE o.OrderId IN (?);`
@@ -184,7 +185,8 @@ async function processBatch(data) {
                     ptr: _item.PTR,
                     receivedQty: _item.ActualQuantityReceived,
                     order: orderIdMap[_item.OrderId],
-                    brand: _item.Brand
+                    brandName: _item.BrandName,
+                    brandId: _item.BrandId
                 }
             })
 

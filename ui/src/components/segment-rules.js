@@ -12,6 +12,98 @@ const SegmentRule = (props, ref) => {
         to: ""
     }]);
 
+    const mdmSelectorConfig = { 
+        type: "search", 
+        label: "Mdm Product Code", 
+        handle: "mdmCodeSearch", 
+        value : "", 
+        placeholder: "Click to search for mdm product codes", 
+        searchprompt: "Search for mdm product codes",
+        search_class: "", 
+        popup_class: "",
+        mandatory: true, 
+        readonly: false, 
+        disabled: false, 
+        tabindex: 1, 
+        align: "right", 
+        label_width: 0, 
+        label_position: "top", 
+        prompt_message: "", 
+        validation_message: "", 
+        value_key: "_id", 
+        label_key: "title", 
+        datasource: {endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=mdms", cached: true, recordsPerPage: 10}
+    };
+
+    const brandSelectorConfig = { 
+        type: "search", 
+        label: "Brands", 
+        handle: "brandSearch", 
+        value : "", 
+        placeholder: "Click to search for Brands", 
+        searchprompt: "Search for Brands",
+        search_class: "", 
+        popup_class: "",
+        mandatory: true, 
+        readonly: false, 
+        disabled: false, 
+        tabindex: 1, 
+        align: "right", 
+        label_width: 0, 
+        label_position: "top", 
+        prompt_message: "", 
+        validation_message: "", 
+        value_key: "Name", 
+        label_key: "Name", 
+        datasource: {endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=brands", cached: true, recordsPerPage: 10}
+    };
+
+    const categorySelectorConfig = { 
+        type: "search", 
+        label: "Categories", 
+        handle: "catSearch", 
+        value : "", 
+        placeholder: "Click to search for Categories", 
+        searchprompt: "Search for Categories",
+        search_class: "", 
+        popup_class: "",
+        mandatory: true, 
+        readonly: false, 
+        disabled: false, 
+        tabindex: 1, 
+        align: "right", 
+        label_width: 0, 
+        label_position: "top", 
+        prompt_message: "", 
+        validation_message: "", 
+        value_key: "Name", 
+        label_key: "Name", 
+        datasource: {endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=categories", cached: true, recordsPerPage: 10}
+    };
+
+    const companySelectorConfig = { 
+        type: "search", 
+        label: "Companies", 
+        handle: "companySearch", 
+        value : "", 
+        placeholder: "Click to search for Companies", 
+        searchprompt: "Search for Companies",
+        search_class: "", 
+        popup_class: "",
+        mandatory: true, 
+        readonly: false, 
+        disabled: false, 
+        tabindex: 1, 
+        align: "right", 
+        label_width: 0, 
+        label_position: "top", 
+        prompt_message: "", 
+        validation_message: "", 
+        value_key: "CompanyId", 
+        label_key: "CompanyName", 
+        datasource: {endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=companies", cached: true, recordsPerPage: 10}
+    };
+
     const handleTargetChange = (_e, _index) => {
         const _rules = [...rules];
         _rules[_index].target = _e.target.value;
@@ -103,7 +195,9 @@ const SegmentRule = (props, ref) => {
                                 <label>Rule Type</label>
                                 <select onChange={(e) => handleRuleTypeChange(e, index)} value={rule.ruleType} >
                                     <option value="1">Product</option>
-                                    <option value="2">Company</option>
+                                    <option value="2">Brand</option>
+                                    <option value="3">Company</option>
+                                    <option value="4">Category</option>
                                 </select>
                             </td>
                             <td className="target-td">

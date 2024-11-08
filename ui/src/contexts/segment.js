@@ -290,14 +290,20 @@ export default function SegmentContext(_component) {
                     this.segmentPreviewRef.current.setCompanies(_selected);
                 }
                 
-            } else if (_handle == "excludedStores") {
+            } else if (_handle == "excludedStores") {  console.log("excludedStores is loaded");
 
                 const distributorSelector = this.controller.getField("segment_form_tab_excludedStores");
+                
                 if (distributorSelector) {
+
+                    console.log(distributorSelector.getSelectedRecords());
                     let _selected = distributorSelector.getSelectedRecordsLabel();
                     if(_selected && Array.isArray(_selected)) {
                         _selected = _selected.join(", ");
                     }
+
+                    console.log(_selected);
+
                     this.segmentPreviewRef.current.setExcludedStores(_selected);
                 }
                 
@@ -381,7 +387,7 @@ export default function SegmentContext(_component) {
     this.beforeViewMount = (_handle, _viewConfig) => {
 
         if (_handle === "segment_form") {
-            const segment = this.component.currentRecord["segment_grid"];  
+            const segment = this.getCurrentSegmentRecord();  
             if (segment && segment.segmentType == 2) {    
                 _viewConfig.context_header.actions = [
                     { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
@@ -409,7 +415,7 @@ export default function SegmentContext(_component) {
     this.onViewMounted = (_handle) => {
 
         if (_handle == "new_segment_form") {
-            const record = this.component.currentRecord["segment_grid"];
+            const record = this.getCurrentSegmentRecord();
             const segmentTypeField = this.controller.getField("new_segment_form_segmentType");
             if (record && segmentTypeField) {
                 segmentTypeField.setVal(record.segmentType);
@@ -459,39 +465,63 @@ export default function SegmentContext(_component) {
                 newRetailerSelector.showPopup();
             }
         } else if (_action === "REMOVE_RETAILER") {
+
             const retailerGrid = this.controller.getField("retailer_grid");
             if (retailerGrid) {
                 const checkedRecords = retailerGrid.getCheckedRecords();
                 if (checkedRecords.length > 0) {
-                    const retailerIds = checkedRecords.map(record => record.RetailerId);
-                    this.removeRetailersFromSegment(retailerIds);
+                    this.controller.getUserConfirm("Are you sure ?", "REMOVE_RETAILER");
                 } else {
                     this.controller.notify("Select retailers to remove", "error");
                 }
             }
+            
         } else if (_action === "DELETE_SEGMENT") {
+            this.controller.getUserConfirm("Are you sure ?", "DELETE_SEGMENT");
+        } else if (_action == "EDIT_SEGMENT") {
+            this.controller.switchView("new_segment_form");
+        }
 
-            const request = {};            
-            const segment = this.getCurrentSegmentRecord();      
+    };
 
-            if (segment) {
-                
-                request["method"] = "DELETE";
-                request["endpoint"] = "/segmentation/v1/segment/" + segment._id;                
+    this.onUserConfirm = (_task, _choice) => {
 
-                this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(segment.title + " deleted successfully.!");
-                    this.controller.switchView("main_view");
-                    this.component.currentRecord = {};                
-                })
-                .catch((e) => {
-                    this.controller.notify(e.message, "error");
-                });
+        if (_choice) {
+
+            if (_task == "DELETE_SEGMENT") {
+
+                const request = {};            
+                const segment = this.getCurrentSegmentRecord();      
+
+                if (segment) {
+                    
+                    request["method"] = "DELETE";
+                    request["endpoint"] = "/segmentation/v1/segment/" + segment._id;                
+
+                    this.controller.docker.dock(request).then((_res) => {
+                        this.controller.notify(segment.title + " deleted successfully.!");
+                        this.controller.switchView("main_view");
+                        this.component.currentRecord = {};                
+                    })
+                    .catch((e) => {
+                        this.controller.notify(e.message, "error");
+                    });
+
+                }
+
+            } else if (_task == "REMOVE_RETAILER") {
+
+                const retailerGrid = this.controller.getField("retailer_grid");
+                if (retailerGrid) {
+                    const checkedRecords = retailerGrid.getCheckedRecords();
+                    if (checkedRecords.length > 0) {
+                        const retailerIds = checkedRecords.map(record => record._id);
+                        this.removeRetailersFromSegment(retailerIds);
+                    } 
+                }
 
             }
 
-        } else if (_action == "EDIT_SEGMENT") {
-            this.controller.switchView("new_segment_form");
         }
 
     };
