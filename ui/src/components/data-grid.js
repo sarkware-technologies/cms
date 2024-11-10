@@ -715,7 +715,7 @@ const DataGrid = (props, ref) => {
 
     }
 
-    const RecordButton = (_props) => {  console.log(_props);
+    const RecordButton = (_props) => {
 
         let icon = "";        
         let classes = "pharmarack-cms-btn "+ _props.config.classes +" "+ _props.config.field.theme;
@@ -787,20 +787,20 @@ const DataGrid = (props, ref) => {
         }        
 
         if (_props.config.field.type === "link" || _props.config.field.type === "link_search") {
-            return <td style={cssProperties}><a href="#" onClick={e => handleRecordLinkClick(e, props.config.handle, props.config.link.context, _props.record)}>{_props.data}</a></td>;
+            return <td style={cssProperties} className={_props.config.classes}><a href="#" onClick={e => handleRecordLinkClick(e, props.config.handle, props.config.link.context, _props.record)}>{_props.data}</a></td>;
         } else if (_props.config.field.type === "button") {
             if (!_props.config.field.icon) {
-                return <td style={cssProperties}><button className={`pharmarack-cms-btn ${_props.config.field.classes}`} onClick={e => handleRecordBtnClick(e, _props.config.field.action, props.config.handle, _props.record)}>{_props.data}</button></td>
+                return <td style={cssProperties} className={_props.config.classes}><button className={`pharmarack-cms-btn ${_props.config.field.classes}`} onClick={e => handleRecordBtnClick(e, _props.config.field.action, props.config.handle, _props.record)}>{_props.data}</button></td>
             } else {
-                return <td style={cssProperties}><button className={`pharmarack-cms-btn ${_props.config.field.classes}`} onClick={e => handleRecordBtnClick(e, _props.config.field.action, props.config.handle, _props.record)}><i className={_props.config.field.icon}></i> {_props.data}</button></td>
+                return <td style={cssProperties} className={_props.config.classes}><button className={`pharmarack-cms-btn ${_props.config.field.classes}`} onClick={e => handleRecordBtnClick(e, _props.config.field.action, props.config.handle, _props.record)}><i className={_props.config.field.icon}></i> {_props.data}</button></td>
             }            
         } else if (_props.config.field.type === "collapse") {
-            return <td style={cssProperties}><button className="" onClick={e => handleCollapseBtnClick(e, _props.config.field, _props.record)}><i className="fa fa-chevron-down"></i></button></td>;
+            return <td style={cssProperties} className={_props.config.classes}><button className="" onClick={e => handleCollapseBtnClick(e, _props.config.field, _props.record)}><i className="fa fa-chevron-down"></i></button></td>;
         } else if (_props.config.field.type === "check") {
-            return <td style={cssProperties}><input type="checkbox" checked={_props.record["__isChecked"]} onChange={e => handleCheckRecord(e, _props.record)} /></td>;
+            return <td style={cssProperties} className={_props.config.classes}><input type="checkbox" checked={_props.record["__isChecked"]} onChange={e => handleCheckRecord(e, _props.record)} /></td>;
         }
 
-        return <td style={cssProperties}>{_props.data}</td>;
+        return <td style={cssProperties} className={_props.config.classes}>{_props.data}</td>;
 
     }
 

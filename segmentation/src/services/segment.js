@@ -770,7 +770,7 @@ export default class SegmentService {
                 console.log("Processing Batch : "+ (i + 1));
 
                 const orderBatch = _orders.slice(i, i + orderPerBatch);
-                const oredrItems = await orderItemModel.find({order: { $in: orderBatch }}).lean();
+                const oredrItems = await orderItemModel.find({order: { $in: orderBatch }, companyCode:  }).lean();
 
                 console.log("Order Item Found : "+ oredrItems.length);
 
@@ -883,43 +883,43 @@ export default class SegmentService {
                     } else if (_entity === "categories") { 
                         callback(await MYDBM.query("select DISTINCT(s.Category) as Name from storeproducts s"), null);                         
                     } else if (_entity === "companies") {
-                        //callback(await MYDBM.queryWithConditions("select CompanyId, CompanyName from companies", []), null);
-                        callback(
-                            [
-                                {
-                                    "CompanyId": 1564,        
-                                    "CompanyName": "Abbott Healthcare Private Limited"        
-                                },
-                                {
-                                    "CompanyId": 1842,        
-                                    "CompanyName": "Cipla Limited"        
-                                },
-                                {
-                                    "CompanyId": 2062,        
-                                    "CompanyName": "Glenmark"        
-                                },
-                                {
-                                    "CompanyId": 2168,        
-                                    "CompanyName": "Intas Pharmaceuticals Limited"        
-                                },
-                                {
-                                    "CompanyId": 2306,        
-                                    "CompanyName": "Mankind Pharma Limited"        
-                                },
-                                {
-                                    "CompanyId": 2870,
-                                    "CompanyName": "Torrent Pharmaceuticals Limited"
-                                },
-                                {
-                                    "CompanyId": 8667,        
-                                    "CompanyName": "USV Private Limited"        
-                                },
-                                {
-                                    "CompanyId": 2810,        
-                                    "CompanyName": "Sun Pharmaceuticals Industries Limited"        
-                                }
-                            ]
-                            , null);
+                        callback(await MYDBM.query("select * from companies c where c.IsDeleted = 0 AND c.IsApproved = 1"), null);
+                        // callback(
+                        //     [
+                        //         {
+                        //             "CompanyId": 1564,        
+                        //             "CompanyName": "Abbott Healthcare Private Limited"        
+                        //         },
+                        //         {
+                        //             "CompanyId": 1842,        
+                        //             "CompanyName": "Cipla Limited"        
+                        //         },
+                        //         {
+                        //             "CompanyId": 2062,        
+                        //             "CompanyName": "Glenmark"        
+                        //         },
+                        //         {
+                        //             "CompanyId": 2168,        
+                        //             "CompanyName": "Intas Pharmaceuticals Limited"        
+                        //         },
+                        //         {
+                        //             "CompanyId": 2306,        
+                        //             "CompanyName": "Mankind Pharma Limited"        
+                        //         },
+                        //         {
+                        //             "CompanyId": 2870,
+                        //             "CompanyName": "Torrent Pharmaceuticals Limited"
+                        //         },
+                        //         {
+                        //             "CompanyId": 8667,        
+                        //             "CompanyName": "USV Private Limited"        
+                        //         },
+                        //         {
+                        //             "CompanyId": 2810,        
+                        //             "CompanyName": "Sun Pharmaceuticals Industries Limited"        
+                        //         }
+                        //     ]
+                        //     , null);
 
                     } else {                      
                         const targetModel = await EM.getModel(_entity);

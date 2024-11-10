@@ -77,8 +77,8 @@ class SegmentServer {
             //const sss = new OrderImporter();
             //await sss.start();     
 
-            const ss = new SegmentService();
-            ss.prepareRetailersForSegment("672e66c8579a57d4b5850245");
+            //const ss = new SegmentService();
+            //ss.prepareRetailersForSegment("672e66c8579a57d4b5850245");
             
             if (MDBM.checkConnection()) {
                 this.app.listen(process.env.SYSTEM_PORT);

@@ -58,6 +58,7 @@ async function processBatch(data) {
                 spr.CompanyCode,
                 spr.Company,
                 spr.Category, 
+                b.CompanyId,
                 b.BrandId,
                 b.Name as BrandName,
                 mspm.MDM_PRODUCT_CODE 
@@ -178,6 +179,7 @@ async function processBatch(data) {
                 return {
                     companyCode: _item.CompanyCode,
                     companyName: _item.Company,
+                    companyId: _item.CompanyId,
                     itemId: _item.OrderDetailId,
                     mdmProductCode: _item.MDM_PRODUCT_CODE,
                     orderId: _item.OrderId,

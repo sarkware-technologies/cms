@@ -48,7 +48,7 @@ const SegmentRule = (props, ref) => {
         label_position: "top", 
         prompt_message: "", 
         validation_message: "", 
-        value_key: "Name", 
+        value_key: "BrandId", 
         label_key: "Name", 
         datasource: {endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=brands", cached: true, recordsPerPage: 10}
     }), []);

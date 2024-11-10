@@ -118,7 +118,7 @@ const DropDown = (props, ref) => {
         }        
 
         if (Array.isArray(state.records) && state.records.length > 0) {  
-            return state.records.map((_record, _index) => <a href="#" key={_index} className={ (state.currentRecord[props.config.value_key] && state.currentRecord[props.config.value_key] === _record[props.config.value_key]) ? "selected" : "" } onClick={(e) => {handleRecordClick(e, _record)}}>{_record[props.config.label_key]}</a>);
+            return state.records.map((_record, _index) => <a href="#" key={_index} className={ ((state.currentRecord && state.currentRecord[props.config.value_key]) && state.currentRecord[props.config.value_key] === _record[props.config.value_key]) ? "selected" : "" } onClick={(e) => {handleRecordClick(e, _record)}}>{_record[props.config.label_key]}</a>);
         } else { 
             return <div className="pharmarack-cms-search-box-empty-records">No matching records found.!</div>
         }  
@@ -134,7 +134,7 @@ const DropDown = (props, ref) => {
     const handleClearBtnClick = (_e) => {
         _e.stopPropagation();
         _e.preventDefault();
-        setState({...state, currentRecord: {}});
+        setState({...state, currentRecord: null, value: ""});
     };
 
     const renderPageButtons = () => {
@@ -143,7 +143,7 @@ const DropDown = (props, ref) => {
         const nextDisabled = state.currentPage >= state.totalPages ? "disabled" : "";
 
         return (
-            <div className="pharmarack-cms-search-paginator">
+            <div className="pharmarack-cms-search-paginator dropdown">
 
                 <button onClick={(_e) => updatePageRecords(state.currentPage - 1)} className={`pharmarack-cms-btn primary ${prevDisabled}`}><i className="far fa-chevron-left"></i></button>
                 <button onClick={(_e) => updatePageRecords(state.currentPage + 1)} className={`pharmarack-cms-btn primary ${nextDisabled}`}><i className="far fa-chevron-right"></i></button>

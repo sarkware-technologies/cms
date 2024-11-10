@@ -94,7 +94,7 @@ let segment_config = {
                                                                             width: "30",
                                                                             search: false,
                                                                             filter: false,
-                                                                            classes: "",
+                                                                            classes: "ellipsis-text",
                                                                             header: {title: "Description", align: "left", filterable: false, searchable: false, sortable: false}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                                                             field: {handle: "description", type: "alphanumeric", align: "left", editable: false},

@@ -78,20 +78,26 @@ export default class Docker {
 
                     document.location.href = "";
                     return;
+
+                } else if (response.status === 504) {  console.log(response.url);
+                    const pathSegments = new URL(response.url).pathname.split("/");
+                    window._controller.notify( pathSegments[1] +" service is down", "error");
                 }
     
+                console.log(response.status);
+
                 const errorData = await response.text();
                 let errorMessage;
                 try {
                     errorMessage = JSON.parse(errorData).message;
                 } catch (e) {
                     errorMessage = errorData;
-                }
-    
+                }    
+               
                 throw new Error(errorMessage);
 
             }
-        } catch (error) {
+        } catch (error) { 
 
             if (this.indicatorRef.current) {
                 this.indicatorRef.current.style.display = "none";
