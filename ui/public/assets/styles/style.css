@@ -1356,12 +1356,12 @@ div.pharmarack-cms-form-field-wrapper {
 .pharmarack-cms-search-widget-header input,
 .pharmarack-cms-search-box-text-container input,
 div.pharmarack-cms-multi-select-search-container input {
-    width: 100%;
-    border: none;
-    height: 28px;
-    padding: 5px 10px;   
+    width: 100%;    
+    height: 32px;
+    padding: 5px 30px 5px 10px;
     border-radius: 0px;
-    border: none !important; 
+    border: none !important;
+    text-overflow: ellipsis;
 }
 
 .pharmarack-cms-search-box-text-container input {
@@ -1398,7 +1398,7 @@ div.pharmarack-cms-multi-select-search-container i {
     width: 100%;
     z-index: 9999;
     background: #fff;
-    min-width: 240px;
+    min-width: 350px;
 }
 
 .pharmarack-cms-multi-select-widget.popup .pharmarack-cms-multi-select-widget-header,
@@ -1481,10 +1481,13 @@ div.pharmarack-cms-multi-select-search-container input {
 }
 
 .pharmarack-cms-search-records a {
-    display: flex;
-    height: 30px;
-    align-items: center;
+    display: block;
+    height: 30px;    
     padding: 0px 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    line-height: 30px;
 }
 
 .pharmarack-cms-search-records a.selected {
@@ -3259,11 +3262,11 @@ table.preview-table td:last-child{
 .pharmarack-cms-segment-rules-container > a {
     display: block;    
     font-weight: bold;
-    margin: 20px 15px 5px;
+    margin: 0px 15px 5px;
 }
 
 .pharmarack-cms-segment-rule-box {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .pharmarack-cms-segment-rule-box table {
@@ -3294,7 +3297,7 @@ table.preview-table td:last-child{
     width: 5%;
 }
 
-.pharmarack-cms-segment-rule-box table td a {
+.pharmarack-cms-segment-rule-box table td.remove-td a {
     color: #d92550;
     font-family: 'ProximaNovaBold';
 }  
@@ -3304,10 +3307,6 @@ table.preview-table td:last-child{
     margin-bottom: 5px;
 }
 
-.pharmarack-cms-segment-rule-box:first-child table td:last-child > a {
-    visibility: hidden;
-}
-
 .pharmarack-cms-segment-rule-box table td:last-child {
     width: 65px;
     vertical-align: bottom;
@@ -3315,7 +3314,11 @@ table.preview-table td:last-child{
 }
 
 .pharmarack-cms-segment-preview-rule-table td {
-    padding: 5px 0px;
+    padding: 3px 10px !important;
+}
+
+.pharmarack-cms-segment-preview-rule-table td:first-child {
+    padding-left: 0px !important;
 }
 
 .pharmarack-cms-segment-rule-type-box {

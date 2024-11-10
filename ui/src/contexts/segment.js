@@ -290,19 +290,16 @@ export default function SegmentContext(_component) {
                     this.segmentPreviewRef.current.setCompanies(_selected);
                 }
                 
-            } else if (_handle == "excludedStores") {  console.log("excludedStores is loaded");
+            } else if (_handle == "excludedStores") {
 
                 const distributorSelector = this.controller.getField("segment_form_tab_excludedStores");
                 
                 if (distributorSelector) {
 
-                    console.log(distributorSelector.getSelectedRecords());
                     let _selected = distributorSelector.getSelectedRecordsLabel();
                     if(_selected && Array.isArray(_selected)) {
                         _selected = _selected.join(", ");
                     }
-
-                    console.log(_selected);
 
                     this.segmentPreviewRef.current.setExcludedStores(_selected);
                 }
@@ -663,8 +660,7 @@ export default function SegmentContext(_component) {
         if (this.segmentRuleContainer.current) {
             const segmentRules = this.segmentRuleContainer.current.getRules();
             if (!segmentRules || (Array.isArray(segmentRules) && segmentRules.length == 0)) {
-                this.controller.notify("Segment should have at least one valid rule", "error");
-                return false;
+                _segmentFields["rules"] = [];
             } else {
                 _segmentFields["rules"] = segmentRules;
             }

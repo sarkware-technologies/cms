@@ -15,6 +15,8 @@ import SegmentStatus from "../enums/segment-status.js";
 import SegmentGeography from "../enums/segment-geography.js";
 import SegmentRetailer from "../enums/segment-retailer-status.js";
 import SegmentStoreStatus from "../enums/segment-store-status.js";
+import SegmentOrder from "../enums/segment-order.js";
+import SegmentRuleType from "../enums/segment-rule-type.js";
 
 export default class SegmentService {
 
@@ -680,6 +682,7 @@ export default class SegmentService {
 
         try {
 
+            const orderModel = await EM.getModel("cms_master_order");
             const segment = await SegmentModel.findById(_segmentId).lean();
 
             if (segment) {
@@ -689,43 +692,168 @@ export default class SegmentService {
                 const populateOrderQuery = [];
                 const populateOrderItemQuery = [];
 
-                if (segment.fromDate) {
-                    filterOrderQuery["orderDate"] = { $gte: new Date(segment.fromDate) };
-                }
-
-                if (segment.toDate) {
-                    filterOrderQuery["orderDate"] = { $lte: new Date(segment.toDate) };
+                if (segment.fromDate && segment.toDate) {
+                    filterOrderQuery["orderDate"] = { $gte: new Date(segment.fromDate), $lte: new Date(segment.toDate) };
+                } else {
+                    if (segment.fromDate) {
+                        filterOrderQuery["orderDate"] = { $gte: new Date(segment.fromDate) };
+                    }    
+                    if (segment.toDate) {
+                        filterOrderQuery["orderDate"] = { $lte: new Date(segment.toDate) };
+                    }
                 }
 
                 if ((segment.geography == SegmentGeography.STATE) && (Array.isArray(segment.states) && segment.states.length > 0 )) {
-                    filterOrderQuery["states"] = { $in: segment.states };
+                    filterOrderQuery["stateId"] = { $in: segment.states };
                 }
 
                 if ((segment.geography == SegmentGeography.REGION) && (Array.isArray(segment.regions) && segment.regions.length > 0 )) {
-                    filterOrderQuery["regions"] = { $in: segment.regions };
+                    filterOrderQuery["regionId"] = { $in: segment.regions };
                 }
 
                 if (Array.isArray(segment.orderStatus) && segment.orderStatus.length > 0) {
-                    filterOrderQuery["orderStatus"] = { $in: segment.orderStatus };
+
+                    const oStatus = [];
+                    for (let i = 0; i < segment.orderStatus.length; i++) {
+                        if (segment.orderStatus[i] == 1) {
+                            oStatus.push("Placed");
+                        } else if (segment.orderStatus[i] == 2) {
+                            oStatus.push("Processed");
+                        } else {
+                            oStatus.push("Uploaded");
+                        }                        
+                    }
+
+                    filterOrderQuery["orderStatus"] = { $in: oStatus };
                 }
 
                 if (segment.retailerStatus == SegmentRetailer.AUTHORIZED) {
-                    populateOrderQuery.push({path: "retailer", match: { isAuthorized: { $eq: true } }});
+                    populateOrderQuery.push({path: "retailer", match: { isAuthorized: true }});
                 }
 
                 if (segment.storeStatus == SegmentStoreStatus.AUTHORIZED) {
-                    populateOrderQuery.push({path: "store", match: { isAuthorized: { $eq: true },  }});
+                    populateOrderQuery.push({path: "store", match: { isAuthorized: true }});
                 }
 
                 if (Array.isArray(segment.excludedStores) && segment.excludedStores.length > 0) {
-                    filterOrderQuery["storeId"] = { $nin: segment.excludedStores };
+                    filterOrderQuery["store"] = { $nin: segment.excludedStores };
                 }
+
+                const orders = await orderModel.find(filterOrderQuery).select("_id").lean();
+                this.prepareOrderItems(orders, segment);                
 
             }
 
         } catch (e) {
             console.log(e);
         }
+
+    };
+
+    prepareOrderItems = async (_orders, _segment) => { console.log("prepareOrderItems is called");  console.log("Total Order Found : "+ _orders.length);
+
+        try {
+
+            const summaryProducts = {};
+            const summaryBrands = {};
+            const summaryCategories = {};
+            
+            const orderItemModel = await EM.getModel("cms_master_order_item");
+            const orderPerBatch = 1000;
+            const totalBatches = Math.ceil(_orders.length / orderPerBatch);
+            const rules = await SegmentRuleModel.find({segment: _segment._id});
+
+            console.log("Total order batch : "+ totalBatches);
+
+            for (let i = 0; i < totalBatches; i++) {
+
+                console.log("Processing Batch : "+ (i + 1));
+
+                const orderBatch = _orders.slice(i, i + orderPerBatch);
+                const oredrItems = await orderItemModel.find({order: { $in: orderBatch }}).lean();
+
+                console.log("Order Item Found : "+ oredrItems.length);
+
+                for (let j = 0; j < oredrItems.length; j++) {
+
+                    /* Aggregate */
+                    for (let k = 0; k < rules.length; k++) {
+
+                        if (rules[k].ruleType == SegmentRuleType.PRODUCT) {
+
+                            if (oredrItems[j].mdmProductCode && rules[k].target == oredrItems[j].mdmProductCode) {
+                                
+                                if (!summaryProducts[oredrItems[j].mdmProductCode]) {
+                                    summaryProducts[oredrItems[j].mdmProductCode] = {
+                                        quantity: 0,
+                                        amount: 0
+                                    };                                    
+                                }
+
+                                if (oredrItems[j].receivedQty) {
+                                    summaryProducts[oredrItems[j].mdmProductCode].quantity = summaryProducts[oredrItems[j].mdmProductCode].quantity + oredrItems[j].receivedQty;
+                                    summaryProducts[oredrItems[j].mdmProductCode].amount = summaryProducts[oredrItems[j].mdmProductCode].amount + ( oredrItems[j].receivedQty * oredrItems[j].ptr );
+                                } else {
+                                    summaryProducts[oredrItems[j].mdmProductCode].quantity = summaryProducts[oredrItems[j].mdmProductCode].quantity + oredrItems[j].orderedQty;
+                                    summaryProducts[oredrItems[j].mdmProductCode].amount = summaryProducts[oredrItems[j].mdmProductCode].amount + ( oredrItems[j].orderedQty * oredrItems[j].ptr );
+                                }
+
+                            }                            
+
+                        } else if (rules[k].ruleType == SegmentRuleType.BRAND) {
+
+                            if (!summaryBrands[oredrItems[j].brandId]) {
+                                summaryBrands[oredrItems[j].brandId] = {
+                                    quantity: 0,
+                                    amount: 0
+                                };                                    
+                            }
+
+                            if (oredrItems[j].receivedQty) {
+                                summaryBrands[oredrItems[j].brandId].quantity = summaryBrands[oredrItems[j].brandId].quantity + oredrItems[j].receivedQty;
+                                summaryBrands[oredrItems[j].brandId].amount = summaryBrands[oredrItems[j].brandId].amount + ( oredrItems[j].receivedQty * oredrItems[j].ptr );
+                            } else {
+                                summaryBrands[oredrItems[j].brandId].quantity = summaryBrands[oredrItems[j].brandId].quantity + oredrItems[j].orderedQty;
+                                summaryBrands[oredrItems[j].brandId].amount = summaryBrands[oredrItems[j].brandId].amount + ( oredrItems[j].orderedQty * oredrItems[j].ptr );
+                            }
+
+                        } else {
+
+                            /* Must be for product category */
+                            if (!summaryCategories[oredrItems[j].category]) {
+                                summaryCategories[oredrItems[j].category] = {
+                                    quantity: 0,
+                                    amount: 0
+                                };                                    
+                            }
+
+                            if (oredrItems[j].receivedQty) {
+                                summaryCategories[oredrItems[j].category].quantity = summaryCategories[oredrItems[j].category].quantity + oredrItems[j].receivedQty;
+                                summaryCategories[oredrItems[j].category].amount = summaryCategories[oredrItems[j].category].amount + ( oredrItems[j].receivedQty * oredrItems[j].ptr );
+                            } else {
+                                summaryCategories[oredrItems[j].category].quantity = summaryCategories[oredrItems[j].category].quantity + oredrItems[j].orderedQty;
+                                summaryCategories[oredrItems[j].category].amount = summaryCategories[oredrItems[j].category].amount + ( oredrItems[j].orderedQty * oredrItems[j].ptr );
+                            }
+
+                        }
+
+                    }
+
+                }                
+
+            }
+
+            console.log(summaryProducts);
+            console.log(summaryBrands);
+            console.log(summaryCategories);
+
+        } catch (e) {
+            console.log(e);
+        }
+
+    };
+
+    evoluateSegmentRules = async () => {
 
     };
 
@@ -743,9 +871,15 @@ export default class SegmentService {
                     if (_entity === "segment") {  
                         callback(await SegmentModel.find().lean(), null);
                     } else if (_entity === "brands") {
-                        callback(await MYDBM.query("select * from brands b where b.IsDeleted = 0 AND b.IsApproved = 1"), null);
+                        callback(await MYDBM.query(`select * from brands b where b.IsDeleted = 0 AND b.IsApproved = 1`), null);
                     } else if (_entity === "mdms") { 
-
+                        callback(await MYDBM.query(`SELECT DISTINCT mspm.MDM_PRODUCT_CODE, 
+                                                    CONCAT(mspm.MDM_PRODUCT_CODE, ' - ', mgpm.PRODUCT_NAME) AS ProductName
+                                                    FROM mdm_store_product_master mspm
+                                                    INNER JOIN prproduct_mdm_product_linkage pmpl 
+                                                    ON pmpl.PRODUCT_CODE = mspm.PRODUCT_CODE 
+                                                    INNER JOIN mdm_golden_product_master mgpm 
+                                                    ON pmpl.MDM_PRODUCT_CODE = mgpm.MDM_PRODUCT_CODE;`), null);
                     } else if (_entity === "categories") { 
                         callback(await MYDBM.query("select DISTINCT(s.Category) as Name from storeproducts s"), null);                         
                     } else if (_entity === "companies") {

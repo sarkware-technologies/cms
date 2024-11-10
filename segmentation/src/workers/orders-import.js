@@ -57,6 +57,7 @@ async function processBatch(data) {
                 od.PTR,      
                 spr.CompanyCode,
                 spr.Company,
+                spr.Category, 
                 b.BrandId,
                 b.Name as BrandName,
                 mspm.MDM_PRODUCT_CODE 
@@ -186,7 +187,8 @@ async function processBatch(data) {
                     receivedQty: _item.ActualQuantityReceived,
                     order: orderIdMap[_item.OrderId],
                     brandName: _item.BrandName,
-                    brandId: _item.BrandId
+                    brandId: _item.BrandId,
+                    category: _item.Category
                 }
             })
 

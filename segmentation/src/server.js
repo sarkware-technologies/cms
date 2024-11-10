@@ -10,6 +10,7 @@ import RC from "./utils/request-interceptor.js";
 import OrderImporter from "./importers/order-import.js";
 import RetailerImporter from "./importers/retailer-import.js";
 import StoreImporter from "./importers/store-import.js";
+import SegmentService from "./services/segment.js";
 
 /**
  * 
@@ -73,8 +74,11 @@ class SegmentServer {
             await MDBM.connect();   
             await MYDBM.connect(true);
 
-            const sss = new OrderImporter();
-            await sss.start();     
+            //const sss = new OrderImporter();
+            //await sss.start();     
+
+            const ss = new SegmentService();
+            ss.prepareRetailersForSegment("672e66c8579a57d4b5850245");
             
             if (MDBM.checkConnection()) {
                 this.app.listen(process.env.SYSTEM_PORT);

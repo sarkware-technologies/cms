@@ -82,14 +82,17 @@ const Search = (props, ref) => {
     };
 
     const handleSearchKeyEvent = (_e) => {
+
         const searchText = _e.target.value;
         setState({ ...state, searchText, isLoading: true });
 
         if (state.isSearching) return;
 
         setTimeout(() => {
+
             setState({ ...state, isSearching: true });
             if (props.config.datasource.cached) {
+
                 const filteredRecords = state.allRecords.filter(record =>
                     record[props.config.label_key]
                         .toLowerCase()
@@ -105,9 +108,11 @@ const Search = (props, ref) => {
                     isSearching: false,
                     isLoading: false
                 });
+
             } else {
                 fetchRecords(1, searchText);
             }
+
         }, 350);
     };
 
@@ -218,6 +223,7 @@ const Search = (props, ref) => {
     const dropdownClass = state.active ? `${props.config.popup_class} visible` : props.config.popup_class;
 
     useEffect(() => {
+
         const handleBlur = (event) => {
             if (containerRef.current && !containerRef.current.contains(event.relatedTarget)) {
                 setState((prevState) => ({ ...prevState, active: false }));
@@ -225,11 +231,17 @@ const Search = (props, ref) => {
         };
 
         resultInputRef.current.addEventListener("focus", handleResultBoxFocus);
-        //containerRef.current.addEventListener("blur", handleBlur, true);
+        containerRef.current.addEventListener("blur", handleBlur, true);
 
         return () => {
-            resultInputRef.current.removeEventListener("focus", handleResultBoxFocus);
-            containerRef.current.removeEventListener("blur", handleBlur, true);
+
+            if (resultInputRef.current) {
+                resultInputRef.current.removeEventListener("focus", handleResultBoxFocus);
+            }
+            if (containerRef.current) {
+                containerRef.current.removeEventListener("blur", handleBlur, true);
+            }
+            
         };
     }, []);
 
