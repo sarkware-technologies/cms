@@ -11,12 +11,10 @@ class RequestInterceptor {
         }
 
         this.whiteListUrls = [
-                "/health",
-                "/system/v1/register",
-                "/system/v1/auth/sign-in",
-                "/system/v1/auth/select-role",                
-                "/system/v1/register/user-types",
-                "/system/v1/auth/send-forgot-password-token"
+            "/segmentation/v1/health",                
+            "/segmentation/v1/synch/retailer",
+            "/segmentation/v1/synch/order",
+            "/segmentation/v1/synch/order/status"
         ]
 
         this.express = null;
@@ -43,7 +41,7 @@ class RequestInterceptor {
         this.express.use(async (_req, _res, _next) => {  console.log(_req.path);
 
             /* Public route handler */
-            if (this.whiteListUrls.includes(_req.path) || (_req.method == "POST" && _req.path == "/system/v1/register")) {
+            if (this.whiteListUrls.includes(_req.path)) {
                 return _next();
             }
 
@@ -61,12 +59,10 @@ class RequestInterceptor {
             const token = authHeader.split(" ")[1];
             let tokenValidationResult;
 
-            switch (_req.path) {
-                case "/system/v1/auth/submit-forgot-password":
-                    tokenValidationResult = await this.verifyAndSetUser(token, "forgot", _req);
-                    break;
-                default:
-                    tokenValidationResult = await this.verifyAndSetUser(token, "system", _req);
+            if (_req.path.indexOf("/synch/") !== -1) {
+                tokenValidationResult = await this.verifyAndSetUser(token, "common", _req);
+            } else {
+                tokenValidationResult = await this.verifyAndSetUser(token, "system", _req); 
             }
 
             if (tokenValidationResult.status) {
@@ -91,12 +87,9 @@ class RequestInterceptor {
 
         let tokenVerificationResult;
 
-        switch (tokenType) {
-            case "temp":
-                tokenVerificationResult = this.tokenManager.verifyTempToken(token);
-                break;
-            case "forgot":
-                tokenVerificationResult = this.tokenManager.verifyForgotToken(token);
+        switch (tokenType) {            
+            case "common":
+                tokenVerificationResult = this.tokenManager.verifyCommonToken(token);
                 break;
             case "system":
             default:

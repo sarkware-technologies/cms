@@ -572,7 +572,7 @@ export default function SegmentContext(_component) {
 
             if (segmentTab) {                
                 if (sType == 1) {
-                    console.log(segmentTab.getFormFields());
+
                     /* It is a dynamic segment */                    
                     const dynamicFields = this.prepareSegment(segmentTab.getFormFields());
 
@@ -583,18 +583,18 @@ export default function SegmentContext(_component) {
                     }
 
                 } else {
+
                     /* It is is static segment */
                     request["payload"] = segmentTab.getFormFields();                                       
                     request["payload"]["segmentType"] = sType;
-                    request["payload"]["segmentStatus"] = 2;
+                    request["payload"]["segmentStatus"] = 1;
 
                     if (!request["payload"].title) {
                         this.controller.notify("Title is required", "error");
                         return false;
                     }
 
-                }
-                
+                }                
             }
 
         }

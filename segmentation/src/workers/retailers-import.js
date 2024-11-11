@@ -6,15 +6,14 @@ import ImportType from '../enums/importer-type.js';
 
 async function processBatch(data) {
 
-    const { batch, retailerIds } = data;      console.log("Worker started for batch no : "+ batch);
+    const { batch, retailerIds, chunkSize } = data;
 
     try {
 
         await MDBM.connect();
         await MYDBM.connect(false);
 
-        const retailerBulkOps = [];        
-        const chunkSize = 100;
+        const retailerBulkOps = [];                
 
         const retailerModel = await EM.getModel("cms_master_retailer");        
         const importLogModel = await EM.getModel("cms_retailer_importer_logs");        

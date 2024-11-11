@@ -195,7 +195,7 @@ const Search = (props, ref) => {
         const nextDisabled = state.currentPage >= state.totalPages ? "disabled" : "";
 
         return (
-            <div className="pharmarack-cms-search-paginator">
+            <div className="pharmarack-cms-search-paginator search">
 
                 <button onClick={(_e) => updatePageRecords(state.currentPage - 1)} className={`pharmarack-cms-btn primary ${prevDisabled}`}><i className="far fa-chevron-left"></i></button>
                 <button onClick={(_e) => updatePageRecords(state.currentPage + 1)} className={`pharmarack-cms-btn primary ${nextDisabled}`}><i className="far fa-chevron-right"></i></button>

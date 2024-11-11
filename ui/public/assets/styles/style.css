@@ -1504,6 +1504,7 @@ div.pharmarack-cms-multi-select-search-container input {
     align-items: center;
 }
 
+.pharmarack-cms-search-paginator.search,
 .pharmarack-cms-search-paginator.dropdown {
     gap: 0px;
 }

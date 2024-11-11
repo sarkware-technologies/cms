@@ -1,5 +1,6 @@
 import { Worker } from 'worker_threads';
 import MYDBM from "../utils/mysql.js";
+import MDBM from "../utils/mongo.js";
 import EM from "../utils/entity.js";
 import ImportType from '../enums/importer-type.js';
 
@@ -15,18 +16,39 @@ export default class RetailerImporter {
         this.activeWorkers = 0;
         this.batchQueue = [];
         this.maxThread = 20;
+        this.chunkSize = 100;
         this.currentOffset = 0;
         this.loadComplete = false;
         this.shouldPause = false;
 
     }
 
+    init = async () => {
+        try {
+
+            await MDBM.connect();
+            await MYDBM.connect(false);
+
+            const batchOptionModel = await EM.getModel("cms_batch_options");
+            const batchOption = await batchOptionModel.findOne({batch_type: ImportType.ORDER_IMPORTER}).lean();
+            if (batchOption) {
+                this.retailersPerBatch = batchOption.records_per_batch;
+                this.retailerIdsPerBatch = batchOption.record_ids_per_batch;
+                this.maxThread = batchOption.max_thread;
+                this.chunkSize = batchOption.chunk_size;
+            }
+
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
     startWorker = (batch, retailerIds) => {
 
         this.activeWorkers++;
     
         const worker = new Worker('./src/workers/retailers-import.js', {
-            workerData: { batch, retailerIds }
+            workerData: { batch, retailerIds, chunkSize: this.chunkSize }
         });
 
         worker.once('exit', (code) => { 

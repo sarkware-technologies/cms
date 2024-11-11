@@ -6,7 +6,7 @@ import ImportType from '../enums/importer-type.js';
 
 async function processBatch(data) {
 
-    const { batch, orderIds } = data;
+    const { batch, orderIds, chunkSize } = data;
 
     try {
 
@@ -86,8 +86,7 @@ async function processBatch(data) {
         }, {});
 
         const orderBulkOps = [];
-        const orderIdMap = {};
-        const chunkSize = 100;
+        const orderIdMap = {};        
         const oIds = Object.keys(groupedOrders);
 
         /* Process Orders in chunk */

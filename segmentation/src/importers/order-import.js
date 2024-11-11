@@ -1,4 +1,5 @@
 import { Worker } from 'worker_threads';
+import MDBM from "../utils/mongo.js";
 import MYDBM from "../utils/mysql.js";
 import EM from "../utils/entity.js";
 import ImportType from '../enums/importer-type.js';
@@ -15,18 +16,51 @@ export default class OrderImporter {
         this.activeWorkers = 0;
         this.batchQueue = [];
         this.maxThread = 20;
+        this.chunkSize = 100;
         this.currentOffset = 0;
         this.loadComplete = false;
         this.shouldPause = false;
 
     }
 
+    init = async () => {
+        try {
+
+            await MDBM.connect();
+            await MYDBM.connect(false);
+
+            const batchOptionModel = await EM.getModel("cms_batch_options");
+            const batchOption = await batchOptionModel.findOne({batch_type: ImportType.ORDER_IMPORTER}).lean();
+            if (batchOption) {
+                this.ordersPerBatch = batchOption.records_per_batch;
+                this.orderIdsPerBatch = batchOption.record_ids_per_batch;
+                this.maxThread = batchOption.max_thread;
+                this.chunkSize = batchOption.chunk_size;
+            }
+
+            console.log("Database connections established.");
+
+        } catch (e) {
+            console.error("Error during initialization:", e);
+            throw e;
+        }
+    };
+
+    cleanup = async() => {
+        try {
+            await MDBM.close();
+            await MYDBM.close();
+        } catch (closeError) {
+            console.error("Error during cleanup:", closeError);
+        }        
+    };
+
     startWorker = (batch, orderIds) => {
 
         this.activeWorkers++;
     
         const worker = new Worker('./src/workers/orders-import.js', {
-            workerData: { batch, orderIds }
+            workerData: { batch, orderIds, chunkSize: this.chunkSize }
         });
 
         worker.once('exit', (code) => { 
@@ -151,6 +185,8 @@ export default class OrderImporter {
 
         } catch (e) {
             console.log("Error in doOrderImport:", e);
+        } finally {
+            await this.cleanup();                    
         }
 
     }
@@ -165,7 +201,8 @@ export default class OrderImporter {
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
-        console.log("All active workers finished. Batch progress has been updated.");
+        await this.cleanup();
+        console.log("All active workers finished. Batch progress has been updated.");       
 
     };
 
