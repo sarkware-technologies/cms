@@ -24,6 +24,7 @@ export default class RetailerImporter {
     }
 
     init = async () => {
+
         try {
 
             await MDBM.connect();
@@ -41,6 +42,22 @@ export default class RetailerImporter {
         } catch (e) {
             console.log(e);
         }
+
+    };
+
+    cleanup = async() => {
+
+        try {
+            if (MDBM.isConnected()) {
+                await MDBM.close();
+            }
+            if (MYDBM.isConnected()) {
+                await MYDBM.close();
+            }
+        } catch (closeError) {
+            console.error("Error during cleanup:", closeError);
+        }
+
     };
 
     startWorker = (batch, retailerIds) => {
@@ -65,21 +82,20 @@ export default class RetailerImporter {
     };
 
     startNextWorker = () => {
+        
         if (this.shouldPause 
             || (this.batchQueue.length === 0) 
             || (this.activeWorkers >= this.maxThread) 
             || (this.loadComplete && this.batchQueue.length === 0)) {
-            return; // Prevents unnecessary calls when all batches are processed.
+            return;
         }
     
-        const { index, rIds } = this.batchQueue.shift();
-        console.log(`Starting worker for batch no: ${index}`);
+        const { index, rIds } = this.batchQueue.shift();        
         this.startWorker(index, rIds);
+
     };
 
     loadRetailerIds = async (batchCount) => {
-
-        console.log(this.currentOffset +" < "+ (batchCount * this.retailersPerBatch));
 
         while (this.currentOffset < (batchCount * this.retailersPerBatch) && !this.shouldPause) {
 
@@ -110,6 +126,8 @@ export default class RetailerImporter {
 
         try {
 
+            await this.init();
+            this.shouldPause = false;
             const retailers = await MYDBM.query(this.retailerCountQuery);
 
             if (Array.isArray(retailers) && retailers.length === 1) {
@@ -142,7 +160,7 @@ export default class RetailerImporter {
                 }
     
                 if (!retailerBatch.status) {
-                    await batchProgressModel.findByIdAndUpdate(retailerBatch._id, { startTime: new Date(), endTime: null, status: true });
+                    await batchProgressModel.findByIdAndUpdate(retailerBatch._id, { totalBatch: batchCount, startTime: new Date(), endTime: null, status: true });
                 } else {
                     console.log("Retailer importer is already running");
                     return null;
@@ -162,16 +180,19 @@ export default class RetailerImporter {
                 }   
                 
                 if (this.shouldPause) {
-                    await batchProgressModel.findByIdAndUpdate(retailerBatch._id, {
-                        currentBatch: currentBatch + this.batchQueue.length,
-                        pendingBatch: batchCount - (currentBatch + this.batchQueue.length),
+                    await batchProgressModel.findByIdAndUpdate(retailerBatch._id, {                        
                         status: false
                     });
                 } else {
+
+                    const _endTime = new Date();
+                    const elapsed = this.calculateElapsedTime(retailerBatch.startTime, _endTime);  
                     await batchProgressModel.findByIdAndUpdate(retailerBatch._id, {
-                        endTime: new Date(),
+                        endTime: _endTime,
+                        elapsedTime: elapsed,
                         status: false
                     });
+
                 }
     
                 console.log("All batches processed successfully.");
@@ -179,6 +200,8 @@ export default class RetailerImporter {
 
         } catch (e) {
             console.log("Error in doOrderImport:", e);
+        } finally {
+            await this.cleanup();                    
         }
 
     }
@@ -192,6 +215,48 @@ export default class RetailerImporter {
         while (this.activeWorkers > 0) {
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
+
+        try {
+
+            const batchProgressModel = await EM.getModel("cms_background_task_progress");
+            const retailerBatch = await batchProgressModel.findOne({ type: ImportType.RETAILER_IMPORTER }).lean();
+
+            if (this.batchQueue.length == 0) {
+
+                const _endTime = new Date();
+                const elapsed = this.calculateElapsedTime(retailerBatch.startTime, _endTime);  
+                await batchProgressModel.findByIdAndUpdate(retailerBatch._id, {
+                    endTime: _endTime,
+                    elapsedTime: elapsed,
+                    status: false
+                });
+
+            } else {
+                await batchProgressModel.findByIdAndUpdate(retailerBatch._id, {                        
+                    status: false
+                });
+            }
+            
+        } catch (e) {
+            console.log(e);
+        } finally {
+            await this.cleanup();    
+        }
+        
+        console.log("All active workers finished. Batch progress has been updated.");       
+
+    };
+
+    calculateElapsedTime = (_startTime, _endTime) => {
+
+        const elapsedMilliseconds = _endTime - new Date(_startTime);
+
+        const hours = Math.floor(elapsedMilliseconds / (1000 * 60 * 60));
+        const minutes = Math.floor((elapsedMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((elapsedMilliseconds % (1000 * 60)) / 1000);
+        const milliseconds = elapsedMilliseconds % 1000;
+
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
 
     };
 

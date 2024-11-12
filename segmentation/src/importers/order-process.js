@@ -1,7 +1,6 @@
 import OrderImporter from "./order-import.js";
 
 const importer = new OrderImporter();
-await importer.init();
 
 process.on('message', async (message) => {
 

@@ -43,6 +43,19 @@ export default class StoreImporter {
         }
     };
 
+    cleanup = async() => {
+        try {
+            if (MDBM.isConnected()) {
+                await MDBM.close();
+            }
+            if (MYDBM.isConnected()) {
+                await MYDBM.close();
+            }
+        } catch (closeError) {
+            console.error("Error during cleanup:", closeError);
+        }
+    };
+
     startWorker = (batch, storeIds) => {
 
         this.activeWorkers++;
@@ -110,14 +123,16 @@ export default class StoreImporter {
 
         try {
 
-            const retailers = await MYDBM.query(this.storeCountQuery);
+            await this.init();
+            this.shouldPause = false;
+            const stores = await MYDBM.query(this.storeCountQuery);
 
-            if (Array.isArray(retailers) && retailers.length === 1) {
+            if (Array.isArray(stores) && stores.length === 1) {
 
-                const retailerCount = parseInt(retailers[0]["Count"]);
+                const storeCount = parseInt(stores[0]["Count"]);
                 /* Adjust orderIdsPerBatch value, incase the order count is less then batch count */
-                this.storeIdsPerBatch = Math.min(this.storeIdsPerBatch, retailerCount);
-                const batchCount = Math.ceil(retailerCount / this.storesPerBatch);    
+                this.storeIdsPerBatch = Math.min(this.storeIdsPerBatch, storeCount);
+                const batchCount = Math.ceil(storeCount / this.storesPerBatch);    
     
                 const batchProgressModel = await EM.getModel("cms_background_task_progress");
                 let storeBatch = await batchProgressModel.findOne({ type: ImportType.STORE_IMPORTER }).lean();
@@ -127,7 +142,7 @@ export default class StoreImporter {
                         totalBatch: batchCount,
                         currentBatch: 0,
                         recordPerBatch: this.storesPerBatch,
-                        totalRecord: retailerCount,
+                        totalRecord: storeCount,
                         completedBatch: 0,
                         pendingBatch: batchCount,
                         status: false,
@@ -142,7 +157,7 @@ export default class StoreImporter {
                 }
     
                 if (!storeBatch.status) {
-                    await batchProgressModel.findByIdAndUpdate(storeBatch._id, { startTime: new Date(), endTime: null, status: true });
+                    await batchProgressModel.findByIdAndUpdate(storeBatch._id, { totalBatch: batchCount, startTime: new Date(), endTime: null, status: true });
                 } else {
                     console.log("Store importer is already running");
                     return null;
@@ -162,16 +177,19 @@ export default class StoreImporter {
                 }   
                 
                 if (this.shouldPause) {
-                    await batchProgressModel.findByIdAndUpdate(storeBatch._id, {
-                        currentBatch: currentBatch + this.batchQueue.length,
-                        pendingBatch: batchCount - (currentBatch + this.batchQueue.length),
+                    await batchProgressModel.findByIdAndUpdate(storeBatch._id, {                        
                         status: false
                     });
                 } else {
+
+                    const _endTime = new Date();
+                    const elapsed = this.calculateElapsedTime(storeBatch.startTime, _endTime);  
                     await batchProgressModel.findByIdAndUpdate(storeBatch._id, {
-                        endTime: new Date(),
+                        endTime: _endTime,
+                        elapsedTime: elapsed,
                         status: false
                     });
+
                 }
     
                 console.log("All batches processed successfully.");
@@ -179,6 +197,8 @@ export default class StoreImporter {
 
         } catch (e) {
             console.log("Error in doOrderImport:", e);
+        } finally {
+            await this.cleanup();                    
         }
 
     }
@@ -192,6 +212,48 @@ export default class StoreImporter {
         while (this.activeWorkers > 0) {
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
+
+        try {
+
+            const batchProgressModel = await EM.getModel("cms_background_task_progress");
+            const storeBatch = await batchProgressModel.findOne({ type: ImportType.STORE_IMPORTER }).lean();
+
+            if (this.batchQueue.length == 0) {
+
+                const _endTime = new Date();
+                const elapsed = this.calculateElapsedTime(storeBatch.startTime, _endTime);  
+                await batchProgressModel.findByIdAndUpdate(storeBatch._id, {
+                    endTime: _endTime,
+                    elapsedTime: elapsed,
+                    status: false
+                });
+
+            } else {
+                await batchProgressModel.findByIdAndUpdate(storeBatch._id, {                        
+                    status: false
+                });
+            }
+            
+        } catch (e) {
+            console.log(e);
+        } finally {
+            await this.cleanup();    
+        }
+
+        console.log("All active workers finished. Batch progress has been updated.");  
+
+    };
+
+    calculateElapsedTime = (_startTime, _endTime) => {
+
+        const elapsedMilliseconds = _endTime - new Date(_startTime);
+
+        const hours = Math.floor(elapsedMilliseconds / (1000 * 60 * 60));
+        const minutes = Math.floor((elapsedMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((elapsedMilliseconds % (1000 * 60)) / 1000);
+        const milliseconds = elapsedMilliseconds % 1000;
+
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
 
     };
 

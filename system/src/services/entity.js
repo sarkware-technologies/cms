@@ -203,8 +203,10 @@ export default class EntityService {
             throw new Error("Entity id is missing");
         }
 
-        try {            
+        try {     
+            await FieldModel.deleteMany({ entity: _req.params.id });       
             await EntityModel.deleteOne({ _id: _req.params.id });
+            return { status: true, message: "Entity removed successfully" };
         } catch (_e) {
             throw _e;
         }

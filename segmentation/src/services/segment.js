@@ -1,14 +1,9 @@
 import EM from "../utils/entity.js";
 import AP from "./api.js";
 import MYDBM from "../utils/mysql.js";
-
 import Utils from "../utils/utils.js";
-import SegmentModel from "../models/segment.js";
-import SegmentRetailerModel from "../models/segment-retailer.js";
+
 import SegmentType from "../enums/segment-type.js";
-import SegmentRetailerInclusionModel from "../models/segment-retailer-inclusion.js";
-import SegmentRetailerExclusionModel from "../models/segment-retailer-exclusion.js";
-import SegmentRuleModel from "../models/segment-rules.js";
 import SegmentStatus from "../enums/segment-status.js";
 import SegmentGeography from "../enums/segment-geography.js";
 import SegmentRetailer from "../enums/segment-retailer-status.js";
@@ -25,6 +20,7 @@ export default class SegmentService {
         try {
 
             let _segments = [];
+            const segmentModel = await EM.getModel("cms_segment");
 
             const page = parseInt(_req.query.page) || 1;
             const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
@@ -53,20 +49,20 @@ export default class SegmentService {
             let _count = 0;
 
             if (result == "dynamic") {
-                _count = await SegmentModel.countDocuments({segmentType: SegmentType.DYNAMIC});
-                _segments = await SegmentModel.find({segmentType: SegmentType.DYNAMIC}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
+                _count = await segmentModel.countDocuments({segmentType: SegmentType.DYNAMIC});
+                _segments = await segmentModel.find({segmentType: SegmentType.DYNAMIC}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
             } else if (result == "static") {
-                _count = await SegmentModel.countDocuments({segmentType: SegmentType.STATIC});
-                _segments = await SegmentModel.find({segmentType: SegmentType.STATIC}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
+                _count = await segmentModel.countDocuments({segmentType: SegmentType.STATIC});
+                _segments = await segmentModel.find({segmentType: SegmentType.STATIC}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
             } else if (result == "progress") {
-                _count = await SegmentModel.countDocuments({segmentStatus: SegmentStatus.SCHEDULED});
-                _segments = await SegmentModel.find({status: SegmentStatus.PROGRESS}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
+                _count = await segmentModel.countDocuments({segmentStatus: SegmentStatus.SCHEDULED});
+                _segments = await segmentModel.find({status: SegmentStatus.PROGRESS}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
             } else if (result == "disabled") {
-                _count = await SegmentModel.countDocuments({status: false});
-                _segments = await SegmentModel.find({status: false}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
+                _count = await segmentModel.countDocuments({status: false});
+                _segments = await segmentModel.find({status: false}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
             } else {
-                _count = await SegmentModel.countDocuments({});
-                _segments = await SegmentModel.find({}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
+                _count = await segmentModel.countDocuments({});
+                _segments = await segmentModel.find({}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
             }
             
             return Utils.response(_count, page, _segments);
@@ -80,7 +76,8 @@ export default class SegmentService {
     listAll = async (_req) => {
 
         try {
-            return await SegmentModel.find({}).sort({ title: 1 }).lean();
+            const segmentModel = await EM.getModel("cms_segment");
+            return await segmentModel.find({}).sort({ title: 1 }).lean();
         } catch (e) {
             throw e;
         }
@@ -93,22 +90,23 @@ export default class SegmentService {
 
             let _count = 0;
             let _segments = [];
+            const segmentModel = await EM.getModel("cms_segment");
 
             if (result == "dynamic") {
-                _count = await SegmentModel.countDocuments({ segmentType: SegmentType.DYNAMIC, [_field]: { $regex: new RegExp(_search, 'i') }});
-                _segments = await SegmentModel.find({ segmentType: SegmentType.DYNAMIC, [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
+                _count = await segmentModel.countDocuments({ segmentType: SegmentType.DYNAMIC, [_field]: { $regex: new RegExp(_search, 'i') }});
+                _segments = await segmentModel.find({ segmentType: SegmentType.DYNAMIC, [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
             } else if (result == "static") {
-                _count = await SegmentModel.countDocuments({ segmentType: SegmentType.STATIC, [_field]: { $regex: new RegExp(_search, 'i') }});
-                _segments = await SegmentModel.find({ segmentType: SegmentType.STATIC, [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
+                _count = await segmentModel.countDocuments({ segmentType: SegmentType.STATIC, [_field]: { $regex: new RegExp(_search, 'i') }});
+                _segments = await segmentModel.find({ segmentType: SegmentType.STATIC, [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
             } else if (result == "progress") {
-                _count = await SegmentModel.countDocuments({ segmentStatus: SegmentStatus.SCHEDULED, [_field]: { $regex: new RegExp(_search, 'i') }});
-                _segments = await SegmentModel.find({ status: SegmentStatus.PROGRESS, [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
+                _count = await segmentModel.countDocuments({ segmentStatus: SegmentStatus.SCHEDULED, [_field]: { $regex: new RegExp(_search, 'i') }});
+                _segments = await segmentModel.find({ status: SegmentStatus.PROGRESS, [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
             } else if (result == "disabled") {  console.log("in the disabled block");
-                _count = await SegmentModel.countDocuments({ status: SegmentStatus.DISABLED, [_field]: { $regex: new RegExp(_search, 'i') } });
-                _segments = await SegmentModel.find({ status: SegmentStatus.DISABLED, [_field]: { $regex: new RegExp(_search, 'i') }}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
+                _count = await segmentModel.countDocuments({ status: SegmentStatus.DISABLED, [_field]: { $regex: new RegExp(_search, 'i') } });
+                _segments = await segmentModel.find({ status: SegmentStatus.DISABLED, [_field]: { $regex: new RegExp(_search, 'i') }}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
             } else {
-                _count = await SegmentModel.countDocuments({[_field]: { $regex: new RegExp(_search, 'i') }});
-                _segments = await SegmentModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
+                _count = await segmentModel.countDocuments({[_field]: { $regex: new RegExp(_search, 'i') }});
+                _segments = await segmentModel.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
             }
 
             return Utils.response(_count, _page, _segments);
@@ -122,7 +120,8 @@ export default class SegmentService {
     groupSeed = async(_req, _field) => { 
 
         try {
-            return await SegmentModel.distinct(_field).exec();
+            const segmentModel = await EM.getModel("cms_segment");
+            return await segmentModel.distinct(_field).exec();
         } catch (_e) {
 
             throw _e;
@@ -139,8 +138,9 @@ export default class SegmentService {
                 query[_field] = { $in: _match.split('|') };
             }
 
-            const _count = await SegmentModel.countDocuments(query);
-            const _segments = await SegmentModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+            const segmentModel = await EM.getModel("cms_segment");
+            const _count = await segmentModel.countDocuments(query);
+            const _segments = await segmentModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
 
             return Utils.response(_count, _page, _segments);
 
@@ -153,7 +153,8 @@ export default class SegmentService {
     count = async (_req) => {
 
         try {
-            return await SegmentModel.countDocuments({});
+            const segmentModel = await EM.getModel("cms_segment");
+            return await segmentModel.countDocuments({});
         } catch (_e) {
             throw _e;
         }
@@ -167,8 +168,11 @@ export default class SegmentService {
         }
 
         try {
-            const segment = await SegmentModel.findOne({ _id: _req.params.id }).lean();
-            segment["rules"] = await SegmentRuleModel.find({ segment: _req.params.id }).lean();
+            const segmentModel = await EM.getModel("cms_segment");
+            const segmentRuleModel = await EM.getModel("cms_segment_rule");
+            
+            const segment = await segmentModel.findOne({ _id: _req.params.id }).lean();
+            segment["rules"] = await segmentRuleModel.find({ segment: _req.params.id }).lean();
             return segment;
         } catch (_e) {
             throw _e;
@@ -183,7 +187,11 @@ export default class SegmentService {
         }
 
         const errors = [];
-        const { body } = _req;        
+        const { body } = _req;      
+        const segmentModel = await EM.getModel("cms_segment");  
+        const segmentRetailerModel = await EM.getModel("cms_segment_retailer");  
+        const segmentRuleModel = await EM.getModel("cms_segment_rule");
+        
 
         if (!body) {
             throw new Error('Request body is required');
@@ -193,12 +201,12 @@ export default class SegmentService {
 
             if (body.rules) {
                 /* Before anything - clear the rules (even if it is for static segment) */
-                await SegmentRuleModel.deleteMany({ segment: _req.params.id });
+                await segmentRuleModel.deleteMany({ segment: _req.params.id });
             }
 
             if (body.retailers) {
                 /* Also clear the retailer list */
-                await SegmentRetailerModel.deleteMany({ segment: _req.params.id });
+                await segmentRetailerModel.deleteMany({ segment: _req.params.id });
             }            
 
             if (body.segmentType == SegmentType.DYNAMIC) {
@@ -206,7 +214,7 @@ export default class SegmentService {
                     /** Insert the rules */
                     for (let i = 0; i < body.rules.length; i++) {
                         try {
-                            const ruleModel = new SegmentRuleModel({...body.rules[i], segment: _req.params.id, createdBy: body["createdBy"]});
+                            const ruleModel = new segmentRuleModel({...body.rules[i], segment: _req.params.id, createdBy: body["createdBy"]});
                             await ruleModel.save();
                         } catch (e) {
                             console.log(e);
@@ -218,7 +226,7 @@ export default class SegmentService {
                 if (body.retailers && Array.isArray(body.retailers)) {
                     await Promise.all(body.retailers.map(async (retilerId) => {
                         try {     
-                            const srModel = new SegmentRetailerModel({
+                            const srModel = new segmentRetailerModel({
                                 segment: segment._id,
                                 retailer: retilerId,
                                 createdBy: body["createdBy"]
@@ -232,7 +240,7 @@ export default class SegmentService {
                 }
             }
 
-            const updatedSegment = await SegmentModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
+            const updatedSegment = await segmentModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
 
             if (body.segmentType == SegmentType.DYNAMIC) {
                 
@@ -265,12 +273,19 @@ export default class SegmentService {
 
         try {
 
-            await SegmentRuleModel.deleteMany({ segment: _req.params.id });            
-            await SegmentRetailerModel.deleteMany({ segment: _req.params.id });
-            await SegmentRetailerExclusionModel.deleteMany({ segment: _req.params.id });
-            await SegmentRetailerInclusionModel.deleteMany({ segment: _req.params.id });
+            const segmentModel = await EM.getModel("cms_segment"); 
+            const segmentRuleModel = await EM.getModel("cms_segment_rule");
+            const segmentRetailerModel = await EM.getModel("cms_segment_retailer"); 
+            const segmentRetailerExclusionModel = await EM.getModel("cms_segment_retailer_exclusion"); 
+            const segmentRetailerInclusionModel = await EM.getModel("cms_segment_retailer_inclusion"); 
+            
 
-            return await SegmentModel.deleteOne({ _id: _req.params.id });            
+            await segmentRuleModel.deleteMany({ segment: _req.params.id });            
+            await segmentRetailerModel.deleteMany({ segment: _req.params.id });
+            await segmentRetailerExclusionModel.deleteMany({ segment: _req.params.id });
+            await segmentRetailerInclusionModel.deleteMany({ segment: _req.params.id });
+
+            return await segmentModel.deleteOne({ _id: _req.params.id });            
 
         } catch (_e) {
             throw _e;
@@ -284,13 +299,16 @@ export default class SegmentService {
 
             const errors = [];
             const { body } = _req;
+            const segmentModel = await EM.getModel("cms_segment"); 
+            const segmentRetailerModel = await EM.getModel("cms_segment_retailer");
+            const segmentRuleModel = await EM.getModel("cms_segment_rule");
 
             if (!body) {
                 throw new Error('Request body is required');
             }
 
             body["createdBy"] = _req.user._id;
-            const model = new SegmentModel(body);
+            const model = new segmentModel(body);
             const segment = await model.save();     
 
             if (segment.segmentType == SegmentType.STATIC) {
@@ -298,7 +316,7 @@ export default class SegmentService {
                 if (Array.isArray(body.retailers)) {
                     await Promise.all(body.retailers.map(async (retilerId) => {
                         try {     
-                            const srModel = new SegmentRetailerModel({
+                            const srModel = new segmentRetailerModel({
                                 segment: segment._id,
                                 retailer: retilerId,
                                 createdBy: body["createdBy"]
@@ -318,7 +336,7 @@ export default class SegmentService {
                 /* It's a dynamic segment */
                 for (let i = 0; i < rules.length; i++) {
                     try {
-                        const ruleModel = new SegmentRuleModel({...rules[i], segment: segment._id, createdBy: body["createdBy"]});
+                        const ruleModel = new segmentRuleModel({...rules[i], segment: segment._id, createdBy: body["createdBy"]});
                         await ruleModel.save();
                     } catch (e) {
                         console.log(e);
@@ -443,8 +461,9 @@ export default class SegmentService {
                 }
             }
 
-            let _retailers = [];                 
-            const segmentRetailers = await SegmentRetailerModel.find({segment: _req.params.id}).select("retailer").lean();
+            let _retailers = [];   
+            const segmentRetailerModel = await EM.getModel("cms_segment_retailer");              
+            const segmentRetailers = await segmentRetailerModel.find({segment: _req.params.id}).select("retailer").lean();
             
             // Extract retailer ids into an array
             const retailerIds = segmentRetailers.map(record => record.retailer);           
@@ -472,7 +491,8 @@ export default class SegmentService {
 
         try {
 
-            SegmentRetailerInclusionModel.aggregate([
+            const segmentRetailerInclusionModel = await EM.getModel("cms_segment_retailer_inclusion");
+            segmentRetailerInclusionModel.aggregate([
                 {
                     $lookup: {
                         from: 'cms_system_segment_retailer_inclusion',
@@ -509,9 +529,11 @@ export default class SegmentService {
             let _count = 0;
             let _retailers = [];
             const retailerModel = await EM.getModel("retailer");
+            const segmentRetailerModel = await EM.getModel("cms_segment_retailer");
+
             if (retailerModel) {
 
-                const segmentRetailers = await SegmentRetailerModel.find({segment: _req.params.id}).select("retailer").lean();            
+                const segmentRetailers = await segmentRetailerModel.find({segment: _req.params.id}).select("retailer").lean();            
                 const retailerIds = segmentRetailers.map(record => record.retailer);
 
                 _count = await retailerModel.countDocuments({ 
@@ -587,7 +609,11 @@ export default class SegmentService {
             }
 
             let mapping = null;
-            const segment = await SegmentModel.findById(_req.params.id).lean();
+            const segmentModel = await EM.getModel("cms_segment"); 
+            const segmentRetailerModel = await EM.getModel("cms_segment_retailer");
+            const segmentRetailerInclusionModel = await EM.getModel("cms_segment_retailer_inclusion");
+
+            const segment = await segmentModel.findById(_req.params.id).lean();
             
             if (segment) {
                 if (segment.segmentType == SegmentType.STATIC) {
@@ -597,9 +623,9 @@ export default class SegmentService {
                     mapping = await Promise.all(body.map(async (retilerId) => {
                         try {  
                             
-                            const exist = await SegmentRetailerModel.find({segment: segment._id, retailer: retilerId,}).lean();
+                            const exist = await segmentRetailerModel.find({segment: segment._id, retailer: retilerId,}).lean();
                             if (!exist || (Array.isArray(exist) && exist.length == 0)) {
-                                const srModel = SegmentRetailerModel({
+                                const srModel = new segmentRetailerModel({
                                     segment: segment._id,
                                     retailer: retilerId,
                                     createdBy: body["createdBy"]
@@ -617,9 +643,9 @@ export default class SegmentService {
                     mapping = await Promise.all(body.map(async (retilerId) => {
                         try { 
                             
-                            const exist = await SegmentRetailerInclusionModel.find({segment: segment._id, retailer: retilerId,}).lean();
+                            const exist = await segmentRetailerInclusionModel.find({segment: segment._id, retailer: retilerId,}).lean();
                             if (!exist || (Array.isArray(exist) && exist.length == 0)) {
-                                const srModel = SegmentRetailerInclusionModel({
+                                const srModel = new segmentRetailerInclusionModel({
                                     segment: segment._id,
                                     retailer: retilerId,
                                     createdBy: body["createdBy"]
@@ -658,25 +684,30 @@ export default class SegmentService {
             }
 
             let deleted = null;
-            const segment = await SegmentModel.findById(_req.params.id).lean();
+            const segmentModel = await EM.getModel("cms_segment"); 
+            const segmentRetailerModel = await EM.getModel("cms_segment_retailer");
+            const segmentRetailerExclusionModel = await EM.getModel("cms_segment_retailer_exclusion"); 
+            const segmentRetailerInclusionModel = await EM.getModel("cms_segment_retailer_inclusion");
+
+            const segment = await segmentModel.findById(_req.params.id).lean();
             
             if (segment) {
                 if (segment.segmentType == SegmentType.STATIC) {
 
                     /* It's a static segment */
-                    deleted = await SegmentRetailerModel.deleteMany({retailer: { $in: body}});
+                    deleted = await segmentRetailerModel.deleteMany({retailer: { $in: body}});
 
                 } else {  
 
                     /* It's a dynamic segment - add it to inclusion list */
-                    deleted = await SegmentRetailerInclusionModel.deleteMany({retailer: { $in: body}});
+                    deleted = await segmentRetailerInclusionModel.deleteMany({retailer: { $in: body}});
 
                     await Promise.all(body.map(async (retilerId) => {
                         try { 
                             
-                            const exist = await SegmentRetailerExclusionModel.find({segment: segment._id, retailer: retilerId,}).lean();
+                            const exist = await segmentRetailerExclusionModel.find({segment: segment._id, retailer: retilerId,}).lean();
                             if (!exist || (Array.isArray(exist) && exist.length == 0)) {
-                                const sreModel = SegmentRetailerExclusionModel({
+                                const sreModel = new segmentRetailerExclusionModel({
                                     segment: segment._id,
                                     retailer: retilerId,
                                     createdBy: body["createdBy"]
@@ -704,8 +735,9 @@ export default class SegmentService {
 
         try {
 
+            const segmentModel = await EM.getModel("cms_segment"); 
             const retailerModel = await EM.getModel("cms_master_retailer");
-            const segment = await SegmentModel.findById(_segmentId).lean();
+            const segment = await segmentModel.findById(_segmentId).lean();
 
             if (segment) {
 
@@ -725,9 +757,10 @@ export default class SegmentService {
 
         try {
 
+            const segmentModel = await EM.getModel("cms_segment"); 
             const orderModel = await EM.getModel("cms_master_order");
             const retailerModel = await EM.getModel("cms_master_retailer");
-            const segment = await SegmentModel.findById(_segmentId).lean();
+            const segment = await segmentModel.findById(_segmentId).lean();
 
             if (segment) {
 
@@ -805,9 +838,12 @@ export default class SegmentService {
             let orderItems = [];
             const orderList = [];
             const orderItemModel = await EM.getModel("cms_master_order_item");
+            const segmentRetailerModel = await EM.getModel("cms_segment_retailer");
+            const segmentRuleModel = await EM.getModel("cms_segment_rule");
+
             const orderPerBatch = 1000;
             const totalBatches = Math.ceil(_orders.length / orderPerBatch);
-            const rules = await SegmentRuleModel.find({segment: _segment._id});
+            const rules = await segmentRuleModel.find({segment: _segment._id});
 
             console.log("Total order batch : "+ totalBatches);
 
@@ -909,7 +945,7 @@ export default class SegmentService {
 
                 let segmentRetailer = null;
                 for (let j = 0; j < orderItems.length; j++) {
-                    segmentRetailer = new SegmentRetailerModel({
+                    segmentRetailer = new segmentRetailerModel({
                         segment: _segment._id,
                         retailer: orderItems[j].order.retailer
                     });
@@ -939,11 +975,12 @@ export default class SegmentService {
 
                 const [_req] = _params;   
                 const _entity = _req.query.entity;
+                const segmentModel = await EM.getModel("cms_segment"); 
 
                 if (_entity) {
 
                     if (_entity === "segment") {  
-                        callback(await SegmentModel.find().lean(), null);
+                        callback(await segmentModel.find().lean(), null);
                     } else if (_entity === "brands") {
                         callback(await MYDBM.query(`select * from brands b where b.IsDeleted = 0 AND b.IsApproved = 1`), null);
                     } else if (_entity === "mdms") { 

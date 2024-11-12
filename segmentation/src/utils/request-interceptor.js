@@ -38,7 +38,7 @@ class RequestInterceptor {
             console.error('Uncaught Exception:', err);        
         });
 
-        this.express.use(async (_req, _res, _next) => {  console.log(_req.path);
+        this.express.use(async (_req, _res, _next) => {
 
             /* Public route handler */
             if (this.whiteListUrls.includes(_req.path)) {
@@ -111,7 +111,7 @@ class RequestInterceptor {
 
     };
 
-    checkPermissions = async (_privileges, _method, _req, _res) => {  console.log(_req.originalUrl);
+    checkPermissions = async (_privileges, _method, _req, _res) => {
 
         if (this.whiteListUrls.includes(_req.originalUrl) || (_privileges.length == 1 && _privileges[0] == "*")) {
             return true;
@@ -125,12 +125,12 @@ class RequestInterceptor {
             return false;
         }
 
-        const sourceUrl = `${_req.protocol}://${_req.get("host")}${_req.originalUrl}`;  console.log(sourceUrl);
-        const [_service, _version, _module] = this.getUrlPathParts(sourceUrl);    console.log([_service, _version, _module]);
+        const sourceUrl = `${_req.protocol}://${_req.get("host")}${_req.originalUrl}`;
+        const [_service, _version, _module] = this.getUrlPathParts(sourceUrl);
         
         if (_service && _version && _module) {
 
-            const caps = await cache.getCapabilities(`${_req.user.role}_${_module}`);  console.log(caps);
+            const caps = await cache.getCapabilities(`${_req.user.role}_${_module}`);
 
             if (caps) {
 
@@ -156,9 +156,9 @@ class RequestInterceptor {
         const prevs = Array.isArray(_privileges) ? _privileges : [];
 
         return async (req, res, next) => {
-            if (await this.checkPermissions(prevs, _method, req, res)) {  console.log("check permission is success");
+            if (await this.checkPermissions(prevs, _method, req, res)) { 
                 return _routeHandler(req, res, next);
-            } else {                 console.log("check permission is failed");
+            } else {                
                 return res.status(403).json({ message: 'Forbidden: Insufficient Permissions' });
             }
         };

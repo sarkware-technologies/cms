@@ -1,7 +1,6 @@
 import RetailerImporter from "./retailer-import.js";
 
 const importer = new RetailerImporter();
-importer.init();
 
 process.on('message', async (message) => {
 

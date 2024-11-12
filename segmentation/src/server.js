@@ -80,7 +80,7 @@ class SegmentServer {
             //const ss = new SegmentService();
             //ss.prepareRetailersForSegment("672e66c8579a57d4b5850245");
             
-            if (MDBM.checkConnection()) {
+            if (MDBM.isConnected()) {
                 this.app.listen(process.env.SYSTEM_PORT);
             } else {
                 console.log("MongoDB connection error");

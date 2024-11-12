@@ -2785,6 +2785,7 @@ div.pharmarack-cms-multi-select-records > label {
     padding: 5px 0px;    
     font-weight: normal !important;
     color: #030303;
+    font-size: 14px;
 }
 
 div.pharmarack-cms-multi-select-records > label input {
@@ -3195,6 +3196,7 @@ table.preview-table td:first-child{
 
 table.preview-table td:last-child{
     width: 75%;
+    padding-left: 30px;
 }
 
 .pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-form-field-wrap.label label {

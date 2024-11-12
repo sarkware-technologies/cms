@@ -2,10 +2,8 @@ import dotenv from "dotenv";
 dotenv.config();
 import mysql from 'mysql';
 
-class MysqlManager {  
-
+class MysqlManager {
     constructor () {
-
         if (!MysqlManager.instance) {
             MysqlManager.instance = this;
             this.connection = null;
@@ -13,23 +11,18 @@ class MysqlManager {
             this.isPool = false;
             this.errorMessages = [];
         }
-
         return MysqlManager.instance;
-
     }
 
     connect = async (usePool = true) => {
-
         this.isPool = usePool;
 
-        if (usePool && this.pool) {            
-            return;
-        } else if (!usePool && this.connection) {            
+        // Avoid reconnecting if already connected
+        if ((usePool && this.pool) || (!usePool && this.connection)) {
             return;
         }
 
-        if (usePool) {        
-
+        if (usePool) {
             this.pool = mysql.createPool({
                 connectionLimit: process.env.DB_CONNECTION_LIMIT || 10,
                 host: process.env.API_DB_HOST,
@@ -39,9 +32,7 @@ class MysqlManager {
                 database: process.env.API_DB,
                 connectTimeout: process.env.DB_CONNECT_TIMEOUT || 30000
             });
-
-        } else {            
-
+        } else {
             this.connection = mysql.createConnection({
                 host: process.env.API_DB_HOST,
                 port: process.env.API_DB_PORT,
@@ -61,7 +52,6 @@ class MysqlManager {
                     }
                 });
             });
-
         }
     }
 
@@ -119,6 +109,7 @@ class MysqlManager {
                         console.error('Error closing MySQL connection pool:', err.message);
                         reject(err);
                     } else {                        
+                        this.pool = null; // Set pool to null after closing
                         resolve();
                     }
                 });
@@ -131,6 +122,7 @@ class MysqlManager {
                         console.error('Error closing MySQL connection:', err.message);
                         reject(err);
                     } else {                        
+                        this.connection = null; // Set connection to null after closing
                         resolve();
                     }
                 });
@@ -139,7 +131,16 @@ class MysqlManager {
     };
 
     // Method to get logged error messages
-    getErrorMessages = () => this.errorMessages;
+    getErrorMessages = () => {
+        const errors = [...this.errorMessages];
+        this.errorMessages = []; // Optional: clear after retrieval
+        return errors;
+    }
+
+    // Check if connected
+    isConnected = () => {
+        return this.isPool ? this.pool !== null : this.connection && this.connection.state !== 'disconnected';
+    }
 }
 
 const MYDBM = new MysqlManager();

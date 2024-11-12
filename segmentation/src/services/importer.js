@@ -15,16 +15,16 @@ export default class ImporterService {
 
         try {
 
-            if (this.checkImporterStatus(ImportType.ORDER_IMPORTER)) {
+            if (await this.checkImporterStatus(ImportType.ORDER_IMPORTER)) {
                 return { status: true, message: "Order importer process is already running" };
             }
 
             if (req.body) {
-                this.persistBatchOptions(req.body);
+                await this.persistBatchOptions(req.body);
             }
 
             if (!this.orderImporterProcess) {
-                this.orderImporterProcess = fork('./src/importers/orders-process.js');        
+                this.orderImporterProcess = fork('./src/importers/order-process.js');        
                 
                 this.orderImporterProcess.once('exit', (code) => {
                     console.log(`OrderImporter process exited with code ${code}`);
@@ -92,12 +92,12 @@ export default class ImporterService {
         
         try {
 
-            if (this.checkImporterStatus(ImportType.RETAILER_IMPORTER)) {
+            if (await this.checkImporterStatus(ImportType.RETAILER_IMPORTER)) {
                 return { status: true, message: "Retailer importer process is already running" };
             }
 
             if (req.body) {
-                this.persistBatchOptions(req.body);
+                await this.persistBatchOptions(req.body);
             }
 
             if (!this.retailerImporterProcess) {
@@ -169,12 +169,12 @@ export default class ImporterService {
 
         try {
 
-            if (this.checkImporterStatus(ImportType.STORE_IMPORTER)) {
+            if (await this.checkImporterStatus(ImportType.STORE_IMPORTER)) {
                 return { status: true, message: "Store importer process is already running" };
             }
 
             if (req.body) {
-                this.persistBatchOptions(req.body);
+                await this.persistBatchOptions(req.body);
             }
 
             if (!this.storeImporterProcess) {
@@ -284,7 +284,7 @@ export default class ImporterService {
             return batchProgress.status;
 
         } catch (e) {
-            return true;
+            return false;
         }
 
     };

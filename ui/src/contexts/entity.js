@@ -83,9 +83,44 @@ export default function EntityContext(_component) {
             this.controller.switchView("main_view");
         } else if (_action === "SAVE_ENTITY") {
             this.saveEntity();
+        } else if (_action === "DELETE_ENTITY") {
+            this.controller.getUserConfirm("Are you sure ?", "DELETE_ENTITY");
         }
 
-    };    
+    };  
+    
+    this.onUserConfirm = (_task, _choice) => {
+
+        if (_choice) {
+            if (_task == "DELETE_ENTITY") {
+                this.deleteEntity();
+            }
+        }
+
+    };
+    
+    this.deleteEntity = () => {
+        
+        const entity = this.component.currentRecord["entity_grid"];
+
+        if (entity) {
+
+            const request = {};    
+            request["method"] = "DELETE";
+            request["endpoint"] = "/system/v1/entity/" + entity._id;  
+
+            this.controller.docker.dock(request).then((_res) => {
+                this.controller.notify(_res.message);
+                this.controller.switchView("main_view");
+                this.component.currentRecord["entity_grid"] = null;
+            })
+            .catch((e) => {
+                this.controller.notify(e.message, "error");
+            }); 
+
+        }
+
+    };
 
     this.saveEntity = () => {
 
@@ -108,12 +143,12 @@ export default function EntityContext(_component) {
             if (request["payload"] && Object.keys(request["payload"]).length > 0) {
 
                 this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(_res.title + " saved successfully.!");
+                    this.controller.notify(_res.payload.title + " saved successfully.!");
                     this.controller.switchView("main_view");
                     this.component.currentRecord["entity_grid"] = null;
                 })
                 .catch((e) => {
-                    this.controller.notify(_res, "error");
+                    this.controller.notify(e.message, "error");
                 }); 
 
             }

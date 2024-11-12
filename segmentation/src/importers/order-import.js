@@ -31,14 +31,13 @@ export default class OrderImporter {
 
             const batchOptionModel = await EM.getModel("cms_batch_options");
             const batchOption = await batchOptionModel.findOne({batch_type: ImportType.ORDER_IMPORTER}).lean();
+
             if (batchOption) {
                 this.ordersPerBatch = batchOption.records_per_batch;
                 this.orderIdsPerBatch = batchOption.record_ids_per_batch;
                 this.maxThread = batchOption.max_thread;
                 this.chunkSize = batchOption.chunk_size;
             }
-
-            console.log("Database connections established.");
 
         } catch (e) {
             console.error("Error during initialization:", e);
@@ -48,11 +47,15 @@ export default class OrderImporter {
 
     cleanup = async() => {
         try {
-            await MDBM.close();
-            await MYDBM.close();
+            if (MDBM.isConnected()) {
+                await MDBM.close();
+            }
+            if (MYDBM.isConnected()) {
+                await MYDBM.close();
+            }
         } catch (closeError) {
             console.error("Error during cleanup:", closeError);
-        }        
+        }
     };
 
     startWorker = (batch, orderIds) => {
@@ -116,6 +119,8 @@ export default class OrderImporter {
 
         try {
 
+            await this.init();
+            this.shouldPause = false;
             const orders = await MYDBM.query(this.orderCountQuery);
 
             if (Array.isArray(orders) && orders.length === 1) {
@@ -149,7 +154,7 @@ export default class OrderImporter {
                 }
     
                 if (!orderBatch.status) {
-                    await batchProgressModel.findByIdAndUpdate(orderBatch._id, { startTime: new Date(), status: true });
+                    await batchProgressModel.findByIdAndUpdate(orderBatch._id, { totalBatch: batchCount, startTime: new Date(), status: true });
                 } else {
                     return null;
                 }
@@ -166,18 +171,18 @@ export default class OrderImporter {
                     }
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }   
-                
-                if (this.shouldPause) {
+            
+                /* If the shouldPause is true then the update batch progress will happens at stop method */
+                if (!this.shouldPause) {                
+
+                    const _endTime = new Date();
+                    const elapsed = this.calculateElapsedTime(orderBatch.startTime, _endTime);  
                     await batchProgressModel.findByIdAndUpdate(orderBatch._id, {
-                        currentBatch: currentBatch + this.batchQueue.length,
-                        pendingBatch: batchCount - (currentBatch + this.batchQueue.length),
+                        endTime: _endTime,
+                        elapsedTime: elapsed,
                         status: false
                     });
-                } else {
-                    await batchProgressModel.findByIdAndUpdate(orderBatch._id, {
-                        endTime: new Date(),
-                        status: false
-                    });
+
                 }
     
                 console.log("All batches processed successfully.");
@@ -186,7 +191,10 @@ export default class OrderImporter {
         } catch (e) {
             console.log("Error in doOrderImport:", e);
         } finally {
-            await this.cleanup();                    
+            /* If the shouldPause is true then the cleanup will happens at stop method */
+            if (!this.shouldPause) {
+                await this.cleanup();   
+            }                 
         }
 
     }
@@ -201,8 +209,47 @@ export default class OrderImporter {
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
-        await this.cleanup();
+        try {
+
+            const batchProgressModel = await EM.getModel("cms_background_task_progress");
+            const orderBatch = await batchProgressModel.findOne({ type: ImportType.ORDER_IMPORTER }).lean();
+
+            if (this.batchQueue.length == 0) {
+
+                const _endTime = new Date();
+                const elapsed = this.calculateElapsedTime(orderBatch.startTime, _endTime);  
+                await batchProgressModel.findByIdAndUpdate(orderBatch._id, {
+                    endTime: _endTime,
+                    elapsedTime: elapsed,
+                    status: false
+                });
+
+            } else {
+                await batchProgressModel.findByIdAndUpdate(orderBatch._id, {                        
+                    status: false
+                });
+            }
+            
+        } catch (e) {
+            console.log(e);
+        } finally {
+            await this.cleanup();    
+        }        
+        
         console.log("All active workers finished. Batch progress has been updated.");       
+
+    };
+
+    calculateElapsedTime = (_startTime, _endTime) => {
+
+        const elapsedMilliseconds = _endTime - new Date(_startTime);
+
+        const hours = Math.floor(elapsedMilliseconds / (1000 * 60 * 60));
+        const minutes = Math.floor((elapsedMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((elapsedMilliseconds % (1000 * 60)) / 1000);
+        const milliseconds = elapsedMilliseconds % 1000;
+
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
 
     };
 

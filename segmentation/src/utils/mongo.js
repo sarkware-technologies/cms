@@ -95,7 +95,7 @@ class MongoManager {
 
     getErrorMessages = () => this.errorMessages;
 
-    checkConnection = () => (this.db.readyState === 1);
+    isConnected = () => (this.db.readyState === 1);
 
     getReconnectedCount = () => this.reconnectCount;
 

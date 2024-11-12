@@ -1,7 +1,6 @@
 import StoreImporter from "./store-import.js";
 
 const importer = new StoreImporter();
-importer.init();
 
 process.on('message', async (message) => {
 

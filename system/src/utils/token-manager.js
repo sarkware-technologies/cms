@@ -14,7 +14,8 @@ import jwt from "jsonwebtoken";
 export default class TokenManager {
     
     constructor() {
-        this.secretKey = process.env.CMS_COMMON_SECRET;     
+        this.commonSecretKey = process.env.CMS_COMMON_SECRET;     
+        this.systemSecretKey = process.env.CMS_SYSTEM_SECRET;         
         this.tempSecretKey = process.env.CMS_TEMP_SECRET;
         this.refreshSecretKey = process.env.CMS_REFRESH_SECRET;
         this.forgotSecretKey = process.env.CMS_FORGOT_SECRET;   
@@ -28,7 +29,7 @@ export default class TokenManager {
             time: Date()            
         }
         
-        const accessToken = jwt.sign(data, this.secretKey, { expiresIn: "48h" });
+        const accessToken = jwt.sign(data, this.systemSecretKey, { expiresIn: "48h" });
         const refreshToken = jwt.sign({ user: _userId }, this.refreshSecretKey, { expiresIn: "7d" });
 
         return {
@@ -64,7 +65,7 @@ export default class TokenManager {
 
         try {
                   
-            const verified = jwt.verify(_token.trim(), this.secretKey);                        
+            const verified = jwt.verify(_token.trim(), this.systemSecretKey);                        
             return {
                 status: true,
                 payload: verified
