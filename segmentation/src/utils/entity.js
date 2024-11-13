@@ -29,13 +29,7 @@ class EntityManager {
             "8" : "Mixed"            
         };
 
-        this.reloadEntityCache();
-
     }
-
-    reloadEntityCache = async () => {
-        const ES = new EntityService();
-    };
 
     createModel = async (_collectionName, _fields) => {
 
@@ -185,19 +179,8 @@ class EntityManager {
             let modelExist = await cache.hasEntity(_entity);
             
             if (!modelExist) {
-
-                /**
-                 * Entity not found on the cache
-                 * Thats probably the entity belongs to some other service,
-                 * Lets try to fetch it from system
-                 * 
-                 **/
-                try {
-                    this.reloadEntityCache();
-                } catch (_e) {
-                    console.error(_e);
-                }
-
+                console.error(`Model ${_entity} not exist`);
+                return null;
             }
 
             modelExist = await cache.hasEntity(_entity);
@@ -220,7 +203,7 @@ class EntityManager {
 
     getEntityHandle = async(_id, _collectionName) => {
 
-        const eCahceList = cache.getAllEntities();
+        const eCahceList = await cache.getAllEntities();
         if (eCahceList) {
             const keys = Object.keys(eCahceList);
             for (let i = 0; i < keys.length; i++) {
@@ -239,6 +222,8 @@ class EntityManager {
                 }
             }
         }
+
+        return null;
 
     };
 

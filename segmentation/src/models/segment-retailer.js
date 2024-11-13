@@ -1,7 +1,7 @@
 import mongoose from'mongoose';
 
 const SegmentRetailerSchema = new mongoose.Schema({ 
-    segment                 : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_segment", default: null },
+    segment                 : { type: mongoose.Schema.Types.ObjectId, ref: "cms_segment", default: null },
     retailer                : { type: mongoose.Schema.Types.ObjectId, ref: "cms_master_retailer", default: null },
     createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
     updatedBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
@@ -13,5 +13,5 @@ const SegmentRetailerSchema = new mongoose.Schema({
 
 SegmentRetailerSchema.index({ segment: 1, retailer: 1 }, { unique: true });
 
-const SegmentRetailerModel = mongoose.model('cms_system_segment_retailer', SegmentRetailerSchema);
+const SegmentRetailerModel = mongoose.model('cms_segment_retailer', SegmentRetailerSchema);
 export default SegmentRetailerModel;

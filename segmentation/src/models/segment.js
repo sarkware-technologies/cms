@@ -29,5 +29,5 @@ const SegmentSchema = new mongoose.Schema({
     timestamps              : true
 });
 
-const SegmentModel = mongoose.model('cms_system_segment', SegmentSchema);
+const SegmentModel = mongoose.model('cms_segment', SegmentSchema);
 export default SegmentModel;

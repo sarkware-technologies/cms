@@ -158,7 +158,7 @@ export default function RoleContext(_component) {
             if (request["payload"] && Object.keys(request["payload"]).length > 0) {
 
                 this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(_res.title + " saved successfully.!");
+                    this.controller.notify(((_res.payload ? _res.payload.title : _res.title )  + " saved successfully.!"));
                     this.controller.switchView("main_view");
                     this.component.currentRecord["role_grid"] = null;
                 })

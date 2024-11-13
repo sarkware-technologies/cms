@@ -3,7 +3,7 @@ import SegmentRuleType from '../enums/segment-rule-type.js';
 import SegmentRuleQtyType from '../enums/segment-rule-qty-type.js';
 
 const SegmentRuleSchema = new mongoose.Schema({ 
-    segment                 : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_segment", default: null },
+    segment                 : { type: mongoose.Schema.Types.ObjectId, ref: "cms_segment", default: null },
     ruleType                : { type: Number, default: SegmentRuleType.PRODUCT },
     target                  : { type: String, default: null },    
     qtyType                 : { type: Number, default: SegmentRuleQtyType.PRICE },
@@ -17,5 +17,5 @@ const SegmentRuleSchema = new mongoose.Schema({
     timestamps              : true
 });
 
-const SegmentRuleModel = mongoose.model('cms_system_segment_rule', SegmentRuleSchema);
+const SegmentRuleModel = mongoose.model('cms_segment_rule', SegmentRuleSchema);
 export default SegmentRuleModel;

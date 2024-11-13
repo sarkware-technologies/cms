@@ -11,6 +11,7 @@ import OrderImporter from "./importers/order-import.js";
 import RetailerImporter from "./importers/retailer-import.js";
 import StoreImporter from "./importers/store-import.js";
 import SegmentService from "./services/segment.js";
+import SegmentBuilder from "./builders/segment-builder.js";
 
 /**
  * 
@@ -79,6 +80,9 @@ class SegmentServer {
 
             //const ss = new SegmentService();
             //ss.prepareRetailersForSegment("672e66c8579a57d4b5850245");
+
+            const builder = new SegmentBuilder();
+            builder.start();
             
             if (MDBM.isConnected()) {
                 this.app.listen(process.env.SYSTEM_PORT);

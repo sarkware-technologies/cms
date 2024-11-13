@@ -136,7 +136,7 @@ export default function ServiceContext(_component) {
             if (request["payload"] && Object.keys(request["payload"]).length > 0) {
 
                 this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(_res.title + " saved successfully.!");
+                    this.controller.notify(((_res.payload ? _res.payload.fullName : _res.fullName )  + " saved successfully.!"));
                     this.controller.switchView("main_view");
                     this.component.currentRecord["register_pending_grid"] = null;
                 })

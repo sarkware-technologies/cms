@@ -34,10 +34,7 @@ class EntityManager {
     }
 
     reloadEntityCache = async () => {
-
-        const ES = new EntityService();
-        cache.setEntities();
-
+        await cache.setEntities();
     };
 
     createModel = async (_collectionName, _fields) => {
@@ -196,7 +193,7 @@ class EntityManager {
                  * 
                  **/
                 try {
-                    this.reloadEntityCache();
+                    await this.reloadEntityCache();
                 } catch (_e) {
                     console.error(_e);
                 }
@@ -223,7 +220,7 @@ class EntityManager {
 
     getEntityHandle = async(_id, _collectionName) => {
 
-        const eCahceList = cache.getAll();
+        const eCahceList = await cache.getAll();
         if (eCahceList) {
             const keys = Object.keys(eCahceList);
             for (let i = 0; i < keys.length; i++) {
@@ -242,6 +239,8 @@ class EntityManager {
                 }
             }
         }
+
+        return null;
 
     };
 

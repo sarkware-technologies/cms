@@ -67,7 +67,7 @@ export default class SegmentService {
             
             return Utils.response(_count, page, _segments);
 
-        } catch (e) {
+        } catch (_e) {
             throw _e;
         }
 
@@ -416,10 +416,11 @@ export default class SegmentService {
             }
 
             const retailerModel = await EM.getModel("cms_master_retailer");
-            const segmentRetailerModel = await EM.getModel("cms_system_segment_retailer");
+            const segmentRetailerModel = await EM.getModel("cms_segment_retailer");
 
             const _count = await segmentRetailerModel.countDocuments({segment: _req.params.id});
-            const _retailers = await segmentRetailerModel.find({segment: _req.params.id}).populate("retailer").skip(skip).limit(limit).lean();
+            const _retailers = await segmentRetailerModel.find({segment: _req.params.id}).populate("retailer").skip(skip).limit(limit).lean().exec();
+            
             const _result = _retailers.map((_item) => _item.retailer);
 
             return Utils.response(_count, page, _result, 10);
@@ -495,7 +496,7 @@ export default class SegmentService {
             segmentRetailerInclusionModel.aggregate([
                 {
                     $lookup: {
-                        from: 'cms_system_segment_retailer_inclusion',
+                        from: 'cms_segment_retailer_inclusion',
                         localField: 'retailer',
                         foreignField: '_id',
                         as: 'retailers'
@@ -969,7 +970,7 @@ export default class SegmentService {
 
     init = async () => {
 
-        AP.event.on('on_segment_segment_multi_select_list', async (_params, callback) => {   console.log("on_segment_segment_multi_select_list is called");
+        AP.event.on('on_segment_segment_multi_select_list', async (_params, callback) => {
 
             try {
 

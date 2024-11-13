@@ -67,7 +67,7 @@ router.get(
     await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
             res.status(200).json(await segmentService.list(req));
-        } catch (error) {
+        } catch (error) { console.log(error);
             Utils.handleError(error, res);
         }
     })

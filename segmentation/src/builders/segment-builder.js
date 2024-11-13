@@ -3,19 +3,33 @@ import MDBM from "../utils/mongo.js";
 import MYDBM from "../utils/mysql.js";
 import EM from "../utils/entity.js";
 import ImportType from '../enums/importer-type.js';
+import SegmentGeography from '../enums/segment-geography.js';
+import SegmentRetailerStatus from '../enums/segment-retailer-status.js';
+import SegmentStoreStatus from '../enums/segment-store-status.js';
 
 export default class SegmentBuilder {
 
     constructor() {
 
-        this.ordersPerBatch = 1000;
-        this.orderIdsPerBatch = 25000;        
+        this.retailerPerBatch = 1000;
+        this.retailerIdsPerBatch = 25000;        
         this.activeWorkers = 0;
         this.batchQueue = [];
         this.maxThread = 20;
         this.chunkSize = 100;
         this.currentOffset = 0;
         this.loadComplete = false;
+        this.segmentRules = [];
+
+        this.orderModel = null;
+        this.segmentRuleModel = null;
+        this.batchOptionModel = null;
+        this.segmentModel = null;
+        this.segmentQueueModel = null;                        
+        this.retailerModel = null;
+        this.segmentRetailerModel = null;
+        this.segmentRetailerExclusionModel = null; 
+        this.segmentRetailerInclusionModel = null; 
 
     }
 
@@ -58,6 +72,20 @@ export default class SegmentBuilder {
 
     };
 
+    loadRetailerIds = async (batchCount) => {
+
+        try {
+
+            while (this.currentOffset < batchCount * this.retailerPerBatch) {
+
+            }
+
+        } catch (e) {
+            console.log(e);
+        }
+
+    };
+
     loadOrderIds = async (batchCount) => {
 
         while (this.currentOffset < batchCount * this.ordersPerBatch && !this.shouldPause) {
@@ -73,9 +101,7 @@ export default class SegmentBuilder {
 
                 const chunk = orderIds.slice(i, i + this.ordersPerBatch).map(row => row.OrderId);
                 this.batchQueue.push({ index: this.currentOffset / this.ordersPerBatch + 1, oIds: chunk });
-                this.currentOffset += this.ordersPerBatch;
-               
-                if (this.batchQueue.length >= 100) await new Promise(resolve => setTimeout(resolve, 100));
+                this.currentOffset += this.ordersPerBatch;               
             }
         }
 
@@ -83,14 +109,16 @@ export default class SegmentBuilder {
 
     };
 
-    checkRetailerEligibility = async (_retailerId, _segment) => {
+    checkRetailerEligibility = async (_retailerId, _segment) => {   
+
+        if (_retailerId == 6904) {
+            console.log("checkRetailerEligibility is called for rretailer : "+ _retailerId);
+        }
 
         try {
 
             const filterOrderQuery = {};                
-            const populateOrderQuery = [];
-            const orderModel = await EM.getModel("cms_master_order"); 
-            const segmentRuleModel = await EM.getModel("cms_segment_rule");
+            const populateOrderQuery = [];            
             
             filterOrderQuery["retailerId"] = _retailerId;
 
@@ -107,10 +135,16 @@ export default class SegmentBuilder {
 
             if ((_segment.geography == SegmentGeography.STATE) && (Array.isArray(_segment.states) && _segment.states.length > 0 )) {
                 filterOrderQuery["stateId"] = { $in: _segment.states };
+            } else {
+                /* This means no State was selected, 
+                safe to ignore as this will inclulde all the orders */
             }
 
             if ((_segment.geography == SegmentGeography.REGION) && (Array.isArray(_segment.regions) && _segment.regions.length > 0 )) {
                 filterOrderQuery["regionId"] = { $in: _segment.regions };
+            } else {
+                /* This means no Region was selected, 
+                safe to ignore as this will inclulde all the orders */
             }
 
             if (Array.isArray(_segment.orderStatus) && _segment.orderStatus.length > 0) {
@@ -127,9 +161,12 @@ export default class SegmentBuilder {
                 }
 
                 filterOrderQuery["orderStatus"] = { $in: oStatus };
+            } else {
+                /* This means no order status was selected, 
+                safe to ignore as this will inclulde all the orders */
             }
 
-            if (_segment.retailerStatus == SegmentRetailer.AUTHORIZED) {
+            if (_segment.retailerStatus == SegmentRetailerStatus.AUTHORIZED) {
                 populateOrderQuery.push({path: "retailer", match: { isAuthorized: true }});
             }
 
@@ -141,7 +178,12 @@ export default class SegmentBuilder {
                 filterOrderQuery["store"] = { $nin: _segment.excludedStores };
             }
 
-            let finalOrders = await orderModel.find(filterOrderQuery).select("_id").lean();
+            if (_retailerId == 6904) {
+                console.log(filterOrderQuery);
+            }
+
+            let finalOrders = await this.orderModel.find(filterOrderQuery).select("_id").lean();
+
             if (populateOrderQuery.some(item => item.path === "store")) {
                 finalOrders = finalOrders.filter(order => order.store);
             }
@@ -149,19 +191,19 @@ export default class SegmentBuilder {
                 finalOrders = finalOrders.filter(order => order.retailer);
             }
 
-            console.log("Total : "+ finalOrders.length +" found for reatiler : "+ _retailerId);
-
-            const rules = await segmentRuleModel.find({segment: _segment._id});            
-            if (rules.length == 0) {
-                return true;
-            } else {
-
-
-
+            if (_retailerId == 6904) {
+                console.log("Orders found for "+ _retailerId +" is : "+ finalOrders.length);
+                console.log("Rules count : "+ this.segmentRules.length );
             }
 
-        } catch (e) {
+            if (this.segmentRules.length == 0) {
+                return finalOrders.length > 0 ? true : false;
+            }
 
+            return false;
+
+        } catch (e) { console.log(e);
+            return false;
         }
 
     };
@@ -170,16 +212,63 @@ export default class SegmentBuilder {
 
         try {
 
-            await this.init();
+            //await this.init();
+            this.orderModel = await EM.getModel("cms_master_order"); 
+            this.segmentRuleModel = await EM.getModel("cms_segment_rule");
+            this.segmentModel = await EM.getModel("cms_segment");
+            this.segmentQueueModel = await EM.getModel("cms_segment_queue");                        
+            this.retailerModel = await EM.getModel("cms_master_retailer");
+            this.segmentRetailerModel = await EM.getModel("cms_segment_retailer");
+            this.segmentRetailerExclusionModel = await EM.getModel("cms_segment_retailer_exclusion"); 
+            this.segmentRetailerInclusionModel = await EM.getModel("cms_segment_retailer_inclusion"); 
+            
+            const queueItem = await this.segmentQueueModel.findOne().sort({ createdBy: 1 }).lean().exec();
+            const segment = await this.segmentModel.findById(queueItem.segment).lean();
+            
+            if (queueItem && segment) {
 
-            const segmentModel = await EM.getModel("cms_system_segment");
-            const segmentQueueModel = await EM.getModel("cms_segment_queue");            
-            const orderModel = await EM.getModel("cms_master_order");           
+                /* Clear the existing mapping - Just in case */
+                await this.segmentRetailerModel.deleteMany({ segment: segment._id });
+                await this.segmentRetailerExclusionModel.deleteMany({ segment: segment._id });
+                await this.segmentRetailerInclusionModel.deleteMany({ segment: segment._id });
+                
+                this.segmentRules = await this.segmentRuleModel.find({segment: segment._id}).lean();
+                const retailerCount = await this.retailerModel.countDocuments({});
+                const totalBatches = Math.ceil(retailerCount / this.retailerPerBatch);
 
-            const queueItem = await segmentQueueModel.findOne().populate("segment").sort({ createdBy: 1 }).lean().exec();
-            if (queueItem) {
+                console.log("Total retailers : "+ retailerCount);
 
-                const orderCount = await orderModel.countDocuments({});
+                for (let i = 0; i < totalBatches; i++) {
+
+                    console.log("Processing batch : "+ (i+1));
+
+                    const retailers = await this.retailerModel.find({})
+                        .skip(i * this.retailerPerBatch)
+                        .limit(this.retailerPerBatch)
+                        .lean();
+
+                    const retailerPromise = retailers.map(async (retailer) => {
+
+                        const isEligible = await this.checkRetailerEligibility(retailer.RetailerId, segment)
+                        if (isEligible) {  console.log(retailer.RetailerId +" is elegible");
+                            try {
+                                const mapping = new this.segmentRetailerModel({
+                                    segment: segment._id,
+                                    retailer: retailer._id
+                                });
+                                await mapping.save();
+                            } catch (e) {
+                                console.log(e);
+                            }                            
+                        }
+
+                    });
+
+                    await Promise.all(retailerPromise);                    
+
+                }
+
+                console.log("Building completed");
 
             }
 

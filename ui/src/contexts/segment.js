@@ -601,7 +601,7 @@ export default function SegmentContext(_component) {
 
         if (request["payload"]) {
             this.controller.docker.dock(request).then((_res) => {
-                this.controller.notify(_res.title + " saved successfully.!");
+                this.controller.notify(((_res.payload ? _res.payload.title : _res.title )  + " saved successfully.!"));
                 this.controller.switchView("main_view");
                 this.component.currentRecord = {};
             })
@@ -621,21 +621,27 @@ export default function SegmentContext(_component) {
 
         if (this.geographySelectorRef.current) {
             if (_segmentFields.geography == 1) {
-                const _states = this.geographySelectorRef.current.getSelectedRecords();
-                if (!_states || _states == "none" || (Array.isArray(_states) && _states.length == 0)) {                    
-                    this.controller.notify("Select state(s) for geography", "error");
-                    return false;
-                } else {
-                    _segmentFields["states"] = _states;
-                }                
-            } else {
-                const _regions = this.geographySelectorRef.current.getSelectedRecords();
-                if (!_regions || _regions == "none" || (Array.isArray(_regions) && _regions.length == 0)) {                    
-                    this.controller.notify("Select region(s) for geography", "error");
-                    return false;
-                } else {
-                    _segmentFields["regions"] = _regions;                    
+                _segmentFields["states"] = this.geographySelectorRef.current.getSelectedRecords();
+                if (_segmentFields["states"] == "none") {
+                    _segmentFields["states"] == null;
                 }
+                // if (!_states || _states == "none" || (Array.isArray(_states) && _states.length == 0)) {                    
+                //     this.controller.notify("Select state(s) for geography", "error");
+                //     return false;
+                // } else {
+                //     _segmentFields["states"] = _states;
+                // }                
+            } else {
+                _segmentFields["regions"] = this.geographySelectorRef.current.getSelectedRecords();
+                if (_segmentFields["regions"] == "none") {
+                    _segmentFields["regions"] == null;
+                }
+                // if (!_regions || _regions == "none" || (Array.isArray(_regions) && _regions.length == 0)) {                    
+                //     this.controller.notify("Select region(s) for geography", "error");
+                //     return false;
+                // } else {
+                //     _segmentFields["regions"] = _regions;                    
+                // }
             }            
         } else {
             this.controller.notify("Something went wrong - couldn't find the geography selector", "error");
@@ -650,11 +656,6 @@ export default function SegmentContext(_component) {
             }
         } else {
             _segmentFields.orderStatus = "all"
-        }
-        
-        if (!_segmentFields.companies || _segmentFields.companies == "none") {
-            this.controller.notify("Company list cannot be empty", "error");
-            return false;
         }
 
         if (this.segmentRuleContainer.current) {
@@ -677,6 +678,14 @@ export default function SegmentContext(_component) {
         const toField = this.controller.getField("segment_form_tab_toDate");
         if (toField) {
             _segmentFields["toDate"] = toField.getVal();
+        }
+
+        if (_segmentFields.companies == "none") { 
+            _segmentFields.companies = null;
+        }
+
+        if (_segmentFields.excludedStores == "none") { 
+            _segmentFields.excludedStores = null;
         }
 
         return _segmentFields;
