@@ -25,7 +25,7 @@ const purgeOrders = async () => {
         const orderItemModel = await EM.getModel("cms_master_order_item"); 
         const orderLogModel = await EM.getModel("cms_order_importer_log");
         const orderItemLogModel = await EM.getModel("cms_order_item_importer_log");        
-        const batchProgressModel = await EM.getModel("cms_background_task_progress");
+        const batchProgressModel = await EM.getModel("cms_importer_task_status");
 
         console.log("Deleting all orders and related logs...");
         await orderItemModel.deleteMany({});
@@ -48,7 +48,7 @@ const purgeRetailers = async () => {
 
         const retailerModel = await EM.getModel("cms_master_retailer");
         const importLogModel = await EM.getModel("cms_retailer_importer_logs");   
-        const batchProgressModel = await EM.getModel("cms_background_task_progress");
+        const batchProgressModel = await EM.getModel("cms_importer_task_status");
 
         console.log("Deleting all retailers and related logs...");
         await retailerModel.deleteMany({});
@@ -69,7 +69,7 @@ const purgeStores = async () => {
 
         const storeModel = await EM.getModel("cms_master_store");
         const importLogModel = await EM.getModel("cms_store_importer_logs");    
-        const batchProgressModel = await EM.getModel("cms_background_task_progress");
+        const batchProgressModel = await EM.getModel("cms_importer_task_status");
 
         console.log("Deleting all stores and related logs...");
         await storeModel.deleteMany({});

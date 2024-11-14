@@ -134,7 +134,7 @@ export default class StoreImporter {
                 this.storeIdsPerBatch = Math.min(this.storeIdsPerBatch, storeCount);
                 const batchCount = Math.ceil(storeCount / this.storesPerBatch);    
     
-                const batchProgressModel = await EM.getModel("cms_background_task_progress");
+                const batchProgressModel = await EM.getModel("cms_importer_task_status");
                 let storeBatch = await batchProgressModel.findOne({ type: ImportType.STORE_IMPORTER }).lean();
     
                 if (!storeBatch) {
@@ -157,7 +157,17 @@ export default class StoreImporter {
                 }
     
                 if (!storeBatch.status) {
-                    await batchProgressModel.findByIdAndUpdate(storeBatch._id, { totalBatch: batchCount, startTime: new Date(), endTime: null, status: true });
+                    storeBatch = await batchProgressModel.findByIdAndUpdate(
+                        storeBatch._id, 
+                        { 
+                            totalBatch: batchCount, 
+                            totalRecord: storeCount, 
+                            startTime: new Date(), 
+                            endTime: null, 
+                            status: true 
+                        }, 
+                        { new: true }
+                    );                    
                 } else {
                     console.log("Store importer is already running");
                     return null;
@@ -215,7 +225,7 @@ export default class StoreImporter {
 
         try {
 
-            const batchProgressModel = await EM.getModel("cms_background_task_progress");
+            const batchProgressModel = await EM.getModel("cms_importer_task_status");
             const storeBatch = await batchProgressModel.findOne({ type: ImportType.STORE_IMPORTER }).lean();
 
             if (this.batchQueue.length == 0) {

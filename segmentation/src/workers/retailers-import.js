@@ -17,7 +17,7 @@ async function processBatch(data) {
 
         const retailerModel = await EM.getModel("cms_master_retailer");        
         const importLogModel = await EM.getModel("cms_retailer_importer_logs");        
-        const batchProgressModel = await EM.getModel("cms_background_task_progress");        
+        const batchProgressModel = await EM.getModel("cms_importer_task_status");        
         const batchProgress = await batchProgressModel.findOne({ type: ImportType.RETAILER_IMPORTER }).lean();
 
         try {

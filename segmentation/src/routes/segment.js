@@ -117,6 +117,28 @@ router.delete(
     })
 );
 
+router.get(
+    `/${moduleHandle}/:id/build/status`,
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
+        try {
+            res.status(200).json(await segmentService.buildStatus(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.post(
+    `/${moduleHandle}/:id/build`,
+    await RC.interceptRequest(moduleHandle, 'post', [], async (req, res) => {
+        try {
+            res.status(200).json(await segmentService.buildSegment(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
 router.post(
     `/${moduleHandle}`,
     await RC.interceptRequest(moduleHandle, 'post', [], async (req, res) => {

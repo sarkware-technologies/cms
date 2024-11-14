@@ -61,7 +61,7 @@ export default class ImporterService {
 
     statusOrderImport = async (req) => {
         try {
-            const batchProgressModel = await EM.getModel("cms_background_task_progress");
+            const batchProgressModel = await EM.getModel("cms_importer_task_status");
             return await batchProgressModel.findOne({ type: ImportType.ORDER_IMPORTER }).lean();
         } catch (e) {
             throw e;
@@ -138,7 +138,7 @@ export default class ImporterService {
 
     statusRetailerImport = async (req) => {
         try {
-            const batchProgressModel = await EM.getModel("cms_background_task_progress");
+            const batchProgressModel = await EM.getModel("cms_importer_task_status");
             return await batchProgressModel.findOne({ type: ImportType.RETAILER_IMPORTER }).lean();
         } catch (e) {
             throw e;
@@ -215,7 +215,7 @@ export default class ImporterService {
 
     statusStoreImport = async (req) => {
         try {
-            const batchProgressModel = await EM.getModel("cms_background_task_progress");
+            const batchProgressModel = await EM.getModel("cms_importer_task_status");
             return await batchProgressModel.findOne({ type: ImportType.STORE_IMPORTER }).lean();
         } catch (e) {
             throw e;
@@ -278,7 +278,7 @@ export default class ImporterService {
 
         try {
 
-            const batchProgressModel = await EM.getModel("cms_background_task_progress");
+            const batchProgressModel = await EM.getModel("cms_importer_task_status");
             const batchProgress = await batchProgressModel.findOne({ type: _type }).lean();
 
             return batchProgress.status;

@@ -284,7 +284,11 @@ const FieldEditor = (props, ref) => {
     };
 
     const handleNameChange = (_e) => {
-        handleInput.current.value = _e.target.value.replace(/\s+/g, '_').toLowerCase();
+        const value = _e.target.value
+        .toLowerCase()
+        .replace(/\s(.)/g, (match, letter) => letter.toUpperCase())
+        .replace(/\s+/g, '');
+        handleInput.current.value = value;
     };
 
     const handleNewFieldClick = (_e) => {

@@ -7,11 +7,7 @@ import routes from "./routes/index.js"
 import MDBM from "./utils/mongo.js";
 import MYDBM from "./utils/mysql.js";
 import RC from "./utils/request-interceptor.js";
-import OrderImporter from "./importers/order-import.js";
-import RetailerImporter from "./importers/retailer-import.js";
-import StoreImporter from "./importers/store-import.js";
-import SegmentService from "./services/segment.js";
-import SegmentBuilder from "./builders/segment-builder.js";
+import SegmentBuildManager from "./builders/build-manager.js";
 
 /**
  * 
@@ -73,16 +69,10 @@ class SegmentServer {
         try {
 
             await MDBM.connect();   
-            await MYDBM.connect(true);
+            await MYDBM.connect(true);            
 
-            //const sss = new OrderImporter();
-            //await sss.start();     
-
-            //const ss = new SegmentService();
-            //ss.prepareRetailersForSegment("672e66c8579a57d4b5850245");
-
-            const builder = new SegmentBuilder();
-            builder.start();
+            const builder = new SegmentBuildManager();
+            builder.processQueue();
             
             if (MDBM.isConnected()) {
                 this.app.listen(process.env.SYSTEM_PORT);

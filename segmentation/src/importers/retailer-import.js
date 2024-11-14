@@ -137,7 +137,7 @@ export default class RetailerImporter {
                 this.retailerIdsPerBatch = Math.min(this.retailerIdsPerBatch, retailerCount);
                 const batchCount = Math.ceil(retailerCount / this.retailersPerBatch);    
     
-                const batchProgressModel = await EM.getModel("cms_background_task_progress");
+                const batchProgressModel = await EM.getModel("cms_importer_task_status");
                 let retailerBatch = await batchProgressModel.findOne({ type: ImportType.RETAILER_IMPORTER }).lean();
     
                 if (!retailerBatch) {
@@ -160,7 +160,19 @@ export default class RetailerImporter {
                 }
     
                 if (!retailerBatch.status) {
-                    await batchProgressModel.findByIdAndUpdate(retailerBatch._id, { totalBatch: batchCount, startTime: new Date(), endTime: null, status: true });
+
+                    retailerBatch = await batchProgressModel.findByIdAndUpdate(
+                        retailerBatch._id, 
+                        { 
+                            totalBatch: batchCount, 
+                            totalRecord: retailerCount, 
+                            startTime: new Date(), 
+                            endTime: null, 
+                            status: true 
+                        }, 
+                        { new: true }
+                    );
+                    
                 } else {
                     console.log("Retailer importer is already running");
                     return null;
@@ -218,7 +230,7 @@ export default class RetailerImporter {
 
         try {
 
-            const batchProgressModel = await EM.getModel("cms_background_task_progress");
+            const batchProgressModel = await EM.getModel("cms_importer_task_status");
             const retailerBatch = await batchProgressModel.findOne({ type: ImportType.RETAILER_IMPORTER }).lean();
 
             if (this.batchQueue.length == 0) {

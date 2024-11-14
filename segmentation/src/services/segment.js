@@ -1025,4 +1025,45 @@ export default class SegmentService {
 
     };
 
+    buildSegment = async (_req) => {
+
+        try {
+
+            /** */
+
+            if (await this.checkImporterStatus(ImportType.STORE_IMPORTER)) {
+                return { status: true, message: "Store importer process is already running" };
+            }
+
+            if (_req.body) {
+                await this.persistBatchOptions(_req.body);
+            }
+
+            if (!this.storeImporterProcess) {
+                this.storeImporterProcess = fork('./src/importers/store-process.js');        
+                
+                this.storeImporterProcess.once('exit', (code) => {
+                    console.log(`StoreImporter process exited with code ${code}`);
+                    this.storeImporterProcess = null;
+                });
+
+                this.storeImporterProcess.once('error', (error) => {
+                    console.error(`Error in StoreImporter process: ${error}`);
+                    this.storeImporterProcess = null;
+                });
+            }
+
+            this.storeImporterProcess.send({ command: 'start' });
+            return { status: true, message: "Store importer process started" };
+
+        } catch (e) {
+            throw e;
+        }
+
+    };
+
+    buildStatus = async (_req) => {
+
+    };
+
 }

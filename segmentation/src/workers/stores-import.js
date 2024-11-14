@@ -1,4 +1,4 @@
-import { parentPort, workerData } from "worker_threads";
+import { workerData } from "worker_threads";
 import MDBM from "../utils/mongo.js";
 import MYDBM from "../utils/mysql.js";
 import EM from "../utils/entity.js";
@@ -17,7 +17,7 @@ async function processBatch(data) {
 
         const storeModel = await EM.getModel("cms_master_store");        
         const importLogModel = await EM.getModel("cms_store_importer_logs");        
-        const batchProgressModel = await EM.getModel("cms_background_task_progress");        
+        const batchProgressModel = await EM.getModel("cms_importer_task_status");        
         const batchProgress = await batchProgressModel.findOne({ type: ImportType.STORE_IMPORTER }).lean();
 
         try {

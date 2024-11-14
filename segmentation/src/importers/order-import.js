@@ -131,7 +131,7 @@ export default class OrderImporter {
 
                 const batchCount = Math.ceil(orderCount / this.ordersPerBatch);    
     
-                const batchProgressModel = await EM.getModel("cms_background_task_progress");
+                const batchProgressModel = await EM.getModel("cms_importer_task_status");
                 let orderBatch = await batchProgressModel.findOne({ type: ImportType.ORDER_IMPORTER }).lean();
     
                 if (!orderBatch) {
@@ -154,7 +154,17 @@ export default class OrderImporter {
                 }
     
                 if (!orderBatch.status) {
-                    await batchProgressModel.findByIdAndUpdate(orderBatch._id, { totalBatch: batchCount, startTime: new Date(), status: true });
+                    orderBatch = await batchProgressModel.findByIdAndUpdate(
+                        orderBatch._id, 
+                        { 
+                            totalBatch: batchCount, 
+                            totalRecord: orderCount, 
+                            startTime: new Date(), 
+                            endTime: null, 
+                            status: true 
+                        }, 
+                        { new: true }
+                    );                    
                 } else {
                     return null;
                 }
@@ -211,7 +221,7 @@ export default class OrderImporter {
 
         try {
 
-            const batchProgressModel = await EM.getModel("cms_background_task_progress");
+            const batchProgressModel = await EM.getModel("cms_importer_task_status");
             const orderBatch = await batchProgressModel.findOne({ type: ImportType.ORDER_IMPORTER }).lean();
 
             if (this.batchQueue.length == 0) {
