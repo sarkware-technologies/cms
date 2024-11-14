@@ -76,6 +76,29 @@ const SegmentRule = (props, ref) => {
         datasource: {endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=categories", cached: true, recordsPerPage: 10}
     }), []);
 
+    const citySelectorConfig = useMemo(() => ({ 
+        type: "search", 
+        label: "Cities", 
+        handle: "citySearch", 
+        value : "", 
+        placeholder: "Search Cities", 
+        searchprompt: "Cities",
+        search_class: "", 
+        popup_class: "",
+        mandatory: true, 
+        readonly: false, 
+        disabled: false, 
+        tabindex: 1, 
+        align: "right", 
+        label_width: 0, 
+        label_position: "top", 
+        prompt_message: "", 
+        validation_message: "", 
+        value_key: "City", 
+        label_key: "City", 
+        datasource: {endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=cities", cached: true, recordsPerPage: 10}
+    }), []);
+
     const handleTargetChange = (_value, _index) => {
         const _rules = [...rules];
         _rules[_index].target = _value;
@@ -126,6 +149,20 @@ const SegmentRule = (props, ref) => {
         setRules(_rules);
     };
 
+    const getSelectorLabel = (_ruleType) => {
+
+        if (_ruleType == 1) {
+            return "Mdm Code";
+        } else if (_ruleType == 2) {
+            return "Brand";
+        } else if (_ruleType == 3) {
+            return "Category";
+        } else {
+            return "City";
+        }
+
+    };
+
     const renderSelector = (_index, _ruleType) => {
 
         let _config = null;        
@@ -136,6 +173,8 @@ const SegmentRule = (props, ref) => {
             _config = brandSelectorConfig;
         } else if (_ruleType == 3) {
             _config = categorySelectorConfig;
+        } else if (_ruleType == 4) {
+            _config = citySelectorConfig;
         }
 
         if (!selectorRefs.current[`selector_${_index}`]) {
@@ -188,11 +227,11 @@ const SegmentRule = (props, ref) => {
                                 <select onChange={(e) => handleRuleTypeChange(e, index)} value={rule.ruleType} >
                                     <option value="1">Product</option>
                                     <option value="2">Brand</option>                                   
-                                    <option value="3">Category</option>
+                                    <option value="3">Category</option>                                    
                                 </select>
                             </td>
                             <td className="target-td">
-                                <label>{rule.ruleType == 1 ? "MDM Product Code" : (rule.ruleType == 2) ? "Product Brand" : "Product Category"}</label>
+                                <label>{getSelectorLabel(rule.ruleType)}</label>
                                 {renderSelector(index, rule.ruleType)}                                
                             </td>
                             <td className="qty-td">

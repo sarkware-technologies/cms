@@ -89,7 +89,7 @@ export default class SegmentBuilder {
 
     };
 
-    start = async (_segmentId) => {
+    start = async (_segmentId) => {        
 
         try {
             await this.init();    
@@ -107,6 +107,9 @@ export default class SegmentBuilder {
                 const retailerCount = await this.models.cms_master_retailer.countDocuments({});
                 const totalBatches = Math.ceil(retailerCount / this.retailerPerBatch);
     
+                console.log("Reatiler Count : "+ retailerCount);
+                console.log("Total Batches : "+ totalBatches);
+
                 this.builderStatus = await this.models.cms_segment_builder_status.findOne({ segment: segment._id }).lean();
                 if (!this.builderStatus) {
                     this.builderStatus = await new this.models.cms_segment_builder_status({
@@ -141,6 +144,7 @@ export default class SegmentBuilder {
                     );
 
                 } else {
+                    console.log(`Builder is already running for segment ${_segmentId}`);
                     return null;
                 }
     
@@ -163,9 +167,13 @@ export default class SegmentBuilder {
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
 
+                console.log("All batches are completed");
+
                 /* OK, now it's time to move it from buffer to segment-retailer collection */
                 await this.updateSegmentRetailer();
     
+            } else {
+                console.log(`${_segmentId} segment not found`);
             }
     
         } catch (e) {
@@ -227,7 +235,7 @@ export default class SegmentBuilder {
                     { queueStatus: SegmentQueueStatus.COMPLETED }
                 );  
             } else {
-                await this.models.cms_segment_queue.findByIdAndUpdate(
+                await this.models.cms_segment_queue.findOneAndUpdate(
                     { segment: this.segmentId, queueStatus: SegmentQueueStatus.BUILDING },
                     { queueStatus: SegmentQueueStatus.COMPLETED }
                 ); 

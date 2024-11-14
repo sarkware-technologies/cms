@@ -21,6 +21,7 @@ export default class SegmentService {
 
             let _segments = [];
             const segmentModel = await EM.getModel("cms_segment");
+            const segmentQueueModel = await EM.getModel("cms_segment_queue");
 
             const page = parseInt(_req.query.page) || 1;
             const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
@@ -65,6 +66,25 @@ export default class SegmentService {
                 _segments = await segmentModel.find({}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
             }
             
+            for (let i = 0; i < _segments.length; i++) {
+                
+                const queueItem = await segmentQueueModel.findOne({segment: _segments[i]._id}).lean();
+
+                if (queueItem) {
+                    if (queueItem.queueStatus == SegmentQueueStatus.WAITING) {
+                        _segments[i]["build"] = "Waiting";
+                    } else if (queueItem.queueStatus == SegmentQueueStatus.BUILDING) {
+                        _segments[i]["build"] = "Building";
+                    } else {
+                        _segments[i]["build"] = "Completed";
+                    }
+                } else {
+                    _segments[i]["build"] = "Static";
+                }
+
+                
+            }
+
             return Utils.response(_count, page, _segments);
 
         } catch (_e) {
@@ -996,6 +1016,8 @@ export default class SegmentService {
                         callback(await MYDBM.query("select DISTINCT(s.Category) as Name from storeproducts s"), null);                         
                     } else if (_entity === "companies") {
                         callback(await MYDBM.query("select * from companies c where c.IsDeleted = 0 AND c.IsApproved = 1"), null);
+                    } else if (_entity === "cities") {
+                        callback(await MYDBM.query("select DISTINCT r.City from retailers r"), null);
                     } else {                      
                         const targetModel = await EM.getModel(_entity);
                         if (targetModel) {

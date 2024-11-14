@@ -6,7 +6,7 @@ class SegmentBuildManager {
 
     constructor() {
         this.activeProcesses = new Map();
-        this.maxConcurrentBuilders = 5;
+        this.maxConcurrentBuilders = 1;
         this.segmentQueueModel = null;        
     }
 
@@ -92,7 +92,7 @@ class SegmentBuildManager {
         ).lean();
 
         if (nextSegment) {
-            this.startSegmentBuilder(nextSegment._id);
+            this.startSegmentBuilder(nextSegment.segment);
         } else if (this.activeProcesses.size === 0) {
             console.log("No more segments in queue..");            
         }

@@ -1351,6 +1351,7 @@ div.pharmarack-cms-form-field-wrapper {
 .pharmarack-cms-multi-select-widget-header {
     position: relative;
     border: solid 1px #ddd;
+    border-radius: 4px;
 }
 
 .pharmarack-cms-search-widget-header input,
@@ -1358,8 +1359,7 @@ div.pharmarack-cms-form-field-wrapper {
 div.pharmarack-cms-multi-select-search-container input {
     width: 100%;    
     height: 32px;
-    padding: 5px 30px 5px 10px;
-    border-radius: 0px;
+    padding: 5px 30px 5px 10px;   
     border: none !important;
     text-overflow: ellipsis;
 }
@@ -1451,10 +1451,15 @@ div.pharmarack-cms-multi-select-search-container input {
     overflow: hidden;
 }
 
+.pharmarack-cms-search-paginator.dropdown > button,
 .pharmarack-cms-search-paginator .page-btns-wrapper > a {
     border: solid 1px #2196f3;
     background: #fff;
     color: #2196f3;
+}
+
+.pharmarack-cms-search-paginator.dropdown button {
+    border-radius: 4px;
 }
 
 .pharmarack-cms-multi-select-popup-title {
@@ -1473,6 +1478,7 @@ div.pharmarack-cms-multi-select-search-container input {
     position: relative;
     border: solid 1px var(--primary-background);
     margin: 0px 0px 15px;
+    border-radius: 4px;
 }
 
 .pharmarack-cms-search-records {
