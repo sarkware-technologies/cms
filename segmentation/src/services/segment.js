@@ -2,6 +2,7 @@ import EM from "../utils/entity.js";
 import AP from "./api.js";
 import MYDBM from "../utils/mysql.js";
 import Utils from "../utils/utils.js";
+import SegmentBuildManager from "../builders/build-manager.js";
 
 import SegmentType from "../enums/segment-type.js";
 import SegmentStatus from "../enums/segment-status.js";
@@ -13,7 +14,9 @@ import SegmentQueueStatus from "../enums/segment-queue-status.js";
 
 export default class SegmentService {
 
-    constructor () {}
+    constructor () {
+        this.buildManager = new SegmentBuildManager();
+    }
 
     list = async (_req) => {
 
@@ -260,7 +263,7 @@ export default class SegmentService {
                 }
             }
 
-            const updatedSegment = await segmentModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
+            const updatedSegment = await segmentModel.findByIdAndUpdate(_req.params.id, { $set: { ...body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
 
             if (body.segmentType == SegmentType.DYNAMIC) {
                 
@@ -274,6 +277,8 @@ export default class SegmentService {
                     });                
                     await segmentQueue.save();
                 }
+
+                await this.buildManager.processQueue();
 
             }
 
@@ -295,15 +300,19 @@ export default class SegmentService {
 
             const segmentModel = await EM.getModel("cms_segment"); 
             const segmentRuleModel = await EM.getModel("cms_segment_rule");
+            const segmentQueueModel = await EM.getModel("cms_segment_queue");
+            const segmentBuildStatusModel = await EM.getModel("cms_segment_builder_status");
             const segmentRetailerModel = await EM.getModel("cms_segment_retailer"); 
             const segmentRetailerExclusionModel = await EM.getModel("cms_segment_retailer_exclusion"); 
             const segmentRetailerInclusionModel = await EM.getModel("cms_segment_retailer_inclusion"); 
             
 
-            await segmentRuleModel.deleteMany({ segment: _req.params.id });            
+            await segmentRuleModel.deleteMany({ segment: _req.params.id });              
             await segmentRetailerModel.deleteMany({ segment: _req.params.id });
             await segmentRetailerExclusionModel.deleteMany({ segment: _req.params.id });
             await segmentRetailerInclusionModel.deleteMany({ segment: _req.params.id });
+            await segmentQueueModel.deleteMany({ segment: _req.params.id });
+            await segmentBuildStatusModel.deleteMany({ segment: _req.params.id });
 
             return await segmentModel.deleteOne({ _id: _req.params.id });            
 
@@ -328,6 +337,7 @@ export default class SegmentService {
             }
 
             body["createdBy"] = _req.user._id;
+
             const model = new segmentModel(body);
             const segment = await model.save();     
 
@@ -369,7 +379,9 @@ export default class SegmentService {
                     segment: segment._id,
                     queueStatus: SegmentQueueStatus.WAITING
                 });
-                await segmentQueue.save();                
+                
+                await segmentQueue.save();                    
+                await this.buildManager.processQueue();                
 
             }
 

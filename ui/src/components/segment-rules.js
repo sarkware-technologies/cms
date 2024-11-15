@@ -198,7 +198,7 @@ const SegmentRule = (props, ref) => {
             getRules: () => {
                 const _rules = [];
                 for (let i = 0; i < rules.length; i++) {
-                    if (rules[i].target && rules[i].ruleType && (rules[i].from || rules[i].to)) {
+                    if (rules[i].target && rules[i].ruleType) {
                         _rules.push({
                             target: rules[i].target,
                             ruleType: rules[i].ruleType,

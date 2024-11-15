@@ -600,8 +600,13 @@ export default function SegmentContext(_component) {
         }
 
         if (request["payload"]) {
-            this.controller.docker.dock(request).then((_res) => {
-                this.controller.notify(((_res.payload ? _res.payload.title : _res.title )  + " saved successfully.!"));
+            this.controller.docker.dock(request).then((_res) => { console.log(_res);
+
+                if (_res.status) {
+                    this.controller.notify(((_res.payload ? _res.payload.title : _res.title )  + " saved successfully.!"));
+                }
+
+                
                 this.controller.switchView("main_view");
                 this.component.currentRecord = {};
             })
@@ -620,28 +625,19 @@ export default function SegmentContext(_component) {
         }
 
         if (this.geographySelectorRef.current) {
+
+            console.log(this.geographySelectorRef.current.getSelectedRecords());
+
             if (_segmentFields.geography == 1) {
                 _segmentFields["states"] = this.geographySelectorRef.current.getSelectedRecords();
                 if (_segmentFields["states"] == "none") {
-                    _segmentFields["states"] == null;
-                }
-                // if (!_states || _states == "none" || (Array.isArray(_states) && _states.length == 0)) {                    
-                //     this.controller.notify("Select state(s) for geography", "error");
-                //     return false;
-                // } else {
-                //     _segmentFields["states"] = _states;
-                // }                
+                    _segmentFields["states"] = null;
+                }                        
             } else {
                 _segmentFields["regions"] = this.geographySelectorRef.current.getSelectedRecords();
                 if (_segmentFields["regions"] == "none") {
-                    _segmentFields["regions"] == null;
-                }
-                // if (!_regions || _regions == "none" || (Array.isArray(_regions) && _regions.length == 0)) {                    
-                //     this.controller.notify("Select region(s) for geography", "error");
-                //     return false;
-                // } else {
-                //     _segmentFields["regions"] = _regions;                    
-                // }
+                    _segmentFields["regions"] = null;
+                }                
             }            
         } else {
             this.controller.notify("Something went wrong - couldn't find the geography selector", "error");
@@ -650,12 +646,12 @@ export default function SegmentContext(_component) {
 
         if (Array.isArray(_segmentFields.orderStatus)) {
             if (_segmentFields.orderStatus.length == 0) {
-                _segmentFields.orderStatus = "all";
+                _segmentFields.orderStatus = null;
             } else {
                 _segmentFields.orderStatus = _segmentFields.orderStatus.map((item) => item.value);
             }
         } else {
-            _segmentFields.orderStatus = "all"
+            _segmentFields.orderStatus = null
         }
 
         if (this.segmentRuleContainer.current) {

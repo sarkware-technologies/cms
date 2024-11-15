@@ -271,10 +271,10 @@ const MultiSelect = (props, ref) => {
             }
 
         },
-        setSelectedRecords: (_records) => {
+        setSelectedRecords: (_records) => {            
             setState((prevState) => ({
                 ...prevState,                           
-                selectedRecords: _records                                   
+                selectedRecords: _records ? _records : []                                   
             }));        
             setUserMessage(props.config.placeholder);
             if (_records.length > 0) {                
@@ -689,7 +689,7 @@ const MultiSelect = (props, ref) => {
 
     }, [state.records]);
 
-    let _placeholder = props.config.placeholder;          
+    let _placeholder = props.config.placeholder; 
     
     if ((state.source.length > 0 && state.selectedRecords.length === state.source.length) || mode == "all") {
         _placeholder = "All "+ _placeholder;
