@@ -68,10 +68,6 @@ const checkSegmentRules = async(_retailerId, _orders, _segment) => {
 
             const orderItems = await orderItemModel.find(itemFilter).lean();
 
-            if (_retailerId == 8767) {
-                console.log(itemFilter);                
-            }
-
             orderItems.forEach(item => {
 
                 segmentRules.forEach(rule => {
@@ -80,21 +76,15 @@ const checkSegmentRules = async(_retailerId, _orders, _segment) => {
                     qty = 0;
 
                     if (rule.ruleType === SegmentRuleType.PRODUCT) {
-                        if (item.mdmProductCode) {
-                            if (item.mdmProductCode == "MPC10001578") {
-                                console.log("mdmPropduct MPC10001578 is found");
-                            }                               
-                            if (item.mdmProductCode === rule.target) {
+                        if (item.mdmProductCode && item.mdmProductCode === rule.target) {                             
 
-                                entry = summaryProducts.get(item.mdmProductCode) || { quantity: 0, amount: 0 };
-                                qty = item.receivedQty || item.orderedQty || 0;
-                                entry.quantity += qty;
-                                entry.amount += qty * item.ptr;
+                            entry = summaryProducts.get(item.mdmProductCode) || { quantity: 0, amount: 0 };
+                            qty = item.receivedQty || item.orderedQty || 0;
+                            entry.quantity += qty;
+                            entry.amount += qty * item.ptr;
 
-                                summaryProducts.set(item.mdmProductCode, entry);
+                            summaryProducts.set(item.mdmProductCode, entry);  
 
-                                //addToSummary(summaryProducts, item.mdmProductCode, item);
-                            }    
                         }                        
                     } else if (rule.ruleType === SegmentRuleType.BRAND) {
                         if (item.brandId && item.brandId === rule.target) { 
@@ -105,8 +95,7 @@ const checkSegmentRules = async(_retailerId, _orders, _segment) => {
                             entry.amount += qty * item.ptr;
 
                             summaryBrands.set(item.brandId, entry);
-                            
-                            //addToSummary(summaryBrands, item.brandId, item);                            
+                                             
                         }                        
                     } else if (rule.ruleType === SegmentRuleType.CATEGORY) {
                         if (item.category && item.category === rule.target) {  
@@ -117,8 +106,7 @@ const checkSegmentRules = async(_retailerId, _orders, _segment) => {
                             entry.amount += qty * item.ptr;
 
                             summaryCategories.set(item.category, entry);
-                            
-                            //addToSummary(summaryCategories, item.category, item);                            
+                                                   
                         }                        
                     }
 
@@ -258,10 +246,6 @@ const checkRetailerEligibility = async (_retailerId, _segment) => {
             .select("_id store retailer")
             .lean();
 
-            if (_retailerId == 8767) {
-                console.log("Total order found was : "+ finalOrders.length);
-            }
-
         if (populateOrderQuery.some(item => item.path === "store")) {
             finalOrders = finalOrders.filter(order => order.store && order.store.isAuthorized);
         }
@@ -269,20 +253,8 @@ const checkRetailerEligibility = async (_retailerId, _segment) => {
             finalOrders = finalOrders.filter(order => order.retailer && order.retailer.isAuthorized);
         }       
 
-        if (_retailerId == 8767) {
-            console.log("Total order found was : "+ finalOrders.length);
-        }
-
         if (segmentRules.length > 0) {
             const oIds = finalOrders.map((order) => new ObjectId(order._id));
-
-            if (_retailerId == 8767) {
-                console.log("Checking rules for Retailer : "+ _retailerId);
-                console.log(oIds);
-                console.log(filterOrderQuery);
-                console.log(populateOrderQuery);
-            }
-
             return await checkSegmentRules(_retailerId, oIds, _segment);
         } 
         

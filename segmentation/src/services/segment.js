@@ -785,15 +785,13 @@ export default class SegmentService {
             const segment = await segmentModel.findById(_req.params.id).lean();
             
             if (segment) {
-                if (segment.segmentType == SegmentType.STATIC) {
 
-                    /* It's a static segment */
-                    deleted = await segmentRetailerModel.deleteMany({retailer: { $in: body}});
+                deleted = await segmentRetailerModel.deleteMany({retailer: { $in: body}});
 
-                } else {  
+                if (segment.segmentType == SegmentType.DYNAMIC) {  
 
                     /* It's a dynamic segment - add it to inclusion list */
-                    deleted = await segmentWhitelistedRetailerModel.deleteMany({retailer: { $in: body}});
+                    deleted = await segmentRetailerModel.deleteMany({retailer: { $in: body}});
 
                     await Promise.all(body.map(async (retilerId) => {
                         try { 
@@ -811,6 +809,7 @@ export default class SegmentService {
                         } catch (e) {
                             console.log(e);
                         }
+                        
                     }));
 
                 }

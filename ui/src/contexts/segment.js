@@ -253,11 +253,11 @@ export default function SegmentContext(_component) {
                 if (segment) {
                     
                     request["method"] = "PUT";
-                    request["endpoint"] = "/segmentation/v1/segment/" + segment._id +"/retailers";
+                    request["endpoint"] = "/segmentation/v1/segment/" + segment._id +"/whitelistRetailers";
                     request["payload"] = selectedRetailers;
 
                     this.controller.docker.dock(request).then((_res) => {
-                        this.controller.notify(selectedRetailers.length + " retailers were added successfully.!");
+                        this.controller.notify(selectedRetailers.length + " retailers were whitelisted successfully.!");
                         retailerGrid.initFetch();    
                     })
                     .catch((e) => {
