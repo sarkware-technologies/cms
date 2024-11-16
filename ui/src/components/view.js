@@ -26,7 +26,13 @@ const View = (props, ref) => {
     const isSubView = ('isSubView' in props) ? props.isSubView : false;
 
     const contextObj = window._controller.getCurrentModuleInstance();
-    const config = {...props.config};
+
+    let _preConfig = {...props.config};
+    if (isSubView && contextObj && contextObj.beforeViewMount) {        
+        _preConfig = contextObj.beforeViewMount(handle, _preConfig);
+    }
+    const config = _preConfig;
+
     let record = null;
 
     let caps = {

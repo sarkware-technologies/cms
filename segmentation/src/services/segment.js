@@ -6,10 +6,6 @@ import SegmentBuildManager from "../builders/build-manager.js";
 
 import SegmentType from "../enums/segment-type.js";
 import SegmentStatus from "../enums/segment-status.js";
-import SegmentGeography from "../enums/segment-geography.js";
-import SegmentRetailer from "../enums/segment-retailer-status.js";
-import SegmentStoreStatus from "../enums/segment-store-status.js";
-import SegmentRuleType from "../enums/segment-rule-type.js";
 import SegmentQueueStatus from "../enums/segment-queue-status.js";
 
 export default class SegmentService {
@@ -303,14 +299,14 @@ export default class SegmentService {
             const segmentQueueModel = await EM.getModel("cms_segment_queue");
             const segmentBuildStatusModel = await EM.getModel("cms_segment_builder_status");
             const segmentRetailerModel = await EM.getModel("cms_segment_retailer"); 
-            const segmentRetailerExclusionModel = await EM.getModel("cms_segment_retailer_exclusion"); 
-            const segmentRetailerInclusionModel = await EM.getModel("cms_segment_retailer_inclusion"); 
+            const segmentBlacklistedRetailerModel = await EM.getModel("cms_segment_blacklisted_retailer"); 
+            const segmentWhitelistedRetailerModel = await EM.getModel("cms_segment_whitelisted_retailer"); 
             
 
             await segmentRuleModel.deleteMany({ segment: _req.params.id });              
             await segmentRetailerModel.deleteMany({ segment: _req.params.id });
-            await segmentRetailerExclusionModel.deleteMany({ segment: _req.params.id });
-            await segmentRetailerInclusionModel.deleteMany({ segment: _req.params.id });
+            await segmentBlacklistedRetailerModel.deleteMany({ segment: _req.params.id });
+            await segmentWhitelistedRetailerModel.deleteMany({ segment: _req.params.id });
             await segmentQueueModel.deleteMany({ segment: _req.params.id });
             await segmentBuildStatusModel.deleteMany({ segment: _req.params.id });
 
@@ -463,7 +459,7 @@ export default class SegmentService {
 
     };
 
-    listInclusiveRetailers = async (_req) => {
+    listWhitelistedRetailers = async (_req) => {
 
         try {
 
@@ -494,21 +490,15 @@ export default class SegmentService {
                 }
             }
 
-            let _retailers = [];   
-            const segmentRetailerModel = await EM.getModel("cms_segment_retailer");              
-            const segmentRetailers = await segmentRetailerModel.find({segment: _req.params.id}).select("retailer").lean();
+            const retailerModel = await EM.getModel("cms_master_retailer");
+            const segmentWhitelistedRetailerModel = await EM.getModel("cms_segment_whitelisted_retailer");
+
+            const _count = await segmentWhitelistedRetailerModel.countDocuments({segment: _req.params.id});
+            const _retailers = await segmentWhitelistedRetailerModel.find({segment: _req.params.id}).populate("retailer").skip(skip).limit(limit).lean().exec();
             
-            // Extract retailer ids into an array
-            const retailerIds = segmentRetailers.map(record => record.retailer);           
+            const _result = _retailers.map((_item) => _item.retailer);      
 
-            if (retailerIds.length > 0) {
-                const retailerModel = await EM.getModel("retailer");
-                if (retailerModel) {
-                    _retailers = await retailerModel.find({ RetailerId: { $in: retailerIds } }).skip(skip).limit(limit).lean();
-                }                
-            }      
-
-            return Utils.response(retailerIds.length, 1, _retailers);
+            return Utils.response(_count, page, _result, 10);
 
         } catch (_e) {
             throw _e;
@@ -516,19 +506,62 @@ export default class SegmentService {
 
     };
 
-    listExclusiveRetailers = async (_req) => {
-
-    };
-
-    retailerInclusiveSearch = async (_req, _page, _skip, _limit, _field, _search) => {
+    listBlacklistedRetailers = async (_req) => {
 
         try {
 
-            const segmentRetailerInclusionModel = await EM.getModel("cms_segment_retailer_inclusion");
+            if (!_req.params.id) {
+                throw new Error("Segment id is missing");
+            }
+
+            const limit = 10;
+            const page = parseInt(_req.query.page) || 1;
+            const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
+            
+            const searchFor = _req.query.search ? _req.query.search : "";
+            const searchFrom = _req.query.field ? _req.query.field : "";
+
+            const filter = _req.query.filter ? _req.query.filter : "";
+            const filterBy = _req.query.filter_by ? _req.query.filter_by : "";
+            const filterType = _req.query.filter_type ? _req.query.filter_type : "";
+
+            if (searchFrom !== "") {
+                return this.retailerSearch(_req, page, skip, limit, searchFrom, searchFor);
+            }
+
+            if (filter !== "") {
+                if (filterType === "seeds") {
+                    return this.retailerGroupSeed(_req, filter);
+                } else {
+                    return this.retailerGroupBy(_req, page, skip, limit, filter, filterBy);
+                }
+            }
+
+            const retailerModel = await EM.getModel("cms_master_retailer");
+            const segmentBlacklistedRetailerModel = await EM.getModel("cms_segment_blacklisted_retailer");
+
+            const _count = await segmentBlacklistedRetailerModel.countDocuments({segment: _req.params.id});
+            const _retailers = await segmentBlacklistedRetailerModel.find({segment: _req.params.id}).populate("retailer").skip(skip).limit(limit).lean().exec();
+            
+            const _result = _retailers.map((_item) => _item.retailer);      
+
+            return Utils.response(_count, page, _result, 10);
+
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+
+    whitelistedRetailerSearch = async (_req, _page, _skip, _limit, _field, _search) => {
+
+        try {
+
+            const segmentRetailerInclusionModel = await EM.getModel("cms_segment_whitelisted_retailer");
             segmentRetailerInclusionModel.aggregate([
                 {
                     $lookup: {
-                        from: 'cms_segment_retailer_inclusion',
+                        from: 'cms_segment_whitelisted_retailer',
                         localField: 'retailer',
                         foreignField: '_id',
                         as: 'retailers'
@@ -627,7 +660,7 @@ export default class SegmentService {
 
     };
 
-    addRetailersToSegment = async (_req) => {
+    whitelistRetailersToSegment = async (_req) => {
 
         try {
 
@@ -644,7 +677,7 @@ export default class SegmentService {
             let mapping = null;
             const segmentModel = await EM.getModel("cms_segment"); 
             const segmentRetailerModel = await EM.getModel("cms_segment_retailer");
-            const segmentRetailerInclusionModel = await EM.getModel("cms_segment_retailer_inclusion");
+            const segmentWhitelistedRetailerModel = await EM.getModel("cms_segment_whitelisted_retailer");
 
             const segment = await segmentModel.findById(_req.params.id).lean();
             
@@ -676,9 +709,9 @@ export default class SegmentService {
                     mapping = await Promise.all(body.map(async (retilerId) => {
                         try { 
                             
-                            const exist = await segmentRetailerInclusionModel.find({segment: segment._id, retailer: retilerId,}).lean();
+                            const exist = await segmentWhitelistedRetailerModel.find({segment: segment._id, retailer: retilerId,}).lean();
                             if (!exist || (Array.isArray(exist) && exist.length == 0)) {
-                                const srModel = new segmentRetailerInclusionModel({
+                                const srModel = new segmentWhitelistedRetailerModel({
                                     segment: segment._id,
                                     retailer: retilerId,
                                     createdBy: body["createdBy"]
@@ -702,7 +735,34 @@ export default class SegmentService {
 
     };
 
-    deleteRetailersFromSegment = async (_req) => {
+    removeWhitelistRetailersFromSegment = async (_req) => {
+
+        try {
+
+            const { body } = _req;
+
+            if (!_req.params.id) {
+                throw new Error("Segment id is missing");
+            }
+
+            if (!body) {
+                throw new Error('Request body is required');
+            }
+
+            if (!body.retailers) {
+                throw new Error('Retailer ids is missing');
+            }
+
+            const segmentWhitelistedRetailerModel = await EM.getModel("cms_segment_whitelisted_retailer");
+            return await segmentWhitelistedRetailerModel.deleteMany({ retailer: { $in : body.retailers } });
+
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+
+    blacklistRetailersFromSegment = async (_req) => {
 
         try {
 
@@ -718,9 +778,9 @@ export default class SegmentService {
 
             let deleted = null;
             const segmentModel = await EM.getModel("cms_segment"); 
-            const segmentRetailerModel = await EM.getModel("cms_segment_retailer");
-            const segmentRetailerExclusionModel = await EM.getModel("cms_segment_retailer_exclusion"); 
-            const segmentRetailerInclusionModel = await EM.getModel("cms_segment_retailer_inclusion");
+            const segmentRetailerModel = await EM.getModel("cms_segment_retailer");            
+            const segmentWhitelistedRetailerModel = await EM.getModel("cms_segment_whitelisted_retailer");
+            const segmentBlacklistedRetailerModel = await EM.getModel("cms_segment_blacklisted_retailer"); 
 
             const segment = await segmentModel.findById(_req.params.id).lean();
             
@@ -733,14 +793,14 @@ export default class SegmentService {
                 } else {  
 
                     /* It's a dynamic segment - add it to inclusion list */
-                    deleted = await segmentRetailerInclusionModel.deleteMany({retailer: { $in: body}});
+                    deleted = await segmentWhitelistedRetailerModel.deleteMany({retailer: { $in: body}});
 
                     await Promise.all(body.map(async (retilerId) => {
                         try { 
                             
-                            const exist = await segmentRetailerExclusionModel.find({segment: segment._id, retailer: retilerId,}).lean();
+                            const exist = await segmentBlacklistedRetailerModel.find({segment: segment._id, retailer: retilerId,}).lean();
                             if (!exist || (Array.isArray(exist) && exist.length == 0)) {
-                                const sreModel = new segmentRetailerExclusionModel({
+                                const sreModel = new segmentBlacklistedRetailerModel({
                                     segment: segment._id,
                                     retailer: retilerId,
                                     createdBy: body["createdBy"]
@@ -762,241 +822,32 @@ export default class SegmentService {
             throw _e;
         }
 
-    };
-
-    prepareRetailersForSegment = async (_segmentId) => {
+    }; 
+    
+    removeBlacklistRetailersFromSegment = async (_req) => {
 
         try {
 
-            const segmentModel = await EM.getModel("cms_segment"); 
-            const retailerModel = await EM.getModel("cms_master_retailer");
-            const segment = await segmentModel.findById(_segmentId).lean();
+            const { body } = _req;
 
-            if (segment) {
-
-                const retailers = await retailerModel.find({}).select({ _id: 1, RetailerId: 1, RegionId: 1, StateId: 1, IsAuthorized: 1 }).lean();
-
-
-
+            if (!_req.params.id) {
+                throw new Error("Segment id is missing");
             }
 
-        } catch (e) {
-            console.log(e);
-        }
-
-    };
-
-    prepareRetailersForSegment = async (_segmentId) => {
-
-        try {
-
-            const segmentModel = await EM.getModel("cms_segment"); 
-            const orderModel = await EM.getModel("cms_master_order");
-            const retailerModel = await EM.getModel("cms_master_retailer");
-            const segment = await segmentModel.findById(_segmentId).lean();
-
-            if (segment) {
-
-                const filterOrderQuery = {};
-                const filterOrderItemQuery = {};
-                const populateOrderQuery = [];
-                const populateOrderItemQuery = [];
-
-                if (segment.fromDate && segment.toDate) {
-                    filterOrderQuery["orderDate"] = { $gte: new Date(segment.fromDate), $lte: new Date(segment.toDate) };
-                } else {
-                    if (segment.fromDate) {
-                        filterOrderQuery["orderDate"] = { $gte: new Date(segment.fromDate) };
-                    }    
-                    if (segment.toDate) {
-                        filterOrderQuery["orderDate"] = { $lte: new Date(segment.toDate) };
-                    }
-                }
-
-                if ((segment.geography == SegmentGeography.STATE) && (Array.isArray(segment.states) && segment.states.length > 0 )) {
-                    filterOrderQuery["stateId"] = { $in: segment.states };
-                }
-
-                if ((segment.geography == SegmentGeography.REGION) && (Array.isArray(segment.regions) && segment.regions.length > 0 )) {
-                    filterOrderQuery["regionId"] = { $in: segment.regions };
-                }
-
-                if (Array.isArray(segment.orderStatus) && segment.orderStatus.length > 0) {
-
-                    const oStatus = [];
-                    for (let i = 0; i < segment.orderStatus.length; i++) {
-                        if (segment.orderStatus[i] == 1) {
-                            oStatus.push("Placed");
-                        } else if (segment.orderStatus[i] == 2) {
-                            oStatus.push("Processed");
-                        } else {
-                            oStatus.push("Uploaded");
-                        }                        
-                    }
-
-                    filterOrderQuery["orderStatus"] = { $in: oStatus };
-                }
-
-                if (segment.retailerStatus == SegmentRetailer.AUTHORIZED) {
-                    populateOrderQuery.push({path: "retailer", match: { isAuthorized: true }});
-                }
-
-                if (segment.storeStatus == SegmentStoreStatus.AUTHORIZED) {
-                    populateOrderQuery.push({path: "store", match: { isAuthorized: true }});
-                }
-
-                if (Array.isArray(segment.excludedStores) && segment.excludedStores.length > 0) {
-                    filterOrderQuery["store"] = { $nin: segment.excludedStores };
-                }
-
-                const orders = await orderModel.find(filterOrderQuery).select("_id").lean();
-                this.prepareOrderItems(orders, segment);                
-
+            if (!body) {
+                throw new Error('Request body is required');
             }
 
-        } catch (e) {
-            console.log(e);
-        }
-
-    };
-
-    prepareOrderItems = async (_orders, _segment) => {
-
-        try {
-
-            const summaryProducts = {};
-            const summaryBrands = {};
-            const summaryCategories = {};
-            
-            let orderItems = [];
-            const orderList = [];
-            const orderItemModel = await EM.getModel("cms_master_order_item");
-            const segmentRetailerModel = await EM.getModel("cms_segment_retailer");
-            const segmentRuleModel = await EM.getModel("cms_segment_rule");
-
-            const orderPerBatch = 1000;
-            const totalBatches = Math.ceil(_orders.length / orderPerBatch);
-            const rules = await segmentRuleModel.find({segment: _segment._id});
-
-            console.log("Total order batch : "+ totalBatches);
-
-            for (let i = 0; i < totalBatches; i++) {
-
-                console.log("Processing Batch : "+ (i + 1));
-
-                const orderBatch = _orders.slice(i, i + orderPerBatch);
-                orderItems = await orderItemModel.find({order: { $in: orderBatch }, companyId: { $in: _segment.companies } }).populate("order").lean().exec();
-
-                console.log("Order Item Found : "+ orderItems.length);
-
-                if (rules.length > 0) {
-
-                    for (let j = 0; j < orderItems.length; j++) {
-
-                        /* Aggregate */
-                        for (let k = 0; k < rules.length; k++) {
-    
-                            if (rules[k].ruleType == SegmentRuleType.PRODUCT) {
-    
-                                if (orderItems[j].mdmProductCode && rules[k].target == orderItems[j].mdmProductCode) {
-                                    
-                                    if (!summaryProducts[orderItems[j].mdmProductCode]) {
-                                        summaryProducts[orderItems[j].mdmProductCode] = {
-                                            quantity: 0,
-                                            amount: 0
-                                        };                                    
-                                    }
-    
-                                    if (orderItems[j].receivedQty) {
-                                        summaryProducts[orderItems[j].mdmProductCode].quantity = summaryProducts[orderItems[j].mdmProductCode].quantity + orderItems[j].receivedQty;
-                                        summaryProducts[orderItems[j].mdmProductCode].amount = summaryProducts[orderItems[j].mdmProductCode].amount + ( orderItems[j].receivedQty * orderItems[j].ptr );
-                                    } else {
-                                        summaryProducts[orderItems[j].mdmProductCode].quantity = summaryProducts[orderItems[j].mdmProductCode].quantity + orderItems[j].orderedQty;
-                                        summaryProducts[orderItems[j].mdmProductCode].amount = summaryProducts[orderItems[j].mdmProductCode].amount + ( orderItems[j].orderedQty * orderItems[j].ptr );
-                                    }
-    
-                                }                            
-    
-                            } else if (rules[k].ruleType == SegmentRuleType.BRAND) {
-    
-                                if (!summaryBrands[orderItems[j].brandId]) {
-                                    summaryBrands[orderItems[j].brandId] = {
-                                        quantity: 0,
-                                        amount: 0
-                                    };                                    
-                                }
-    
-                                if (orderItems[j].receivedQty) {
-                                    summaryBrands[orderItems[j].brandId].quantity = summaryBrands[orderItems[j].brandId].quantity + orderItems[j].receivedQty;
-                                    summaryBrands[orderItems[j].brandId].amount = summaryBrands[orderItems[j].brandId].amount + ( orderItems[j].receivedQty * orderItems[j].ptr );
-                                } else {
-                                    summaryBrands[orderItems[j].brandId].quantity = summaryBrands[orderItems[j].brandId].quantity + orderItems[j].orderedQty;
-                                    summaryBrands[orderItems[j].brandId].amount = summaryBrands[orderItems[j].brandId].amount + ( orderItems[j].orderedQty * orderItems[j].ptr );
-                                }
-    
-                            } else {
-    
-                                /* Must be for product category */
-                                if (!summaryCategories[orderItems[j].category]) {
-                                    summaryCategories[orderItems[j].category] = {
-                                        quantity: 0,
-                                        amount: 0
-                                    };                                    
-                                }
-    
-                                if (orderItems[j].receivedQty) {
-                                    summaryCategories[orderItems[j].category].quantity = summaryCategories[orderItems[j].category].quantity + orderItems[j].receivedQty;
-                                    summaryCategories[orderItems[j].category].amount = summaryCategories[orderItems[j].category].amount + ( orderItems[j].receivedQty * orderItems[j].ptr );
-                                } else {
-                                    summaryCategories[orderItems[j].category].quantity = summaryCategories[orderItems[j].category].quantity + orderItems[j].orderedQty;
-                                    summaryCategories[orderItems[j].category].amount = summaryCategories[orderItems[j].category].amount + ( orderItems[j].orderedQty * orderItems[j].ptr );
-                                }
-    
-                            }
-    
-                        }
-    
-                    } 
-
-
-
-
-                }
-
+            if (!body.retailers) {
+                throw new Error('Retailer ids is missing');
             }
 
-            if (rules.length > 0) {
+            const segmentBlacklistedRetailerModel = await EM.getModel("cms_segment_blacklisted_retailer");
+            return await segmentBlacklistedRetailerModel.deleteMany({ retailer: { $in : body.retailers } });
 
-                const evolutions = [];
-                for (let i = 0; i < rules.length; i++) {
-
-                    
-
-                }
-
-            } else {
-
-                let segmentRetailer = null;
-                for (let j = 0; j < orderItems.length; j++) {
-                    segmentRetailer = new segmentRetailerModel({
-                        segment: _segment._id,
-                        retailer: orderItems[j].order.retailer
-                    });
-                    await segmentRetailer.save();
-                }
-            }  
-
-            console.log(summaryProducts);
-            console.log(summaryBrands);
-            console.log(summaryCategories);
-
-        } catch (e) {
-            console.log(e);
+        } catch (_e) {
+            throw _e;
         }
-
-    };
-
-    evoluateSegmentRules = async () => {
 
     };
 

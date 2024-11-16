@@ -36,14 +36,14 @@ export default function SegmentContext(_component) {
     this.onDatagridRequest = (_handle, _datasource) => {
 
         let datasource = JSON.parse(JSON.stringify(_datasource));        
+        const segment = this.getCurrentSegmentRecord();
 
-        if (_handle === "retailer_grid") {
-
-            const segment = this.getCurrentSegmentRecord();
-            if (segment) {               
-                datasource.endpoint = "/segmentation/v1/segment/"+ segment._id +"/retailers"; 
-            }
-
+        if (_handle === "retailer_grid" && segment) {            
+            datasource.endpoint = "/segmentation/v1/segment/"+ segment._id +"/retailers"; 
+        } else if (_handle === "whitelist_retailer_grid" && segment) {
+            datasource.endpoint = "/segmentation/v1/segment/"+ segment._id +"/whitelistedRetailers";             
+        } else if (_handle === "blacklist_retailer_grid" && segment) {
+            datasource.endpoint = "/segmentation/v1/segment/"+ segment._id +"/blacklistedRetailers";             
         }
 
         return datasource;
@@ -155,9 +155,9 @@ export default function SegmentContext(_component) {
                 this.segmentPreviewRef.current.setSegmentTitle(_value);
             } else if (_handle == "segment_form_tab_description") {
                 this.segmentPreviewRef.current.setSegmentDescription(_value);
-            } else if (_handle == "segment_form_tab_fromDate") {
+            } else if (_handle == "segment_form_tab_fromDate") {                
                 this.segmentPreviewRef.current.setFromDate(_value);
-            } else if (_handle == "segment_form_tab_toDate") {
+            } else if (_handle == "segment_form_tab_toDate") {                
                 this.segmentPreviewRef.current.setToDate(_value);
             } else if (_handle == "segment_form_tab_geography") {
                 this.segmentPreviewRef.current.setGeographyType(_value == 1 ? "State" : "Region");
@@ -389,15 +389,23 @@ export default function SegmentContext(_component) {
                 _viewConfig.context_header.actions = [
                     { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
                     { label: "Delete Segment", theme: "danger", method: "delete", action: "DELETE_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
-                ]
+                ];                
             } else {
                 _viewConfig.context_header.actions = [
                     { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Delete Segment", theme: "danger", method: "delete", action: "DELETE_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Edit Segment Rules", theme: "primary", method: "post", action: "EDIT_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex : 8, status: true, shortcut: "" }
-                ]
+                    { label: "Delete", theme: "danger", method: "delete", action: "DELETE_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Build", theme: "warning", method: "put", action: "BUILD_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Edit", theme: "primary", method: "post", action: "EDIT_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex : 8, status: true, shortcut: "" }
+                ];                
             }
-        }  
+        } else if (_handle === "segment_retaler_form") {
+            const segment = this.getCurrentSegmentRecord();  
+            if (segment && segment.segmentType == 2) {
+                _viewConfig.content.rows[0].columns[0].view = "static_retailer_list_form";
+            } else {
+                _viewConfig.content.rows[0].columns[0].view = "dynamic_retailer_list_form";
+            }
+        }
 
         return _viewConfig;
     };       
@@ -456,27 +464,29 @@ export default function SegmentContext(_component) {
             this.controller.switchView("main_view");
         } else if (_action === "SAVE_SEGMENT") {
             this.saveSegment();
-        } else if (_action === "ADD_RETAILER") {
+        } else if (_action === "WHITELIST_RETAILER") {
             const newRetailerSelector = this.controller.getField("segment_retaler_form_add_retailers");
             if (newRetailerSelector) {
                 newRetailerSelector.showPopup();
             }
-        } else if (_action === "REMOVE_RETAILER") {
+        } else if (_action === "BLACKLIST_RETAILER") {
 
             const retailerGrid = this.controller.getField("retailer_grid");
             if (retailerGrid) {
                 const checkedRecords = retailerGrid.getCheckedRecords();
                 if (checkedRecords.length > 0) {
-                    this.controller.getUserConfirm("Are you sure ?", "REMOVE_RETAILER");
+                    this.controller.getUserConfirm("BLACKLIST_RETAILER", "Are you sure ?");
                 } else {
-                    this.controller.notify("Select retailers to remove", "error");
+                    this.controller.notify("Select retailers to be blacklisted", "error");
                 }
             }
             
         } else if (_action === "DELETE_SEGMENT") {
-            this.controller.getUserConfirm("Are you sure ?", "DELETE_SEGMENT");
+            this.controller.getUserConfirm("DELETE_SEGMENT", "Are you sure ?");
         } else if (_action == "EDIT_SEGMENT") {
             this.controller.switchView("new_segment_form");
+        } else if (_action === "BUILD_SEGMENT") {
+            this.controller.getUserConfirm("BUILD_SEGMENT", "Are you sure ?", "This is a lengthy process, could take few mitues to many hours, and the existing retailer mapping will be wiped out.");
         }
 
     };
@@ -506,7 +516,7 @@ export default function SegmentContext(_component) {
 
                 }
 
-            } else if (_task == "REMOVE_RETAILER") {
+            } else if (_task == "BLACKLIST_RETAILER") {
 
                 const retailerGrid = this.controller.getField("retailer_grid");
                 if (retailerGrid) {
@@ -532,7 +542,7 @@ export default function SegmentContext(_component) {
         if (segment) {
             
             request["method"] = "PUT";
-            request["endpoint"] = "/segmentation/v1/segment/" + segment._id +"/deleteRetailers";
+            request["endpoint"] = "/segmentation/v1/segment/" + segment._id +"/blacklistRetailers";
             request["payload"] = _retailersIds;
 
             this.controller.docker.dock(request).then((_res) => {
@@ -621,6 +631,10 @@ export default function SegmentContext(_component) {
 
         if (!_segmentFields.title) {            
             this.controller.notify("Title is required", "error");
+            return false;
+        }
+
+        if (!this.validateDates()) {
             return false;
         }
 
@@ -767,5 +781,35 @@ export default function SegmentContext(_component) {
 
         return this.component.currentRecord[_grid];
     };    
+
+    this.validateDates = () => {
+
+        const fromDateField = this.controller.getField("segment_form_tab_fromDate");
+        const toDateField = this.controller.getField("segment_form_tab_toDate");
+
+        if (fromDateField  && toDateField) {
+
+            const sDate = new Date(fromDateField.getVal());
+            const eDate = new Date(toDateField.getVal());        
+
+            if (sDate && eDate) {
+
+                sDate.setHours(0,0,0,0);
+                eDate.setHours(0,0,0,0);
+
+                if (eDate < sDate) {                   
+                    window._controller.notify("To date should be greater than or equal to From date", "error");
+                    return false;
+                }
+
+            }       
+
+        }
+       
+        
+
+        return true;
+
+    };
 
 };

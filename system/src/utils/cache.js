@@ -253,6 +253,17 @@ class Cache {
         
     };
 
+    getAllEntities = async () => {
+
+        try {            
+            return await this.redisClient.getAll("pharmarack_cms_entities");
+        } catch (err) {
+            console.error("Error retrieving all key-value pairs from Redis:", err);
+            return null;
+        }
+        
+    };
+
     hasEntity = async (_handle) => {
 
         try {

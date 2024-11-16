@@ -3,10 +3,10 @@ import React, {useState, forwardRef, useImperativeHandle} from "react";
 const Confirm = (props, ref) => {
 
     const contextObj = window._controller.getCurrentModuleInstance(); 
-    const [state, setState] = useState({msg: "", task: null, visible: false});
+    const [state, setState] = useState({title : "", msg: "", task: null, visible: false});
 
     const self = {        
-        show: (_msg, _task) => setState({msg: _msg, task: _task, visible: true}),
+        show: (_task, _title, _msg) => setState({task: _task, title: _title, msg: _msg, visible: true}),
         hide: () => setState({msg: "", visible: false})
     };
 
@@ -21,11 +21,12 @@ const Confirm = (props, ref) => {
 
     return (
         <div className={`pharmarack-cms-confirm-bar ${state.type} ${state.visible ? "visible" : ""}`}>
-           <p>{state.msg}</p>
-           <div className="actions">
+            <h3>{state.title}</h3>
+            <p>{state.msg}</p>
+            <div className="actions">
                 <button className="pharmarack-cms-btn secondary" onClick={(e) => handleUserClick(1)}>Cancel</button>
                 <button className="pharmarack-cms-btn primary" onClick={(e) => handleUserClick(2)}>Proceed</button>
-           </div>
+            </div>
         </div>
     );
 

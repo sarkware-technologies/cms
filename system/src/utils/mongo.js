@@ -18,6 +18,7 @@ class MongoManager {
         this.reconnectCount = 0;
         this.disconnectedCount = 0;
         this.options = {
+            autoIndex: true,
             useNewUrlParser: true,
             useUnifiedTopology: true
         };

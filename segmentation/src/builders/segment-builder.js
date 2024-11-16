@@ -31,8 +31,8 @@ export default class SegmentBuilder {
             await MYDBM.connect(false);
 
             const modelNames = ["cms_master_order", "cms_segment_rule", "cms_segment", "cms_segment_queue", 
-                "cms_master_retailer", "cms_segment_retailer", "cms_segment_retailer_exclusion", 
-                "cms_segment_retailer_inclusion", "cms_segment_builder_status", "cms_segment_retailer_buffer"];
+                "cms_master_retailer", "cms_segment_retailer", "cms_segment_blacklisted_retailer", 
+                "cms_segment_whitelisted_retailer", "cms_segment_builder_status", "cms_segment_retailer_buffer"];
 
             for (const name of modelNames) {
                 this.models[name] = await EM.getModel(name);

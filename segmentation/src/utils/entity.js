@@ -41,6 +41,8 @@ class EntityManager {
 
         let config = {};
         let options = {};
+
+        const compoundIndex = [];
         const schemaFields = {};
 
         for (const field of _fields) {
@@ -73,6 +75,11 @@ class EntityManager {
                 /* Index */
                 if (field.index) {                    
                     config["index"] = field.index;
+                }
+
+                /* Compound index */
+                if (field.compound) {
+                    compoundIndex.push(field.handle);
                 }
 
                 if (field.options) {
@@ -166,9 +173,30 @@ class EntityManager {
         schemaFields["createdBy"] = { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
         schemaFields["updatedBy"] = { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 
-        const schema = new mongoose.Schema(schemaFields, {strict: true, timestamps: true});  
+        const schema = new mongoose.Schema(schemaFields, {strict: true, timestamps: true}); 
+        
+        /* Add compound index - if it is configured */
+        if (compoundIndex.length > 0) {
 
-        return mongoose.model(_collectionName, schema);        
+            const cIndexes = {};
+            compoundIndex.forEach(handle => {
+                if (schemaFields[handle]) { // Ensure the field exists in the schema
+                    cIndexes[handle] = 1;
+                } else {
+                    console.warn(`Field "${handle}" for compound index does not exist in schema. Ignoring.`);
+                }
+            });
+
+            if (Object.keys(cIndexes).length > 0) {
+                schema.index(cIndexes, { unique: true });
+                console.log(`Added compound index for collection "${_collectionName}":`, cIndexes);
+            }
+            
+        }
+
+        const _model = mongoose.model(_collectionName, schema);        
+        //await _model.createIndexes();
+        return _model;
 
     };
 

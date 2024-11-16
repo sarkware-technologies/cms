@@ -56,6 +56,23 @@ export default class RedisClient {
         }
     }
 
+    async  getAll(group) {
+
+        try {
+            const data = await this.readClient.hGetAll(group);
+            if (data) {                
+                return Object.fromEntries(
+                    Object.entries(data).map(([key, value]) => [key, JSON.parse(value)])
+                );
+            } else {
+                return null;
+            }
+        } catch (err) {
+            console.error("Error retrieving all key-value pairs from Redis:", err);
+        }
+
+    }
+
     async exists(group, key) {
         try {
             // Using hExists to check if the key exists in the hash

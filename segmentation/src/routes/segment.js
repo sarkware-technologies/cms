@@ -30,10 +30,10 @@ router.get(
 );
 
 router.get(
-    `/${moduleHandle}/:id/exclusiveRetailers`,
+    `/${moduleHandle}/:id/blacklistedRetailers`,
     await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
-            res.status(200).json(await segmentService.listExclusiveRetailers(req));
+            res.status(200).json(await segmentService.listBlacklistedRetailers(req));
         } catch (error) {
             Utils.handleError(error, res);
         }
@@ -41,10 +41,10 @@ router.get(
 );
 
 router.get(
-    `/${moduleHandle}/:id/inclusiveRetailers`,
+    `/${moduleHandle}/:id/whitelistedRetailers`,
     await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
-            res.status(200).json(await segmentService.listInclusiveRetailers(req));
+            res.status(200).json(await segmentService.listWhitelistedRetailers(req));
         } catch (error) {
             Utils.handleError(error, res);
         }
@@ -74,10 +74,10 @@ router.get(
 );
 
 router.put(
-    `/${moduleHandle}/:id/deleteRetailers`,
+    `/${moduleHandle}/:id/blacklistRetailers`,
     await RC.interceptRequest(moduleHandle, 'put', [], async (req, res) => {
         try {
-            res.status(200).json(await segmentService.deleteRetailersFromSegment(req));
+            res.status(200).json(await segmentService.blacklistRetailersFromSegment(req));
         } catch (error) {
             Utils.handleError(error, res);
         }
@@ -85,10 +85,32 @@ router.put(
 );
 
 router.put(
-    `/${moduleHandle}/:id/retailers`,
+    `/${moduleHandle}/:id/removeBlacklistRetailers`,
     await RC.interceptRequest(moduleHandle, 'put', [], async (req, res) => {
         try {
-            res.status(200).json(await segmentService.addRetailersToSegment(req));
+            res.status(200).json(await segmentService.removeBlacklistRetailersFromSegment(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.put(
+    `/${moduleHandle}/:id/whitelistRetailers`,
+    await RC.interceptRequest(moduleHandle, 'put', [], async (req, res) => {
+        try {
+            res.status(200).json(await segmentService.whitelistRetailersToSegment(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.put(
+    `/${moduleHandle}/:id/removeWhitelistRetailers`,
+    await RC.interceptRequest(moduleHandle, 'put', [], async (req, res) => {
+        try {
+            res.status(200).json(await segmentService.removeWhitelistRetailersFromSegment(req));
         } catch (error) {
             Utils.handleError(error, res);
         }

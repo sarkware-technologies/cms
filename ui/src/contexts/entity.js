@@ -64,6 +64,23 @@ export default function EntityContext(_component) {
      * 
      */
     this.beforeViewMount = (_handle, _viewConfig) => {
+
+        const entity = this.component.currentRecord["entity_grid"];
+        if (_handle == "entity_form") {
+            if (entity) {  
+                _viewConfig.context_header.actions = [
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_ENTITY", classes: "fields-factory-action-cancel icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Delete", theme: "danger", method: "delete", action: "DELETE_ENTITY", classes: "fields-factory-action-delete icon-left", icon: "fa fa-trash", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Save", theme: "primary", method: "post", action: "SAVE_ENTITY", classes: "fields-factory-action-save icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                ];                
+            } else {
+                _viewConfig.context_header.actions = [
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_ENTITY", classes: "fields-factory-action-cancel icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },                
+                    { label: "Save", theme: "primary", method: "post", action: "SAVE_ENTITY", classes: "fields-factory-action-save icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                ];                
+            }
+        }        
+
         return _viewConfig;
     };    
 
@@ -84,7 +101,7 @@ export default function EntityContext(_component) {
         } else if (_action === "SAVE_ENTITY") {
             this.saveEntity();
         } else if (_action === "DELETE_ENTITY") {
-            this.controller.getUserConfirm("Are you sure ?", "DELETE_ENTITY");
+            this.controller.getUserConfirm("DELETE_ENTITY", "Are you sure ?");
         }
 
     };  

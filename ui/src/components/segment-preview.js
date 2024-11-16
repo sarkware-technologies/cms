@@ -52,21 +52,27 @@ const SegmentPreview = (props, ref) => {
 
     const renderSegmentRule = () => {
 
-        return segmentRules.map((rule, index) => {
+        if (Array.isArray(segmentRules) && segmentRules.length > 0) {
+            return segmentRules.map((rule, index) => {
 
-            if (!rule.target) {
-                return null;
-            }
-
+                if (!rule.target) {
+                    return null;
+                }
+    
+                return (
+                    <tr key={`rules_${(index+1)}`}>
+                        <td><p>{rule.ruleType == 1 ? "Product" : "Brand"}</p></td>
+                        <td><p>{rule.target}</p></td>
+                        <td><p>{rule.from} - {rule.to}</p></td>
+                    </tr>
+                );
+    
+            });
+        } else {
             return (
-                <tr key={`rules_${(index+1)}`}>
-                    <td><p>{rule.ruleType == 1 ? "Product" : "Brand"}</p></td>
-                    <td><p>{rule.target}</p></td>
-                    <td><p>{rule.from} - {rule.to}</p></td>
-                </tr>
+                <tr><td colSpan={3} style={{textAlign: "center"}}>-- No rules configured --</td></tr>
             );
-
-        });
+        }
 
     };
 
@@ -75,7 +81,7 @@ const SegmentPreview = (props, ref) => {
             const dateObj = new Date(_date);
             return dateObj.toDateString();
         } else {
-            return "";
+            return "Any";
         }        
     };
 
@@ -88,14 +94,11 @@ const SegmentPreview = (props, ref) => {
                     <p>{segmentTitle}</p>
                     <br/>
                     <label>Description</label>
-                    <p>{segmentDescription}</p>
+                    <p>{segmentDescription ? segmentDescription : "-- No description --"}</p>
                 </div>
                 <div className="pharmarack-cms-segment-preview-section">
                     <label>Time Interval</label>
-
-                    
-
-                    <p>{renderDate(fromDate)} <span>to</span> {renderDate(toDate)}</p>
+                    <p>{renderDate(fromDate)} <span>- to -</span> {renderDate(toDate)}</p>
                 </div>
                 <div className="pharmarack-cms-segment-preview-section">                    
                     <table className="preview-table">
@@ -115,7 +118,7 @@ const SegmentPreview = (props, ref) => {
                 </div>                
                 <div className="pharmarack-cms-segment-preview-section">
                     <label>Order Status</label>
-                    <p>{orderStatus}</p>
+                    <p>{orderStatus ? (orderStatus.length > 0 ? orderStatus : "All") : "All"}</p>
                 </div>
                 <div className="pharmarack-cms-segment-preview-section">
                     <label>Retailers</label>
@@ -139,7 +142,7 @@ const SegmentPreview = (props, ref) => {
                 </div>
                 <div className="pharmarack-cms-segment-preview-section">
                     <label>Exclude Distributors</label>
-                    <p>{excludedStores}</p>
+                    <p>{excludedStores ? (excludedStores.length ? excludedStores : "None") : "None"}</p>
                 </div>
                 <div className="pharmarack-cms-segment-preview-section">
                     <table className="pharmarack-cms-segment-preview-rule-table">

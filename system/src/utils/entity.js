@@ -47,6 +47,8 @@ class EntityManager {
 
         let config = {};
         let options = {};
+
+        const compoundIndex = [];
         const schemaFields = {};
 
         for (const field of _fields) {
@@ -79,6 +81,10 @@ class EntityManager {
                 /* Index */
                 if (field.index) {                    
                     config["index"] = field.index;
+                }
+
+                if (field.compound) {
+                    compoundIndex.push(field.handle);
                 }
 
                 if (field.options) {
@@ -172,7 +178,26 @@ class EntityManager {
         schemaFields["createdBy"] = { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
         schemaFields["updatedBy"] = { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 
-        const schema = new mongoose.Schema(schemaFields, {strict: true, timestamps: true});  
+        const schema = new mongoose.Schema(schemaFields, {strict: true, timestamps: true}); 
+        
+        /* Add compound index - if it is configured */
+        if (compoundIndex.length > 0) {
+
+            const cIndexes = {};
+            compoundIndex.forEach(handle => {
+                if (schemaFields[handle]) { // Ensure the field exists in the schema
+                    cIndexes[handle] = 1;
+                } else {
+                    console.warn(`Field "${handle}" for compound index does not exist in schema. Ignoring.`);
+                }
+            });
+
+            if (Object.keys(cIndexes).length > 0) {
+                schema.index(cIndexes, { unique: true });
+                console.log(`Added compound index for collection "${_collectionName}":`, cIndexes);
+            }
+            
+        }
 
         return mongoose.model(_collectionName, schema);        
 
@@ -220,7 +245,7 @@ class EntityManager {
 
     getEntityHandle = async(_id, _collectionName) => {
 
-        const eCahceList = await cache.getAll();
+        const eCahceList = await cache.getAllEntities();
         if (eCahceList) {
             const keys = Object.keys(eCahceList);
             for (let i = 0; i < keys.length; i++) {

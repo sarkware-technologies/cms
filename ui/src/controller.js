@@ -383,8 +383,8 @@ export default class Controller extends React.Component {
         this.notification.current.notify(_msg, _type);
     };
 
-    getUserConfirm = (_msg, _task) => {
-        this.confirm.current.show(_msg, _task);
+    getUserConfirm = (_task, _title, _msg) => {
+        this.confirm.current.show(_task, _title, _msg);
     };
 
     render = () => <LayoutLoader />;

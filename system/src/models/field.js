@@ -8,6 +8,7 @@ const FieldSchema = new mongoose.Schema({
     required        : { type: Boolean, default: false },
     unique          : { type: Boolean, default: false },
     index           : { type: Boolean, default: false },
+    compound        : { type: Boolean, default: false },
     options         : { type: Object, default: {} },
     usage           : { type: Number, default: FieldUsage.BOTH },         
     entity          : { type: mongoose.Schema.Types.ObjectId, ref: 'cms_system_entity', required: true },

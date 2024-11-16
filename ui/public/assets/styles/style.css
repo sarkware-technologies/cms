@@ -1062,7 +1062,7 @@ div.pharmarack-cms-confirm-bar {
     height: auto;
     line-height: 20px;
     color: #e0e0e0;
-    font-size: 20px;
+    font-size: 18px;
     text-align: right;
     background-color: #2d2f33;
     border-top: 1px solid #444;
@@ -1071,6 +1071,8 @@ div.pharmarack-cms-confirm-bar {
 
 div.pharmarack-cms-confirm-bar p {
     margin-bottom: 25px;
+    margin-top: 10px;
+    font-size: 16px;
 }
 
 div.pharmarack-cms-confirm-bar div.actions {
@@ -3215,17 +3217,27 @@ table.preview-table td:last-child{
     font-weight: normal !important;
 }
 
+.pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-data-table-container.blacklist_retailer_grid th,
+.pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-data-table-container.whitelist_retailer_grid th,
 .pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-data-table-container.retailer_grid th {
     border-top: solid 1px #D9D9D9;  
     border-bottom: solid 1px #D9D9D9;  
 }
 
+.pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-data-table-container.blacklist_retailer_grid th,
+.pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-data-table-container.blacklist_retailer_grid td,
+.pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-data-table-container.whitelist_retailer_grid th,
+.pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-data-table-container.whitelist_retailer_grid td,
 .pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-data-table-container.retailer_grid th,
 .pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-data-table-container.retailer_grid td {
     padding: 5px 15px !important;
     border-right: solid 1px #D9D9D9;    
 }
 
+.pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-data-table-container.blacklist_retailer_grid th:last-child,
+.pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-data-table-container.blacklist_retailer_grid td:last-child, 
+.pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-data-table-container.whitelist_retailer_grid th:last-child,
+.pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-data-table-container.whitelist_retailer_grid td:last-child,
 .pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-data-table-container.retailer_grid th:last-child,
 .pharmarack-cms-context-view.segment.segment_form .pharmarack-cms-data-table-container.retailer_grid td:last-child {
     border-right: none !important;
@@ -3410,4 +3422,23 @@ table.mapped-entity-list-factory-table {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.pharmarack-cms-view.dynamic_retailer_list_form {
+    margin-top: -10px;
+}
+
+.pharmarack-cms-view-content-section.dynamic_retailer_list_form .pharmarack-cms-tab-header {
+    margin-bottom: 0px !important;
+    border-bottom: none !important;
+}
+
+.whitelisted_retailer_tab_item .pharmarack-cms-action-bar,
+.blacklisted_retailer_tab_item .pharmarack-cms-action-bar,
+.mapped_retailer_tab_item .pharmarack-cms-action-bar {
+    margin-top: -75px;
+    padding-bottom: 20px;
+    z-index: 999;
+    position: relative;
+    width: 50%;
 }

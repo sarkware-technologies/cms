@@ -1000,8 +1000,9 @@ let segment_config = {
                 breadcrumb: "title",
                 actions: [
                     { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Delete Segment", theme: "danger", method: "delete", action: "DELETE_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Edit Segment Rules", theme: "primary", method: "post", action: "EDIT_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Delete", theme: "danger", method: "delete", action: "DELETE_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Build", theme: "warning", method: "put", action: "BUILD_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Edit", theme: "primary", method: "post", action: "EDIT_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {
@@ -1055,15 +1056,87 @@ let segment_config = {
                 show: false                
             },           
             header: {
-                show: true,
-                actions: [                 
-                    { label: "Delete Retailers", theme: "warning", method: "delete", action: "REMOVE_RETAILER", classes: "bulk-retailer-removed", icon: "", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Add new Retailers", theme: "primary", method: "post", action: "ADD_RETAILER", classes: "bulk-retailer-added", icon: "", tabindex : 8, status: true, shortcut: "" }
-                ]
+                show: false                
             },
             content: {
                 show: true,
                 rows: [                   
+                    {
+                        seperator: false,
+                        columns: [
+                            {
+                                title: "",
+                                sub_title: "",
+                                type: "view",
+                                width: "100%",
+                                layout: "horizontal",
+                                classes: "",
+                                view: "static_retailer_list_form"
+                            }                            
+                        ]  
+                    },
+                    {
+                        seperator: false,
+                        columns: [
+                            {
+                                title: "",
+                                sub_title: "",
+                                type: "fields",
+                                width: "100%",
+                                layout: "horizontal",
+                                classes: "",
+                                fields: [
+                                    {
+                                        type: "multiselect", 
+                                        label: "", 
+                                        handle: "add_retailers", 
+                                        value : "", 
+                                        parents: {},
+                                        placeholder: "Retailers", 
+                                        searchprompt: "Search for retailers",
+                                        search_class: "", 
+                                        popup_class: "",
+                                        behaviour: "popup",
+                                        mandatory: true, 
+                                        readonly: false, 
+                                        disabled: false, 
+                                        tabindex: 1, 
+                                        align: "right", 
+                                        label_width: 0, 
+                                        recordsPerPage: 10,
+                                        label_position: "top", 
+                                        prompt_message: "", 
+                                        validation_message: "", 
+                                        value_key: "_id", 
+                                        label_key: "RetailerName", 
+                                        source: "remote",
+                                        endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=cms_master_retailer&select=_id|RetailerId|RetailerName"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            footer: {
+                show: false                
+            },
+            sidebar: null,
+            manage: false
+        },        
+        static_retailer_list_form: {
+            context: "segment",
+            context_header: {show: false},           
+            header: {
+                show: true,
+                actions: [                 
+                    { label: "Blacklist Retailers", theme: "warning", method: "delete", action: "BLACKLIST_RETAILER", classes: "bulk-retailer-removed", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Whitelist Retailers", theme: "primary", method: "post", action: "WHITELIST_RETAILER", classes: "bulk-retailer-added", icon: "", tabindex : 8, status: true, shortcut: "" }
+                ]
+            },
+            content: {
+                show: true,
+                rows: [                    
                     {
                         seperator: false,
                         columns: [
@@ -1156,55 +1229,394 @@ let segment_config = {
                                         }                                     
                                     ]
                                 }
-                            }                           
+                            } 
                         ]
-                    },
+                    }
+                ]
+            },
+            footer: {show: false},
+            sidebar: null,
+            manage: false
+        },
+        dynamic_retailer_list_form: {
+            context: "segment",
+            context_header: {show: false},           
+            header: {show: false},
+            content: {
+                show: true,
+                rows: [                    
                     {
                         seperator: false,
                         columns: [
-                            {
+                            {                                
                                 title: "",
                                 sub_title: "",
-                                type: "fields",
+                                type: "tab",
                                 width: "100%",
                                 layout: "horizontal",
-                                classes: "",
-                                fields: [
-                                    {
-                                        type: "multiselect", 
-                                        label: "", 
-                                        handle: "add_retailers", 
-                                        value : "", 
-                                        parents: {},
-                                        placeholder: "Retailers", 
-                                        searchprompt: "Search for retailers",
-                                        search_class: "", 
-                                        popup_class: "",
-                                        behaviour: "popup",
-                                        mandatory: true, 
-                                        readonly: false, 
-                                        disabled: false, 
-                                        tabindex: 1, 
-                                        align: "right", 
-                                        label_width: 0, 
-                                        recordsPerPage: 10,
-                                        label_position: "top", 
-                                        prompt_message: "", 
-                                        validation_message: "", 
-                                        value_key: "_id", 
-                                        label_key: "RetailerName", 
-                                        source: "remote",
-                                        endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=cms_master_retailer&select=_id|RetailerId|RetailerName"
+                                tab: {
+                                    title: "",                        
+                                    handle: "dynamic_retailer_tab",							                                    
+                                    position: "top",                                    
+                                    default_tab: "mapped_retailer_tab_item",
+                                    tabview: true,
+                                    type: "fluid",		
+                                    width: "100%",  
+                                    items: {
+                                        mapped_retailer_tab_item: {
+                                            custom: false,
+                                            icon: "fa fa-store",
+                                            title: "Retailers",
+                                            context: "segment",					
+                                            header: {
+                                                show: true,
+                                                actions: [                 
+                                                    { label: "Blacklist Retailers", theme: "warning", method: "delete", action: "BLACKLIST_RETAILER", classes: "bulk-retailer-removed", icon: "", tabindex : 8, status: true, shortcut: "" },
+                                                    { label: "Whitelist Retailers", theme: "primary", method: "post", action: "WHITELIST_RETAILER", classes: "bulk-retailer-added", icon: "", tabindex : 8, status: true, shortcut: "" }
+                                                ]
+                                            },                    
+                                            content: {
+                                                show: true,
+                                                rows: [
+                                                    {
+                                                        seperator: false,
+                                                        columns: [
+                                                            {
+                                                                title: "",
+                                                                sub_title: "",
+                                                                type: "datagrid",
+                                                                width: "100%",
+                                                                layout: "horizontal",
+                                                                collapsible: false,
+                                                                datagrid: {
+                                                                    handle: "retailer_grid",        
+                                                                    layout: "fluid",		
+                                                                    height: "",
+                                                                    header: true,
+                                                                    content: true,
+                                                                    footer: true,	
+                                                                    grid_lines: true,								
+                                                                    multi_select: false,
+                                                                    full_row_select: false,
+                                                                    is_main_grid: true,
+                                                                    empty_message: "No retailer mapped for this segment yet.!",
+                                                                    datasource: {endpoint: "/segmentation/v1/segment/:id/retailers", page: 0, populate: false, handler: "dedicated", cached: false},
+                                                                    link: {key: "RetailerId", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segmentation/v1/segment/"},
+                                                                    columns: [
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "5", 
+                                                                            search: false,
+                                                                            filter: false,                                            
+                                                                            classes: "",
+                                                                            header: {title: "", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "#", type: "check", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "10", 
+                                                                            search: false,
+                                                                            filter: false,                                            
+                                                                            classes: "",
+                                                                            header: {title: "S.No", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        }, 
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "35",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Retailer Name", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "RetailerName", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        }, 
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "20",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Mobile Number", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "MobileNumber", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "20",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Retailer Id", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "RetailerId", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "10", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            header: {title: "Action", align: "center", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "", type: "button", action: "REMOVE", align: "center", icon: "fa fa-trash", class: "icon-left"},
+                                                                            prompt: ""
+                                                                        }                                     
+                                                                    ]
+                                                                }
+                                                            } 
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            footer: {
+                                                show: false                                            
+                                            }
+                                        },
+                                        whitelisted_retailer_tab_item: {
+                                            custom: false,
+                                            icon: "fa fa-ballot-check",
+                                            title: "Whitelisted",
+                                            context: "segment",					
+                                            header: {
+                                                show: true,                                                
+                                                actions: [
+                                                    { label: "Remove from Whitelist", theme: "warning", method: "post", action: "REMOVE_WHITELIST", classes: "bulk-retailer-added", icon: "", tabindex : 8, status: true, shortcut: "" }
+                                                ]
+                                            },                    
+                                            content: {
+                                                show: true,
+                                                rows: [
+                                                    {
+                                                        seperator: false,
+                                                        columns: [
+                                                            {
+                                                                title: "",
+                                                                sub_title: "",
+                                                                type: "datagrid",
+                                                                width: "100%",
+                                                                layout: "horizontal",
+                                                                collapsible: false,
+                                                                datagrid: {
+                                                                    handle: "whitelist_retailer_grid",        
+                                                                    layout: "fluid",		
+                                                                    height: "",
+                                                                    header: true,
+                                                                    content: true,
+                                                                    footer: true,	
+                                                                    grid_lines: true,								
+                                                                    multi_select: false,
+                                                                    full_row_select: false,
+                                                                    is_main_grid: true,
+                                                                    empty_message: "No retailer mapped for this segment yet.!",
+                                                                    datasource: {endpoint: "/segmentation/v1/segment/:id/whitelistedRetailers", page: 0, populate: false, handler: "dedicated", cached: false},
+                                                                    link: {key: "RetailerId", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segmentation/v1/segment/"},
+                                                                    columns: [
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "5", 
+                                                                            search: false,
+                                                                            filter: false,                                            
+                                                                            classes: "",
+                                                                            header: {title: "", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "#", type: "check", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "10", 
+                                                                            search: false,
+                                                                            filter: false,                                            
+                                                                            classes: "",
+                                                                            header: {title: "S.No", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        }, 
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "35",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Retailer Name", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "RetailerName", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        }, 
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "20",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Mobile Number", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "MobileNumber", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "20",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Retailer Id", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "RetailerId", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "10", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            header: {title: "Action", align: "center", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "", type: "button", action: "REMOVE", align: "center", icon: "fa fa-trash", class: "icon-left"},
+                                                                            prompt: ""
+                                                                        }                                     
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            footer: {
+                                                show: false                                            
+                                            }
+                                        },
+                                        blacklisted_retailer_tab_item: {
+                                            custom: false,
+                                            icon: "fa fa-store-slash",
+                                            title: "Blacklisted",
+                                            context: "segment",					
+                                            header: {
+                                                show: true,
+                                                actions: [
+                                                    { label: "Remove from Blacklist", theme: "warning", method: "delete", action: "REMOVE_BLACKLIST", classes: "bulk-retailer-removed", icon: "", tabindex : 8, status: true, shortcut: "" },
+                                                ]
+                                            },                    
+                                            content: {
+                                                show: true,
+                                                rows: [
+                                                    {
+                                                        seperator: false,
+                                                        columns: [
+                                                            {
+                                                                title: "",
+                                                                sub_title: "",
+                                                                type: "datagrid",
+                                                                width: "100%",
+                                                                layout: "horizontal",
+                                                                collapsible: false,
+                                                                datagrid: {
+                                                                    handle: "blacklist_retailer_grid",        
+                                                                    layout: "fluid",		
+                                                                    height: "",
+                                                                    header: true,
+                                                                    content: true,
+                                                                    footer: true,	
+                                                                    grid_lines: true,								
+                                                                    multi_select: false,
+                                                                    full_row_select: false,
+                                                                    is_main_grid: true,
+                                                                    empty_message: "No retailer mapped for this segment yet.!",
+                                                                    datasource: {endpoint: "/segmentation/v1/segment/:id/blacklistedRetailers", page: 0, populate: false, handler: "dedicated", cached: false},
+                                                                    link: {key: "RetailerId", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segmentation/v1/segment/"},
+                                                                    columns: [
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "5", 
+                                                                            search: false,
+                                                                            filter: false,                                            
+                                                                            classes: "",
+                                                                            header: {title: "", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "#", type: "check", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "10", 
+                                                                            search: false,
+                                                                            filter: false,                                            
+                                                                            classes: "",
+                                                                            header: {title: "S.No", align: "left"}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        }, 
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "35",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Retailer Name", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "RetailerName", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        }, 
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "20",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Mobile Number", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "MobileNumber", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "20",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Retailer Id", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "RetailerId", type: "alphanumeric", align: "left", editable: false},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "10", 
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            header: {title: "Action", align: "center", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "", type: "button", action: "REMOVE", align: "center", icon: "fa fa-trash", class: "icon-left"},
+                                                                            prompt: ""
+                                                                        }                                     
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            footer: {
+                                                show: false                                            
+                                            }
+                                        }
                                     }
-                                ]
+                                }
                             }
                         ]
                     }
                 ]
             },
-            footer: {
-                show: false                
-            },
+            footer: {show: false},
             sidebar: null,
             manage: false
         }

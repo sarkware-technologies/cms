@@ -251,6 +251,8 @@ const checkRetailerEligibility = async (_retailerId, _segment) => {
             filterOrderQuery["store"] = { $nin: _segment.excludedStores };
         }
 
+        console.log(filterOrderQuery);
+
         let finalOrders = await orderModel.find(filterOrderQuery)
             .populate(populateOrderQuery)
             .select("_id store retailer")
