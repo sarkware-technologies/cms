@@ -81,22 +81,21 @@ const Card = (props, ref) => {
         request["payload"] = {};                        
         request["payload"]["status"] = _e.target.checked;
 
-        window._controller.dock(request, 
-            (_req, _res) => {    
-                
-                /* Update the childrens array too */
-                for (let i = 0; i < childrens.length; i++) {
-                    if (childrens[i]._id === _res._id) {
-                        childrens.splice(i, 1, _res);
-                    }
+        window._controller.docker.dock(request).then((_res) => {
+
+            /* Update the childrens array too */
+            for (let i = 0; i < childrens.length; i++) {
+                if (childrens[i]._id === _res._id) {
+                    childrens.splice(i, 1, _res);
                 }
-                setChildrens([...childrens]);
-                window._controller.notify( _item.title + (_e.target.checked ? " disabled successfully" : " enabled successfully"));                                
-            }, 
-            (_req, _res) => {
-                window._controller.notify(_item.title + " failed to update.!", "error");                                
             }
-        );
+            setChildrens([...childrens]);
+            window._controller.notify( _item.title + (_e.target.checked ? " disabled successfully" : " enabled successfully"));                                
+
+        })
+        .catch((e) => {
+            window._controller.notify(_item.title + " failed to update.!", "error");  
+        });
 
     };
 
@@ -132,7 +131,8 @@ const Card = (props, ref) => {
         formData.append('componentId', currentItem._id);
 
         try {
-            const response = await window._controller.upload('/system/v1/api/component/component/s3_upload_for_child', formData);
+
+            const response = await window._controller.docker.upload('/system/v1/api/component/component/s3_upload_for_child', formData);
             if (response) {
 
                 /* Update the childrens array too */
@@ -158,25 +158,24 @@ const Card = (props, ref) => {
         request["payload"] = {
             componentId: currentItem._id,
             property: _handle
-        };                    
+        };   
         
-        window._controller.dock(request, 
-            (_req, _res) => {     
-                
-                /* Update the childrens array too */
-                for (let i = 0; i < childrens.length; i++) {
-                    if (childrens[i]._id === _res._id) {
-                        childrens.splice(i, 1, _res);
-                    }
+        window._controller.docker.dock(request).then((_res) => {
+
+            /* Update the childrens array too */
+            for (let i = 0; i < childrens.length; i++) {
+                if (childrens[i]._id === _res._id) {
+                    childrens.splice(i, 1, _res);
                 }
-
-                setCurrentItem(_res);
-
-            }, 
-            (_req, _res) => {
-                this.controller.notify(_res, "error");
             }
-        );
+
+            setCurrentItem(_res);
+
+        })
+        .catch((e) => {
+            window._controller.notify(e.message, "error");
+        });        
+
     };
 
     const renderCardItemConfig = (_item) => {
@@ -261,17 +260,15 @@ const Card = (props, ref) => {
         const request = {};
         request["method"] = "POST";
         request["endpoint"] = "/system/v1/api/component/component/update_sequence?id="+ record._id;
-        request["payload"] = getCardItemSequence();                    
+        request["payload"] = getCardItemSequence(); 
         
-        window._controller.dock(request, 
-            (_req, _res) => {     
-                window._controller.notify("Card item's sequence updated", "info");
-            }, 
-            (_req, _res) => {
-                window._controller.notify(_res, "error");
-            }
-        );
-
+        window._controller.docker.dock(request).then((_res) => {
+            window._controller.notify("Card item's sequence updated", "info");
+        })
+        .catch((e) => {
+            window._controller.notify(e.message, "error");
+        });
+        
     };
 
     const handleDragEnd = () => { 
@@ -452,27 +449,25 @@ const Card = (props, ref) => {
                 request["endpoint"] = "/system/v1/api/component/component/create";
                 request["payload"] = cardItem;                    
                 
-                window._controller.dock(request, 
-                    (_req, _res) => { 
-                        
-                        if (!record.configuration.sequence) {
-                            record.configuration.sequence = [];
-                        }
-
-                        if (Array.isArray(record.configuration.sequence)) {
-                            record.configuration.sequence.push(_res._id);
-                        }                
-                        
-                        window._controller.notify(_res.title + " saved successfully.!");
-                        fetchChildrens();
-
-                        setTimeout(() => updateSequence(), 1000);
-
-                    }, 
-                    (_req, _res) => {
-                        window._controller.notify(_res, "error");
+                window._controller.docker.dock(request).then((_res) => {
+                    
+                    if (!record.configuration.sequence) {
+                        record.configuration.sequence = [];
                     }
-                );
+
+                    if (Array.isArray(record.configuration.sequence)) {
+                        record.configuration.sequence.push(_res._id);
+                    }                
+                    
+                    window._controller.notify(_res.title + " saved successfully.!");
+                    fetchChildrens();
+
+                    setTimeout(() => updateSequence(), 1000);
+
+                })
+                .catch((e) => {
+                    window._controller.notify(e.message, "error");
+                });
 
             }
             
@@ -508,18 +503,18 @@ const Card = (props, ref) => {
                 request["endpoint"] = "/system/v1/api/component/component/update?id="+ currentItem._id;
                 request["payload"] = cardItem;
 
-                window._controller.dock(request, 
-                    (_req, _res) => {
-                        window._controller.notify(_res.title + " updated successfully.!"); 
-                        /* Fetch the crm bar items */
-                        fetchChildrens();
-                         /* Also update the rules */
-                        updateRules();                       
-                    }, 
-                    (_req, _res) => {
-                        window._controller.notify(_res, "error");
-                    }
-                );
+                window._controller.docker.dock(request).then((_res) => {
+                    
+                    window._controller.notify(_res.title + " updated successfully.!"); 
+                    /* Fetch the crm bar items */
+                    fetchChildrens();
+                        /* Also update the rules */
+                    updateRules(); 
+
+                })
+                .catch((e) => {
+                    window._controller.notify(e.message, "error");
+                });
                 
             }
 
@@ -531,18 +526,18 @@ const Card = (props, ref) => {
                 request["method"] = "DELETE";
                 request["endpoint"] = "/system/v1/api/component/component/delete?id="+ currentItem._id;               
 
-                window._controller.dock(request, 
-                    (_req, _res) => {
-                        window._controller.notify(currentItem.title + " removed successfully.!"); 
-                        /* Remove rules too */
-                        removeCardItemRules(currentItem._id);
-                        /* Fetch the crm bar items */
-                        fetchChildrens();                         
-                    }, 
-                    (_req, _res) => {
-                        window._controller.notify(_res, "error");
-                    }
-                );
+                window._controller.docker.dock(request).then((_res) => {
+                    
+                    window._controller.notify(currentItem.title + " removed successfully.!"); 
+                    /* Remove rules too */
+                    removeCardItemRules(currentItem._id);
+                    /* Fetch the crm bar items */
+                    fetchChildrens();
+
+                })
+                .catch((e) => {
+                    window._controller.notify(e.message, "error");
+                });
 
             }
 
@@ -554,21 +549,21 @@ const Card = (props, ref) => {
                 request["method"] = "POST";
                 request["endpoint"] = "/system/v1/api/component/component/clone?component="+ currentItem._id;
 
-                window._controller.dock(request, 
-                    (_req, _res) => {     
-                        window._controller.notify("Cloned successfully.!");
-                        /* Update the sequence */
-                        record.configuration.sequence = _res.configuration.sequence;
-                        /* reset the mode */
-                        setMode(_mode);
-                        setCurrentItem(null);
-                        /* Fetch the carousel items */
-                        fetchChildrens();
-                    }, 
-                    (_req, _res) => {
-                        window._controller.notify(_res, "error");
-                    }
-                );
+                window._controller.docker.dock(request).then((_res) => {
+                    
+                    window._controller.notify("Cloned successfully.!");
+                    /* Update the sequence */
+                    record.configuration.sequence = _res.configuration.sequence;
+                    /* reset the mode */
+                    setMode(_mode);
+                    setCurrentItem(null);
+                    /* Fetch the carousel items */
+                    fetchChildrens();
+
+                })
+                .catch((e) => {
+                    window._controller.notify(e.message, "error");
+                });
 
             }
 
@@ -585,27 +580,23 @@ const Card = (props, ref) => {
         request["method"] = "DELETE";
         request["endpoint"] = "/system/v1/api/component/rule/bulk_filter_delete?field=component&value="+ _id;     
 
-        window._controller.dock(request, 
-            (_req, _res) => {
-                /* Nothing to do, just ignore */        
-            }, 
-            (_req, _res) => {
-                window._controller.notify(_res, "error");
-            }
-        );
+        window._controller.docker.dock(request).then((_res) => {            
+            /* Nothing to do, just ignore */   
+        })
+        .catch((e) => {
+            window._controller.notify(e.message, "error");
+        });
 
         request = {};
         request["method"] = "DELETE";
         request["endpoint"] = "/system/v1/api/component/rules_group/bulk_filter_delete?field=component&value="+ _id;  
         
-        window._controller.dock(request, 
-            (_req, _res) => {
-                /* Nothing to do, just ignore */        
-            }, 
-            (_req, _res) => {
-                window._controller.notify(_res, "error");
-            }
-        );
+        window._controller.docker.dock(request).then((_res) => {            
+            /* Nothing to do, just ignore */   
+        })
+        .catch((e) => {
+            window._controller.notify(e.message, "error");
+        });
 
     }
 
@@ -615,20 +606,16 @@ const Card = (props, ref) => {
         request["method"] = "PUT";
         request["endpoint"] = "/system/v1/api/component/rule/bulk_update?id="+ currentItem._id;
         request["payload"] = groupsRef.current.getGroupRules();  
-                      
-        window._controller.dock(request, 
-            (_req, _res) => {     
-                window._controller.notify("Rule updated successfully.!");
-                
-                setMode("list");
-                setCurrentItem(null);
 
-            }, 
-            (_req, _res) => {
-                window._controller.notify(_res, "error");
-            }
-        );
-
+        window._controller.docker.dock(request).then((_res) => {            
+            window._controller.notify("Rule updated successfully.!");                
+            setMode("list");
+            setCurrentItem(null);  
+        })
+        .catch((e) => {
+            window._controller.notify(e.message, "error");
+        });
+         
     };
 
     const renderCardItemActions = () => {
@@ -656,18 +643,18 @@ const Card = (props, ref) => {
     };
 
     const fetchChildrens = () => {
-        window._controller.dock({
+
+        window._controller.docker.dock({
             method: "GET",
             endpoint: "/system/v1/api/component/component/childrens?id="+ record._id
-            }, 
-            (_req, _res) => {                                            
-                setChildrens((prevState) => (_res)); 
-                setMode("list");
-            }, 
-            (_req, _res) => {
-                console.error(_res);
-            }
-        );
+        }).then((_res) => {            
+            setChildrens((prevState) => (_res)); 
+            setMode("list");   
+        })
+        .catch((e) => {
+            window._controller.notify(e.message, "error");
+        });
+
     };
 
     const handleCollapseBtnClick = () => {

@@ -1446,7 +1446,7 @@ let segment_config = {
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",
-                                                                            header: {title: "Retailer Name", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                                                            header: {title: "Retailer Name", align: "left", filterable: false, searchable: false, sortable: false}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                                                             field: {handle: "RetailerName", type: "alphanumeric", align: "left", editable: false},
                                                                             prompt: ""
@@ -1561,7 +1561,7 @@ let segment_config = {
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",
-                                                                            header: {title: "Retailer Name", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                                                            header: {title: "Retailer Name", align: "left", filterable: false, searchable: false, sortable: false}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                                                             field: {handle: "RetailerName", type: "alphanumeric", align: "left", editable: false},
                                                                             prompt: ""

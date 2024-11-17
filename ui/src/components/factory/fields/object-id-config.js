@@ -31,7 +31,7 @@ const ObjectIdFieldConfig = (props, ref) => {
         validation_message: "", 
         value_key: "_id", 
         label_key: "title", 
-        datasource: {endpoint: "/system/v1/entity", page: 0}
+        datasource: {endpoint: "/system/v1/entity", page: 0, cached: false}
     };
 
     const handleRequiredChange = (_e) => {

@@ -43,15 +43,13 @@ const Video = (props, ref) => {
         request["method"] = "PUT";
         request["endpoint"] = "/system/v1/api/component/rule/bulk_update?id="+ record._id;
         request["payload"] = groupsRef.current.getGroupRules();  
-                      
-        window._controller.dock(request, 
-            (_req, _res) => {     
-               /* Ignore it */
-            }, 
-            (_req, _res) => {
-                window._controller.notify(_res, "error");
-            }
-        );
+            
+        window._controller.docker.dock(request).then((_res) => {            
+            /* Nothing to do, just ignore */   
+        })
+        .catch((e) => {
+            window._controller.notify(e.message, "error");
+        });
 
     };
 

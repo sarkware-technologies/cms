@@ -116,11 +116,13 @@ export default class Docker {
     upload = async (_endpoint, _formData) => {
 
         const headers = new Headers();
-        this.indicatorRef.current.style.display = "block";        
+        this.indicatorRef.current.style.display = "block";    
         
-        const token = sessionStorage.getItem("pharmarack_cms_token");
-        if (user && token) {
-            headers.append("authorization", `Bearer ${token}`);
+        const token = localStorage.getItem("pharmarack_cms_access_token");
+        if (token) {              
+            headers.append("Authorization", `Bearer ${token}`);
+        } else {
+            throw new Error("Access token is not found");
         }
 
         try {

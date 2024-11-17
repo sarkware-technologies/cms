@@ -1,0 +1,35 @@
+[
+    {
+        "ProductName": "CYCLOPAM 20/500 MG TABLET 10",
+        "PTR": 43.14,
+        "MRP": 60.4,
+        "MDMProductCode": "MPC10161968",
+        "ProductCode": "",
+        "CompanyId": "",
+        "CompanyName": "",
+        "CashbackMessage": "",
+        "CashbackTermsAndConditions": ""
+    },
+    {
+        "ProductName": "CYCLOPAM 10/40MG SUSPENSION 60 ML",
+        "PTR": 70.71,
+        "MRP": 99,
+        "MDMProductCode": "MPC10126353",
+        "ProductCode": "",
+        "CompanyId": "",
+        "CompanyName": "",
+        "CashbackMessage": "",
+        "CashbackTermsAndConditions": ""
+    },
+    {
+        "ProductName": "CYCLOPAM 10/40 MG SUSPENSION 30 ML",
+        "PTR": 47.07,
+        "MRP": 65.9,
+        "MDMProductCode": "MPC10014228",
+        "ProductCode": "",
+        "CompanyId": "",
+        "CompanyName": "",
+        "CashbackMessage": "",
+        "CashbackTermsAndConditions": ""
+    }
+]
