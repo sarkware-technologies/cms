@@ -7,7 +7,7 @@ let component_config = {
                 title: "Components",
                 breadcrumb: "",
                 actions: [                   
-                    { label: "New Component", theme: "primary", action: "NEW_COMPONENT", classes: "fields-factory-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }
+                    { label: "New Component", theme: "primary", method: "post", action: "NEW_COMPONENT", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {
@@ -38,8 +38,8 @@ let component_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No component configured yet.!",
-                                    datasource: {endpoint: "/system/api/component/component/parent_list?populate=type", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "component", target_type: "view", view: "component_form", data: "remote", endpoint: "/system/api/component/component/record?id="},
+                                    datasource: {endpoint: "/system/v1/api/component/component/parent_list?populate=type", page: 0, populate: false, handler: "default"},
+                                    link: {key: "_id", context: "component", target_type: "view", view: "component_form", data: "remote", endpoint: "/system/v1/api/component/component/record?id="},
                                     columns: [
                                         {
                                             show: true, 
@@ -137,8 +137,8 @@ let component_config = {
                 title: "Component",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", action: "CANCEL_COMPONENT", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },                    
-                    { label: "Save", theme: "primary", action: "SAVE_COMPONENT", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_COMPONENT", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },                    
+                    { label: "Save", theme: "primary", method: "post", action: "SAVE_COMPONENT", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {
@@ -163,7 +163,7 @@ let component_config = {
                                     { type: "text", label: "Title", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "text", label: "Sub Title", handle: "sub_title", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "text", label: "Handle", handle: "handle", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "select", label: "Component Type", handle: "type", value : "1", placeholder: "-- select page type --", value_key: "_id", label_key: "title", options: [], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/api/component/component_type/component_type_list"},
+                                    { type: "select", label: "Component Type", handle: "type", value : "1", placeholder: "-- select page type --", value_key: "_id", label_key: "title", options: [], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/v1/api/component/component_type/component_type_list"},
                                     { type: "date", label: "Start Date", handle: "start_date", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "date", label: "End Date", handle: "end_date", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
                                 ]
@@ -218,7 +218,7 @@ let component_config = {
                                         validation_message: "", 
                                         value_key: "_id", 
                                         label_key: "title", 
-                                        datasource: {endpoint: "/system/api/page/page/list", page: 0, cached: false}
+                                        datasource: {endpoint: "/system/v1/api/page/page/list", page: 0, cached: false}
                                     },
                                     { type: "select", label: "Position", handle: "position", value : "", placeholder: "-- select page type --", value_key: "value", label_key: "label", options: [], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: ""},
                                     { type: "button", label: "Map Page", theme: "primary", action: "MAP_PAGE", classes: "icon-left width-100 page-component-map-button", icon: "fa fa-arrows-h", tabindex : 8, status: true, shortcut: "" }
@@ -248,8 +248,8 @@ let component_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No page mapped yet.!",
-                                    datasource: {endpoint: "/system/api/component/page_component_mapping/list_tagged_pages?populate=page|component&component=", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "component", target_type: "view", view: "component_form", data: "remote", endpoint: "/system/api/component/page_component_mapping/record?populate=page|component&id="},
+                                    datasource: {endpoint: "/system/v1/api/component/page_component_mapping/list_tagged_pages?populate=page|component&component=", page: 0, populate: false, handler: "default"},
+                                    link: {key: "_id", context: "component", target_type: "view", view: "component_form", data: "remote", endpoint: "/system/v1/api/component/page_component_mapping/record?populate=page|component&id="},
                                     columns: [
                                         {
                                             show: true, 

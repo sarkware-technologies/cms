@@ -19,6 +19,7 @@ export default function PreviewContext(_component) {
      **/
     this.init = () => {
         //this.fetchCountryList();        
+        this.controller.switchView("main_view");
     };     
 
     /**
@@ -56,81 +57,62 @@ export default function PreviewContext(_component) {
 
     this.fetchCountryList = () => {
 
-        window._controller.dock(
-            {
-                method: "GET",
-                endpoint: "/system/api/component/component/multi_select_list?entity=country"
-            }, 
-            (_req, _res) => {
-
-                this.countryRecords = _res;
-                this.fetchStateList();
-
-            }, 
-            (_req, _res) => {
-                console.log(_res);
-            }
-        ); 
+        this.controller.docker.dock({
+            method: "GET",
+            endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_master_country"
+        }).then((_res) => {
+            this.countryRecords = _res;
+            this.fetchStateList();
+        })
+        .catch((e) => {
+            console.log(e);
+        });
 
     };
 
     this.fetchStateList = () => {
 
-        window._controller.dock(
-            {
-                method: "GET",
-                endpoint: "/system/api/component/component/multi_select_list?entity=state"
-            }, 
-            (_req, _res) => {
+        this.controller.docker.dock({
+            method: "GET",
+            endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_master_state"
+        }).then((_res) => {
+            this.stateRecords = _res;
+            this.fetchRegionList();
 
-                this.stateRecords = _res;
-                this.fetchRegionList();
-
-            }, 
-            (_req, _res) => {
-                console.log(_res);
-            }
-        ); 
+        })
+        .catch((e) => {
+            console.log(e);
+        });
 
     };
 
     this.fetchRegionList = () => {
 
-        window._controller.dock(
-            {
-                method: "GET",
-                endpoint: "/system/api/component/component/multi_select_list?entity=region"
-            }, 
-            (_req, _res) => {
-
-                this.regionRecords = _res;
-                this.fetchRetailerList();
-
-            }, 
-            (_req, _res) => {
-                console.log(_res);
-            }
-        ); 
+        this.controller.docker.dock({
+            method: "GET",
+            endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_master_region"
+        }).then((_res) => {
+            this.regionRecords = _res;
+            this.fetchRetailerList();
+        })
+        .catch((e) => {
+            console.log(e);
+        });
 
     };
 
     this.fetchRetailerList = () => {
 
-        window._controller.dock(
-            {
-                method: "GET",
-                endpoint: "/system/api/component/component/multi_select_list?entity=retailer&select=_id|RetailerId|RetailerName|RegionId|StateId"
-            }, 
-            (_req, _res) => {
-
-                this.retailerRecords = _res;
-                this.controller.switchView("main_view");
-
-            }, 
-            (_req, _res) => {
-                console.log(_res);
-            }
-        ); 
+        this.controller.docker.dock({
+            method: "GET",
+            endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_master_retailer&select=_id|RetailerId|RetailerName|RegionId|StateId"
+        }).then((_res) => {
+            this.retailerRecords = _res;
+            this.controller.switchView("main_view");
+        })
+        .catch((e) => {
+            console.log(e);
+        });
 
     };
 

@@ -74,11 +74,11 @@ export default function PageContext(_component) {
         if (component_type) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/api/component/component_type/update?id=" + component_type._id;
+            request["endpoint"] = "/system/v1/api/component/component_type/update?id=" + component_type._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/api/component/component_type/create";
+            request["endpoint"] = "/system/v1/api/component/component_type/create";
         }
 
         const componentTypeForm = this.controller.getField("component_type_form");

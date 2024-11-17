@@ -6,7 +6,7 @@ let component_type_config = {
                 show: true,
                 title: "Component Types",
                 breadcrumb: "",
-                actions: [{ label: "New Component Type", theme: "primary", action: "NEW_COMPONENT_TYPE", classes: "fields-factory-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ label: "New Component Type", theme: "primary", method: "post", action: "NEW_COMPONENT_TYPE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -36,8 +36,8 @@ let component_type_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No component types found.!",
-                                    datasource: {endpoint: "/system/api/component/component_type/list", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "component_type", target_type: "view", view: "component_type_form", data: "remote", endpoint: "/system/api/component/component_type/record?id="},
+                                    datasource: {endpoint: "/system/v1/api/component/component_type/list", page: 0, populate: false, handler: "default"},
+                                    link: {key: "_id", context: "component_type", target_type: "view", view: "component_type_form", data: "remote", endpoint: "/system/v1/api/component/component_type/record?id="},
                                     columns: [
                                         {
                                             show: true, 
@@ -91,8 +91,8 @@ let component_type_config = {
                 title: "Component Type",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", action: "CANCEL_COMPONENT_TYPE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Save", theme: "primary", action: "SAVE_COMPONENT_TYPE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_COMPONENT_TYPE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Save", theme: "primary", method: "post", action: "SAVE_COMPONENT_TYPE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {
@@ -127,7 +127,7 @@ let component_type_config = {
                                 layout: "horizontal",
                                 classes: "",
                                 fields: [                                                                        
-                                    { type: "textarea", label: "Configuration", handle: "configuration", value : "", placeholder: "", classes : "fields-factory-component-type-config", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
+                                    { type: "textarea", label: "Configuration", handle: "configuration", value : "", placeholder: "", classes : "pharmarack-cms-component-type-config", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
                                 ]
                             }
                         ]

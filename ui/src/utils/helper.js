@@ -223,14 +223,14 @@ class Helper {
 	static buildWrapper = (_config, _field) => {
 
         return (
-            <div key={uuidv4()} className={`fields-factory-form-field-wrapper ${_config.classes}`}>
-                <div className={`fields-factory-form-field-wrap ${_config.label_position}`}>
+            <div key={uuidv4()} className={`pharmarack-cms-form-field-wrapper ${_config.classes}`}>
+                <div className={`pharmarack-cms-form-field-wrap ${_config.label_position}`}>
                     <div>
-						<label className={`fields-factory-form-field-label ${ _config.mandatory ? "required" : "" }`} dangerouslySetInnerHTML={{ __html: _config.label }}></label>
+						<label className={`pharmarack-cms-form-field-label ${ _config.mandatory ? "required" : "" }`} dangerouslySetInnerHTML={{ __html: _config.label }}></label>
                     </div>
                     <div>
 						{_field}
-						<p className="fields-factory-form-error-message">{_config.validation_message}</p>
+						<p className="pharmarack-cms-form-error-message">{_config.validation_message}</p>
                     </div>
                 </div>
             </div>

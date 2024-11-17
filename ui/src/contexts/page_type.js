@@ -73,12 +73,12 @@ export default function PageTypeContext(_component) {
 
         const request = {}; 
         request["method"] = "GET";
-        request["endpoint"] = "/system/cache/invalidateAllPageCache";
+        request["endpoint"] = "/system/v1/cache/invalidateAllPageCache";
 
         if (!_flaq) {
             const page = this.component.currentRecord["page_type_grid"];
             if (page) {
-                request["endpoint"] = "/system/cache/invalidatePageCache?page="+ page.handle;
+                request["endpoint"] = "/system/v1/cache/invalidatePageCache?page="+ page.handle;
             } 
         }
 
@@ -99,11 +99,11 @@ export default function PageTypeContext(_component) {
         if (page) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/api/page/page_type/update?id=" + page._id;
+            request["endpoint"] = "/system/v1/api/page/page_type/update?id=" + page._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/api/page/page_type/create_new_page_type";
+            request["endpoint"] = "/system/v1/api/page/page_type/create_new_page_type";
         }
 
         const pageTypeForm = this.controller.getField("page_type_form");

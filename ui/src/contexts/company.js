@@ -31,7 +31,7 @@ export default function BrandContext(_component) {
 
         if (currentCompany) {
             if (_handle === "product_grid") {
-                datasource.endpoint = "/system/api/master/company/products?cid="+ currentCompany.CompanyId;
+                datasource.endpoint = "/system/v1/api/master/company/products?cid="+ currentCompany.CompanyId;
             }
         }    
 
@@ -112,11 +112,11 @@ export default function BrandContext(_component) {
         if (page) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/api/master/company/update?id=" + page._id;
+            request["endpoint"] = "/system/v1/api/master/company/update?id=" + page._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/api/master/brand/create";
+            request["endpoint"] = "/system/v1/api/master/brand/create";
         }
 
         const companyForm = this.controller.getField("company_form");

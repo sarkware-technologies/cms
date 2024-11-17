@@ -136,7 +136,7 @@ export default function ComponentContext(_component) {
 
             const request = {};   
             request["method"] = "DELETE";
-            request["endpoint"] = "/system/api/component/page_component_mapping/delete?id=" + _record._id;
+            request["endpoint"] = "/system/v1/api/component/page_component_mapping/delete?id=" + _record._id;
 
             this.controller.docker.dock(request).then((_res) => {
                 const mapGrid = this.controller.getField("page_component_grid");
@@ -169,7 +169,7 @@ export default function ComponentContext(_component) {
             
             const request = {};
             request["method"] = "PUT";
-            request["endpoint"] ="/system/api/component/component/update?id="+ _record._id;
+            request["endpoint"] ="/system/v1/api/component/component/update?id="+ _record._id;
             request["payload"] = {};                        
             request["payload"]["status"] = _status;
 
@@ -382,7 +382,7 @@ export default function ComponentContext(_component) {
                     widget = <Therapy ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />; 
                 }
 
-                _widgets.push(<div key={uuidv4()} style={{width: "66.6666%"}} className={`fields-factory-view-column flex-remaining-width ${_config.layout}`}>{widget}</div>);
+                _widgets.push(<div key={uuidv4()} style={{width: "66.6666%"}} className={`pharmarack-cms-view-column flex-remaining-width ${_config.layout}`}>{widget}</div>);
 
             }
             
@@ -429,10 +429,10 @@ export default function ComponentContext(_component) {
             } 
             
             _viewConfig.context_header.actions = [
-                { label: "Cancel", theme: "secondary", action: "CANCEL_COMPONENT", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
-                { label: "Delete", theme: "danger", action: "DELETE_COMPONENT", classes: "icon-left", icon: "fa fa-trash", tabindex : 8, status: true, shortcut: "" },
-                { label: "Clone", theme: "warning", action: "CLONE_COMPONENT", classes: "icon-left", icon: "fa fa-clone", tabindex : 8, status: true, shortcut: "" },
-                { label: "Save", theme: "primary", action: "SAVE_COMPONENT", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_COMPONENT", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                { label: "Delete", theme: "danger", method: "delete", action: "DELETE_COMPONENT", classes: "icon-left", icon: "fa fa-trash", tabindex : 8, status: true, shortcut: "" },
+                { label: "Clone", theme: "warning", method: "post", action: "CLONE_COMPONENT", classes: "icon-left", icon: "fa fa-clone", tabindex : 8, status: true, shortcut: "" },
+                { label: "Save", theme: "primary", method: "post", action: "SAVE_COMPONENT", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
             ]
 
         } else {
@@ -440,8 +440,8 @@ export default function ComponentContext(_component) {
             if (_viewConfig.content.rows[0].columns[0].fields && _viewConfig.content.rows[0].columns[0].fields.length === 8) {
                 _viewConfig.content.rows[0].columns[0].fields.splice(7, 1);
                 _viewConfig.context_header.actions = [
-                    { label: "Cancel", theme: "secondary", action: "CANCEL_COMPONENT", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },             
-                    { label: "Save", theme: "primary", action: "SAVE_COMPONENT", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_COMPONENT", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },             
+                    { label: "Save", theme: "primary", method: "post", action: "SAVE_COMPONENT", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             }
 
@@ -515,7 +515,7 @@ export default function ComponentContext(_component) {
 
         try {
 
-            const _url = await this.controller.docker.upload('/system/api/component/component/s3_upload', formData);
+            const _url = await this.controller.docker.upload('/system/v1/api/component/component/s3_upload', formData);
 
             if (_handle == "asset_url" || _handle == "mobile_asset_url" ) {
                 this.mobileAssetUrl = _url;
@@ -544,7 +544,7 @@ export default function ComponentContext(_component) {
 
             const request = {};
             request["method"] = "POST";
-            request["endpoint"] = "/system/api/component/component/remove_asset";
+            request["endpoint"] = "/system/v1/api/component/component/remove_asset";
             request["payload"] = {
                 componentId: component._id,
                 property: _handle
@@ -583,7 +583,7 @@ export default function ComponentContext(_component) {
 
             const request = {};   
             request["method"] = "POST";
-            request["endpoint"] = "/system/api/component/component/clone?component="+ component._id;
+            request["endpoint"] = "/system/v1/api/component/component/clone?component="+ component._id;
 
             this.controller.docker.dock(request).then((_res) => {
                 this.controller.notify("Cloned successfully.!");
@@ -638,13 +638,13 @@ export default function ComponentContext(_component) {
 
             let request = {};   
             request["method"] = "GET";
-            request["endpoint"] = "/system/api/component/page_component_mapping/check_mapping?page="+ _pageRecord +"&component="+ component._id;
+            request["endpoint"] = "/system/v1/api/component/page_component_mapping/check_mapping?page="+ _pageRecord +"&component="+ component._id;
             
             this.controller.docker.dock(request).then((_res) => {
                 if (_res && Array.isArray(_res) && _res.length == 0) {
 
                     request["method"] = "POST";
-                    request["endpoint"] = "/system/api/component/page_component_mapping/create";
+                    request["endpoint"] = "/system/v1/api/component/page_component_mapping/create";
                     
                     request["payload"] = {
                         page: _pageRecord,
@@ -695,7 +695,7 @@ export default function ComponentContext(_component) {
             
             const request = {};   
             request["method"] = "DELETE";
-            request["endpoint"] = "/system/api/component/component/purge_component?id=" + component._id;
+            request["endpoint"] = "/system/v1/api/component/component/purge_component?id=" + component._id;
 
             this.controller.docker.dock(request).then((_res) => {
                 this.controller.notify("Removed successfully.!");
@@ -746,7 +746,7 @@ export default function ComponentContext(_component) {
         if (component) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/api/component/component/update?id=" + component._id;
+            request["endpoint"] = "/system/v1/api/component/component/update?id=" + component._id;
 
             if(this.componentEditor.current) {
 
@@ -769,7 +769,7 @@ export default function ComponentContext(_component) {
             
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/api/component/component/create";
+            request["endpoint"] = "/system/v1/api/component/component/create";
             configurations = JSON.stringify({ sequence: [] });
 
         }
@@ -843,7 +843,7 @@ export default function ComponentContext(_component) {
             
             const request = {
                 method: "GET",
-                endpoint: "/system/api/component/component_type/list"
+                endpoint: "/system/v1/api/component/component_type/list"
             }
 
             this.controller.docker.dock(request).then((_res) => {
@@ -866,7 +866,7 @@ export default function ComponentContext(_component) {
             
             this.controller.docker.dock({
                 method: "GET",
-                endpoint: "/system/api/component/component/multi_select_list?entity=segment"
+                endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_segment"
             }).then((_res) => {
                 //this.segmentRecords = _res;   
                 window._controller.bucket.segmentRecords = _res; 
@@ -888,7 +888,7 @@ export default function ComponentContext(_component) {
 
             this.controller.docker.dock({
                 method: "GET",
-                endpoint: "/system/api/component/component/multi_select_list?entity=country"
+                endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_master_country"
             }).then((_res) => {
                 //this.countryRecords = _res;
                 window._controller.bucket.countryRecords = _res;
@@ -910,7 +910,7 @@ export default function ComponentContext(_component) {
 
             this.controller.docker.dock({
                 method: "GET",
-                endpoint: "/system/api/component/component/multi_select_list?entity=state"
+                endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_master_state"
             }).then((_res) => {
                 //this.stateRecords = _res;
                 window._controller.bucket.stateRecords = _res;
@@ -932,7 +932,7 @@ export default function ComponentContext(_component) {
 
             this.controller.docker.dock({
                 method: "GET",
-                endpoint: "/system/api/component/component/multi_select_list?entity=region"
+                endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_master_region"
             }).then((_res) => {
                 //this.regionRecords = _res;
                 window._controller.bucket.regionRecords = _res;
@@ -954,7 +954,7 @@ export default function ComponentContext(_component) {
 
             this.controller.docker.dock({
                 method: "GET",
-                endpoint: "/system/api/component/component/multi_select_list?entity=retailer"
+                endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_master_retailer"
             }).then((_res) => {
                 //this.retailerRecords = _res;    
                 window._controller.bucket.retailerRecords = _res;
@@ -976,7 +976,7 @@ export default function ComponentContext(_component) {
 
             this.controller.docker.dock({
                 method: "GET",
-                endpoint: "/system/api/component/component/multi_select_list?entity=distributor"
+                endpoint: "/system/v1/api/component/component/multi_select_list?entity=distributor"
             }).then((_res) => {
                 //this.distributorRecords = _res;
                 window._controller.bucket.distributorRecords = _res;
@@ -998,7 +998,7 @@ export default function ComponentContext(_component) {
             
             this.controller.docker.dock({
                 method: "GET",
-                endpoint: "/system/api/component/component/multi_select_list?entity=company"
+                endpoint: "/system/v1/api/component/component/multi_select_list?entity=company"
             }).then((_res) => {
                 //this.companyRecords = _res;                       
                 window._controller.bucket.companyRecords = _res;
@@ -1021,7 +1021,7 @@ export default function ComponentContext(_component) {
 
             const request = {
                 method: "GET",
-                endpoint: "/system/api/component/component/record?id="+ searchParams.get('id')
+                endpoint: "/system/v1/api/component/component/record?id="+ searchParams.get('id')
             }
 
             this.controller.docker.dock(request).then((_res) => {

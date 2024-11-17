@@ -7,8 +7,8 @@ let page_type_config = {
                 title: "Page Types",
                 breadcrumb: "",
                 actions: [
-                    { label: "Invalidate All Cache", theme: "warning", action: "INVALIDATE_ALL_CACHE", classes: "fields-factory-action-new icon-left", icon: "fa fa-broom", tabindex : 8, status: true, shortcut: "" },
-                    { label: "New Page Type", theme: "primary", action: "NEW_PAGE_TYPE", classes: "fields-factory-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Invalidate All Cache", theme: "warning", method: "post", action: "INVALIDATE_ALL_CACHE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-broom", tabindex : 8, status: true, shortcut: "" },
+                    { label: "New Page Type", theme: "primary", method: "post", action: "NEW_PAGE_TYPE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {
@@ -39,8 +39,8 @@ let page_type_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No page configured yet.!",
-                                    datasource: {endpoint: "/system/api/page/page_type/list", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "page_type", target_type: "view", view: "page_type_form", data: "remote", endpoint: "/system/api/page/page_type/record?id="},
+                                    datasource: {endpoint: "/system/v1/api/page/page_type/list", page: 0, populate: false, handler: "default"},
+                                    link: {key: "_id", context: "page_type", target_type: "view", view: "page_type_form", data: "remote", endpoint: "/system/v1/api/page/page_type/record?id="},
                                     columns: [
                                         {
                                             show: true, 
@@ -83,9 +83,9 @@ let page_type_config = {
                 title: "Page Type",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Invalidate Cache", theme: "warning", action: "INVALIDATE_CACHE", classes: "fields-factory-action-new icon-left", icon: "fa fa-broom", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Cancel", theme: "secondary", action: "CANCEL_PAGE_TYPE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Save", theme: "primary", action: "SAVE_PAGE_TYPE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Invalidate Cache", theme: "warning", method: "post", action: "INVALIDATE_CACHE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-broom", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_PAGE_TYPE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Save", theme: "primary", method: "post", action: "SAVE_PAGE_TYPE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {

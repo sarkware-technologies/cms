@@ -394,7 +394,7 @@ export default class ComponentService {
 
         });
 
-        AP.event.on('on_component_component_parent_list', async (_params, callback) => {
+        AP.event.on('on_component_component_parent_list', async (_params, callback) => {  console.log("on_component_component_parent_list is called");
 
             try {
 
@@ -464,9 +464,11 @@ export default class ComponentService {
 
                         pages = [];
                         mappingRecords = await pcMapping.find({component: _records[i]._id}).populate("page").lean();
-
+                        
                         for (let j = 0; j < mappingRecords.length; j++) {
-                            pages.push(mappingRecords[j].page.title);
+                            if (mappingRecords[j].page) {
+                                pages.push(mappingRecords[j].page.title);
+                            }                            
                         }
 
                         _records[i]["pages"] = pages.join(", ");

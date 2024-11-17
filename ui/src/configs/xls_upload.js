@@ -6,7 +6,7 @@ let xls_upload_config = {
                 show: true,
                 title: "Upload Components",
                 breadcrumb: "",
-                actions: [{ label: "Upload", theme: "primary", action: "NEW_UPLOAD", classes: "fields-factory-action-new icon-left", icon: "fa fa-upload", tabindex: 8, status: true, shortcut: "" }]
+                actions: [{ label: "Upload", theme: "primary", action: "NEW_UPLOAD", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-upload", tabindex: 8, status: true, shortcut: "" }]
             },
             header: {
                 show: false
@@ -36,8 +36,8 @@ let xls_upload_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No upload done yet.!",
-                                    datasource: { endpoint: "/system/upload", page: 0, populate: false, handler: "dedicated" },
-                                    link: { key: "_id", context: "xls_upload", target_type: "view", view: "upload_form", data: "remote", endpoint: "/system/upload/" },
+                                    datasource: { endpoint: "/system/v1/upload", page: 0, populate: false, handler: "dedicated" },
+                                    link: { key: "_id", context: "xls_upload", target_type: "view", view: "upload_form", data: "remote", endpoint: "/system/v1/upload/" },
                                     columns: [
                                         {
                                             show: true,
@@ -211,7 +211,7 @@ let xls_upload_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No component configured yet.!",
-                                    datasource: { endpoint: "/system/api/component/uploaded_component/list?populate=component", page: 0, populate: false, handler: "dedicated" },
+                                    datasource: { endpoint: "/system/v1/api/component/uploaded_component/list?populate=component", page: 0, populate: false, handler: "dedicated" },
                                     link: { key: "_id", context: "component", target_type: "view", view: "component_form", data: "local", endpoint: "/system/user/" },
                                     columns: [
                                         {

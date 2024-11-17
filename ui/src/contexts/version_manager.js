@@ -1,3 +1,6 @@
+import { createRoot } from 'react-dom/client';
+import VersionResult from '../components/version-result';
+
 export default function VersionManagerContext(_component) {
 
     this.component = _component;
@@ -11,7 +14,7 @@ export default function VersionManagerContext(_component) {
      **/
     this.init = () => {
         this.controller.switchView("main_view");
-    };  
+    };      
 
     /**
      * 
@@ -24,7 +27,7 @@ export default function VersionManagerContext(_component) {
      * So it will automatically update the record in db as well, unless you return false
      * 
      */
-    this.onRecordToggleStatus = (_handle, _toggleHandle, _record, _status) => {
+    this.onRecordToggleStatus = (_handle, _toggleHandle, _record, _status) => {  console.log(_record);
 
         if (_handle == "version_grid") {
 
@@ -53,7 +56,7 @@ export default function VersionManagerContext(_component) {
 
                 }
 
-                let endPoint = "/system/version/retailer?page="+ page +"&version="+ (_version) +"&retailerId="+ _record.RetailerId;
+                let endPoint = "/system/v1/version/retailer?page="+ page +"&version="+ (_version) +"&retailerId="+ _record.RetailerId;
                 
                 if (searchObj) {
                     endPoint += "&field="+ searchObj.field +"&search="+ searchObj.search;
@@ -131,7 +134,7 @@ export default function VersionManagerContext(_component) {
 
                 }
 
-                let endPoint = "/system/version/regions?page="+ page +"&version="+ (_version) +"&regionId="+ _record.RegionId;
+                let endPoint = "/system/v1/version/regions?page="+ page +"&version="+ (_version) +"&regionId="+ _record.RegionId;
 
                 if (searchObj) {
                     endPoint += "&field="+ searchObj.field +"&search="+ searchObj.search;
@@ -178,20 +181,69 @@ export default function VersionManagerContext(_component) {
      */
     this.onActionBtnClick = (_action) => {
 
-        if (_action === "BULK_UPDATE") {            
-            this.controller.switchView("bulk_update_form");
+        if (_action === "REGION_UPDATE") {            
+            this.controller.switchView("region_update_form");
         } else if (_action ===  "CANCEL_BULK") {
             this.controller.switchView("main_view");
-        } else if (_action ===  "ACTIVATE") {
-
-        } else if (_action ===  "DEACTIVE") {
-
+        } else if (_action ===  "BULK_UPDATE") {
+            this.controller.switchView("bulk_update_form");
+        } else if (_action ===  "PR1") {
+            this.processUpload(1);
+        } else if (_action ===  "PR2") {
+            this.processUpload(2);
+        } else if (_action ===  "BOTH") {
+            this.processUpload(3);
         } else if (_action === "REFRESH") {
             const regionGrid = this.controller.getField("region_grid");
             if (regionGrid) {
                 regionGrid.reloadRecords();
             }
         }
+
+    };
+
+    this.processUpload = async (_version) => {   
+       
+        try {            
+
+            let _users = [];
+            const csvField = this.controller.getField("bulk_update_form_csv");
+            const csv = csvField.getVal();
+            
+            if (csv.indexOf(",") !== -1) {
+                _users = csv.split(",");
+            } else {
+                _users = csv.split("\n");
+            }
+
+            const request = {
+                method: "POST",
+                endpoint: "/system/v1/version/upload",
+                payload: {
+                    version: _version,
+                    users: _users
+                }
+            }
+
+            this.controller.docker.dock(request).then((_res) => {
+                this.renderResult(_res);
+            })
+            .catch((e) => {
+                this.controller.notify("Failed to set version", "error");
+            });
+
+        } catch (_e) {
+            console.error(_e);            
+        }
+
+    };    
+
+    this.renderResult = (_result) => {
+
+        const _holder = document.getElementById('version_update_placeholder');
+        const root = createRoot(_holder);
+
+        root.render(<VersionResult results={_result} />);
 
     };
 

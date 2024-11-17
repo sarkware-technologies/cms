@@ -7,7 +7,7 @@ let page_config = {
                 title: "Pages",
                 breadcrumb: "",
                 actions: [                    
-                    { label: "New Page", theme: "primary", action: "NEW_PAGE", classes: "fields-factory-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }
+                    { label: "New Page", theme: "primary", method: "post", action: "NEW_PAGE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {
@@ -38,8 +38,8 @@ let page_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No page configured yet.!",
-                                    datasource: {endpoint: "/system/api/page/page/list?populate=type", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "page", target_type: "view", view: "page_form", data: "remote", endpoint: "/system/api/page/page/record?id="},
+                                    datasource: {endpoint: "/system/v1/api/page/page/list?populate=type", page: 0, populate: false, handler: "default"},
+                                    link: {key: "_id", context: "page", target_type: "view", view: "page_form", data: "remote", endpoint: "/system/v1/api/page/page/record?id="},
                                     columns: [
                                         {
                                             show: true, 
@@ -126,8 +126,8 @@ let page_config = {
                 title: "Page",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", action: "CANCEL_PAGE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Save", theme: "primary", action: "SAVE_PAGE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_PAGE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Save", theme: "primary", method: "post", action: "SAVE_PAGE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {
@@ -150,7 +150,7 @@ let page_config = {
                                 fields: [                                    
                                     { type: "text", label: "Title", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "text", label: "Handle", handle: "handle", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "select", label: "Page Type", handle: "type", value : "1", placeholder: "-- select page type --", value_key: "_id", label_key: "title", options: [], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/api/page/page_type/pagetype_list"},                                    
+                                    { type: "select", label: "Page Type", handle: "type", value : "1", placeholder: "-- select page type --", value_key: "_id", label_key: "title", options: [], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/v1/api/page/page_type/pagetype_list"},                                    
                                     { title: "Company", sub_title: "", type: "placeholder", width: "100%", layout: "horizontal", collapsible: false, classes: "", handle: "company_mapper", placeholder: "company_map_container" },
                                     { type: "textarea", label: "Description", handle: "description", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
                                 ]

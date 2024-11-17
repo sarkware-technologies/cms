@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import React, {forwardRef, useImperativeHandle, useState} from "react";
 
 const Button = (props, ref) => {
@@ -29,7 +30,7 @@ const Button = (props, ref) => {
             classes += " disabled";
         }        
 
-        return <button className={classes} onClick={(e) => handleButtonClick(e, config.action)}>{config.label}</button>;
+        return <button key={uuidv4()} className={classes} onClick={(e) => handleButtonClick(e, config.action)}>{config.label}</button>;
 
     }
 

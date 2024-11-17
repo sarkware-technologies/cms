@@ -54,11 +54,11 @@ export default function RetailerContext(_component) {
         if (retailer) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/api/master/retailer/update?id=" + retailer._id;
+            request["endpoint"] = "/system/v1/api/master/retailer/update?id=" + retailer._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/api/master/retailer/create";
+            request["endpoint"] = "/system/v1/api/master/retailer/create";
         }
 
         const retailerForm = this.controller.getField("retailer_form");

@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import React, {useState, forwardRef, useImperativeHandle} from "react";
 import View from "./view";
 
@@ -15,7 +16,7 @@ import View from "./view";
 const SubView = (props) => {
 
     const viewRef = React.createRef(); 
-    const widget = <View ref={viewRef} config={props.config} handle={props.handle} isSubView={true} />
+    const widget = <View key={uuidv4()} ref={viewRef} config={props.config} handle={props.handle} isSubView={true} />
     window._controller.registerField(props.handle, "view", viewRef);
 
     return widget;

@@ -6,7 +6,7 @@ let page_type_config = {
                 show: true,
                 title: "Products",
                 breadcrumb: "",
-                actions: [{ label: "New Product", theme: "primary", action: "NEW_PRODUCT", classes: "fields-factory-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ label: "New Product", theme: "primary", action: "NEW_PRODUCT", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -36,8 +36,8 @@ let page_type_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No product configured yet.!",
-                                    datasource: {endpoint: "/system/api/master/product/list?select=_id|MDM_PRODUCT_CODE|PRODUCT_NAME|BRAND_NAME|PTR|MRP|PTS", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "product", target_type: "view", view: "product_form", data: "remote", endpoint: "/system/api/master/product/record?id="},
+                                    datasource: {endpoint: "/system/v1/api/master/product/list?select=_id|MDM_PRODUCT_CODE|PRODUCT_NAME|BRAND_NAME|PTR|MRP|PTS", page: 0, populate: false, handler: "default"},
+                                    link: {key: "_id", context: "product", target_type: "view", view: "product_form", data: "remote", endpoint: "/system/v1/api/master/product/record?id="},
                                     columns: [
                                         {
                                             show: true, 

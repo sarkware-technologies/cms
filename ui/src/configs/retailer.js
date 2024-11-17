@@ -6,7 +6,7 @@ let retailer_config = {
                 show: true,
                 title: "Retailers",
                 breadcrumb: "",
-                actions: [{ label: "New Retailer", theme: "primary", action: "NEW_RETAILER", classes: "fields-factory-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ label: "New Retailer", theme: "primary", action: "NEW_RETAILER", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -36,8 +36,8 @@ let retailer_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No retailer configured yet.!",
-                                    datasource: {endpoint: "/system/api/master/retailer/list?fields=_id|RetailerId|RetailerName|City|MobileNumber|Email", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "retailer", target_type: "view", view: "retailer_form", data: "remote", endpoint: "/system/api/master/retailer/record?id="},
+                                    datasource: {endpoint: "/system/v1/api/master/retailer/list?fields=_id|RetailerId|RetailerName|City|MobileNumber|Email", page: 0, populate: false, handler: "default"},
+                                    link: {key: "_id", context: "retailer", target_type: "view", view: "retailer_form", data: "remote", endpoint: "/system/v1/api/master/retailer/record?id="},
                                     columns: [
                                         {
                                             show: true, 

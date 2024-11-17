@@ -2368,6 +2368,7 @@ div.pharmarack-cms-preview-container {
 
 div.pharmarack-cms-designer-container > div {
     padding: 40px 25px;
+    border-radius: 30px;
 }
 
 div.pharmarack-cms-preview-container > div {
@@ -3441,4 +3442,25 @@ table.mapped-entity-list-factory-table {
     z-index: 999;
     position: relative;
     width: 50%;
+}
+
+.pharmarack-cms-version-csv {
+    height: 200px !important;
+}
+
+.pharmarack-cms-version-result-container p.success {
+    color: #1e914e;
+}
+
+.pharmarack-cms-version-result-container p.error {
+    color: #e74c3c;
+}
+
+.version_manager.bulk_update_form .pharmarack-cms-action-bar {
+    padding-right: 0px;
+    margin-top: -15px;
+}
+
+.pharmarack-cms-search-paginator.search button {
+    border-radius: 4px;
 }

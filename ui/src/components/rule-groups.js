@@ -41,21 +41,19 @@ const RuleGroups = (props, ref) => {
         request["method"] = "PUT";
         request["endpoint"] = "/system/v1/api/component/rules_group/persist_group_rules?id="+ props.id;
         request["payload"] = self.getGroupRules();  
-                      
-        window._controller.dock(request, 
-            (_req, _res) => {   
-                groupRules={};  
-                if (_type == "group") {
-                    addGroup(_res)
-                } else {
-                    addRule(_res, _groupKey);
-                }                
-            }, 
-            (_req, _res) => {
-                window._controller.notify(_res, "error");
-            }
-        );
 
+        window._controller.docker.dock(request).then((_res) => {
+            groupRules={};  
+            if (_type == "group") {
+                addGroup(_res)
+            } else {
+                addRule(_res, _groupKey);
+            }    
+        })
+        .catch((e) => {
+            window._controller.notify(e.message, "error");
+        });
+       
     };
 
     const addRule = (_groups, _groupKey) => {
@@ -79,19 +77,16 @@ const RuleGroups = (props, ref) => {
         const request = {};
         request["method"] = "POST";
         request["endpoint"] = "/system/v1/api/component/rules_group/create_rule?gid="+ _groupKey;
-        request["payload"] = _rule;     
-
-        window._controller.dock(request, 
-            (_req, _res) => {                    
-                _groups[_groupKey].push({..._res});        
-                setGroups({..._groups});
-
-                window._controller.notify( "Rules created successfully");                                
-            }, 
-            (_req, _res) => {
-                window._controller.notify("Failed to create rule", "error");                                
-            }
-        );   
+        request["payload"] = _rule; 
+        
+        window._controller.docker.dock(request).then((_res) => {
+            _groups[_groupKey].push({..._res});        
+            setGroups({..._groups});
+            window._controller.notify( "Rules created successfully"); 
+        })
+        .catch((e) => {
+            window._controller.notify("Failed to create rule", "error");  
+        }); 
 
     };
 
@@ -106,18 +101,14 @@ const RuleGroups = (props, ref) => {
             rules: []
         };                                
 
-        window._controller.dock(request, 
-            (_req, _res) => {                    
-
-                _groups[_res._id] = [];                
-                setGroups({..._groups});                 
-
-                window._controller.notify( "Group added successfully");                                
-            }, 
-            (_req, _res) => {
-                window._controller.notify("Failed to add group", "error");                                
-            }
-        );         
+        window._controller.docker.dock(request).then((_res) => {
+            _groups[_res._id] = [];                
+            setGroups({..._groups});                 
+            window._controller.notify( "Group added successfully"); 
+        })
+        .catch((e) => {
+            window._controller.notify("Failed to add group", "error");  
+        });
 
     };
 
@@ -129,19 +120,17 @@ const RuleGroups = (props, ref) => {
         request["method"] = "GET";
         request["endpoint"] = "/system/v1/api/component/rules_group/remove_rule?gid="+ _groupKey +"&rid="+ _ruleId;       
 
-        window._controller.dock(request, 
-            (_req, _res) => {                    
-                /* Check if group is empty - then remove it */ 
-                if (groups[_groupKey].length == 0) {
-                    delete groups[_groupKey];
-                }
-                setGroups({...groups});       
-                window._controller.notify( "Group removed successfully");                                
-            }, 
-            (_req, _res) => {
-                window._controller.notify("Failed to remove group", "error");                                
+        window._controller.docker.dock(request).then((_res) => {
+            /* Check if group is empty - then remove it */ 
+            if (groups[_groupKey].length == 0) {
+                delete groups[_groupKey];
             }
-        );              
+            setGroups({...groups});       
+            window._controller.notify( "Group removed successfully");
+        })
+        .catch((e) => {
+            window._controller.notify("Failed to remove group", "error"); 
+        });
         
     };
 
@@ -251,22 +240,17 @@ const RuleGroups = (props, ref) => {
         renderGroups();
     }, [groups]);
 
-    useEffect(() => {        
+    useEffect(() => {  
         
-        window._controller.dock({
+        window._controller.docker.dock({
             method: "GET",
             endpoint: "/system/v1/api/component/component/fetch_rule_groups?id="+ props.id
-            }, 
-            (_req, _res) => {
-                setGroups(_res);
-            }, 
-            (_req, _res) => {
-                console.error(_res);
-            }
-        );
-
-        /* Get the records from context object */
-
+        }).then((_res) => {
+            setGroups(_res);
+        })
+        .catch((e) => {
+            console.error(e);
+        });
 
     }, []);
 

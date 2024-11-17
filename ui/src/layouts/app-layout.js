@@ -175,14 +175,17 @@ const AppLayout = (props, ref) => {
                 <div className="pharmarack-cms-sidebar-navigation">
                     <ul className="pharmarack-cms-sidebar-main-nav-ul">
                         {modules.map((module) => (
-                            <li key={module._id}>
-                                <NavLink 
-                                    to={`/main/${module.handle}`} 
-                                    className="pharmarack-cms-system-menu-item" 
+                            <li key={module._id}>                                
+                                <NavLink
+                                    to={`/main/${module.handle}`}
+                                    className={({ isActive }) =>
+                                        isActive
+                                            ? "pharmarack-cms-system-menu-item active"
+                                            : "pharmarack-cms-system-menu-item"
+                                    }
                                     onClick={() => handleClick(module.handle)}
-                                    activeClassName="active"
                                 >
-                                    <span>{module.title}</span> 
+                                    <span>{module.title}</span>
                                     {renderMenuIcon(module)}
                                 </NavLink>
                             </li>

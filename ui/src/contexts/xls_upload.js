@@ -79,6 +79,7 @@ export default function XlsUploadContext(_component) {
 
         /* 'pos' could be 'before', 'after' or 'replace' */
         return { component: _widgets, pos: "before" };
+        
     };
 
     /**     
@@ -139,11 +140,11 @@ export default function XlsUploadContext(_component) {
         if (entity) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/upload/" + entity._id;
+            request["endpoint"] = "/system/v1/upload/" + entity._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/upload";
+            request["endpoint"] = "/system/v1/upload";
         }
 
         const fileField = this.controller.getField("upload_form_file");
@@ -154,7 +155,7 @@ export default function XlsUploadContext(_component) {
         formData.append('file', file);        
 
         try {
-            const response = await this.controller.docker.upload("/system/upload", formData);
+            const response = await this.controller.docker.upload("/system/v1/upload", formData);
             this.component.currentRecord["upload_grid"] = null;               
             this.controller.switchView("main_view");
             if (response) {

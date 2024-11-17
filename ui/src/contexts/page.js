@@ -60,7 +60,7 @@ export default function PageContext(_component) {
             
             const request = {};
             request["method"] = "POST";
-            request["endpoint"] = "/system/api/page/page/clone?page="+ _record._id;
+            request["endpoint"] = "/system/v1/api/page/page/clone?page="+ _record._id;
             request["payload"] = {}; 
 
             const pGrid = this.controller.getField("page_grid");
@@ -95,7 +95,7 @@ export default function PageContext(_component) {
 
             const request = {};
             request["method"] = "PUT";
-            request["endpoint"] = "/system/api/page/page/toggle_page_status?page="+ _record._id +"&status="+ _status;
+            request["endpoint"] = "/system/v1/api/page/page/toggle_page_status?page="+ _record._id +"&status="+ _status;
             request["payload"] = {};                                    
 
             const pGrid = this.controller.getField("page_grid");
@@ -154,7 +154,7 @@ export default function PageContext(_component) {
                     validation_message: "", 
                     value_key: "CompanyId", 
                     label_key: "CompanyName", 
-                    datasource: {endpoint: "/system/api/master/master/company_search_list", page: 1}
+                    datasource: {endpoint: "/system/v1/api/master/master/company_search_list", page: 1}
                 };
     
                 this.searchRef = React.createRef();                             
@@ -219,7 +219,7 @@ export default function PageContext(_component) {
             let cssProps = {
                 width: "75%"     
             }; 
-            _widgets.push(<div key={uuidv4()} style={cssProps} className={`fields-factory-view-column flex-remaining-width ${_config.layout}`}><Sequencer key={uuidv4()} record={this.component.currentRecord["page_grid"]} /></div>);            
+            _widgets.push(<div key={uuidv4()} style={cssProps} className={`pharmarack-cms-view-column flex-remaining-width ${_config.layout}`}><Sequencer key={uuidv4()} record={this.component.currentRecord["page_grid"]} /></div>);            
         }
         /* 'pos' could be 'before', 'after' or 'replace' */
         return { component: _widgets, pos: "after" };
@@ -246,9 +246,9 @@ export default function PageContext(_component) {
 
             if (!page.is_default) {
                 _vc.context_header.actions = [
-                    { label: "Cancel", theme: "secondary", action: "CANCEL_PAGE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Delete", theme: "danger", action: "DELETE_PAGE", classes: "icon-left", icon: "fa fa-trash", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Save", theme: "primary", action: "SAVE_PAGE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_PAGE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Delete", theme: "danger", method: "delete", action: "DELETE_PAGE", classes: "icon-left", icon: "fa fa-trash", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Save", theme: "primary", method: "post", action: "SAVE_PAGE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             }
 
@@ -291,7 +291,7 @@ export default function PageContext(_component) {
             
             const request = {};   
             request["method"] = "DELETE";
-            request["endpoint"] = "/system/api/page/page/purge_page?id=" + page._id;
+            request["endpoint"] = "/system/v1/api/page/page/purge_page?id=" + page._id;
 
             this.controller.docker.dock(request).then((_res) => {
                 this.controller.notify("Removed successfully.!");
@@ -314,11 +314,11 @@ export default function PageContext(_component) {
         if (page) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/api/page/page/update?id=" + page._id;
+            request["endpoint"] = "/system/v1/api/page/page/update?id=" + page._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/api/page/page/create";
+            request["endpoint"] = "/system/v1/api/page/page/create";
         }
 
         const pageForm = this.controller.getField("page_form");
@@ -364,7 +364,7 @@ export default function PageContext(_component) {
 
         this.controller.docker.dock({
             method: "GET",
-            endpoint: "/system/api/component/component/multi_select_list?entity=company"
+            endpoint: "/system/v1/api/component/component/multi_select_list?entity=company"
         }).then((_res) => {
             this.companies = _res;   
             this.controller.switchView("main_view");

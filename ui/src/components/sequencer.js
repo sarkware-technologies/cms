@@ -29,17 +29,15 @@ const Sequencer = (props, ref) => {
         const request = {
             method: "GET",
             endpoint: "/system/v1/api/component/component_type/designer_data?page="+ props.record._id
-        };        
+        };     
         
-        window._controller.dock(request, 
-            (_req, _res) => {       
-                setSequence(_res.page.sequence);                                     
-                setComponentTypes(_res.type_list);
-            }, 
-            (_req, _res) => {
-                console.error(_res);
-            }
-        );
+        window._controller.docker.dock(request).then((_res) => {
+            setSequence(_res.page.sequence);                                     
+            setComponentTypes(_res.type_list);
+        })
+        .catch((e) => {
+            console.error(e.message);            
+        });        
     
         document.addEventListener('dragend', handleDragEndOutsideCanvas);
         return () => {
@@ -79,17 +77,17 @@ const Sequencer = (props, ref) => {
         request["payload"] = getComponentSequence();                    
 
         if (request["payload"]) {
-            window._controller.dock(request, 
-                (_req, _res) => {     console
-                    window._controller.notify("Component sequence updated", "info"); 
-                    if (_res && _res.sequence) {
-                        setSequence(_res.sequence);     
-                    }
-                }, 
-                (_req, _res) => {
-                    window._controller.notify(_res, "error");
+
+            window._controller.docker.dock(request).then((_res) => {
+                window._controller.notify("Component sequence updated", "info"); 
+                if (_res && _res.sequence) {
+                    setSequence(_res.sequence);     
                 }
-            );
+            })
+            .catch((e) => {
+                console.error(e.message);            
+            });  
+
         }
 
     };
@@ -108,19 +106,17 @@ const Sequencer = (props, ref) => {
         const request = {
             method: "GET",
             endpoint: "/system/v1/api/component/component/get_page_component?page="+ props.record._id +"&position="+ (_id +"_"+ pos)
-        };        
+        };    
         
-        window._controller.dock(request, 
-            (_req, _res) => {                       
-                if (Array.isArray(_res)) {
-                    setEditMode({position: (_id +"_"+ pos), components: _res});
-                    return;
-                }                
-            }, 
-            (_req, _res) => {
-                console.error(_res);
+        window._controller.docker.dock(request).then((_res) => {
+            if (Array.isArray(_res)) {
+                setEditMode({position: (_id +"_"+ pos), components: _res});
+                return;
             }
-        );
+        })
+        .catch((e) => {
+            console.error(e.message);            
+        });  
 
     };
 
@@ -175,20 +171,18 @@ const Sequencer = (props, ref) => {
             const request = {
                 method: "GET",
                 endpoint: "/system/v1/api/component/component/get_page_component?page="+ props.record._id +"&position="+ (_id +"_"+ pos)
-            };        
+            };   
             
-            window._controller.dock(request, 
-                (_req, _res) => {                       
-                    if (Array.isArray(_res) && _res.length > 0) {
-                        setDeleteMode({position: (_id +"_"+ pos), message: (_res.length +" component(s) has been tagged to this position<br/>To continue, click remove button again!")});
-                        return;
-                    }
-                    deleteSequenceItem(_id, pos);
-                }, 
-                (_req, _res) => {
-                    console.error(_res);
+            window._controller.docker.dock(request).then((_res) => {
+                if (Array.isArray(_res) && _res.length > 0) {
+                    setDeleteMode({position: (_id +"_"+ pos), message: (_res.length +" component(s) has been tagged to this position<br/>To continue, click remove button again!")});
+                    return;
                 }
-            );
+                deleteSequenceItem(_id, pos);
+            })
+            .catch((e) => {
+                console.error(e.message);            
+            });             
 
         } else {            
             deleteSequenceItem(_id, pos);

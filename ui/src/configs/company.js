@@ -6,7 +6,7 @@ let company_config = {
                 show: true,
                 title: "Companies",
                 breadcrumb: "",
-                actions: [{ label: "New Company", theme: "primary", action: "NEW_COMPANY", classes: "fields-factory-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ label: "New Company", theme: "primary", action: "NEW_COMPANY", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -35,8 +35,8 @@ let company_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No brand configured yet.!",
-                                    datasource: {endpoint: "/system/api/master/company/list", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "company", target_type: "view", view: "company_form", data: "remote", endpoint: "/system/api/master/company/record?id="},
+                                    datasource: {endpoint: "/system/v1/api/master/company/list", page: 0, populate: false, handler: "default"},
+                                    link: {key: "_id", context: "company", target_type: "view", view: "company_form", data: "remote", endpoint: "/system/v1/api/master/company/record?id="},
                                     columns: [
                                         {
                                             show: true, 
@@ -170,8 +170,8 @@ let company_config = {
                                     full_row_select: false,
                                     is_main_grid: true,
                                     empty_message: "No product found for this company.!",
-                                    datasource: {endpoint: "/system/api/master/company/products?id=", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "company", target_type: "view", view: "company_form", data: "remote", endpoint: "/system/api/master/company/products?id="},
+                                    datasource: {endpoint: "/system/v1/api/master/company/products?id=", page: 0, populate: false, handler: "default"},
+                                    link: {key: "_id", context: "company", target_type: "view", view: "company_form", data: "remote", endpoint: "/system/v1/api/master/company/products?id="},
                                     columns: [
                                         {
                                             show: true, 

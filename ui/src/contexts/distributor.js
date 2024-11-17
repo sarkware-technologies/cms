@@ -74,11 +74,11 @@ export default function DistributorContext(_component) {
         if (page) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/api/master/distributor/update?id=" + page._id;
+            request["endpoint"] = "/system/v1/api/master/distributor/update?id=" + page._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/api/master/distributor/create";
+            request["endpoint"] = "/system/v1/api/master/distributor/create";
         }
 
         const distributorForm = this.controller.getField("distributor_form");

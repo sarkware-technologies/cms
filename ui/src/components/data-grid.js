@@ -549,8 +549,13 @@ const DataGrid = (props, ref) => {
 
             if (props.config.link.data === "remote") {
 
+                let _endPoint = props.config.link.endpoint;
                 const id = state.currentRecord[props.config.link.key];
-                let _endPoint = props.config.link.endpoint.endsWith("/") ? (props.config.link.endpoint + id) : (props.config.link.endpoint +"/"+ id);                 
+                if (props.config.link.endpoint.endsWith("/") || props.config.link.endpoint.endsWith("=")) {
+                    _endPoint = props.config.link.endpoint + id;
+                } else {
+                    _endPoint = props.config.link.endpoint +"/"+ id;
+                }
 
                 if (contextObj.onCurrentRecordRequest) {
                     _endPoint = contextObj.onCurrentRecordRequest(props.config.handle, _endPoint);   

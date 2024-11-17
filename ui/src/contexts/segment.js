@@ -328,7 +328,7 @@ export default function SegmentContext(_component) {
             
             this.segmentPreviewRef = React.createRef();
             let widget = <SegmentPreview ref={this.segmentPreviewRef} />;                
-            _widgets.push(<div key={uuidv4()} style={{width: "66.6666%"}} className={`fields-factory-view-column flex-remaining-width`}>{widget}</div>);
+            _widgets.push(<div key={uuidv4()} style={{width: "66.6666%"}} className={`pharmarack-cms-view-column flex-remaining-width`}>{widget}</div>);
             
             return { component: _widgets, pos: "replace" };
         }
