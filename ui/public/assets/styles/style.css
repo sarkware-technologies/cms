@@ -3464,3 +3464,136 @@ table.mapped-entity-list-factory-table {
 .pharmarack-cms-search-paginator.search button {
     border-radius: 4px;
 }
+
+.pharmarack-cms-segment-progress-card {    
+    margin: 25px 0px 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    height: 280px;
+  }
+  
+  .pharmarack-cms-card-header h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .pharmarack-cms-progress-section {
+    margin-bottom: 20px;
+  }
+  
+  .pharmarack-cms-progress-bar-container {
+    position: relative;
+    background: #f0f0f0;
+    border-radius: 4px;
+    height: 20px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  
+  .pharmarack-cms-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4caf50, #81c784);
+    transition: width 0.3s ease-in-out;
+  }
+  
+  .pharmarack-cms-metrics-section {
+    margin-bottom: 20px;
+  }
+  
+  .pharmarack-cms-metric {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 14px;
+  }
+
+  .pharmarack-cms-metric span {
+    font-size: 16px;
+  }
+  
+  .pharmarack-cms-metric strong {
+    color: #333;
+  }
+  
+  .pharmarack-cms-actions-section {
+    display: flex;
+    gap: 10px;
+  }
+
+  .pharmarack-cms-batch-config-step-container {    
+    margin: 25px 0px 20px;    
+    background-color: #fff;     
+    border: 1px solid #ddd;
+    border-radius: 8px;   
+    padding: 8px;
+    height: 280px;
+  }
+  
+  .pharmarack-cms-config-step {
+    margin-bottom: 0px;
+    padding: 15px;        
+  }
+  
+  .pharmarack-cms-step-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .pharmarack-cms-step-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .pharmarack-cms-step-value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+  }
+  
+  input[type="range"] {
+    width: 100%;
+    margin: 10px 0;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 5px;
+    outline: none;
+  }
+  
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #1890ff;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #1890ff;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .pharmarack-cms-tooltip {
+    font-size: 12px;
+    color: #888;
+    margin-top: 5px;
+  }
+  
+  .pharmarack-cms-action-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }

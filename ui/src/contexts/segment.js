@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from 'uuid';
 import SegmentPreview from "../components/segment-preview";
 import MultiSelect from "../components/multi-select";
 import SegmentRules from "../components/segment-rules";
+import SegmentStatus from "../components/segment-status";
+import SegmentAction from "../components/segment-action";
 
 export default function SegmentContext(_component) {
 
@@ -14,6 +16,7 @@ export default function SegmentContext(_component) {
     this.segmentPreviewRef = null;
     this.geographySelectorRef = null;
     this.segmentRuleContainer = null;
+    this.blacklistRetailerId = null;
 
     /**
      * 
@@ -44,6 +47,8 @@ export default function SegmentContext(_component) {
             datasource.endpoint = "/segmentation/v1/segment/"+ segment._id +"/whitelistedRetailers";             
         } else if (_handle === "blacklist_retailer_grid" && segment) {
             datasource.endpoint = "/segmentation/v1/segment/"+ segment._id +"/blacklistedRetailers";             
+        } else if (_handle === "build_history_grid") {
+            datasource.endpoint = "/segmentation/v1/segment/"+ segment._id +"/buildHistory";             
         }
 
         return datasource;
@@ -393,9 +398,9 @@ export default function SegmentContext(_component) {
             } else {
                 _viewConfig.context_header.actions = [
                     { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Delete", theme: "danger", method: "delete", action: "DELETE_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Build", theme: "warning", method: "put", action: "BUILD_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Edit", theme: "primary", method: "post", action: "EDIT_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Delete", theme: "danger", method: "delete", action: "DELETE_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
+                    { label: "Edit", theme: "primary", method: "post", action: "EDIT_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "", theme: "primary", method: "put", action: "BUILD_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "fa fa-gear", tabindex : 8, status: true, shortcut: "" },
                 ];                
             }
         } else if (_handle === "segment_retaler_form") {
@@ -419,12 +424,27 @@ export default function SegmentContext(_component) {
      */
     this.onViewMounted = (_handle) => {
 
+        const record = this.getCurrentSegmentRecord();
+
         if (_handle == "new_segment_form") {
-            const record = this.getCurrentSegmentRecord();
-            const segmentTypeField = this.controller.getField("new_segment_form_segmentType");
+            
+            const segmentTypeField = this.controller.getField("new_segment_form_segmentType");            
             if (record && segmentTypeField) {
                 segmentTypeField.setVal(record.segmentType);
             }
+
+        } else if (_handle == "segment_build_form") {
+
+            const _statusHolder = document.getElementById('segment_build_status_widget');
+            const statusRoot = createRoot(_statusHolder);
+
+            this.geographySelectorRef = React.createRef();                
+            statusRoot.render(<SegmentStatus segmentId={record._id} />);
+
+            const _optionHolder = document.getElementById('segment_build_option_widget');
+            const optionRoot = createRoot(_optionHolder);
+            optionRoot.render(<SegmentAction />);
+
         }
 
     };
@@ -441,8 +461,9 @@ export default function SegmentContext(_component) {
      */
     this.onRecordButtonClick = (_e, _field, _grid, _record) => {
 
-        if (_grid == "retailer_grid" && _field == "REMOVE") {
-            this.removeRetailersFromSegment([_record.RetailerId]);
+        if (_grid == "retailer_grid" && _field == "REMOVE") {            
+            this.blacklistRetailerId = _record._id;            
+            this.controller.getUserConfirm("BLACKLIST_RETAILER_RECORD", "Are you sure ?");            
         }
 
     };
@@ -485,8 +506,14 @@ export default function SegmentContext(_component) {
             this.controller.getUserConfirm("DELETE_SEGMENT", "Are you sure ?");
         } else if (_action == "EDIT_SEGMENT") {
             this.controller.switchView("new_segment_form");
-        } else if (_action === "BUILD_SEGMENT") {
-            this.controller.getUserConfirm("BUILD_SEGMENT", "Are you sure ?", "This is a lengthy process, could take few mitues to many hours, and the existing retailer mapping will be wiped out.");
+        } else if (_action === "BUILD_SEGMENT") {            
+            this.controller.switchView("segment_build_form");
+        } else if (_action === "REMOVE_FROM_BLACKLIST") {            
+            this.removeFromBlacklistedForSegment();
+        } else if (_action === "REMOVE_FROM_WHITELIST") {            
+            this.removeFromWhitelistedForSegment();
+        } else if (_action === "START_BUILD_SEGMENT") {
+            this.controller.getUserConfirm("START_BUILD_SEGMENT", "Are you sure ?", "This is a lengthy process, could take few mitues to many hours, and the existing retailer mapping will be wiped out.");
         }
 
     };
@@ -495,10 +522,10 @@ export default function SegmentContext(_component) {
 
         if (_choice) {
 
-            if (_task == "DELETE_SEGMENT") {
+            const request = {};
+            const segment = this.getCurrentSegmentRecord();
 
-                const request = {};            
-                const segment = this.getCurrentSegmentRecord();      
+            if (_task == "DELETE_SEGMENT") {
 
                 if (segment) {
                     
@@ -527,11 +554,89 @@ export default function SegmentContext(_component) {
                     } 
                 }
 
+            } else if (_task == "START_BUILD_SEGMENT") {
+
+                request["method"] = "POST";
+                request["endpoint"] = "/segmentation/v1/segment/" + segment._id +"/build"; 
+
+                this.controller.docker.dock(request).then((_res) => {
+                    this.controller.notify(_res.message);                                        
+                })
+                .catch((e) => {
+                    this.controller.notify(e.message, "error");
+                });
+
+            } else if (_task == "BLACKLIST_RETAILER_RECORD") {
+                this.removeRetailersFromSegment([this.blacklistRetailerId]);
             }
 
         }
 
     };
+
+    this.triggerBuildSegment = () => {
+
+    };
+
+    this.removeFromWhitelistedForSegment = () => {
+
+        const segment = this.getCurrentSegmentRecord();
+        const retailerGrid = this.controller.getField("whitelist_retailer_grid");
+        if (segment && retailerGrid) {
+            const checkedRecords = retailerGrid.getCheckedRecords();
+            if (checkedRecords.length > 0) {
+                const retailerIds = checkedRecords.map(record => record._id);
+                
+                const request = {};
+                request["method"] = "PUT";
+                request["endpoint"] = "/segmentation/v1/segment/" + segment._id +"/removeWhitelistRetailers";
+                request["payload"] = retailerIds;
+
+                this.controller.docker.dock(request).then((_res) => {
+                    this.controller.notify("Retailer(s) were removed successfully.!");
+                    retailerGrid.initFetch();    
+                })
+                .catch((e) => {
+                    this.controller.notify(e.message, "error");
+                });
+
+            } else {
+                this.controller.notify("Select retailers to be un whitelisted", "error");
+            }
+        }
+
+    };
+
+    this.removeFromBlacklistedForSegment = () => {
+
+        const segment = this.getCurrentSegmentRecord();
+        const retailerGrid = this.controller.getField("blacklist_retailer_grid");
+        if (segment && retailerGrid) {
+            const checkedRecords = retailerGrid.getCheckedRecords();
+            if (checkedRecords.length > 0) {
+                const retailerIds = checkedRecords.map(record => record._id);
+                
+                const request = {};
+                request["method"] = "PUT";
+                request["endpoint"] = "/segmentation/v1/segment/" + segment._id +"/removeBlacklistRetailers";
+                request["payload"] = retailerIds;
+
+                this.controller.docker.dock(request).then((_res) => {
+                    this.controller.notify("Retailer(s) were removed successfully.!");
+                    retailerGrid.initFetch();    
+                })
+                .catch((e) => {
+                    this.controller.notify(e.message, "error");
+                });
+
+            } else {
+                this.controller.notify("Select retailers to be un blacklisted", "error");
+            }
+        }
+
+    };
+
+
 
     this.removeRetailersFromSegment = (_retailersIds) => {
 
@@ -610,7 +715,11 @@ export default function SegmentContext(_component) {
         }
 
         if (request["payload"]) {
-            this.controller.docker.dock(request).then((_res) => { console.log(_res);
+
+            /* Add segment handler */
+
+
+            this.controller.docker.dock(request).then((_res) => {
 
                 if (_res.status) {
                     this.controller.notify(((_res.payload ? _res.payload.title : _res.title )  + " saved successfully.!"));

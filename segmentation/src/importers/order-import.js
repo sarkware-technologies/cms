@@ -29,14 +29,14 @@ export default class OrderImporter {
             await MDBM.connect();
             await MYDBM.connect(false);
 
-            const batchOptionModel = await EM.getModel("cms_batch_options");
-            const batchOption = await batchOptionModel.findOne({batch_type: ImportType.ORDER_IMPORTER}).lean();
+            const batchOptionModel = await EM.getModel("cms_importer_batch_options");
+            const batchOption = await batchOptionModel.findOne({batchType: ImportType.ORDER_IMPORTER}).lean();
 
             if (batchOption) {
-                this.ordersPerBatch = batchOption.records_per_batch;
-                this.orderIdsPerBatch = batchOption.record_ids_per_batch;
-                this.maxThread = batchOption.max_thread;
-                this.chunkSize = batchOption.chunk_size;
+                this.ordersPerBatch = batchOption.recordsPerBatch;
+                this.orderIdsPerBatch = batchOption.recordIdsPerBatch;
+                this.maxThread = batchOption.maxThread;
+                this.chunkSize = batchOption.chunkSize;
             }
 
         } catch (e) {
@@ -132,21 +132,20 @@ export default class OrderImporter {
                 const batchCount = Math.ceil(orderCount / this.ordersPerBatch);    
     
                 const batchProgressModel = await EM.getModel("cms_importer_task_status");
+                const importerLogModel = await EM.getModel("cms_importer_log");
                 let orderBatch = await batchProgressModel.findOne({ type: ImportType.ORDER_IMPORTER }).lean();
     
                 if (!orderBatch) {
                     orderBatch = new batchProgressModel({
                         totalBatch: batchCount,
                         currentBatch: 0,
-                        recordPerBatch: this.ordersPerBatch,
+                        recordsPerBatch: this.ordersPerBatch,
                         totalRecord: orderCount,
                         completedBatch: 0,
                         pendingBatch: batchCount,
                         status: false,
                         startTime: new Date(),
-                        endTime: null,
-                        succeed: 0,
-                        failed: 0,
+                        endTime: null,                        
                         type: ImportType.ORDER_IMPORTER
                     });
                     orderBatch = await orderBatch.save();
@@ -187,11 +186,25 @@ export default class OrderImporter {
 
                     const _endTime = new Date();
                     const elapsed = this.calculateElapsedTime(orderBatch.startTime, _endTime);  
+
                     await batchProgressModel.findByIdAndUpdate(orderBatch._id, {
                         endTime: _endTime,
                         elapsedTime: elapsed,
                         status: false
                     });
+
+                    const log = new importerLogModel({
+                        importerType: ImportType.ORDER_IMPORTER,
+                        totalRecord: orderCount,
+                        startTime: orderBatch.startTime,
+                        endTime: _endTime,
+                        elapsedTime: elapsed,
+                        recordsPerBatch: this.ordersPerBatch,
+                        recordIdsPerBatch: this.orderIdsPerBatch,
+                        maxThread: this.maxThread,
+                        chunkSize: this.chunkSize
+                    });
+                    await log.save();
 
                 }
     

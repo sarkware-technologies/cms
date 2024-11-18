@@ -188,8 +188,7 @@ class EntityManager {
             });
 
             if (Object.keys(cIndexes).length > 0) {
-                schema.index(cIndexes, { unique: true });
-                console.log(`Added compound index for collection "${_collectionName}":`, cIndexes);
+                schema.index(cIndexes, { unique: true });                
             }
             
         }

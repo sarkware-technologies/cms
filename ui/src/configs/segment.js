@@ -1050,6 +1050,150 @@ let segment_config = {
             sidebar: null,
             manage: true
         },
+        segment_build_form: {
+            context: "segment",
+            context_header: {
+                show: true,
+                title: "Segment",
+                breadcrumb: "title",
+                actions: [
+                    { label: "Back", theme: "secondary", method: "cancel", action: "CANCEL_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Add to Build Queue", theme: "warning", method: "post", action: "START_BUILD_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" }                                        
+                ]
+            },           
+            header: {
+                show: false
+            },
+            content: {
+                show: true,
+                rows: [
+                    {
+                        seperator: false,
+                        columns: [                            
+                            {
+                                title: "Build Parameters",
+                                sub_title: "",
+                                type: "placeholder",
+                                width: "50%",
+                                layout: "horizontal",
+                                classes: "",
+                                placeholder: "segment_build_option_widget"
+                            },
+                            {
+                                title: "Build Status",
+                                sub_title: "",
+                                type: "placeholder",
+                                width: "50%",
+                                layout: "horizontal",
+                                classes: "",
+                                placeholder: "segment_build_status_widget"
+                            }
+                        ]
+                    },
+                    {
+                        seperator: false,
+                        columns: [
+                            {
+                                title: "Build History",
+                                sub_title: "",
+                                type: "datagrid",
+                                width: "100%",
+                                layout: "horizontal",
+                                collapsible: false,
+                                datagrid: {
+                                    handle: "build_history_grid",        
+                                    layout: "fluid",		
+                                    height: "",
+                                    header: true,
+                                    content: true,
+                                    footer: true,	
+                                    grid_lines: true,								
+                                    multi_select: false,
+                                    full_row_select: false,
+                                    is_main_grid: true,
+                                    empty_message: "No retailer mapped for this segment yet.!",
+                                    datasource: {endpoint: "/segmentation/v1/segment/:id/buildHistory", page: 0, populate: false, handler: "dedicated", cached: false},
+                                    link: {key: "RetailerId", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segmentation/v1/segment/"},
+                                    columns: [                                        
+                                        {
+                                            show: true, 
+                                            width: "10", 
+                                            search: false,
+                                            filter: false,                                            
+                                            classes: "",
+                                            header: {title: "S.No", align: "left"}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "20",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Total Records", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "totalRecord", type: "alphanumeric", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "10",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Max Thread", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "maxThread", type: "alphanumeric", align: "left", editable: false},
+                                            prompt: ""
+                                        }, 
+                                        {
+                                            show: true, 
+                                            width: "20",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Start Time", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "startTime", type: "date", align: "left", editable: false},
+                                            prompt: ""
+                                        }, 
+                                        {
+                                            show: true, 
+                                            width: "20",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "End Time", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "endTime", type: "date", align: "left", editable: false},
+                                            prompt: ""
+                                        }, 
+                                        {
+                                            show: true, 
+                                            width: "20",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Elapsed Time", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "elapsedTime", type: "alphanumeric", align: "left", editable: false},
+                                            prompt: ""
+                                        }                                
+                                    ]
+                                }
+                            } 
+                        ]
+                    }
+                ]
+            },
+            footer: {
+                show: false                
+            },
+            sidebar: null,
+            manage: true
+        },
         segment_retaler_form: {
             context: "segment",
             context_header: {
@@ -1387,7 +1531,7 @@ let segment_config = {
                                             header: {
                                                 show: true,                                                
                                                 actions: [
-                                                    { label: "Remove from Whitelist", theme: "warning", method: "post", action: "REMOVE_WHITELIST", classes: "bulk-retailer-added", icon: "", tabindex : 8, status: true, shortcut: "" }
+                                                    { label: "Remove from Whitelist", theme: "warning", method: "post", action: "REMOVE_FROM_WHITELIST", classes: "bulk-retailer-added", icon: "", tabindex : 8, status: true, shortcut: "" }
                                                 ]
                                             },                    
                                             content: {
@@ -1414,7 +1558,7 @@ let segment_config = {
                                                                     multi_select: false,
                                                                     full_row_select: false,
                                                                     is_main_grid: true,
-                                                                    empty_message: "No retailer mapped for this segment yet.!",
+                                                                    empty_message: "No whitelisted retailers for this segment yet.!",
                                                                     datasource: {endpoint: "/segmentation/v1/segment/:id/whitelistedRetailers", page: 0, populate: false, handler: "dedicated", cached: false},
                                                                     link: {key: "RetailerId", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segmentation/v1/segment/"},
                                                                     columns: [
@@ -1502,7 +1646,7 @@ let segment_config = {
                                             header: {
                                                 show: true,
                                                 actions: [
-                                                    { label: "Remove from Blacklist", theme: "warning", method: "delete", action: "REMOVE_BLACKLIST", classes: "bulk-retailer-removed", icon: "", tabindex : 8, status: true, shortcut: "" },
+                                                    { label: "Remove from Blacklist", theme: "warning", method: "delete", action: "REMOVE_FROM_BLACKLIST", classes: "bulk-retailer-removed", icon: "", tabindex : 8, status: true, shortcut: "" },
                                                 ]
                                             },                    
                                             content: {
@@ -1529,7 +1673,7 @@ let segment_config = {
                                                                     multi_select: false,
                                                                     full_row_select: false,
                                                                     is_main_grid: true,
-                                                                    empty_message: "No retailer mapped for this segment yet.!",
+                                                                    empty_message: "No blacklisted retailers for this segment yet.!",
                                                                     datasource: {endpoint: "/segmentation/v1/segment/:id/blacklistedRetailers", page: 0, populate: false, handler: "dedicated", cached: false},
                                                                     link: {key: "RetailerId", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segmentation/v1/segment/"},
                                                                     columns: [

@@ -7,12 +7,14 @@ const FieldSchema = new mongoose.Schema({
     type            : { type: Number, required: true },             
     required        : { type: Boolean, default: false },
     unique          : { type: Boolean, default: false },
+    index           : { type: Boolean, default: false },
+    compound        : { type: Boolean, default: false },
     options         : { type: Object, default: {} },
     usage           : { type: Number, default: FieldUsage.BOTH },         
-    entity          : { type: mongoose.Schema.Types.ObjectId, ref: 'system_entity', required: true },
+    entity          : { type: mongoose.Schema.Types.ObjectId, ref: 'cms_system_entity', required: true },
     status          : { type: Boolean, default: false },
-    created_by      : { type: mongoose.Schema.Types.ObjectId, ref: "system_user", default: null },
-    updated_by      : { type: mongoose.Schema.Types.ObjectId, ref: "system_user", default: null }
+    created_by      : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+    updated_by      : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 },
 {  
     strict          : true,
@@ -34,5 +36,5 @@ FieldSchema.pre('save', async function (next) {
     }
 });
 
-const FieldModel = mongoose.model('system_field', FieldSchema);
+const FieldModel = mongoose.model('cms_system_field', FieldSchema);
 export default FieldModel;

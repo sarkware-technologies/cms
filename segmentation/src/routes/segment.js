@@ -52,6 +52,17 @@ router.get(
 );
 
 router.get(
+    `/${moduleHandle}/:id/buildHistory`,
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
+        try {
+            res.status(200).json(await segmentService.buildHistory(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.get(
     `/${moduleHandle}/:id`,
     await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {

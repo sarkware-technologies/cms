@@ -3,6 +3,7 @@ import MDBM from "../utils/mongo.js";
 import MYDBM from "../utils/mysql.js";
 import EM from "../utils/entity.js";
 import SegmentQueueStatus from '../enums/segment-queue-status.js';
+import mongoose from 'mongoose';
 
 export default class SegmentBuilder {
 
@@ -30,13 +31,17 @@ export default class SegmentBuilder {
             await MDBM.connect();
             await MYDBM.connect(false);
 
-            const modelNames = ["cms_master_order", "cms_segment_rule", "cms_segment", "cms_segment_queue", 
+            const modelNames = ["cms_master_order", "cms_segment", "cms_segment_rule", "cms_segment_queue", 
                 "cms_master_retailer", "cms_segment_retailer", "cms_segment_blacklisted_retailer", 
-                "cms_segment_whitelisted_retailer", "cms_segment_builder_status", "cms_segment_retailer_buffer"];
+                "cms_segment_whitelisted_retailer", "cms_segment_builder_status", "cms_segment_retailer_buffer",
+                "cms_segment_build_log"
+            ];
 
-            for (const name of modelNames) {
-                this.models[name] = await EM.getModel(name);
-            }          
+            this.models = Object.fromEntries(
+                await Promise.all(
+                    modelNames.map(async name => [name, await EM.getModel(name)])
+                )
+            );          
 
         } catch (e) {
             console.error("Error during initialization:", e);
@@ -115,14 +120,15 @@ export default class SegmentBuilder {
                     this.builderStatus = await new this.models.cms_segment_builder_status({
                         totalBatch: totalBatches,
                         currentBatch: 0,
-                        recordPerBatch: this.retailerPerBatch,
+                        recordsPerBatch: this.retailerPerBatch,
                         totalRecord: retailerCount,
                         completedBatch: 0,
                         pendingBatch: totalBatches,
                         status: false,
                         startTime: new Date(),
                         endTime: null,
-                        segment: segment._id
+                        segment: segment._id,
+                        elapsedTime: null
                     }).save();
                 }
     
@@ -139,6 +145,7 @@ export default class SegmentBuilder {
                             completedBatch: 0,
                             totalRecord: retailerCount,
                             pendingBatch: totalBatches,
+                            elapsedTime: null
                         }, 
                         { new: true }
                     );
@@ -169,8 +176,13 @@ export default class SegmentBuilder {
 
                 console.log("All batches are completed");
 
-                /* OK, now it's time to move it from buffer to segment-retailer collection */
-                await this.updateSegmentRetailer();
+                /* OK, now it's time to move it from buffer to segment-retailer collection */                
+                try {
+                    await this.updateSegmentRetailer();
+                } catch (error) {
+                    console.error("Critical error in updateSegmentRetailer:", error);
+                    throw error; 
+                }
     
             } else {
                 console.log(`${_segmentId} segment not found`);
@@ -194,17 +206,29 @@ export default class SegmentBuilder {
     updateSegmentRetailer = async () => {
 
         try {
+            
+            const blackListedRetailers = await this.models.cms_segment_blacklisted_retailer
+                .find({ segment: this.segmentId })
+                .select("retailer")
+                .lean();
 
-            const recordsToMove = await this.models.cms_segment_retailer_buffer.find({ segment: this.segmentId }).lean();            
-
-            if (recordsToMove.length > 0) {                
+            const blacklistedIds = blackListedRetailers.map(item => new mongoose.Types.ObjectId(item.retailer));
+    
+            const recordsToMove = await this.models.cms_segment_retailer_buffer
+                .find({
+                    segment: this.segmentId,
+                    retailer: { $nin: blacklistedIds }
+                })
+                .lean();
+    
+            if (recordsToMove.length > 0) {                                 
                 await this.models.cms_segment_retailer.deleteMany({ segment: this.segmentId });
                 await this.models.cms_segment_retailer.insertMany(recordsToMove);
                 await this.models.cms_segment_retailer_buffer.deleteMany({ segment: this.segmentId });
             }
 
         } catch (e) {
-            console.log(e);
+            console.error("Error in updateSegmentRetailer:", e);
         }
 
     };   
@@ -216,30 +240,39 @@ export default class SegmentBuilder {
             /* Update the build status */
 
             if (this.builderStatus) {
+
                 const elapsedTime = this.calculateElapsedTime(this.builderStatus.startTime, _endTime);            
                 await this.models.cms_segment_builder_status.findByIdAndUpdate(
                     this.builderStatus._id,
                     {
-                        _endTime,
+                        endTime: _endTime,
                         elapsedTime,
                         status: false,
                         lastBuild: new Date()
                     }
                 );            
+
+                /* Add to logs */
+
+                await new this.models.cms_segment_build_log({
+                    totalRecord: this.builderStatus.totalRecord,
+                    startTime: this.builderStatus.startTime,
+                    endTime: _endTime,
+                    elapsedTime: elapsedTime,
+                    recordsPerBatch: this.builderStatus.recordsPerBatch,                    
+                    maxThread: this.maxThread,
+                    chunkSize: this.chunkSize,
+                    segment: this.segmentId
+                }).save();
+
             }            
 
             /* Update the queue status */
             if (this.queueItem) {
-                await this.models.cms_segment_queue.findByIdAndUpdate(
-                    this.queueItem._id,                    
-                    { queueStatus: SegmentQueueStatus.COMPLETED }
-                );  
+                await this.models.cms_segment_queue.deleteOne({ _id: this.queueItem._id });                 
             } else {
-                await this.models.cms_segment_queue.findOneAndUpdate(
-                    { segment: this.segmentId, queueStatus: SegmentQueueStatus.BUILDING },
-                    { queueStatus: SegmentQueueStatus.COMPLETED }
-                ); 
-            }                     
+                await this.models.cms_segment_queue.deleteOne({ segment: this.segmentId, queueStatus: SegmentQueueStatus.BUILDING });                                 
+            } 
 
         } catch (e) {
             console.log(e);

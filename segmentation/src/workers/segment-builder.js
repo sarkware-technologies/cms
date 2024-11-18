@@ -17,7 +17,8 @@ let segmentRules,
     orderItemModel,
     segmentRuleModel, 
     segmentBuildStatusModel,     
-    segmentRetailerBufferModel;
+    segmentRetailerBufferModel,
+    segmentBlacklistedRetailerModel;
 
 const init = async () => {
 
@@ -32,6 +33,7 @@ const init = async () => {
         segmentRuleModel = await EM.getModel("cms_segment_rule");
         segmentBuildStatusModel = await EM.getModel("cms_segment_builder_status");        
         segmentRetailerBufferModel = await EM.getModel("cms_segment_retailer_buffer");
+        segmentBlacklistedRetailerModel = await EM.getModel("cms_segment_blacklisted_retailer");
 
     } catch (error) {
         console.error("Error initializing models:", error);
@@ -239,19 +241,30 @@ const checkRetailerEligibility = async (_retailerId, _segment) => {
             filterOrderQuery["store"] = { $nin: _segment.excludedStores };
         }
 
-        console.log(filterOrderQuery);
+        if (_retailerId == 722) {
+            console.log(filterOrderQuery);
+        }
+        
 
         let finalOrders = await orderModel.find(filterOrderQuery)
             .populate(populateOrderQuery)
             .select("_id store retailer")
             .lean();
 
+            if (_retailerId == 722) {
+                console.log("Total order found for 722 is : "+ finalOrders.length);
+            }
+
         if (populateOrderQuery.some(item => item.path === "store")) {
             finalOrders = finalOrders.filter(order => order.store && order.store.isAuthorized);
         }
         if (populateOrderQuery.some(item => item.path === "retailer")) {
             finalOrders = finalOrders.filter(order => order.retailer && order.retailer.isAuthorized);
-        }       
+        }    
+        
+        if (_retailerId == 722) {
+            console.log("Total order found for 722 is : "+ finalOrders.length);
+        }
 
         if (segmentRules.length > 0) {
             const oIds = finalOrders.map((order) => new ObjectId(order._id));

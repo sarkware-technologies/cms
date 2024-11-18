@@ -21,7 +21,7 @@ export default class StoreImporter {
         this.loadComplete = false;
         this.shouldPause = false;
 
-    }
+    }           
 
     init = async () => {
         try {
@@ -29,13 +29,13 @@ export default class StoreImporter {
             await MDBM.connect();
             await MYDBM.connect(false);
 
-            const batchOptionModel = await EM.getModel("cms_batch_options");
-            const batchOption = await batchOptionModel.findOne({batch_type: ImportType.ORDER_IMPORTER}).lean();
+            const batchOptionModel = await EM.getModel("cms_importer_batch_options");
+            const batchOption = await batchOptionModel.findOne({batchType: ImportType.ORDER_IMPORTER}).lean();
             if (batchOption) {
-                this.storesPerBatch = batchOption.records_per_batch;
-                this.storeIdsPerBatch = batchOption.record_ids_per_batch;
-                this.maxThread = batchOption.max_thread;
-                this.chunkSize = batchOption.chunk_size;
+                this.storesPerBatch = batchOption.recordsPerBatch;
+                this.storeIdsPerBatch = batchOption.recordIdsPerBatch;
+                this.maxThread = batchOption.maxThread;
+                this.chunkSize = batchOption.chunkSize;
             }
 
         } catch (e) {
@@ -135,21 +135,20 @@ export default class StoreImporter {
                 const batchCount = Math.ceil(storeCount / this.storesPerBatch);    
     
                 const batchProgressModel = await EM.getModel("cms_importer_task_status");
+                const importerLogModel = await EM.getModel("cms_importer_log");
                 let storeBatch = await batchProgressModel.findOne({ type: ImportType.STORE_IMPORTER }).lean();
     
                 if (!storeBatch) {
                     storeBatch = new batchProgressModel({
                         totalBatch: batchCount,
                         currentBatch: 0,
-                        recordPerBatch: this.storesPerBatch,
+                        recordsPerBatch: this.storesPerBatch,
                         totalRecord: storeCount,
                         completedBatch: 0,
                         pendingBatch: batchCount,
                         status: false,
                         startTime: new Date(),
                         endTime: null,
-                        succeed: 0,
-                        failed: 0,
                         type: ImportType.STORE_IMPORTER
                     });
                     storeBatch = await storeBatch.save();
@@ -199,6 +198,19 @@ export default class StoreImporter {
                         elapsedTime: elapsed,
                         status: false
                     });
+
+                    const log = new importerLogModel({
+                        importerType: ImportType.STORE_IMPORTER,
+                        totalRecord: storeCount,
+                        startTime: storeBatch.startTime,
+                        endTime: _endTime,
+                        elapsedTime: elapsed,
+                        recordsPerBatch: this.storesPerBatch,
+                        recordIdsPerBatch: this.storeIdsPerBatch,
+                        maxThread: this.maxThread,
+                        chunkSize: this.chunkSize
+                    });
+                    await log.save();
 
                 }
     

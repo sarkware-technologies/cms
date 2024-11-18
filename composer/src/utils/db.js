@@ -26,7 +26,7 @@ class DbManager {
 
     connect = async () => {
 
-        try {
+        try { console.log("connecting with monog instance : "+ process.env.MONGO_HOST);
             await mongoose.connect(process.env.MONGO_HOST, this.options);
         } catch (error) {
             console.error('MongoDB connection error:', error.message);

@@ -20,38 +20,51 @@ class SegmentBuildManager {
         return SegmentBuildManager.instance;
     }
 
-    async init() {
-        this.segmentQueueModel = await EM.getModel("cms_segment_queue");
-    }
-
     isFree = () => this.activeProcesses.size === 0;
 
     async processQueue() {
 
-        await this.init();
+        try {
 
-        if (this.activeProcesses.size > 0) {
-            console.log("Segment build is already in progress. Exiting processQueue.");
-            return;
-        }
+            this.segmentQueueModel = await EM.getModel("cms_segment_queue");
 
-        const waitingSegments = await this.segmentQueueModel.find({
-            queueStatus: SegmentQueueStatus.WAITING,
-        }).limit(this.maxConcurrentBuilders).lean();
-
-        if (waitingSegments.length === 0) {
-            console.log("No waiting segments found. Exiting.");
-            return;
-        }
-
-        for (const queue of waitingSegments) {
-            if (this.activeProcesses.size < this.maxConcurrentBuilders) {                
-                await this.segmentQueueModel.findByIdAndUpdate(
-                    queue._id, 
-                    { queueStatus: SegmentQueueStatus.BUILDING }
-                );  
-                this.startSegmentBuilder(queue.segment);
+            if (this.activeProcesses.size > 0) {
+                console.log("Segment build is already in progress. Exiting processQueue.");
+                return;
             }
+
+            /* Check another replicas is running the process */
+            const buildingSegments = await this.segmentQueueModel.find({
+                queueStatus: SegmentQueueStatus.BUILDING,
+            }).lean(); 
+    
+            if (buildingSegments.length > 0) {
+                console.log("Segment build is already in progress (Running in Other Replica). Exiting processQueue.");
+            }
+
+            /* Ok, now check for the waiting queue */
+            const waitingSegments = await this.segmentQueueModel.find({
+                queueStatus: SegmentQueueStatus.WAITING,
+            }).limit(this.maxConcurrentBuilders).lean();
+    
+            if (waitingSegments.length === 0) {
+                console.log("No waiting segments found. Exiting.");
+                return;
+            }
+
+            /* Well we found something, lets start the process */
+            for (const queue of waitingSegments) {
+                if (this.activeProcesses.size < this.maxConcurrentBuilders) {                
+                    await this.segmentQueueModel.findByIdAndUpdate(
+                        queue._id, 
+                        { queueStatus: SegmentQueueStatus.BUILDING }
+                    );  
+                    this.startSegmentBuilder(queue.segment);
+                }
+            }
+
+        } catch (e) {
+            console.log(e);
         }
 
     }

@@ -21,6 +21,7 @@ export default class SegmentService {
             let _segments = [];
             const segmentModel = await EM.getModel("cms_segment");
             const segmentQueueModel = await EM.getModel("cms_segment_queue");
+            const segmentBuildStatus = await EM.getModel("cms_segment_builder_status");
 
             const page = parseInt(_req.query.page) || 1;
             const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
@@ -67,20 +68,43 @@ export default class SegmentService {
             
             for (let i = 0; i < _segments.length; i++) {
                 
-                const queueItem = await segmentQueueModel.findOne({segment: _segments[i]._id}).lean();
+                if (_segments[i].segmentType == SegmentType.DYNAMIC) {
 
-                if (queueItem) {
-                    if (queueItem.queueStatus == SegmentQueueStatus.WAITING) {
-                        _segments[i]["build"] = "Waiting";
-                    } else if (queueItem.queueStatus == SegmentQueueStatus.BUILDING) {
-                        _segments[i]["build"] = "Building";
-                    } else {
+                    const queueItems = await segmentQueueModel.find({segment: _segments[i]._id }).lean();
+
+                    if (queueItems) {
+
+                        let isBuilding = false;
                         _segments[i]["build"] = "Completed";
+                        
+                        for (let j = 0; j < queueItems.length; j++) {
+                            if (queueItems[j].queueStatus == SegmentQueueStatus.BUILDING) {
+                                isBuilding = true;
+                                break;
+                            }
+                        }
+
+                        if (!isBuilding) {
+                            for (let j = 0; j < queueItems.length; j++) {
+                                if (queueItems[j].queueStatus == SegmentQueueStatus.WAITING) {
+                                    _segments[i]["build"] = "Waiting";
+                                    break;
+                                }
+                            }
+                        } else {
+                            _segments[i]["build"] = "Building";
+                        }
+
+                    } else {
+                        /* Check the build status */
+                        const segmentStatus = await segmentBuildStatus.findOne({ segment: _segments[i]._id }).lean();                        
+                        _segments[i]["build"] = (segmentStatus && !segmentStatus.status) ? "Ready" : "Not Ready" ;
                     }
                 } else {
-                    _segments[i]["build"] = "Static";
-                }
 
+                    _segments[i]["build"] = "Ready";
+
+                }
                 
             }
 
@@ -259,26 +283,7 @@ export default class SegmentService {
                 }
             }
 
-            const updatedSegment = await segmentModel.findByIdAndUpdate(_req.params.id, { $set: { ...body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
-
-            if (body.segmentType == SegmentType.DYNAMIC) {
-                
-                const segmentQueueModel = await EM.getModel("cms_segment_queue");
-                const alreadyInQueue = await segmentQueueModel.findOne({ segment: _req.params.id, queueStatus: SegmentQueueStatus.WAITING }).lean();
-
-                if (!alreadyInQueue) {
-                    const segmentQueue = new segmentQueueModel({
-                        segment: _req.params.id,
-                        queueStatus: SegmentQueueStatus.WAITING
-                    });                
-                    await segmentQueue.save();
-                }
-
-                await this.buildManager.processQueue();
-
-            }
-
-            return updatedSegment;
+            return await segmentModel.findByIdAndUpdate(_req.params.id, { $set: { ...body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
 
         } catch (_e) {
             throw _e;
@@ -332,6 +337,7 @@ export default class SegmentService {
                 throw new Error('Request body is required');
             }
 
+            body["status"] = true;
             body["createdBy"] = _req.user._id;
 
             const model = new segmentModel(body);
@@ -745,16 +751,12 @@ export default class SegmentService {
                 throw new Error("Segment id is missing");
             }
 
-            if (!body) {
+            if (!Array.isArray(body)) {
                 throw new Error('Request body is required');
             }
 
-            if (!body.retailers) {
-                throw new Error('Retailer ids is missing');
-            }
-
             const segmentWhitelistedRetailerModel = await EM.getModel("cms_segment_whitelisted_retailer");
-            return await segmentWhitelistedRetailerModel.deleteMany({ retailer: { $in : body.retailers } });
+            return await segmentWhitelistedRetailerModel.deleteMany({ segment: _req.params.id, retailer: { $in : body } });
 
         } catch (_e) {
             throw _e;
@@ -833,16 +835,12 @@ export default class SegmentService {
                 throw new Error("Segment id is missing");
             }
 
-            if (!body) {
+            if (!Array.isArray(body)) {
                 throw new Error('Request body is required');
             }
 
-            if (!body.retailers) {
-                throw new Error('Retailer ids is missing');
-            }
-
             const segmentBlacklistedRetailerModel = await EM.getModel("cms_segment_blacklisted_retailer");
-            return await segmentBlacklistedRetailerModel.deleteMany({ retailer: { $in : body.retailers } });
+            return await segmentBlacklistedRetailerModel.deleteMany({ segment: _req.params.id, retailer: { $in : body } });
 
         } catch (_e) {
             throw _e;
@@ -913,32 +911,71 @@ export default class SegmentService {
 
         try {
 
-            /** */
+            const { body } = _req;
 
-            if (await this.checkImporterStatus(ImportType.STORE_IMPORTER)) {
-                return { status: true, message: "Store importer process is already running" };
+            if (!_req.params.id) {
+                throw new Error("Segment id is missing");
             }
 
-            if (_req.body) {
-                await this.persistBatchOptions(_req.body);
+            if (body) {
+
+                /* Update the batch options - if provided */
+
+                const {
+                    chunkSize,
+                    batchType,
+                    maxThread,
+                    recordIdsPerBatch,
+                    recordsPerBatch
+                } = _req.body;
+    
+                if (chunkSize && batchType && maxThread && recordIdsPerBatch && recordsPerBatch) {  
+                    const batchOptionModel = await EM.getModel("cms_importer_batch_options");
+                    await batchOptionModel.findOneAndUpdate(
+                        { segment: _req.params.id },
+                        {            
+                            chunkSize,                            
+                            maxThread,
+                            recordIdsPerBatch,
+                            recordsPerBatch,
+                            segment: _req.params.id
+                        },
+                        { upsert: true, new: true }
+                    );
+                }                
+
             }
 
-            if (!this.storeImporterProcess) {
-                this.storeImporterProcess = fork('./src/importers/store-process.js');        
-                
-                this.storeImporterProcess.once('exit', (code) => {
-                    console.log(`StoreImporter process exited with code ${code}`);
-                    this.storeImporterProcess = null;
+            /* Check the queue status */
+
+            let canItBeAdded = true;
+            const segmentQueueModel = await EM.getModel("cms_segment_queue");
+            const segmentQueue = await segmentQueueModel.find({ segment: _req.params.id }).lean();
+
+            if (Array.isArray(segmentQueue) && segmentQueue.length > 0) {
+                for (let i = 0; i < segmentQueue.length; i++) {
+                    if (segmentQueue[i].queueStatus == SegmentQueueStatus.WAITING) {
+                        canItBeAdded = false;
+                        break;
+                    }
+                }
+            }
+
+            if (canItBeAdded) {
+
+                const queueObj = new segmentQueueModel({
+                    segment: _req.params.id,
+                    queueStatus: SegmentQueueStatus.WAITING
                 });
 
-                this.storeImporterProcess.once('error', (error) => {
-                    console.error(`Error in StoreImporter process: ${error}`);
-                    this.storeImporterProcess = null;
-                });
-            }
+                await queueObj.save();
+                await this.buildManager.processQueue();
 
-            this.storeImporterProcess.send({ command: 'start' });
-            return { status: true, message: "Store importer process started" };
+                return { status: true, message: "Segment is added to the build queue" };
+
+            } else {
+                return { status: true, message: "Segment is already in the queue" };
+            }                 
 
         } catch (e) {
             throw e;
@@ -947,6 +984,49 @@ export default class SegmentService {
     };
 
     buildStatus = async (_req) => {
+
+        try {
+
+            if (!_req.params.id) {
+                throw new Error("Segment id is missing");
+            }
+
+            const segmentBuildStatusModel = await EM.getModel("cms_segment_builder_status");
+            const buildStatus = await segmentBuildStatusModel.findOne({ segment: _req.params.id }).lean();
+
+            if (buildStatus) {
+                return { status: true, buildStatus };
+            }
+
+            return { status: false, message: "No status found" };
+
+        } catch (e) {
+            throw e;
+        }
+
+    };
+
+    buildHistory = async (_req) => {
+
+        try {
+
+            if (!_req.params.id) {
+                throw new Error("Segment id is missing");
+            }
+
+            const segmentBuildLogModel = await EM.getModel("cms_segment_build_log");
+            const page = parseInt(_req.query.page) || 1;
+            const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
+            const limit = parseInt(process.env.PAGE_SIZE);
+
+            const _count = await segmentBuildLogModel.countDocuments({ segment: _req.params.id });
+            const logs = await segmentBuildLogModel.find({ segment: _req.params.id }).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
+
+            return Utils.response(_count, page, logs);
+
+        } catch (e) {
+            throw e;
+        }        
 
     };
 

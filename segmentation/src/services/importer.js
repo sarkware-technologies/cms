@@ -247,24 +247,27 @@ export default class ImporterService {
         try {
                 
             const {
-                chunk_size,
-                batch_type,
-                max_thread,
-                record_ids_per_batch,
-                records_per_batch
+                chunkSize,
+                batchType,
+                maxThread,
+                recordIdsPerBatch,
+                recordsPerBatch
             } = _body;
 
-            if (chunk_size && batch_type && max_thread && record_ids_per_batch && records_per_batch) {                
+            if (chunkSize && batchType && maxThread && recordIdsPerBatch && recordsPerBatch) {                
                 
-                const batchOptionModel = await EM.getModel("cms_batch_options");
-                const batchOption = new batchOptionModel({
-                    chunk_size,
-                    batch_type,
-                    max_thread,
-                    record_ids_per_batch,
-                    records_per_batch
-                });
-                await batchOption.save();                
+                const batchOptionModel = await EM.getModel("cms_importer_batch_options");
+                await batchOptionModel.findOneAndUpdate(
+                    { batchType },
+                    {            
+                        chunkSize,
+                        batchType,
+                        maxThread,
+                        recordIdsPerBatch,
+                        recordsPerBatch
+                    },
+                    { upsert: true, new: true }
+                );               
 
             }
 
