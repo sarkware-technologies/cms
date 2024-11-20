@@ -117,7 +117,7 @@ export default class ServiceVersionService {
         }
 
         try {
-            return await ServiceVersionModel.findOne({ _id: _req.params.id }).lean();
+            return await ServiceVersionModel.findOne({ _id: _req.params.id }).populate("host").lean();
         } catch (_e) {
             throw _e;
         }

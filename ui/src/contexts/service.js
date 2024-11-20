@@ -113,7 +113,7 @@ export default function ServiceContext(_component) {
      * Called whenever user click pressing key on any fields or grid cell 
      * 
      */
-    this.onFieldKeyUp = ( _handle, _value, _e ) => {  console.log("_handle ", _handle);
+    this.onFieldKeyUp = ( _handle, _value, _e ) => {
         
         if (_handle === "service_form_title") {
             let name = _value.replace(/\s+/g, '_').toLowerCase();
@@ -270,11 +270,11 @@ export default function ServiceContext(_component) {
         if (this.component.currentRecord["version_grid"]) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/v1/version/"+ this.component.currentRecord["version_grid"]._id;
+            request["endpoint"] = "/system/v1/service_version/"+ this.component.currentRecord["version_grid"]._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/v1/version";
+            request["endpoint"] = "/system/v1/service_version";
         }
 
         request["payload"] = {};

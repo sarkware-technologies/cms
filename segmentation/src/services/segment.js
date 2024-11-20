@@ -55,7 +55,7 @@ export default class SegmentService {
             } else if (result == "static") {
                 _count = await segmentModel.countDocuments({segmentType: SegmentType.STATIC});
                 _segments = await segmentModel.find({segmentType: SegmentType.STATIC}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
-            } else if (result == "progress") {
+            } else if (result == "scheduled") {
                 _count = await segmentModel.countDocuments({segmentStatus: SegmentStatus.SCHEDULED});
                 _segments = await segmentModel.find({status: SegmentStatus.PROGRESS}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
             } else if (result == "disabled") {
@@ -967,8 +967,15 @@ export default class SegmentService {
                     segment: _req.params.id,
                     queueStatus: SegmentQueueStatus.WAITING
                 });
-
                 await queueObj.save();
+
+                /* Update the segment collection */
+                const segmentModel = await EM.getModel("cms_segment");
+                await segmentModel.findByIdAndUpdate(
+                    _req.params.id,
+                    { segmentStatus: SegmentStatus.SCHEDULED }
+                );
+                
                 await this.buildManager.processQueue();
 
                 return { status: true, message: "Segment is added to the build queue" };

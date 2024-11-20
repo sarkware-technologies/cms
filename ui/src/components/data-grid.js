@@ -576,13 +576,15 @@ const DataGrid = (props, ref) => {
                     console.log(e);
                 });
 
+            } else {
+                contextObj.currentRecord[props.config.handle] = _value;
+                switchView();
             }
 
             if (window._controller.current != _targetContext) {
                 //const navigate = useNavigate();
                 /* This means it's a cross context request */
-                //navigate(`/${_targetContext}?id=${_value._id}`);
-                
+                //navigate(`/${_targetContext}?id=${_value._id}`);                
             } else {
                 
             }   
@@ -619,7 +621,7 @@ const DataGrid = (props, ref) => {
 
     };
 
-    const switchView = () => {                   
+    const switchView = () => {           console.log("switchView is called");         
 
         if (contextObj && props.config.link && props.config.link.target_type && contextObj.currentRecord[props.config.handle]) {
         
@@ -629,6 +631,8 @@ const DataGrid = (props, ref) => {
                 window._controller.switchTab(props.config.link.tab, props.config.link.tab_item);
             }
             
+        } else {
+            console.log("something is missing");
         }
 
     }

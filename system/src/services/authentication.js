@@ -187,7 +187,7 @@ export default class AuthService {
                 throw new Error("An error occurred while retrieving the user roles");
             }
 
-        } catch (e) {
+        } catch (e) { console.log(e);
             throw e;
         }
 

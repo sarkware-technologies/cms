@@ -4,6 +4,7 @@ import MYDBM from "../utils/mysql.js";
 import EM from "../utils/entity.js";
 import SegmentQueueStatus from '../enums/segment-queue-status.js';
 import mongoose from 'mongoose';
+import SegmentStatus from '../enums/segment-status.js';
 
 export default class SegmentBuilder {
 
@@ -264,6 +265,12 @@ export default class SegmentBuilder {
                     chunkSize: this.chunkSize,
                     segment: this.segmentId
                 }).save();
+
+                /* Update the segment collection */
+                await this.models.cms_segment.findByIdAndUpdate(
+                    this.segmentId,
+                    { segmentStatus: SegmentStatus.READY }
+                );
 
             }            
 

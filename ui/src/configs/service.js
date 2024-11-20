@@ -233,7 +233,7 @@ let service_config = {
                                             footer: {
                                                 show: true,
                                                 align: "left",
-                                                actions: [{ label: "New Version", theme: "primary", action: "NEW_VERSION", classes: "icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                                                actions: [{ label: "New Version", theme: "primary", method: "post", action: "NEW_VERSION", classes: "icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
                                             }
                                         },
                                         module_tab: { 
@@ -325,7 +325,7 @@ let service_config = {
                                             footer: {
                                                 show: true,
                                                 align: "left",
-                                                actions: [{ label: "New Module", theme: "primary", action: "NEW_MODULE", classes: "icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                                                actions: [{ label: "New Module", theme: "primary", method: "post", action: "NEW_MODULE", classes: "icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
                                             }
                                         },
                                         module_form_tab: {  
@@ -364,8 +364,8 @@ let service_config = {
                                                 show: true,                                            
                                                 align: "left",
                                                 actions: [                                                
-                                                    { label: "Save Module", theme: "primary", action: "SAVE_MODULE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" },
-                                                    { label: "Cancel", theme: "secondary", action: "CANCEL_MODULE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                                                    { label: "Save Module", theme: "primary", method: "post", action: "SAVE_MODULE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" },
+                                                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_MODULE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                                                 ]
                                             }
                                         },
@@ -392,7 +392,7 @@ let service_config = {
                                                                 fields: [
                                                                     { type: "text", label: "Version", handle: "version", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                                                     { type: "text", label: "Route", handle: "route", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },                                                                
-                                                                    { type: "search", label: "Host", handle: "host", value : "", placeholder: "Click to search for host", searchprompt: "Search for host",search_class: "", popup_class: "",mandatory: true, disabled: false, tabindex: 1, align: "right", label_width: 0, label_position: "top", validation_message: "", value_key: "_id", label_key: "name", datasource: {endpoint: "/system/v1/hosts", page: 0}}
+                                                                    { type: "search", label: "Host", handle: "host", value : "", placeholder: "Click to search for host", searchprompt: "Search for host",search_class: "", popup_class: "",mandatory: true, disabled: false, tabindex: 1, align: "right", label_width: 0, label_position: "top", validation_message: "", value_key: "_id", label_key: "name", datasource: {endpoint: "/system/v1/host", page: 0}}
                                                                 ]
                                                             }
                                                         ]
@@ -449,8 +449,8 @@ let service_config = {
                                                 show: true,                                            
                                                 align: "left",
                                                 actions: [                                                
-                                                    { label: "Save Version", theme: "primary", action: "SAVE_VERSION", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" },
-                                                    { label: "Cancel", theme: "secondary", action: "CANCEL_VERSION", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                                                    { label: "Save Version", theme: "primary", method: "post", action: "SAVE_VERSION", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" },
+                                                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_VERSION", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                                                 ]
                                             }
                                         }

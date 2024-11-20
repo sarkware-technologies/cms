@@ -4,9 +4,9 @@ let importer_config = {
         main_view: { 
             context_header: {
                 show: true,
-                title: "Auth Types",
+                title: "Importers",
                 breadcrumb: "",
-                actions: [{ label: "New Auth Type", theme: "primary", method: "post", action: "NEW_AUTH_TYPE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: []
             },           
             header: {
                 show: false
@@ -25,7 +25,7 @@ let importer_config = {
                                 layout: "horizontal",
                                 collapsible: false,
                                 datagrid: {
-                                    handle: "auth_type_grid",        
+                                    handle: "importer_grid",        
                                     layout: "fluid",		
                                     height: "",
                                     header: true,
@@ -35,9 +35,9 @@ let importer_config = {
                                     multi_select: false,
                                     full_row_select: false,
                                     is_main_grid: true,
-                                    empty_message: "No auth type configured yet.!",
-                                    datasource: {endpoint: "/system/v1/auth_type", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "auth_type", target_type: "view", view: "auth_type_form", data: "remote", endpoint: "/system/v1/auth-type/"},
+                                    empty_message: "No importer configured yet.!",
+                                    datasource: {endpoint: "/segmentation/v1/master_import", page: 0, populate: false, handler: "dedicated"},
+                                    link: {key: "_id", context: "importer", target_type: "view", view: "importer_form", data: "local", endpoint: "/segmentation/v1/master_import/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -56,7 +56,7 @@ let importer_config = {
                                             search: false,
                                             filter: false,
                                             classes: "",
-                                            header: {title: "Title", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                            header: {title: "Title", align: "left", filterable: false, searchable: false, sortable: false}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                             field: {handle: "title", type: "link", align: "left", editable: false},
                                             prompt: ""
@@ -67,9 +67,9 @@ let importer_config = {
                                             search: false,
                                             filter: false,
                                             classes: "",
-                                            header: {title: "Is Active", align: "right"}, 
+                                            header: {title: "Last Running", align: "right"}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "isActive", type: "toggle", align: "right", label_key: "title", value_key: "_id"},
+                                            field: {handle: "lastRunning", type: "alphanumeric", align: "right"},
                                             prompt: ""
                                         },
                                         {
@@ -80,7 +80,7 @@ let importer_config = {
                                             classes: "",
                                             header: {title: "Status", align: "right"}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "status", type: "toggle", align: "right", label_key: "title", value_key: "_id"},
+                                            field: {handle: "status", type: "alphanumeric", align: "right"},
                                             prompt: ""
                                         }                                     
                                     ]
@@ -96,7 +96,7 @@ let importer_config = {
             sidebar: null,
             manage: true             
         },
-        auth_type_form: {
+        importer_form: {
             context_header: {
                 show: true,
                 title: "Auth Type",
@@ -114,52 +114,121 @@ let importer_config = {
                 rows: [
                     {
                         seperator: false,
-                        columns: [
+                        columns: [                            
                             {
-                                title: "",
+                                title: "Import Parameters",
                                 sub_title: "",
-                                type: "fields",
-                                width: "10%",
+                                type: "placeholder",
+                                width: "50%",
                                 layout: "horizontal",
                                 classes: "",
-                                fields: [                                                                        
-                                    { type: "toggle", label: "Status", handle: "status", value : false, classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" }                                    
-                                ]
+                                placeholder: "importer_option_widget"
                             },
                             {
-                                title: "",
+                                title: "Import Status",
                                 sub_title: "",
-                                type: "fields",
-                                width: "10%",
+                                type: "placeholder",
+                                width: "50%",
                                 layout: "horizontal",
                                 classes: "",
-                                fields: [                                                                                                            
-                                    { type: "toggle", label: "Is Active", handle: "isActive", value : false, classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" }
-                                ]
+                                placeholder: "importer_status_widget"
                             }
                         ]
-                    },                        
+                    },
                     {
                         seperator: false,
                         columns: [
                             {
-                                title: "",
+                                title: "Import History",
                                 sub_title: "",
-                                type: "fields",
-                                width: "50%",
+                                type: "datagrid",
+                                width: "100%",
                                 layout: "horizontal",
                                 collapsible: false,
-                                classes: "",
-                                fields: [                                    
-                                    { type: "text", label: "Title", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "text", label: "Handle", handle: "handle", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "select", label: "Secret Type", handle: "secretType", value : "1", value_key: "value", label_key: "label", options: [{label: "Password", value: "1", selected: true, disabled: false},{label: "Otp", value: "2", selected: false, disabled: false}], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },
-                                    { type: "select", label: "Password Complex", handle: "complex", value : "1", value_key: "value", label_key: "label", options: [{label: "Simple", value: "1", selected: true, disabled: false},{label: "Complex", value: "2", selected: false, disabled: false}], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "local", endpoint: "" },                            
-                                    { type: "number", label: "Minimum Length", handle: "minLength", value : "8", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "number", label: "Maximum Length", handle: "maxLength", value : "16", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "number", label: "Expired on Every", handle: "expired", value : "365", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
-                                ]
-                            }
+                                datagrid: {
+                                    handle: "importer_history_grid",        
+                                    layout: "fluid",		
+                                    height: "",
+                                    header: true,
+                                    content: true,
+                                    footer: true,	
+                                    grid_lines: true,								
+                                    multi_select: false,
+                                    full_row_select: false,
+                                    is_main_grid: true,
+                                    empty_message: "No retailer mapped for this segment yet.!",
+                                    datasource: {endpoint: "/segmentation/v1/master_import/importerHistory", page: 0, populate: false, handler: "dedicated", cached: false},
+                                    link: {key: "RetailerId", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segmentation/v1/master_import/"},
+                                    columns: [                                        
+                                        {
+                                            show: true, 
+                                            width: "10", 
+                                            search: false,
+                                            filter: false,                                            
+                                            classes: "",
+                                            header: {title: "S.No", align: "left"}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "20",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Total Records", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "totalRecord", type: "alphanumeric", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "10",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Max Thread", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "maxThread", type: "alphanumeric", align: "left", editable: false},
+                                            prompt: ""
+                                        }, 
+                                        {
+                                            show: true, 
+                                            width: "20",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Start Time", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "startTime", type: "date", align: "left", editable: false},
+                                            prompt: ""
+                                        }, 
+                                        {
+                                            show: true, 
+                                            width: "20",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "End Time", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "endTime", type: "date", align: "left", editable: false},
+                                            prompt: ""
+                                        }, 
+                                        {
+                                            show: true, 
+                                            width: "20",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Elapsed Time", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "elapsedTime", type: "alphanumeric", align: "left", editable: false},
+                                            prompt: ""
+                                        }                                
+                                    ]
+                                }
+                            } 
                         ]
                     }
                 ]

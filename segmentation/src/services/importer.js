@@ -1,6 +1,7 @@
 import { fork } from 'child_process';
 import { Worker } from 'worker_threads';
 import EM from "../utils/entity.js";
+import Utils from '../utils/utils.js';
 import ImportType from '../enums/importer-type.js';
 
 export default class ImporterService {
@@ -10,6 +11,44 @@ export default class ImporterService {
         this.retailerImporterProcess = null;
         this.storeImporterProcess = null;
     }
+
+    list = async () => {
+
+        try {
+
+            const importerStatusModel = await EM.getModel("cms_importer_task_status");
+            const orderImporterStatus = await importerStatusModel.findOne({ type: ImportType.ORDER_IMPORTER }).lean();
+            const storeImporterStatus = await importerStatusModel.findOne({ type: ImportType.STORE_IMPORTER }).lean();
+            const retailerImporterStatus = await importerStatusModel.findOne({ type: ImportType.RETAILER_IMPORTER }).lean();
+
+            const importers = [
+                {
+                    title: "Order Importer",
+                    type: ImportType.ORDER_IMPORTER,
+                    lastRunning: (orderImporterStatus ? (orderImporterStatus.endTime ? orderImporterStatus.endTime : "None") : "None"),
+                    status: (orderImporterStatus ? (orderImporterStatus.status ? "Running" : "Free") : "Free")
+                },
+                {
+                    title: "Store Importer",
+                    type: ImportType.STORE_IMPORTER,
+                    lastRunning: (storeImporterStatus ? (storeImporterStatus.endTime ? storeImporterStatus.endTime : "None") : "None"),
+                    status: (storeImporterStatus ? (storeImporterStatus.status ? "Running" : "Free") : "Free")
+                },
+                {
+                    title: "Retailer Importer",
+                    type: ImportType.RETAILER_IMPORTER,
+                    lastRunning: (retailerImporterStatus ? (retailerImporterStatus.endTime ? retailerImporterStatus.endTime : "None") : "None"),
+                    status: (retailerImporterStatus ? (retailerImporterStatus.status ? "Running" : "Free") : "Free")
+                }
+            ];
+
+            return Utils.response(importers.length, 1, importers);
+
+        } catch (e) {
+            throw e;
+        }
+
+    };
 
     startOrderImport = async (req) => {
 
@@ -61,8 +100,16 @@ export default class ImporterService {
 
     statusOrderImport = async (req) => {
         try {
+
             const batchProgressModel = await EM.getModel("cms_importer_task_status");
-            return await batchProgressModel.findOne({ type: ImportType.ORDER_IMPORTER }).lean();
+            const progressStatus = await batchProgressModel.findOne({ type: ImportType.ORDER_IMPORTER }).lean();
+
+            if (progressStatus) {
+                return { status: true, progressStatus };
+            }
+
+            return { status: false, message: "No status found" };
+
         } catch (e) {
             throw e;
         }
@@ -137,12 +184,22 @@ export default class ImporterService {
     };
 
     statusRetailerImport = async (req) => {
+
         try {
+
             const batchProgressModel = await EM.getModel("cms_importer_task_status");
-            return await batchProgressModel.findOne({ type: ImportType.RETAILER_IMPORTER }).lean();
+            const progressStatus = await batchProgressModel.findOne({ type: ImportType.RETAILER_IMPORTER }).lean();
+
+            if (progressStatus) {
+                return { status: true, progressStatus };
+            }
+
+            return { status: false, message: "No status found" };
+
         } catch (e) {
             throw e;
         }
+
     };
 
     purgeRetailerMaster = async (req) => {
@@ -214,12 +271,22 @@ export default class ImporterService {
     };
 
     statusStoreImport = async (req) => {
+
         try {
+
             const batchProgressModel = await EM.getModel("cms_importer_task_status");
-            return await batchProgressModel.findOne({ type: ImportType.STORE_IMPORTER }).lean();
+            const progressStatus = await batchProgressModel.findOne({ type: ImportType.STORE_IMPORTER }).lean();
+
+            if (progressStatus) {
+                return { status: true, progressStatus };
+            }
+
+            return { status: false, message: "No status found" };
+
         } catch (e) {
             throw e;
         }
+
     };
 
     purgeStoreMaster = async (req) => {

@@ -139,4 +139,15 @@ router.get(
     })
 );
 
+router.get(
+    `/${moduleHandle}`,
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
+        try {
+            res.status(200).json(await importService.list(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
 export default router;
