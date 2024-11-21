@@ -6,7 +6,6 @@ import ImportType from '../enums/importer-type.js';
 
 async function processBatch(data) {
 
-    const models = {};
     const { batch, retailerIds, chunkSize } = data;
 
     try {
@@ -20,7 +19,7 @@ async function processBatch(data) {
             "cms_importer_task_status"
         ];
 
-        models = Object.fromEntries(
+        const models = Object.fromEntries(
             await Promise.all(
                 modelNames.map(async name => [name, await EM.getModel(name)])
             )

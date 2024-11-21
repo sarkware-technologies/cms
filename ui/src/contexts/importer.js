@@ -1,13 +1,15 @@
-import React from "react";
+import React, { createRef } from "react";
 import { createRoot } from 'react-dom/client';
 import ImportAction from "../components/import-action";
-import ImportStatus from "../components/import-status";
+import ProgressStatus from "../components/progress-status";
 
 export default function ImporterContext(_component) {
 
     this.component = _component;
     this.config = this.component.config;
     this.controller = window._controller;
+    this.statusField = createRef(null);
+    this.taskOption = createRef(null);
 
     this.ImportType = Object.freeze({ 
         ORDER_IMPORTER          : "ORDER_IMPORTER",
@@ -66,17 +68,18 @@ export default function ImporterContext(_component) {
 
         if (_handle == "importer_form") {
 
-            const record = this.component.currentRecord["importer_grid"];  console.log(record);
+            const record = this.component.currentRecord["importer_grid"];
             if (record) {
                 if (record.status == "Free") {
                     _viewConfig.context_header.actions = [
-                        { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
-                        { label: "Start Importer", theme: "warning", method: "post", action: "START", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
+                        { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" }, 
+                        { label: "Purge", theme: "danger", method: "delete", action: "PURGE", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                   
+                        { label: "Start", theme: "warning", method: "post", action: "START", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
                     ]; 
                 } else {
                     _viewConfig.context_header.actions = [
                         { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
-                        { label: "Stop Importer", theme: "warning", method: "post", action: "STOP", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
+                        { label: "Stop", theme: "warning", method: "post", action: "STOP", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
                     ]; 
                 }                
             }
@@ -102,12 +105,21 @@ export default function ImporterContext(_component) {
             const _statusHolder = document.getElementById('importer_status_widget');
             const statusRoot = createRoot(_statusHolder);
 
+            let type = "";
+            if (record.type == this.ImportType.ORDER_IMPORTER) {
+                type = "order";
+            } else if (record.type == this.ImportType.RETAILER_IMPORTER) {
+                type = "retailer";
+            } else {
+                type = "store";
+            }
+
             this.geographySelectorRef = React.createRef();                
-            statusRoot.render(<ImportStatus importer={record.type} />);
+            statusRoot.render(<ProgressStatus ref={this.statusField} task={record.type} endPoint={`/segmentation/v1/master_import/${type}/status`} />);
 
             const _optionHolder = document.getElementById('importer_option_widget');
             const optionRoot = createRoot(_optionHolder);
-            optionRoot.render(<ImportAction />);
+            optionRoot.render(<ImportAction ref={this.taskOption} />);
 
         }
 
@@ -126,9 +138,86 @@ export default function ImporterContext(_component) {
             this.component.currentRecord["importer_grid"] = null;       
             this.controller.switchView("main_view");
         } else if (_action === "START") {
-            this.startImporter();
+            this.controller.getUserConfirm("START", "Are you sure ?");
         } else if (_action === "STOP") {
-            this.stopImporter();
+            this.controller.getUserConfirm("STOP", "Are you sure ?");
+        } else if (_action === "PURGE") {
+
+            const record = this.component.currentRecord["importer_grid"];
+            if (record) {
+
+                let masterType = "";
+                if (record.type == this.ImportType.ORDER_IMPORTER) {
+                    masterType = "Order";
+                } else if (record.type == this.ImportType.RETAILER_IMPORTER) {
+                    masterType = "Retailer";
+                } else {
+                    masterType = "Store";
+                }
+                this.controller.getUserConfirm("PURGE", "Are you sure ?", `This will wipeout all the document related to ${masterType} (master, importer logs and importer status)`);
+
+            }
+            
+        }
+
+    };
+
+    this.onUserConfirm = (_task, _choice) => {
+        if (_choice) {
+            if (_task == "START") {
+                this.startImporter();
+            } else if (_task == "STOP") {
+                this.stopImporter();
+            } else if (_task == "PURGE") {
+                this.purgeMaster();
+            } else {
+                /* Unknown task */
+            }
+        }
+    };
+
+    /**
+     * 
+     * @param {*} _res
+     * 
+     * Called from Progress Status widget, whenever it receive latest status of the background task
+     *  
+     */
+    this.onProgressStatus = (_task, _res) => {
+
+        if (_res.status) {
+
+            if (!_res.progressStatus.status) {
+                /* This means the task is completed */
+
+                let task = "";
+                if (_task == this.ImportType.ORDER_IMPORTER) {
+                    task = "Order";
+                } else if (_task == this.ImportType.RETAILER_IMPORTER) {
+                    task = "Retailer";
+                } else {
+                    task = "Store";
+                }
+
+                this.controller.notify(`${task} importer completed successfully`);
+
+                /* Update the action bar */
+                if (this.component.viewMode == "single") {
+                    this.controller.loadContextActions([
+                        { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
+                        { label: "Purge", theme: "danger", method: "delete", action: "PURGE", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
+                        { label: "Start", theme: "primary", method: "post", action: "START", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" }
+                    ]);
+                } 
+                
+                /* Refresh the history data grid */
+                const historyTable = this.controller.getField("importer_history_grid");
+                if (historyTable) {
+                    historyTable.initFetch();
+                }
+
+            }
+
         }
 
     };
@@ -150,13 +239,18 @@ export default function ImporterContext(_component) {
             }
 
             this.controller.docker.dock(request).then((_res) => {
+
                 this.controller.notify(("Importer process started successfully.!"));    
                 
                 /* Update the actions */
                 this.controller.loadContextActions([
                     { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Stop Importer", theme: "warning", method: "post", action: "STOP", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Stop", theme: "warning", method: "post", action: "STOP", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" }
                 ]);
+
+                if (this.statusField) {
+                    this.statusField.current.startRefresh();
+                }
                 
             })
             .catch((e) => {
@@ -192,6 +286,33 @@ export default function ImporterContext(_component) {
 
         }
         
+    };
+
+    this.purgeMaster = () => {
+
+        const request = {};    
+        const record = this.component.currentRecord["importer_grid"];
+
+        if (record) {
+
+            request["method"] = "GET";
+            if (record.type == this.ImportType.ORDER_IMPORTER) {
+                request["endpoint"] = "/segmentation/v1/master_import/order/purge";
+            } else if (record.type == this.ImportType.RETAILER_IMPORTER) {
+                request["endpoint"] = "/segmentation/v1/master_import/retailer/purge";
+            } else {
+                request["endpoint"] = "/segmentation/v1/master_import/store/purge";
+            }
+
+            this.controller.docker.dock(request).then((_res) => {
+                this.controller.notify(("Purge completed successfully.!"));                    
+            })
+            .catch((e) => {
+                this.controller.notify(e.message, "error");
+            });
+
+        }
+
     };
 
 };

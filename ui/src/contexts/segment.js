@@ -103,7 +103,7 @@ export default function SegmentContext(_component) {
                     value_key: "StateId", 
                     label_key: "Statename", 
                     source: "remote",
-                    endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=state&select=_id|StateId|Statename"
+                    endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=cms_master_state&select=_id|StateId|Statename"
                 };
             } else {
                 fieldConfig = {
@@ -130,7 +130,7 @@ export default function SegmentContext(_component) {
                     value_key: "RegionId", 
                     label_key: "RegionName", 
                     source: "remote",
-                    endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=region&select=_id|RegionId|RegionName"
+                    endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=cms_master_region&select=_id|RegionId|RegionName"
                 };
             }
 
@@ -241,7 +241,7 @@ export default function SegmentContext(_component) {
     this.onMultiSelectRecordDone = (_handle) => {
 
         if (_handle == "add_retailers") {
-            const retailerWidget = this.controller.getField("segment_retaler_form_add_retailers");
+            const retailerWidget = this.controller.getField("segment_retailer_form_add_retailers");
             if (retailerWidget) {
 
                 const selectedRetailers = retailerWidget.getSelectedRecords();
@@ -403,7 +403,7 @@ export default function SegmentContext(_component) {
                     { label: "", theme: "primary", method: "put", action: "BUILD_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "fa fa-gear", tabindex : 8, status: true, shortcut: "" },
                 ];                
             }
-        } else if (_handle === "segment_retaler_form") {
+        } else if (_handle === "segment_retailer_form") {
             const segment = this.getCurrentSegmentRecord();  
             if (segment && segment.segmentType == 2) {
                 _viewConfig.content.rows[0].columns[0].view = "static_retailer_list_form";
@@ -486,7 +486,7 @@ export default function SegmentContext(_component) {
         } else if (_action === "SAVE_SEGMENT") {
             this.saveSegment();
         } else if (_action === "WHITELIST_RETAILER") {
-            const newRetailerSelector = this.controller.getField("segment_retaler_form_add_retailers");
+            const newRetailerSelector = this.controller.getField("segment_retailer_form_add_retailers");
             if (newRetailerSelector) {
                 newRetailerSelector.showPopup();
             }

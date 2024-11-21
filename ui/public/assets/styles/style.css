@@ -3294,13 +3294,13 @@ table.preview-table td:last-child{
     background: #2196f3 !important;
 }
 
-.pharmarack-cms-view.segment_retaler_form > div > button {
+.pharmarack-cms-view.segment_retailer_form > div > button {
     position: absolute;
     right: 0px;
     z-index: 999;
 }
 
-.pharmarack-cms-view.segment_retaler_form > div > button.bulk-retailer-removed {
+.pharmarack-cms-view.segment_retailer_form > div > button.bulk-retailer-removed {
     right: 160px;
 }
 
@@ -3464,6 +3464,7 @@ table.mapped-entity-list-factory-table {
     border-bottom: none !important;
 }
 
+.static_retailer_list_form .pharmarack-cms-action-bar,
 .whitelisted_retailer_tab_item .pharmarack-cms-action-bar,
 .blacklisted_retailer_tab_item .pharmarack-cms-action-bar,
 .mapped_retailer_tab_item .pharmarack-cms-action-bar {
@@ -3502,91 +3503,91 @@ table.mapped-entity-list-factory-table {
     border-radius: 8px;
     background-color: #fff;
     height: 280px;
-  }
+}
   
-  .pharmarack-cms-card-header h2 {
+.pharmarack-cms-card-header h2 {
     font-size: 18px;
     margin-bottom: 10px;
     color: #333;
-  }
+}
   
-  .pharmarack-cms-progress-section {
+.pharmarack-cms-progress-section {
     margin-bottom: 20px;
-  }
+}
   
-  .pharmarack-cms-progress-bar-container {
+.pharmarack-cms-progress-bar-container {
     position: relative;
     background: #f0f0f0;
     border-radius: 4px;
     height: 20px;
     overflow: hidden;
     margin-bottom: 12px;
-  }
+}
   
-  .pharmarack-cms-progress-bar {
+.pharmarack-cms-progress-bar {
     height: 100%;
     background: linear-gradient(90deg, #4caf50, #81c784);
     transition: width 0.3s ease-in-out;
-  }
+}
   
-  .pharmarack-cms-metrics-section {
+.pharmarack-cms-metrics-section {
     margin-bottom: 20px;
-  }
+}
   
-  .pharmarack-cms-metric {
+.pharmarack-cms-metric {
     display: flex;
     justify-content: space-between;
     padding: 5px 0;
     font-size: 14px;
-  }
+}
 
-  .pharmarack-cms-metric span {
+.pharmarack-cms-metric span {
     font-size: 16px;
-  }
+}
   
-  .pharmarack-cms-metric strong {
+.pharmarack-cms-metric strong {
     color: #333;
-  }
+}
   
-  .pharmarack-cms-actions-section {
+.pharmarack-cms-actions-section {
     display: flex;
     gap: 10px;
-  }
+}
 
-  .pharmarack-cms-batch-config-step-container {    
+.pharmarack-cms-batch-config-step-container {    
     margin: 25px 0px 20px;    
     background-color: #fff;     
     border: 1px solid #ddd;
     border-radius: 8px;   
     padding: 8px;
     height: 280px;
-  }
+}
   
-  .pharmarack-cms-config-step {
+.pharmarack-cms-config-step {
     margin-bottom: 0px;
     padding: 15px;        
-  }
+}
   
-  .pharmarack-cms-step-header {
+.pharmarack-cms-step-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
-  }
+}
   
-  .pharmarack-cms-step-header h3 {
+.pharmarack-cms-step-header h3 {
     margin: 0;
     font-size: 16px;
     color: #333;
-  }
+}
   
-  .pharmarack-cms-step-value {
+.pharmarack-cms-step-value {
     font-size: 14px;
     font-weight: bold;
     color: #555;
-  }
+}
   
-  input[type="range"] {
+input[type="range"] {
     width: 100%;
     margin: 10px 0;
     -webkit-appearance: none;
@@ -3595,9 +3596,9 @@ table.mapped-entity-list-factory-table {
     background: #f0f0f0;
     border-radius: 5px;
     outline: none;
-  }
+}
   
-  input[type="range"]::-webkit-slider-thumb {
+input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 20px;
@@ -3606,24 +3607,36 @@ table.mapped-entity-list-factory-table {
     border-radius: 50%;
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  }
+}
   
-  input[type="range"]::-moz-range-thumb {
+input[type="range"]::-moz-range-thumb {
     width: 20px;
     height: 20px;
     background: #1890ff;
     border-radius: 50%;
     cursor: pointer;
-  }
+}
   
-  .pharmarack-cms-tooltip {
+.pharmarack-cms-tooltip {
     font-size: 12px;
     color: #888;
     margin-top: 5px;
-  }
+}
   
-  .pharmarack-cms-action-buttons {
+.pharmarack-cms-action-buttons {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
-  }
+}
+
+.pharmarack-cms-view.static_retailer_list_form {
+    position: relative;
+}
+
+.static_retailer_list_form .pharmarack-cms-action-bar {
+    padding-bottom: 0px;
+    padding-right: 0px;
+    margin-top: -20px;
+    position: absolute;
+    right: 0px;
+}

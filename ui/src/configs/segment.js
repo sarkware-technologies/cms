@@ -1038,7 +1038,7 @@ let segment_config = {
                                 width: "100%",
                                 layout: "horizontal",
                                 classes: "",
-                                view: "segment_retaler_form"
+                                view: "segment_retailer_form"
                             }
                         ]
                     }
@@ -1194,7 +1194,7 @@ let segment_config = {
             sidebar: null,
             manage: true
         },
-        segment_retaler_form: {
+        segment_retailer_form: {
             context: "segment",
             context_header: {
                 show: false                

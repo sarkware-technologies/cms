@@ -481,4 +481,16 @@ export default function ContextInterface(_component) {
 
     };
 
+    /**
+     *
+     * @param {*} _task 
+     * @param {*} _res
+     * 
+     * Called from Progress Status widget, whenever it receive latest status of the background task
+     *  
+     */
+    this.onProgressStatus = (_task, _res) => {
+
+    };
+
 };

@@ -5,6 +5,7 @@ export default class RedisClient {
     static instance;
 
     constructor() {
+        
         if (RedisClient.instance) {
             return RedisClient.instance;
         }

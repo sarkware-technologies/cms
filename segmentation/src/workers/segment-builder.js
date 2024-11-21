@@ -12,7 +12,7 @@ import SegmentRuleType from "../enums/segment-rule-type.js";
 import SegmentRuleQtyType from "../enums/segment-rule-qty-type.js";
 
 let segmentRules;
-const models = {};
+let models = {};
 
 const init = async () => {
 
@@ -28,6 +28,7 @@ const init = async () => {
             "cms_segment_rule",
             "cms_segment_builder_status",
             "cms_segment_retailer_buffer",
+            "cms_segment_retailer_summary",
             "cms_segment_retailer_rules_summary"
         ];
 
@@ -119,7 +120,7 @@ const checkSegmentRules = async(_retailerId, _orders, _segment) => {
             });
         }
 
-        segmentRules.forEach(rule => {
+        segmentRules.forEach(async (rule) => {
 
             const { ruleType, target, from, to, qtyType } = rule;
 
@@ -135,6 +136,7 @@ const checkSegmentRules = async(_retailerId, _orders, _segment) => {
 
             const targetSummary = summary.get(target);
             if (targetSummary) {
+
                 const value = targetSummary[property];
                 ruleResult.push(
                     (_from && _to && value >= _from && value <= _to) ||
@@ -142,41 +144,29 @@ const checkSegmentRules = async(_retailerId, _orders, _segment) => {
                     (!_from && _to && value <= _to) ||
                     (!_from && !_to)
                 );
-            }
+
+                await models.cms_segment_retailer_rules_summary.findOneAndUpdate(
+                    { retailer: _retailerId, segment: _segment._id },
+                    {            
+                        ruleType,
+                        target,
+                        value
+                    },
+                    { upsert: true, new: true }
+                );  
+
+            }            
 
         });
 
-        if (_retailerId == 8767) {
-            console.log("ruleTest for retailer");
-            console.log(ruleResult);         
-        }
-
-        const res = ruleResult.length > 0 ? ruleResult.every(Boolean) : false;
-        if (res) {
-            console.log("Check rules is success");
-        }
-
-        return res;
-
-        //eturn ruleResult.every(Boolean);
-
+        return ruleResult.length > 0 ? ruleResult.every(Boolean) : false;
+        
     } catch (e) {
         console.log(e);
         return false;
     }   
 
 };
-
-const addToSummary = (summary, key, item) => {
-
-    const entry = summary.get(key) || { quantity: 0, amount: 0 };
-    const qty = item.receivedQty || item.orderedQty || 0;
-    entry.quantity += qty;
-    entry.amount += qty * item.ptr;
-
-    summary.set(key, entry);
-
-}
 
 const checkRetailerEligibility = async (_retailerId, _segment) => {   
 
@@ -243,19 +233,10 @@ const checkRetailerEligibility = async (_retailerId, _segment) => {
             filterOrderQuery["store"] = { $nin: _segment.excludedStores };
         }
 
-        if (_retailerId == 722) {
-            console.log(filterOrderQuery);
-        }
-        
-
         let finalOrders = await models.cms_master_order.find(filterOrderQuery)
             .populate(populateOrderQuery)
             .select("_id store retailer")
             .lean();
-
-            if (_retailerId == 722) {
-                console.log("Total order found for 722 is : "+ finalOrders.length);
-            }
 
         if (populateOrderQuery.some(item => item.path === "store")) {
             finalOrders = finalOrders.filter(order => order.store && order.store.isAuthorized);
@@ -264,14 +245,20 @@ const checkRetailerEligibility = async (_retailerId, _segment) => {
             finalOrders = finalOrders.filter(order => order.retailer && order.retailer.isAuthorized);
         }    
         
-        if (_retailerId == 722) {
-            console.log("Total order found for 722 is : "+ finalOrders.length);
-        }
-
         if (segmentRules.length > 0) {
             const oIds = finalOrders.map((order) => new ObjectId(order._id));
             return await checkSegmentRules(_retailerId, oIds, _segment);
         } 
+
+        await models.cms_segment_retailer_summary.findOneAndUpdate(
+            { retailer: _retailerId, segment: _segment._id },
+            {            
+                ruleType,
+                target,
+                value
+            },
+            { upsert: true, new: true }
+        );
         
         return finalOrders.length > 0 ? true : false;        
 

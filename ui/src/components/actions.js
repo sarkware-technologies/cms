@@ -50,16 +50,13 @@ const Actions = (props, ref) => {
         return <button key={_config.action} className={classes} onClick={(e) => handleActionButtonClick(e, _config.action)}>{icon}{_config.label}</button>
 
     }
-  
+
     let actionBtns = [];
     
     for (let i = 0; i < props.config.actions.length; i++) {
-        if (props.config.actions[i].method) {
-
-        }
         actionBtns.push(renderActionBtn(props.config.actions[i]));    
     }
-    
+
     return <div className={`pharmarack-cms-action-bar pharmarack-cms-system-${type}-action-bar ${props.config.align}`}>{actionBtns}</div>
 
 }

@@ -75,8 +75,8 @@ const View = (props, ref) => {
                 } else {
                     sections.push(<div key={uuidv4()} className={`pharmarack-cms-view-header-section ${handle}`}>{rows}</div>);
                 }            
-            } else if (config.header.actions) {
-                sections.push(<Actions key={uuidv4()} config={config.header} type="header" />);
+            } else if (config.header.actions) {  
+                sections.push(<Actions key={uuidv4()} context={config.context} config={config.header} type="header" />);
             }            
         }
 
