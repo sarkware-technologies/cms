@@ -621,7 +621,7 @@ const DataGrid = (props, ref) => {
 
     };
 
-    const switchView = () => {           console.log("switchView is called");         
+    const switchView = () => {        
 
         if (contextObj && props.config.link && props.config.link.target_type && contextObj.currentRecord[props.config.handle]) {
         

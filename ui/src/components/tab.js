@@ -60,7 +60,7 @@ const Tab = (props, ref) => {
 
         /* Render Header Part */
         if (tabConfig.header.show) {            
-            sections.push(<Actions key={uuidv4()} config={tabConfig.header} type="header" />);
+            sections.push(<Actions key={uuidv4()} context={tabConfig.context} config={tabConfig.header} type="header" />);
         }
 
         rows = [];
@@ -75,7 +75,7 @@ const Tab = (props, ref) => {
         /* Render Footer Part */
         rows = [];
         if (tabConfig.footer.show) {            
-            sections.push(<Actions key={uuidv4()} config={tabConfig.footer} type="footer" />);
+            sections.push(<Actions key={uuidv4()} context={tabConfig.context} config={tabConfig.footer} type="footer" />);
         }
 
         let cssProps = {

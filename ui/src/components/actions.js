@@ -32,7 +32,7 @@ const Actions = (props, ref) => {
 
     const renderActionBtn = (_config) => {
 
-        if (!_config.method && !caps[_config.method]) {
+        if (!_config.method || !caps[_config.method]) {
             return null;
         }
 

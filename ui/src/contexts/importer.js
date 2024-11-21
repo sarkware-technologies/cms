@@ -155,7 +155,7 @@ export default function ImporterContext(_component) {
                 /* Update the actions */
                 this.controller.loadContextActions([
                     { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
-                        { label: "Stop Importer", theme: "warning", method: "post", action: "STOP", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Stop Importer", theme: "warning", method: "post", action: "STOP", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" }
                 ]);
                 
             })
