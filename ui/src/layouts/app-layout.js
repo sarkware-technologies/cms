@@ -1,4 +1,4 @@
-import { Outlet, NavLink, Link } from "react-router-dom";
+import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import TopBar from "../components/top-bar";
 import React, { useState, useEffect, createRef, forwardRef, useImperativeHandle } from "react";
 
@@ -7,7 +7,9 @@ const AppLayout = (props, ref) => {
     const [collapse, setCollapse] = useState(false);
     const [modules, setModules] = useState([]);
 
-    let topActionBar = createRef();    
+    let topActionBar = createRef();   
+    const navigate = useNavigate();
+    const location = useLocation();
 
     const handleLogout = (_e) => {
         _e.preventDefault();
@@ -140,8 +142,12 @@ const AppLayout = (props, ref) => {
     
         _modules.sort((a, b) => a.order - b.order);
         setModules(_modules);
+
+        if (_modules.length > 0 && !location.pathname.includes("/main/")) {
+            navigate(`/main/${_modules[0].handle}`); // Navigate to the first menu
+        }
         
-    }, []);
+    }, [location.pathname, navigate]);
 
     useImperativeHandle(ref, () => {
         return {

@@ -2,67 +2,69 @@ import React, { forwardRef, useEffect, useState } from "react";
 
 const ImportStatus = (props, ref) => {
 
-  const [state, setState] = useState({
-    completedBatches: 0,
-    totalBatches: 18,
-    totalRecords: 17499,
-    recordsPerBatch: 1000,
-    elapsedTime: "",
-    startTime: "",
-    endTime: "",
-    status: false
-  });
+    const contextObj = window._controller.getCurrentModuleInstance(); 
 
-  const refreshBuildStatus = () => {
+    const [state, setState] = useState({
+        completedBatches: 0,
+        totalBatches: 18,
+        totalRecords: 17499,
+        recordsPerBatch: 1000,
+        elapsedTime: "",
+        startTime: "",
+        endTime: "",
+        status: false
+    });
 
-    let type = "";
+    const refreshBuildStatus = () => {
 
-    if (props.importer == "") {
-        type = "order";
-    } else if (props.importer == "") {
-        type = "retailer";
-    } else {
-        type = "store";
-    }
+        let type = "";
+        if (props.importer == contextObj.ImportType.ORDER_IMPORTER) {
+            type = "order";
+        } else if (props.importer == contextObj.ImportType.RETAILER_IMPORTER) {
+            type = "retailer";
+        } else {
+            type = "store";
+        }
 
-    const request = {
-      method: "GET",
-      endpoint: `/segmentation/v1/master_import/${type}/status`,
+        const request = {
+          method: "GET",
+          endpoint: `/segmentation/v1/master_import/${type}/status`,
+        };
+
+        window._controller.docker
+        .dock(request)
+        .then((_res) => {
+
+              if (_res.status) {
+                  setState({
+                      completedBatch: _res.progressStatus.completedBatch,
+                      totalBatch: _res.progressStatus.totalBatch,
+                      totalRecord: _res.progressStatus.totalRecord,
+                      recordsPerBatch: _res.progressStatus.recordsPerBatch,
+                      elapsedTime: _res.progressStatus.elapsedTime,
+                      startTime: _res.progressStatus.startTime,
+                      endTime: _res.progressStatus.endTime ? _res.progressStatus.endTime : "In Progress",
+                      status: _res.progressStatus.status
+                  });
+              } else {
+                  setState({
+                      completedBatch: 0,
+                      totalBatch: 0,
+                      totalRecord: 0,
+                      recordsPerBatch: 0,
+                      elapsedTime: "",
+                      startTime: "",
+                      endTime: "",
+                      status: false
+                  });
+              }
+          
+        })
+        .catch((e) => {
+            window._controller.notify(e.message, "error");
+        });
+
     };
-
-    window._controller.docker
-      .dock(request)
-      .then((_res) => {
-
-            if (_res.status) {
-                setState({
-                    completedBatch: _res.buildStatus.completedBatch,
-                    totalBatch: _res.buildStatus.totalBatch,
-                    totalRecord: _res.buildStatus.totalRecord,
-                    recordsPerBatch: _res.buildStatus.recordsPerBatch,
-                    elapsedTime: _res.buildStatus.elapsedTime,
-                    startTime: _res.buildStatus.startTime,
-                    endTime: _res.buildStatus.endTime ? _res.buildStatus.endTime : "In Progress",
-                    status: _res.buildStatus.status
-                });
-            } else {
-                setState({
-                    completedBatch: 0,
-                    totalBatch: 0,
-                    totalRecord: 0,
-                    recordsPerBatch: 0,
-                    elapsedTime: "",
-                    startTime: "",
-                    endTime: "",
-                    status: false
-                });
-            }
-        
-      })
-      .catch((e) => {
-        window._controller.notify(e.message, "error");
-      });
-  };
 
   useEffect(() => {
     // Refresh immediately on mount

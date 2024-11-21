@@ -6,6 +6,7 @@ import ImportType from '../enums/importer-type.js';
 
 async function processBatch(data) {
 
+    const models = {};
     const { batch, storeIds, chunkSize } = data;    
 
     try {
@@ -13,15 +14,22 @@ async function processBatch(data) {
         await MDBM.connect();
         await MYDBM.connect(false);
 
-        const storeBulkOps = [];                
+        const modelNames = [
+            "cms_master_store",
+            "cms_store_importer_logs",
+            "cms_importer_task_status"
+        ];
 
-        const storeModel = await EM.getModel("cms_master_store");        
-        const importLogModel = await EM.getModel("cms_store_importer_logs");        
-        const batchProgressModel = await EM.getModel("cms_importer_task_status");        
-        const batchProgress = await batchProgressModel.findOne({ type: ImportType.STORE_IMPORTER }).lean();
+        models = Object.fromEntries(
+            await Promise.all(
+                modelNames.map(async name => [name, await EM.getModel(name)])
+            )
+        );  
+
+        const batchProgress = await models.cms_importer_task_status.findOne({ type: ImportType.STORE_IMPORTER }).lean();
 
         try {
-            await batchProgressModel.findByIdAndUpdate(batchProgress._id, {
+            await models.cms_importer_task_status.findByIdAndUpdate(batchProgress._id, {
                 $max: { currentBatch: batch }
             });
         } catch (e) {
@@ -40,6 +48,7 @@ async function processBatch(data) {
 
         for (let i = 0; i < stores.length; i += chunkSize) {
 
+            const storeBulkOps = [];       
             const chunk = stores.slice(i, i + chunkSize);
 
             chunk.forEach((store) => {
@@ -55,7 +64,7 @@ async function processBatch(data) {
             });
 
             try {
-                await storeModel.insertMany(storeBulkOps, { ordered: false });                
+                await models.cms_master_store.insertMany(storeBulkOps, { ordered: false });                
             } catch (e) { 
                 
                 if (e.writeErrors) {
@@ -69,7 +78,7 @@ async function processBatch(data) {
                     }));
 
                     try {
-                        await importLogModel.insertMany(errorLogs, { ordered: false });
+                        await models.cms_store_importer_logs.insertMany(errorLogs, { ordered: false });
                     } catch (logError) {
                         console.log("Error logging for import store itself failed for batch:", batch);
                     }
@@ -85,7 +94,7 @@ async function processBatch(data) {
                     }));
 
                     try {
-                        await importLogModel.insertMany(errorLogs, { ordered: false });
+                        await models.cms_store_importer_logs.insertMany(errorLogs, { ordered: false });
                     } catch (e) {
                         console.log("Error logging for import store itself failed for batch : "+ batch);
                     }
@@ -94,32 +103,28 @@ async function processBatch(data) {
 
             }
 
-            storeBulkOps.length = 0;
-
         }
 
         try {
-            await batchProgressModel.findByIdAndUpdate(batchProgress._id, {
+            await models.cms_importer_task_status.findByIdAndUpdate(batchProgress._id, {
                 $inc: { completedBatch: 1, pendingBatch: -1 },
             });
         } catch (e) {
             console.log(e.message);
-        }
-        
-        storeBulkOps.length = 0;
+        }        
 
     } catch (e) {        
         console.log(e);
     } finally {
 
         try {
-            await MDBM.close();
-            await MYDBM.close();
+
+            await Promise.all([MDBM.close(), MYDBM.close()]);
+            process.exit(0);
+
         } catch (closeError) {
             console.error("Error during cleanup:", closeError);
-        }
-        
-        process.exit(0);
+        }        
 
     }
 }

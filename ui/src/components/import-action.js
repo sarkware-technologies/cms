@@ -23,6 +23,17 @@ const ImportAction = (props, ref) => {
         setChunkSize(2500);
     };
 
+    const self = {        
+        getOptions: () => {
+          recordsPerBatch,
+          recordIdsPerBatch,
+          maxThreads,
+          chunkSize
+        }
+    };
+
+    useImperativeHandle(ref, () => self);
+
     return (
         <div className="pharmarack-cms-batch-config-step-container">
 

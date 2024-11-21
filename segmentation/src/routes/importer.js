@@ -8,6 +8,17 @@ const importService = new ImporterService();
 const moduleHandle = "master_import";
 
 router.post(
+    `/${moduleHandle}/start`,
+    await RC.interceptRequest(moduleHandle, 'post', [], async (req, res) => {
+        try {
+            res.status(200).json(await importService.startOrderImport(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.post(
     `/${moduleHandle}/order/start`,
     await RC.interceptRequest(moduleHandle, 'post', [], async (req, res) => {
         try {
@@ -45,6 +56,17 @@ router.get(
     await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
             res.status(200).json(await importService.purgeOrderMaster(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.get(
+    `/${moduleHandle}/order/history`,
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
+        try {
+            res.status(200).json(await importService.orderHistory(req));
         } catch (error) {
             Utils.handleError(error, res);
         }
@@ -95,6 +117,17 @@ router.get(
     })
 );
 
+router.get(
+    `/${moduleHandle}/retailer/history`,
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
+        try {
+            res.status(200).json(await importService.retailerHistory(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
 router.post(
     `/${moduleHandle}/store/start`,
     await RC.interceptRequest(moduleHandle, 'post', [], async (req, res) => {
@@ -133,6 +166,17 @@ router.get(
     await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {
             res.status(200).json(await importService.purgeStoreMaster(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.get(
+    `/${moduleHandle}/store/history`,
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
+        try {
+            res.status(200).json(await importService.storeHistory(req));
         } catch (error) {
             Utils.handleError(error, res);
         }

@@ -6,22 +6,30 @@ import ImportType from '../enums/importer-type.js';
 
 async function processBatch(data) {
 
+    const models = {};
     const { batch, retailerIds, chunkSize } = data;
 
     try {
 
         await MDBM.connect();
-        await MYDBM.connect(false);
+        await MYDBM.connect(false);       
+        
+        const modelNames = [
+            "cms_master_retailer",
+            "cms_retailer_importer_logs",
+            "cms_importer_task_status"
+        ];
 
-        const retailerBulkOps = [];                
+        models = Object.fromEntries(
+            await Promise.all(
+                modelNames.map(async name => [name, await EM.getModel(name)])
+            )
+        ); 
 
-        const retailerModel = await EM.getModel("cms_master_retailer");        
-        const importLogModel = await EM.getModel("cms_retailer_importer_logs");        
-        const batchProgressModel = await EM.getModel("cms_importer_task_status");        
-        const batchProgress = await batchProgressModel.findOne({ type: ImportType.RETAILER_IMPORTER }).lean();
+        const batchProgress = await models.cms_importer_task_status.findOne({ type: ImportType.RETAILER_IMPORTER }).lean();
 
         try {
-            await batchProgressModel.findByIdAndUpdate(batchProgress._id, {
+            await models.cms_importer_task_status.findByIdAndUpdate(batchProgress._id, {
                 $max: { currentBatch: batch }
             });
         } catch (e) {
@@ -49,7 +57,8 @@ async function processBatch(data) {
 
         for (let i = 0; i < retailers.length; i += chunkSize) {
 
-            const chunk = retailers.slice(i, i + chunkSize);
+            const retailerBulkOps = [];            
+            const chunk = retailers.slice(i, i + chunkSize);            
 
             chunk.forEach((retailer) => {
 
@@ -70,7 +79,7 @@ async function processBatch(data) {
             });
 
             try {
-                await retailerModel.insertMany(retailerBulkOps, { ordered: false });                
+                await models.cms_master_retailer.insertMany(retailerBulkOps, { ordered: false });                
             } catch (e) { 
                 
                 if (e.writeErrors) {
@@ -84,7 +93,7 @@ async function processBatch(data) {
                     }));
 
                     try {
-                        await importLogModel.insertMany(errorLogs, { ordered: false });
+                        await models.cms_retailer_importer_logs.insertMany(errorLogs, { ordered: false });
                     } catch (logError) {
                         console.log("Error logging for import retailer itself failed for batch:", batch);
                     }
@@ -100,7 +109,7 @@ async function processBatch(data) {
                     }));
 
                     try {
-                        await importLogModel.insertMany(errorLogs, { ordered: false });
+                        await models.cms_retailer_importer_logs.insertMany(errorLogs, { ordered: false });
                     } catch (e) {
                         console.log("Error logging for import retailer itself failed for batch : "+ batch);
                     }
@@ -109,34 +118,31 @@ async function processBatch(data) {
 
             }
 
-            retailerBulkOps.length = 0;
-
         }
 
         try {
-            await batchProgressModel.findByIdAndUpdate(batchProgress._id, {
+            await models.cms_importer_task_status.findByIdAndUpdate(batchProgress._id, {
                 $inc: { completedBatch: 1, pendingBatch: -1 },
             });
         } catch (e) {
             console.log(e.message);
-        }
-        
-        retailerBulkOps.length = 0;
+        }        
 
     } catch (e) {        
         console.log(e);
     } finally {
 
         try {
-            await MDBM.close();
-            await MYDBM.close();
+
+            await Promise.all([MDBM.close(), MYDBM.close()]);
+            process.exit(0);
+
         } catch (closeError) {
             console.error("Error during cleanup:", closeError);
-        }
-        
-        process.exit(0);
+        }        
 
     }
+
 }
 
 processBatch(workerData);

@@ -9,6 +9,12 @@ export default function ImporterContext(_component) {
     this.config = this.component.config;
     this.controller = window._controller;
 
+    this.ImportType = Object.freeze({ 
+        ORDER_IMPORTER          : "ORDER_IMPORTER",
+        RETAILER_IMPORTER       : "RETAILER_IMPORTER",
+        STORE_IMPORTER          : "STORE_IMPORTER"
+    });
+
     /**
      * 
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
@@ -16,6 +22,36 @@ export default function ImporterContext(_component) {
      **/
     this.init = () => {
         this.controller.switchView("main_view");
+    };  
+
+    /**
+     * 
+     * @param {*} _handle 
+     * @param {*} _datasource 
+     * @returns 
+     * 
+     * Called before making request to server - for datagrid
+     * 
+     */
+    this.onDatagridRequest = (_handle, _datasource) => {
+
+        let datasource = JSON.parse(JSON.stringify(_datasource));        
+        const record = this.component.currentRecord["importer_grid"];
+
+        if (record && _handle === "importer_history_grid") {
+
+            if (record.type == this.ImportType.ORDER_IMPORTER) {
+                datasource.endpoint = "/segmentation/v1/master_import/order/history"; 
+            } else if (record.type == this.ImportType.RETAILER_IMPORTER) {
+                datasource.endpoint = "/segmentation/v1/master_import/retailer/history"; 
+            } else {
+                datasource.endpoint = "/segmentation/v1/master_import/store/history"; 
+            }
+
+        }
+
+        return datasource;
+
     };  
 
     /**     
@@ -27,6 +63,26 @@ export default function ImporterContext(_component) {
      * 
      */
     this.beforeViewMount = (_handle, _viewConfig) => {
+
+        if (_handle == "importer_form") {
+
+            const record = this.component.currentRecord["importer_grid"];  console.log(record);
+            if (record) {
+                if (record.status == "Free") {
+                    _viewConfig.context_header.actions = [
+                        { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
+                        { label: "Start Importer", theme: "warning", method: "post", action: "START", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
+                    ]; 
+                } else {
+                    _viewConfig.context_header.actions = [
+                        { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
+                        { label: "Stop Importer", theme: "warning", method: "post", action: "STOP", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
+                    ]; 
+                }                
+            }
+            
+        }
+
         return _viewConfig;
     };    
 
@@ -66,52 +122,76 @@ export default function ImporterContext(_component) {
      */
     this.onActionBtnClick = (_action) => {
 
-        if (_action === "NEW_AUTH_TYPE") {
-            this.component.currentRecord["auth_type_grid"] = null;
-            this.controller.switchView("auth_type_form");
-        } else if (_action === "CANCEL_AUTH_TYPE") {     
-            this.component.currentRecord["auth_type_grid"] = null;       
+        if (_action === "CANCEL") {     
+            this.component.currentRecord["importer_grid"] = null;       
             this.controller.switchView("main_view");
-        } else if (_action === "SAVE_AUTH_TYPE") {
-            this.saveAuthType();
+        } else if (_action === "START") {
+            this.startImporter();
+        } else if (_action === "STOP") {
+            this.stopImporter();
         }
 
     };
 
-    this.saveAuthType = () => {
+    this.startImporter = () => {
 
         const request = {};    
-        const authType = this.component.currentRecord["auth_type_grid"];
+        const record = this.component.currentRecord["importer_grid"];
 
-        if (authType) {
-            /* It's an uppdate call */
-            request["method"] = "PUT";
-            request["endpoint"] = "/system/v1/auth_type/" + authType._id;
-        } else {
-            /* It's a new record */
+        if (record) {
+
             request["method"] = "POST";
-            request["endpoint"] = "/system/v1/auth_type";
-        }
-
-        const authTypeForm = this.controller.getField("auth_type_form");
-        if (authTypeForm) {
-
-            request["payload"] = authTypeForm.getFormFields();   
-
-            if (request["payload"] && Object.keys(request["payload"]).length > 0) {
-
-                this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(((_res.payload ? _res.payload.title : _res.title )  + " saved successfully.!"));
-                        this.controller.switchView("main_view");
-                        this.component.currentRecord["auth_type_grid"] = null;
-                })
-                .catch((e) => {
-                    this.controller.notify(e.message, "error");
-                });
-
+            if (record.type == this.ImportType.ORDER_IMPORTER) {
+                request["endpoint"] = "/segmentation/v1/master_import/order/start";
+            } else if (record.type == this.ImportType.RETAILER_IMPORTER) {
+                request["endpoint"] = "/segmentation/v1/master_import/retailer/start";
+            } else {
+                request["endpoint"] = "/segmentation/v1/master_import/store/start";
             }
+
+            this.controller.docker.dock(request).then((_res) => {
+                this.controller.notify(("Importer process started successfully.!"));    
+                
+                /* Update the actions */
+                this.controller.loadContextActions([
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
+                        { label: "Stop Importer", theme: "warning", method: "post", action: "STOP", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" }
+                ]);
+                
+            })
+            .catch((e) => {
+                this.controller.notify(e.message, "error");
+            });
+
         }
 
+    };
+
+    this.stopImporter = () => {
+
+        const request = {};    
+        const record = this.component.currentRecord["importer_grid"];
+
+        if (record) {
+
+            request["method"] = "GET";
+            if (record.type == this.ImportType.ORDER_IMPORTER) {
+                request["endpoint"] = "/segmentation/v1/master_import/order/stop";
+            } else if (record.type == this.ImportType.RETAILER_IMPORTER) {
+                request["endpoint"] = "/segmentation/v1/master_import/retailer/stop";
+            } else {
+                request["endpoint"] = "/segmentation/v1/master_import/store/stop";
+            }
+
+            this.controller.docker.dock(request).then((_res) => {
+                this.controller.notify(("Importer process stopped successfully.!"));                    
+            })
+            .catch((e) => {
+                this.controller.notify(e.message, "error");
+            });
+
+        }
+        
     };
 
 };

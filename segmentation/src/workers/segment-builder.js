@@ -11,14 +11,8 @@ import SegmentStoreStatus from "../enums/segment-store-status.js";
 import SegmentRuleType from "../enums/segment-rule-type.js";
 import SegmentRuleQtyType from "../enums/segment-rule-qty-type.js";
 
-let segmentRules,
-    segmentModel, 
-    orderModel, 
-    orderItemModel,
-    segmentRuleModel, 
-    segmentBuildStatusModel,     
-    segmentRetailerBufferModel,
-    segmentBlacklistedRetailerModel;
+let segmentRules;
+const models = {};
 
 const init = async () => {
 
@@ -27,13 +21,21 @@ const init = async () => {
         await MDBM.connect();
         await MYDBM.connect(false);
 
-        segmentModel = await EM.getModel("cms_segment");
-        orderModel = await EM.getModel("cms_master_order"); 
-        orderItemModel = await EM.getModel("cms_master_order_item"); 
-        segmentRuleModel = await EM.getModel("cms_segment_rule");
-        segmentBuildStatusModel = await EM.getModel("cms_segment_builder_status");        
-        segmentRetailerBufferModel = await EM.getModel("cms_segment_retailer_buffer");
-        segmentBlacklistedRetailerModel = await EM.getModel("cms_segment_blacklisted_retailer");
+        const modelNames = [
+            "cms_segment",
+            "cms_master_order",
+            "cms_master_order_item",
+            "cms_segment_rule",
+            "cms_segment_builder_status",
+            "cms_segment_retailer_buffer",
+            "cms_segment_retailer_rules_summary"
+        ];
+
+        models = Object.fromEntries(
+            await Promise.all(
+                modelNames.map(async name => [name, await EM.getModel(name)])
+            )
+        );                     
 
     } catch (error) {
         console.error("Error initializing models:", error);
@@ -68,7 +70,7 @@ const checkSegmentRules = async(_retailerId, _orders, _segment) => {
                 itemFilter["companyId"] = { $in: _segment.companies };
             }
 
-            const orderItems = await orderItemModel.find(itemFilter).lean();
+            const orderItems = await models.cms_master_order_item.find(itemFilter).lean();
 
             orderItems.forEach(item => {
 
@@ -246,7 +248,7 @@ const checkRetailerEligibility = async (_retailerId, _segment) => {
         }
         
 
-        let finalOrders = await orderModel.find(filterOrderQuery)
+        let finalOrders = await models.cms_master_order.find(filterOrderQuery)
             .populate(populateOrderQuery)
             .select("_id store retailer")
             .lean();
@@ -317,11 +319,11 @@ const processBatch = async (data) => {
     try {
         await init();
 
-        segmentRules = await segmentRuleModel.find({ segment: segmentId }).lean() || [];        
-        const segment = await segmentModel.findById(segmentId).lean();
-        const buildStatus = await segmentBuildStatusModel.findOne({ segment: segmentId }).lean();
+        segmentRules = await models.cms_segment_rule.find({ segment: segmentId }).lean() || [];        
+        const segment = await models.cms_segment.findById(segmentId).lean();
+        const buildStatus = await models.cms_segment_builder_status.findOne({ segment: segmentId }).lean();
 
-        await segmentBuildStatusModel.findByIdAndUpdate(buildStatus._id, { $max: { currentBatch: batch } });
+        await models.cms_segment_builder_status.findByIdAndUpdate(buildStatus._id, { $max: { currentBatch: batch } });
 
         const eligibleRetailersBatch = []; // Collect eligible retailers across chunks
 
@@ -342,20 +344,24 @@ const processBatch = async (data) => {
 
         // Insert eligible retailers in bulk
         if (eligibleRetailersBatch.length > 0) {
-            await segmentRetailerBufferModel.insertMany(eligibleRetailersBatch);
+            await models.cms_segment_retailer_buffer.insertMany(eligibleRetailersBatch);
         }
 
-        await segmentBuildStatusModel.findByIdAndUpdate(buildStatus._id, { $inc: { completedBatch: 1, pendingBatch: -1 } });
+        await models.cms_segment_builder_status.findByIdAndUpdate(buildStatus._id, { $inc: { completedBatch: 1, pendingBatch: -1 } });
+        
     } catch (e) {        
         console.log(e);
     } finally {
+
         try {
-            await MDBM.close();
-            await MYDBM.close();
+
+            await Promise.all([MDBM.close(), MYDBM.close()]);
+            process.exit(0);
+
         } catch (closeError) {
             console.error("Error during cleanup:", closeError);
         }
-        process.exit(0);
+
     }
 
 };

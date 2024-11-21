@@ -654,6 +654,36 @@ strong {
 
 .pharmarack-cms-sidebar-navigation {
     padding-top: 15px;
+    height: calc(100% - 125px);
+    padding-bottom: 40px;
+    overflow: auto;
+}
+
+.pharmarack-cms-sidebar-navigation::-webkit-scrollbar {
+    width: 10px;
+}
+
+.pharmarack-cms-sidebar-navigation::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 5px;
+}
+
+.pharmarack-cms-sidebar-navigation::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+
+.pharmarack-cms-sidebar-navigation::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.pharmarack-cms-sidebar-navigation {
+    scrollbar-width: thin;
+    scrollbar-color: #5a5959 #8d8a8a33;
+}
+
+.pharmarack-cms-sidebar-navigation {
+    -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
 .pharmarack-cms-sidebar-bottom-section {

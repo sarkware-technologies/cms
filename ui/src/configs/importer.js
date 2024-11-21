@@ -52,7 +52,7 @@ let importer_config = {
                                         },
                                         {
                                             show: true, 
-                                            width: "65",
+                                            width: "45",
                                             search: false,
                                             filter: false,
                                             classes: "",
@@ -63,7 +63,7 @@ let importer_config = {
                                         },
                                         {
                                             show: true, 
-                                            width: "15", 
+                                            width: "35", 
                                             search: false,
                                             filter: false,
                                             classes: "",
@@ -102,8 +102,9 @@ let importer_config = {
                 title: "Auth Type",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_AUTH_TYPE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Save", theme: "primary", method: "post", action: "SAVE_AUTH_TYPE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Start Import", theme: "primary", method: "post", action: "START", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Stop Import", theme: "primary", method: "post", action: "START", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {
@@ -156,7 +157,7 @@ let importer_config = {
                                     multi_select: false,
                                     full_row_select: false,
                                     is_main_grid: true,
-                                    empty_message: "No retailer mapped for this segment yet.!",
+                                    empty_message: "No history data for this importer.!",
                                     datasource: {endpoint: "/segmentation/v1/master_import/importerHistory", page: 0, populate: false, handler: "dedicated", cached: false},
                                     link: {key: "RetailerId", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segmentation/v1/master_import/"},
                                     columns: [                                        

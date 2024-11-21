@@ -3,7 +3,6 @@ dotenv.config();
 
 import cache from "./cache.js";
 import mongoose from "mongoose";
-import EntityService from "../services/entity.js";
 
 /**
  * 
@@ -201,30 +200,31 @@ class EntityManager {
 
     getModel = async (_entity) => {
 
-        if (_entity) { 
-
-            let modelExist = await cache.hasEntity(_entity);
-            
-            if (!modelExist) {
-                console.error(`Model ${_entity} not exist`);
-                return null;
-            }
-
-            modelExist = await cache.hasEntity(_entity);
-            if (modelExist) { 
-
-                const entity = await cache.getEntity(_entity);
-
-                if (Array.isArray(entity.fields) && entity.fields.length > 0) {                   
-                    return await this.createModel(_entity, entity.fields);
-                } else {
-                    throw new Error("No fields found for entity : "+ _entity);    
-                }
-
-            }
+        if (!_entity) {
+            throw new Error("Invalid entity: " + _entity);
+        }
+    
+        if (mongoose.modelNames().includes(_entity)) {
+            return mongoose.model(_entity);
         }
 
-        throw new Error("Invalid entity : "+ _entity);
+        const modelExist = await cache.hasEntity(_entity);
+        if (!modelExist) {
+            console.error(`Model ${_entity} does not exist in cache`);
+            return null;
+        }
+
+        const entity = await cache.getEntity(_entity);
+        if (!Array.isArray(entity.fields) || entity.fields.length === 0) {
+            throw new Error("No fields found for entity: " + _entity);
+        }
+
+        try {
+            return await this.createModel(_entity, entity.fields);
+        } catch (e) {
+            console.error(`Failed to create model for entity ${_entity}:`, e.message);
+            throw e;
+        }
 
     };
 

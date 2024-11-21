@@ -7,9 +7,11 @@ import ImportType from '../enums/importer-type.js';
 export default class ImporterService {
 
     constructor() {    
+
         this.orderImporterProcess = null;
         this.retailerImporterProcess = null;
         this.storeImporterProcess = null;
+
     }
 
     list = async () => {
@@ -49,6 +51,108 @@ export default class ImporterService {
         }
 
     };
+
+    startImport = async(req) => {
+
+        try {
+
+            if (!ImportType[req.query.type]) {
+                throw new Error("Unknown importer type");
+            }
+
+            if (await this.checkImporterStatus(req.query.type)) {
+                return { status: true, message: "Importer process is already running" };
+            }
+
+            if (req.body) {
+                await this.persistBatchOptions(req.body);
+            }
+
+            if (req.query.type == ImportType.ORDER_IMPORTER) {
+
+                if (!this.orderImporterProcess) {
+                    this.orderImporterProcess = fork('./src/importers/order-process.js');        
+                    
+                    this.orderImporterProcess.once('exit', (code) => {
+                        console.log(`OrderImporter process exited with code ${code}`);
+                        this.orderImporterProcess = null;
+                    });
+    
+                    this.orderImporterProcess.once('error', (error) => {
+                        console.error(`Error in OrderImporter process: ${error}`);
+                        this.orderImporterProcess = null;
+                    });
+                }
+    
+                this.orderImporterProcess.send({ command: 'start' });
+
+            } else if (req.query.type == ImportType.RETAILER_IMPORTER) {
+
+                if (!this.retailerImporterProcess) {
+                    this.retailerImporterProcess = fork('./src/importers/retailer-process.js');
+                    
+                    this.retailerImporterProcess.once('exit', (code) => {
+                        console.log(`RetailerImporter process exited with code ${code}`);
+                        this.retailerImporterProcess = null;
+                    });
+    
+                    this.retailerImporterProcess.once('error', (error) => {
+                        console.error(`Error in RetailerImporter process: ${error}`);
+                        this.retailerImporterProcess = null;
+                    });
+                }
+    
+                this.retailerImporterProcess.send({ command: 'start' });
+
+            } else {
+
+                if (!this.storeImporterProcess) {
+                    this.storeImporterProcess = fork('./src/importers/store-process.js');        
+                    
+                    this.storeImporterProcess.once('exit', (code) => {
+                        console.log(`StoreImporter process exited with code ${code}`);
+                        this.storeImporterProcess = null;
+                    });
+    
+                    this.storeImporterProcess.once('error', (error) => {
+                        console.error(`Error in StoreImporter process: ${error}`);
+                        this.storeImporterProcess = null;
+                    });
+                }
+    
+                this.storeImporterProcess.send({ command: 'start' });
+
+            }
+            
+            return { status: true, message: "Importer process started" };
+
+        } catch (e) {
+
+        }
+
+    };
+
+    stopImport = async(req) => {
+
+        try {
+
+        } catch (e) {
+
+        }
+
+    };
+
+    statusImport = async(req) => {
+
+        try {
+
+        } catch (e) {
+
+        }
+
+    };
+
+
 
     startOrderImport = async (req) => {
 
@@ -133,6 +237,26 @@ export default class ImporterService {
         } catch (e) {
             throw e;
         }
+    };
+
+    orderHistory = async (_req) => {
+
+        try {
+
+            const importerLogModel = await EM.getModel("cms_importer_log");
+            const page = parseInt(_req.query.page) || 1;
+            const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
+            const limit = parseInt(process.env.PAGE_SIZE);
+
+            const _count = await importerLogModel.countDocuments({ importerType: ImportType.ORDER_IMPORTER });
+            const logs = await importerLogModel.find({ importerType: ImportType.ORDER_IMPORTER }).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
+
+            return Utils.response(_count, page, logs);
+
+        } catch (e) {
+            throw e;
+        }
+
     };
 
     startRetailerImport = async (req) => {
@@ -222,6 +346,26 @@ export default class ImporterService {
         }
     };
 
+    retailerHistory = async (_req) => {
+
+        try {
+
+            const importerLogModel = await EM.getModel("cms_importer_log");
+            const page = parseInt(_req.query.page) || 1;
+            const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
+            const limit = parseInt(process.env.PAGE_SIZE);
+
+            const _count = await importerLogModel.countDocuments({ importerType: ImportType.RETAILER_IMPORTER });
+            const logs = await importerLogModel.find({ importerType: ImportType.RETAILER_IMPORTER }).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
+
+            return Utils.response(_count, page, logs);
+
+        } catch (e) {
+            throw e;
+        }
+
+    };
+
     startStoreImport = async (req) => {
 
         try {
@@ -307,6 +451,26 @@ export default class ImporterService {
         } catch (e) {
             throw e;
         }
+    };
+
+    storeHistory = async (_req) => {
+
+        try {
+
+            const importerLogModel = await EM.getModel("cms_importer_log");
+            const page = parseInt(_req.query.page) || 1;
+            const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
+            const limit = parseInt(process.env.PAGE_SIZE);
+
+            const _count = await importerLogModel.countDocuments({ importerType: ImportType.STORE_IMPORTER });
+            const logs = await importerLogModel.find({ importerType: ImportType.STORE_IMPORTER }).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
+
+            return Utils.response(_count, page, logs);
+
+        } catch (e) {
+            throw e;
+        }
+
     };
 
     persistBatchOptions = async (_body) => {
