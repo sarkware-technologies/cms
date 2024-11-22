@@ -1,4 +1,4 @@
-import Previewer from "../components/previewer";
+import DbExplorer from "../components/db-explorer";
 import { v4 as uuidv4 } from 'uuid';
 
 export default function PreviewContext(_component) {
@@ -17,8 +17,7 @@ export default function PreviewContext(_component) {
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
      *
      **/
-    this.init = () => {
-        //this.fetchCountryList();        
+    this.init = () => {       
         this.controller.switchView("main_view");
     };     
 
@@ -32,15 +31,16 @@ export default function PreviewContext(_component) {
      * Chance to insert your own component into each section
      * 
      */
-    this.onViewSectionRendering = (_handle, _config, _section) => {
-        let _widgets = [];
+    this.onViewSectionRendering = (_handle, _config, _section) => {  console.log(_handle, _config, _section);
+        let _widgets = null;
 
-        if (_section === "content") {
-            _widgets.push(<Previewer key={uuidv4()} country={this.countryRecords} state={this.stateRecords} region={this.regionRecords} retailer={this.retailerRecords} />);            
+        if (_handle == "main_view" && _section === "content") {
+            _widgets = <DbExplorer key="_dbExplorer" />;            
+            return { component: _widgets, pos: "replace" };
         }
 
         /* 'pos' could be 'before', 'after' or 'replace' */
-        return { component: _widgets, pos: "before" };
+        return { component: _widgets, pos: "after" };
     };
 
     /**     
@@ -53,20 +53,6 @@ export default function PreviewContext(_component) {
      */
     this.beforeViewMount = (_handle, _viewConfig) => {
         return _viewConfig;
-    };
-
-    this.fetchTableList = () => {
-
-        this.controller.docker.dock({
-            method: "GET",
-            endpoint: "/system/v1/query_browser/tableList"
-        }).then((_res) => {
-            this.countryRecords = _res;            
-        })
-        .catch((e) => {
-            console.log(e);
-        });
-
     };
 
 };

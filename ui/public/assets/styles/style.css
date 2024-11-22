@@ -659,22 +659,36 @@ strong {
     overflow: auto;
 }
 
+.pharmarack-cms-resource-window::-webkit-scrollbar,
 .pharmarack-cms-sidebar-navigation::-webkit-scrollbar {
     width: 10px;
 }
 
+.pharmarack-cms-resource-window::-webkit-scrollbar-track,
 .pharmarack-cms-sidebar-navigation::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 5px;
 }
 
+.pharmarack-cms-resource-window::-webkit-scrollbar-thumb,
 .pharmarack-cms-sidebar-navigation::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 5px;
 }
 
+.pharmarack-cms-resource-window::-webkit-scrollbar-thumb:hover,
 .pharmarack-cms-sidebar-navigation::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+.pharmarack-cms-resource-window::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-color: #ccc;
+    border-radius: 0px;
+}
+
+.pharmarack-cms-resource-window::-webkit-scrollbar {
+    width: 5px;
 }
 
 .pharmarack-cms-sidebar-navigation {
@@ -3639,4 +3653,60 @@ input[type="range"]::-moz-range-thumb {
     margin-top: -20px;
     position: absolute;
     right: 0px;
+}
+
+.pharmarack-cms-db-explorer {
+    display: flex;
+    height: 100%;
+}
+
+.pharmarack-cms-db-explorer-resource-container {
+    padding: 20px 0px 20px 20px;
+    width: 280px;
+}
+
+.pharmarack-cms-resource-search-txt {
+    width: calc(100% - 20px);
+    height: 35px;
+    padding: 10px;
+    border: solid 1px #ddd;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.pharmarack-cms-resource-window {
+    height: calc(100% - 50px);
+    overflow: auto;
+    padding-bottom: 15px;
+    padding-right: 15px;
+}
+
+.pharmarack-cms-resource-window > a {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 25px;
+    line-height: 25px;
+    padding: 0px;
+    padding-right: 10px;
+    border-right: 5px solid transparent;
+}
+
+.pharmarack-cms-resource-window > a.active {    
+    border-right-color: #2196F3;
+}
+
+.pharmarack-cms-resource-window > a:hover {
+    border-right-color: #2196F3;
+}
+
+.pharmarack-cms-db-explorer-result-container {
+    width: 100%;
+    padding-right: 20px;
+}
+
+.query_browser.main_view .pharmarack-cms-view-content-section {
+    height: 100%;
+    border-left: solid 1px #ccc;
 }
