@@ -1,4 +1,3 @@
- 
 let preview_config = {
 
     views: {

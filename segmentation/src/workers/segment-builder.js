@@ -172,6 +172,9 @@ const checkRetailerEligibility = async (_retailerId, _segment) => {
 
     try {
 
+        const stateIds = [];
+        const regionIds = [];
+        const _storeIds = [];
         const filterOrderQuery = {};                
         const populateOrderQuery = [];            
         
@@ -246,16 +249,57 @@ const checkRetailerEligibility = async (_retailerId, _segment) => {
         }    
         
         if (segmentRules.length > 0) {
-            const oIds = finalOrders.map((order) => new ObjectId(order._id));
+
+            const oIds = finalOrders.map((order) => {
+
+                if (!stateIds.includes(order.stateId)) {
+                    stateIds.push(order.stateId);
+                }
+                if (!regionIds.includes(order)) {
+                    regionIds.push(order.regionId);
+                }
+                if (!_storeIds.includes(order)) {
+                    _storeIds.push(order.storeId);
+                }
+                
+                return new ObjectId(order._id)
+
+            });
+
             return await checkSegmentRules(_retailerId, oIds, _segment);
+
         } 
+
+        const { from, latest } = finalOrders.reduce((acc, order) => {
+            try {
+
+                const orderDate = new Date(order.orderDate.$date);        
+                if (isNaN(orderDate)) {
+                    throw new Error(`Invalid date: ${order.orderDate.$date}`);
+                }
+        
+                if (!acc.from || orderDate < acc.from) {
+                    acc.from = orderDate;
+                }
+                if (!acc.latest || orderDate > acc.latest) {
+                    acc.latest = orderDate;
+                }
+
+            } catch (e) {
+                console.error(`Error processing date for order ${order.orderId}: ${e.message}`);
+            }
+
+            return acc;
+        }, { from: null, latest: null });
 
         await models.cms_segment_retailer_summary.findOneAndUpdate(
             { retailer: _retailerId, segment: _segment._id },
-            {            
-                ruleType,
-                target,
-                value
+            {
+                states: stateIds,
+                regions: regionIds,
+                stores: _storeIds,
+                dateFrom: from,
+                dateTo: latest
             },
             { upsert: true, new: true }
         );
