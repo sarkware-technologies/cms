@@ -14,7 +14,8 @@ import serviceVersion from './service-version.js';
 import api from './api.js';
 import privilege from './privilege.js';
 import user from './user.js';
-import versionManager from './version.js'
+import versionManager from './version.js';
+import queryBrowser from './query-browser.js'
 
 const ping = (_req, _res) => {
     _res.status(200).send("Its working");
@@ -38,5 +39,6 @@ routes.use(api);
 routes.use(privilege);
 routes.use(user);
 routes.use(versionManager);
+routes.use(queryBrowser);
 
 export default routes;

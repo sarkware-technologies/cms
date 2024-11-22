@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import MYDBM from "../utils/mysql.js";
+import DbResource from "../enums/db-resource.js";
 
 export default class QueryBrowser {
 
@@ -15,10 +16,6 @@ export default class QueryBrowser {
      */
     loadResources = async () => {
 
-        if (!MYDBM.isConnected()) {
-            throw new Error("Database not connected. Call `connect()` first.");
-        }
-
         try {
             // Load tables
             this.tables = await this.listResources("BASE TABLE");
@@ -28,6 +25,7 @@ export default class QueryBrowser {
             this.procedures = await this.listResources("PROCEDURE");
 
             console.log("Resources loaded successfully!");
+
         } catch (err) {
             console.error("Error loading resources:", err.message);
             throw err;
@@ -43,24 +41,36 @@ export default class QueryBrowser {
     listResources = async (type) => {
         
         try {
+
             let query;
 
             if (type === "PROCEDURE") {
                 query = `
                     SELECT routine_name AS resource_name
                     FROM information_schema.routines
-                    WHERE routine_schema = ? AND routine_type = ?
-                `;
+                    WHERE routine_schema = ? AND routine_type = ?`;
             } else {
                 query = `
                     SELECT table_name AS resource_name
                     FROM information_schema.tables
-                    WHERE table_schema = ? AND table_type = ?
-                `;
+                    WHERE table_schema = ? AND table_type = ?`;
             }
 
             const resources = await MYDBM.queryWithConditions(query, [process.env.API_DB, type]);
-            return resources.map((row) => row.resource_name);
+            const resourceNames = resources.map((row) => row.resource_name);
+
+            if (this.tables.length == 0 && type == "BASE TABLE") {
+                this.tables = resourceNames;
+            }
+            if (this.views.length == 0 && type == "VIEW") {
+                this.views = resourceNames
+            }
+            if (this.procedures.length == 0 && type == "PROCEDURE") {
+                this.procedures = resourceNames
+            }
+            
+            return resourceNames;
+
         } catch (err) {
             console.error(`Error listing ${type}s:`, err.message);
             throw err;
@@ -83,7 +93,7 @@ export default class QueryBrowser {
      * @param {Object} _req - Request object containing query params
      * @returns {Promise<Object>}
      */
-    selectTable = async (_req) => {
+    selectResource = async (_req) => {
 
         const tableName = _req.query.tableName;
 
@@ -94,6 +104,7 @@ export default class QueryBrowser {
         }
 
         try {
+
             const result = {
                 records: [],
                 structure: [],
@@ -108,12 +119,12 @@ export default class QueryBrowser {
             const startTime = Date.now();
 
             // Get the total record count
-            const countQuery = `SELECT COUNT(*) AS total FROM \`${tableName}\``;
-            const [countRows] = await MYDBM.queryWithConditions(countQuery);
-            result.totalRecords = countRows[0].total;
+            const countQuery = `SELECT COUNT(*) AS total FROM ${tableName}`;   console.log(countQuery); 
+            const [countRows] = await MYDBM.queryWithConditions(countQuery);   console.log(countRows);
+            result.totalRecords = countRows.total;
 
             // Get paginated records
-            const selectQuery = `SELECT * FROM \`${tableName}\` LIMIT ? OFFSET ?`;
+            const selectQuery = `SELECT * FROM ${tableName} LIMIT ? OFFSET ?`;
             const records = await MYDBM.queryWithConditions(selectQuery, [limit, skip]);
             const elapsed = Date.now() - startTime;
 
@@ -132,11 +143,11 @@ export default class QueryBrowser {
                 NAME: column.column_name,
                 TYPE: column.data_type,
                 NULL: column.is_nullable === "YES",
-                DEFAULT: column.column_default,
-                INCREMENT: column.extra.includes("auto_increment"),
+                DEFAULT: column.column_default
             }));
 
             return result;
+
         } catch (e) {
             throw e;
         }
@@ -152,7 +163,7 @@ export default class QueryBrowser {
 
         const query = _req.query.query;
         const page = parseInt(_req.query.page) || 1;
-        const limit = parseInt(process.env.PAGE_SIZE) || 100;
+        const limit = parseInt(process.env.PAGE_SIZE) || 25;
         const offset = (page - 1) * limit;
 
         if (this.containsUnsafeStatements(query)) {
@@ -198,7 +209,7 @@ export default class QueryBrowser {
      * @returns {Boolean}
      */
     containsUnsafeStatements = (query) => {
-        const unsafePatterns = /\b(DROP|DELETE|UPDATE)\b/i;
+        const unsafePatterns = /\b(DROP|DELETE|UPDATE|INSERT)\b/i;
         return unsafePatterns.test(query);
     };
 

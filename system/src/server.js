@@ -67,6 +67,8 @@ class SystemServer {
     listen = async () => {
 
         await MDBM.connect();
+        await MYDBM.connect(true);
+
         await cache.initCache();
         
         if (MDBM.checkConnection()) {
