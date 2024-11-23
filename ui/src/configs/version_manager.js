@@ -2,6 +2,7 @@ let version_manager_config = {
 
     views: {
         main_view: { 
+            context: "version_manager",
             context_header: {
                 show: true,
                 title: "Version Manager - (Retailers)",
@@ -125,6 +126,7 @@ let version_manager_config = {
             manage: false
         },
         region_update_form: {
+            context: "version_manager",
             context_header: {
                 show: true,
                 title: "Version Manager - (Regions)",
@@ -249,6 +251,7 @@ let version_manager_config = {
             manage: true 
         },
         bulk_update_form: {
+            context: "version_manager",
             context_header: {
                 show: true,
                 title: "Version Manager - (Bulk Update)",

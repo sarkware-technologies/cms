@@ -2,6 +2,7 @@ let component_type_config = {
 
     views: {
         main_view: { 
+            context: "component_type", 
             context_header: {
                 show: true,
                 title: "Component Types",
@@ -86,6 +87,7 @@ let component_type_config = {
             manage: true             
         },
         component_type_form: {
+            context: "component_type", 
             context_header: {
                 show: true,
                 title: "Component Type",

@@ -2,6 +2,7 @@ let host_config = {
 
     views: {
         main_view: { 
+            context: "host", 
             context_header: {
                 show: true,
                 title: "Hosts",
@@ -97,6 +98,7 @@ let host_config = {
             manage: true             
         },
         host_form: {
+            context: "host", 
             context_header: {
                 show: true,
                 title: "Host",

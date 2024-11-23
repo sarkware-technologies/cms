@@ -2,6 +2,7 @@ let menu_config = {
 
     views: {
         main_view: { 
+            context: "menu", 
             context_header: {
                 show: true,
                 title: "Menus",
@@ -97,9 +98,10 @@ let menu_config = {
             manage: true             
         },
         menu_form: {
+            context: "menu", 
             context_header: {
                 show: true,
-                title: "Module",
+                title: "Menu",
                 breadcrumb: "title",
                 actions: [
                     { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_MENU", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },

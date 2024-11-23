@@ -2,11 +2,11 @@
 
     views: {
         main_view: { 
-
+            context: "query_browser",
             context_header: {
                 show: true,
                 title: "Db Explorer",
-                breadcrumb: "Db Explorer",
+                breadcrumb: "",
                 actions: []
             },           
             header: {
@@ -31,7 +31,7 @@
             manage: false
         },    
         query_result_view: { 
-            context: "register",
+            context: "query_browser",
             context_header: {
                 show: true,
                 title: "Registers",
@@ -64,29 +64,83 @@
                                     items: {
                                         result_tab: {
                                             custom: false,
-                                            icon: "fa fa-hourglass-half",
+                                            icon: "fa fa-box",
                                             title: "Result",
-                                            context: "register",					
+                                            context: "query_browser",					
                                             header: {show: false},                    
-                                            content: {show: false},
+                                            content: {
+                                                show: true,
+                                                rows: [                                                    
+                                                    {
+                                                        seperator: false,
+                                                        columns: [
+                                                            {
+                                                                title: "",
+                                                                sub_title: "",
+                                                                type: "view",
+                                                                width: "100%",
+                                                                layout: "horizontal",
+                                                                classes: "",
+                                                                view: "db_result_view"
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
                                             footer: {show: false}
                                         },
                                         schema_tab: {
                                             custom: false,
-                                            icon: "fa fa-hourglass-half",
+                                            icon: "fa fa-table-tree",
                                             title: "Schema",
-                                            context: "register",					
+                                            context: "query_browser",					
                                             header: {show: false},                    
-                                            content: {show: false},
+                                            content: {
+                                                show: true,
+                                                rows: [                                                    
+                                                    {
+                                                        seperator: false,
+                                                        columns: [
+                                                            {
+                                                                title: "",
+                                                                sub_title: "",
+                                                                type: "view",
+                                                                width: "100%",
+                                                                layout: "horizontal",
+                                                                classes: "",
+                                                                view: "db_schema_view"
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
                                             footer: {show: false}
                                         },
                                         query_tab: {
                                             custom: false,
-                                            icon: "fa fa-hourglass-half",
+                                            icon: "fa fa-clipboard",
                                             title: "Query",
-                                            context: "register",					
+                                            context: "query_browser",					
                                             header: {show: false},                    
-                                            content: {show: false},
+                                            content: {
+                                                show: true,
+                                                rows: [                                                    
+                                                    {
+                                                        seperator: false,
+                                                        columns: [
+                                                            {
+                                                                title: "",
+                                                                sub_title: "",
+                                                                type: "view",
+                                                                width: "100%",
+                                                                layout: "horizontal",
+                                                                classes: "",
+                                                                view: "db_query_view"
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            },
                                             footer: {show: false}
                                         }
                                     }
@@ -97,6 +151,75 @@
                 ]
             },
             footer: {show: false}
+        },
+        db_result_view: { 
+            context: "query_browser",
+            context_header: {show: false},           
+            header: {show: false},
+            content: {
+                show: true,
+                rows: [
+                    {
+                        columns: [
+                            {
+                                type: "none"
+                            }
+                        ]
+                    }                    
+                ]                
+            },
+            footer: {show: false},
+            sidebar: null,
+            manage: false
+        },
+        db_schema_view: { 
+            context: "query_browser",
+            context_header: {show: false},           
+            header: {show: false},
+            content: {
+                show: true,
+                rows: [
+                    {
+                        columns: [
+                            {
+                                type: "none"
+                            }
+                        ]
+                    }                    
+                ]                
+            },
+            footer: {show: false},
+            sidebar: null,
+            manage: false
+        },
+        db_query_view: { 
+            context: "query_browser",
+            context_header: {show: false},           
+            header: {show: false},
+            content: {
+                show: true,
+                rows: [
+                    {
+                        columns: [
+                            {
+                                title: "",
+                                sub_title: "",
+                                type: "fields",
+                                width: "100%",
+                                layout: "horizontal",
+                                collapsible: false,
+                                classes: "",
+                                fields: [
+                                    { type: "textarea", label: "", handle: "query", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
+                                ]
+                            }
+                        ]
+                    }                    
+                ]                
+            },
+            footer: {show: false},
+            sidebar: null,
+            manage: false
         }
     }    
 }

@@ -2,6 +2,7 @@ let page_type_config = {
 
     views: {
         main_view: { 
+            context: "product",
             context_header: {
                 show: true,
                 title: "Products",
@@ -119,6 +120,7 @@ let page_type_config = {
             manage: true             
         },
         product_form: {
+            context: "product",
             context_header: {
                 show: true,
                 title: "Product",

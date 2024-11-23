@@ -470,7 +470,7 @@ const View = (props, ref) => {
                 let title = config.context_header.title;            
 
                 if (config.context_header.breadcrumb) {   
-                    /* This means it should nbe single record view */             
+                    /* This means it should be single record view */             
                     title += currentRecord ? " / " : " - [New]";
                     if (currentRecord && currentRecord[config.context_header.breadcrumb]) {
                         breadcrumb = currentRecord[config.context_header.breadcrumb];

@@ -2,6 +2,7 @@ let distributor_config = {
 
     views: {
         main_view: { 
+            context: "distributor", 
             context_header: {
                 show: true,
                 title: "Distributor",
@@ -86,6 +87,7 @@ let distributor_config = {
             manage: true             
         },
         distributor_form: {
+            context: "distributor", 
             context_header: {
                 show: true,
                 title: "Distributor",

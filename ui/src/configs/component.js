@@ -2,6 +2,7 @@ let component_config = {
 
     views: {
         main_view: { 
+            context: "component", 
             context_header: {
                 show: true,
                 title: "Components",
@@ -132,6 +133,7 @@ let component_config = {
             manage: true             
         },
         component_form: {
+            context: "component", 
             context_header: {
                 show: true,
                 title: "Component",
@@ -179,6 +181,7 @@ let component_config = {
             manage: true 
         },
         mapping_form: {
+            context: "component", 
             context_header: {
                 show: false                
             },           

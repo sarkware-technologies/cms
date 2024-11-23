@@ -1,6 +1,9 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle, createRef } from "react";
+import { v4 as uuidv4 } from 'uuid';
 
 const DbGrid = (props, ref) => {
+
+    const contextObj = window._controller.getCurrentModuleInstance();
 
     const [state, setState] = useState({
         records: [],
@@ -16,6 +19,7 @@ const DbGrid = (props, ref) => {
     const [columns, setColumns] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(15);
+    const [message, setMessage] = useState("No record found.!");
 
     useImperativeHandle(ref, () => ({
         loadRecords: (_records) => {
@@ -28,164 +32,127 @@ const DbGrid = (props, ref) => {
         },
     }));
 
-    TableHeader = () => {
-        return (<thead><tr>{columns.map((col) => (<th key={col}>{col}</th>))}</tr></thead>);
+    const TableHeader = () => {console.log(state.headers);
+        return (<thead><tr>{state.headers.map((item) => (<th key={uuidv4()}>{item.column}</th>))}</tr></thead>);
     };
 
-    TableRecord = () => {
-        rows.push(
-            <tr key={uuidv4()}>
-            { 
-                state.columns.map((item, index) => { 
+    const TableRecord = (props) => { 
 
-                })
-            }
-            </tr>
-        );
+        const rows = [];
+        rows.push(<tr key={uuidv4()}>{ state.headers.map((item, index) => <td key={uuidv4()}>{props.record[item.column]}</td>) }</tr>);
+        return rows;
+
     };
 
-    TableRecords = () => {
+    const TableRecords = () => {
+
         if (state.records && state.records.length > 0) {
-            widget = <tbody key={uuidv4()} id="pharmarack-cms-data-grid-record-body">{records.map((item, index) => <TableRecord key={index} serial={((index + 1) + ((state.currentPage - 1) * state.recordsPerPage))} record={item} />)}</tbody>;                
-        } else {
-            let msg = "No record found.!";
-            if (props.config.empty_message) {
-                msg = props.config.empty_message;
-            }     
-            msg = access ? msg : "Read access forbidden.!";  
-            widget = <tbody key={uuidv4()} id="pharmarack-cms-data-grid-record-body"><tr><td colSpan={state.headers.length}><h2 className={`pharmarack-cms-data-grid-no-record ${ access ? "" : "access-restricted" }`}>{msg}</h2></td></tr></tbody>;
+            return <tbody key={uuidv4()} id="pharmarack-cms-data-grid-record-body">{state.records.map((item, index) => <TableRecord key={index} serial={((index + 1) + ((state.currentPage - 1) * state.recordsPerPage))} record={item} />)}</tbody>;                
+        } else {            
+            return <tbody key={uuidv4()} id="pharmarack-cms-data-grid-record-body"><tr><td colSpan={state.headers.length}><h2 className={`pharmarack-cms-data-grid-no-record`}>{message}</h2></td></tr></tbody>;
         }
 
-        return widget;
     }
 
-    fetchRecords = async () => {
+    const fetchRecords = async () => {  console.log("fetchRecords is called");
 
-        let endPoint = props.endPoint;
-        const request = {
-            method: "GET"
-        };
-
-        if (endPoint.indexOf("?") !== -1) {
-            endPoint = endPoint +"&page="+ state.currentPage;        
-        } else {
-            endPoint = endPoint +"?page="+ state.currentPage;        
+        let currentResource = null
+        if (contextObj.component.dbExplorerRef.current) {
+            currentResource = contextObj.component.dbExplorerRef.current.getCurrentResource();            
         }
 
-        request["endpoint"] = props.endPoint;
+        if (currentResource) {
 
-        let lastSearchFrom = null;
-        for (let i = 0; i < state.headers.length; i++) {
-            if (state.headers[i].search) {
-                lastSearchFrom = state.headers[i].field.handle;
+            setMessage("Loading... pls wait.!");
+
+            let endPoint = "/system/v1/query_browser/selectResource?tableName="+ currentResource;
+            const request = {
+                method: "GET"
+            };
+
+            if (endPoint.indexOf("?") !== -1) {
+                endPoint = endPoint +"&page="+ state.currentPage;        
+            } else {
+                endPoint = endPoint +"?page="+ state.currentPage;        
             }
-        }        
 
-        if (lastSearchFrom) {
-            endPoint += "&field="+ lastSearchFrom +"&search="+ lastSearchForRef.current;
-        } 
+            request["endpoint"] = endPoint;
 
-        setState((prevState) => ({...prevState, progress: false}));
+            let lastSearchFrom = null;
+            for (let i = 0; i < state.headers.length; i++) {
+                if (state.headers[i].search) {
+                    lastSearchFrom = state.headers[i].field.handle;
+                }
+            }        
 
-        try {
+            if (lastSearchFrom) {
+                endPoint += "&field="+ lastSearchFrom +"&search="+ lastSearchForRef.current;
+            } 
 
-            const _res = await window._controller.docker.dock(request);
-            let _records = _res.payload;
+            setState((prevState) => ({...prevState, progress: false}));
 
-            let _headers = [];
-            if (_records.length > 0) {
-                const _columns = _records[0];
-                Object.keys(_records[0]).forEach((item) => {
-                    _headers.push({
-                        column: item,
-                        searchable: false
-                    })
-                });
+            try {
+
+                const _res = await window._controller.docker.dock(request);
+                let _records = _res.records;
+
+                let _headers = [];
+                if (_records.length > 0) {
+                    const _columns = _records[0];
+                    Object.keys(_records[0]).forEach((item) => {
+                        _headers.push({
+                            column: item,
+                            searchable: false
+                        })
+                    });
+                }
+                
+                
+                setState((prevState) => ({
+                    ...prevState, 
+                    progress: false,
+                    records: _records,
+                    totalPages: _res.totalRecords,       
+                    recordsPerPage: _res.pageSize, 
+                    headers: _headers,
+                    currentRecord: {},                     
+                }));
+
+            } catch (e) {
+                console.log(e);
             }
-            
-            
-            setState((prevState) => ({
-                ...prevState, 
-                progress: false,
-                records: _records,
-                totalPages: _res.totalPages,       
-                recordsPerPage: _res.recordPerPage, 
-                headers: _headers,
-                currentRecord: {},                     
-            }));
 
-        } catch (e) {
-            console.log(e);
+        } else {
+            setMessage("Select a table from the selector window");
         }
 
     };
 
-    useEffect(() => {            
-        fetchRecords();
+    useEffect(() => {          
+        console.log(state);
+    }, [state]);
+
+    useEffect(() => {  
+        
+        if (props.handle == "selectorGrid") {
+            /* This is for showing selected table records */
+            fetchRecords();
+        } else {
+            /* This is for showing query result */
+
+        }
+        
     }, [state.currentPage]);
 
     return ( 
-        <div className={`pharmarack-cms-data-table-container ${props.config.handle}`}>
-            <table style={cssProps} className="pharmarack-cms-data-table">
+        <div className={`pharmarack-cms-data-table-container ${props.handle}`}>
+            <table className="pharmarack-cms-data-table">
                 <TableHeader headers={state.headers} lastSearch={lastSearchForRef.current} />
-                <TableRecords records={state.records} access={props.access} />      
+                <TableRecords records={state.records} />      
             </table>           
-            <Paginator />     
+              
         </div>      
     ); 
-
-    return (
-        <div>
-        <table border="1" width="100%" style={{ borderCollapse: "collapse" }}>
-            <thead>
-            <tr>
-                {columns.map((col) => (
-                <th key={col}>{col}</th>
-                ))}
-            </tr>
-            </thead>
-            <tbody>
-            {paginatedRows.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                {columns.map((col) => (
-                    <td key={col}>{row[col]}</td>
-                ))}
-                </tr>
-            ))}
-            </tbody>
-        </table>
-
-        {/* Pagination Controls */}
-        <div style={{ marginTop: "10px", textAlign: "center" }}>
-            <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            >
-            Previous
-            </button>
-            <span style={{ margin: "0 10px" }}>
-            Page {currentPage} of {totalPages}
-            </span>
-            <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            >
-            Next
-            </button>
-            <select
-            value={pageSize}
-            onChange={(e) => {
-                setPageSize(parseInt(e.target.value, 10));
-                setCurrentPage(1); // Reset to first page
-            }}
-            >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            </select>
-        </div>
-        </div>
-    );
 
 };
 

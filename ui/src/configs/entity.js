@@ -2,6 +2,7 @@ let entity_config = {
 
     views: {
         main_view: { 
+            context: "entity", 
             context_header: {
                 show: true,
                 title: "Entities",
@@ -97,6 +98,7 @@ let entity_config = {
             manage: false             
         },
         entity_form: {
+            context: "entity", 
             context_header: {
                 show: true,
                 title: "Entity",
@@ -143,6 +145,7 @@ let entity_config = {
             manage: true 
         },
         entity_sidebar_form: {
+            context: "entity", 
             context_header: {
                 show: false
             },

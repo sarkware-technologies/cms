@@ -12,7 +12,9 @@ export default class QueryBrowser {
     }
 
     /**
+     * 
      * Load all resources (tables, views, and procedures) in the database
+     * 
      */
     loadResources = async () => {
 
@@ -34,9 +36,11 @@ export default class QueryBrowser {
     };
 
     /**
+     * 
      * List resources (tables, views, or procedures) in the database
      * @param {String} type - Type of resource to list ('BASE TABLE', 'VIEW', 'PROCEDURE')
      * @returns {Promise<Array<String>>}
+     * 
      */
     listResources = async (type) => {
         
@@ -79,8 +83,10 @@ export default class QueryBrowser {
     };
 
     /**
+     * 
      * Validate a table name against preloaded resources
      * @param {String} tableName - Name of the table to validate
+     * 
      */
     validateTableName = (tableName) => {
         if (!this.tables.includes(tableName) && !this.views.includes(tableName)) {
@@ -89,9 +95,11 @@ export default class QueryBrowser {
     };
 
     /**
+     * 
      * Fetch all records from a table with pagination support
      * @param {Object} _req - Request object containing query params
      * @returns {Promise<Object>}
+     * 
      */
     selectResource = async (_req) => {
 
@@ -106,10 +114,10 @@ export default class QueryBrowser {
         try {
 
             const result = {
-                records: [],
-                structure: [],
+                records: [],                
                 totalRecords: 0,
                 elapsed: 0,
+                pageSize: 25
             };
 
             const page = parseInt(_req.query.page) || 1;
@@ -130,22 +138,8 @@ export default class QueryBrowser {
 
             result.records = records;
             result.elapsed = elapsed;
-
-            // Get table structure
-            const columnsQuery = `
-                SELECT column_name, data_type, is_nullable, column_default, extra 
-                FROM information_schema.columns 
-                WHERE table_schema = ? AND table_name = ?
-            `;
-            const columns = await MYDBM.queryWithConditions(columnsQuery, [process.env.API_DB, tableName]);
-
-            result.structure = columns.map((column) => ({
-                NAME: column.column_name,
-                TYPE: column.data_type,
-                NULL: column.is_nullable === "YES",
-                DEFAULT: column.column_default
-            }));
-
+            result.pageSize = limit;
+            
             return result;
 
         } catch (e) {
@@ -155,9 +149,42 @@ export default class QueryBrowser {
     };
 
     /**
+     * 
+     * Fetch table structure (alternative to `selectTable`)     
+     * @param {String} tableName - Table name to fetch structure for
+     * @returns {Promise<Array<Object>>}
+     * 
+     */
+    async getTableStructure(tableName) {
+
+        try {
+
+            const columnsQuery = `
+                SELECT column_name, data_type, is_nullable, column_default, extra 
+                FROM information_schema.columns 
+                WHERE table_schema = ? AND table_name = ?
+            `;
+            const columns = await MYDBM.queryWithConditions(columnsQuery, [process.env.API_DB, tableName]);
+
+            return columns.map((column) => ({
+                NAME: column.COLUMN_NAME,
+                TYPE: column.DATA_TYPE,
+                NULL: column.IS_NULLABLE === "YES",
+                DEFAULT: column.COLUMN_DEFAULT
+            }));
+
+        } finally {
+            await connection.end();
+        }
+
+    }
+
+    /**
+     * 
      * Execute a query snippet with validation and pagination
      * @param {Object} _req - Request object containing query params
      * @returns {Promise<Object>}
+     * 
      */
     executeSnippet = async (_req) => {
 
@@ -204,9 +231,11 @@ export default class QueryBrowser {
     };
 
     /**
+     * 
      * Check if a query contains unsafe statements
      * @param {String} query - SQL query to validate
      * @returns {Boolean}
+     * 
      */
     containsUnsafeStatements = (query) => {
         const unsafePatterns = /\b(DROP|DELETE|UPDATE|INSERT)\b/i;

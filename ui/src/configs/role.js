@@ -2,6 +2,7 @@ let role_config = {
 
     views: {
         main_view: { 
+            context: "role",
             context_header: {
                 show: true,
                 title: "Roles",
@@ -86,6 +87,7 @@ let role_config = {
             manage: true             
         },
         role_form: {
+            context: "role",
             context_header: {
                 show: true,
                 title: "Role",

@@ -2,6 +2,7 @@ let xls_upload_config = {
 
     views: {
         main_view: {
+            context: "xls_upload",
             context_header: {
                 show: true,
                 title: "Upload Components",
@@ -152,6 +153,7 @@ let xls_upload_config = {
             manage: true
         },
         upload_form: {
+            context: "xls_upload",
             context_header: {
                 show: true,
                 title: "Upload",

@@ -2,6 +2,7 @@ let auth_type_config = {
 
     views: {
         main_view: { 
+            context: "auth_type", 
             context_header: {
                 show: true,
                 title: "Auth Types",
@@ -97,6 +98,7 @@ let auth_type_config = {
             manage: true             
         },
         auth_type_form: {
+            context: "auth_type", 
             context_header: {
                 show: true,
                 title: "Auth Type",

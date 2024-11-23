@@ -43,6 +43,17 @@ router.get(
     })
 );
 
+router.get(
+    `/${moduleHandle}/resourceStructure`,
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
+        try {
+            res.status(200).json(await qbService.getTableStructure(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
 router.post(
     `/${moduleHandle}/executeSnippet`,
     await RC.interceptRequest(moduleHandle, 'post', [], async (req, res) => {

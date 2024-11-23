@@ -2,6 +2,7 @@ let page_type_config = {
 
     views: {
         main_view: { 
+            context: "page_type",
             context_header: {
                 show: true,
                 title: "Page Types",
@@ -78,6 +79,7 @@ let page_type_config = {
             manage: true             
         },
         page_type_form: {
+            context: "page_type",
             context_header: {
                 show: true,
                 title: "Page Type",

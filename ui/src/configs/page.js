@@ -2,6 +2,7 @@ let page_config = {
 
     views: {
         main_view: { 
+            context: "page",
             context_header: {
                 show: true,
                 title: "Pages",
@@ -121,6 +122,7 @@ let page_config = {
             manage: false             
         },
         page_form: {
+            context: "page",
             context_header: {
                 show: true,
                 title: "Page",

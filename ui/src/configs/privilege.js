@@ -2,6 +2,7 @@ let privilege_config = {
 
     views: {
         main_view: { 
+            context: "privilege",
             context_header: {
                 show: true,
                 title: "Privileges",
@@ -86,6 +87,7 @@ let privilege_config = {
             manage: true             
         },
         privilege_form: {
+            context: "privilege",
             context_header: {
                 show: true,
                 title: "Privilege",

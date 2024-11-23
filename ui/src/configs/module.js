@@ -1,7 +1,8 @@
 let module_config = {
 
     views: {
-        main_view: { 
+        main_view: {
+            context: "module", 
             context_header: {
                 show: true,
                 title: "Modules",
@@ -108,6 +109,7 @@ let module_config = {
             manage: true             
         },
         module_form: {
+            context: "module",
             context_header: {
                 show: true,
                 title: "Module",

@@ -2,7 +2,7 @@ let preview_config = {
 
     views: {
         main_view: { 
-
+            context: "preview",
             context_header: {
                 show: true,
                 title: "Preview",

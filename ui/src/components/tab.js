@@ -107,7 +107,7 @@ const Tab = (props, ref) => {
 
     };
 
-    const renderColumn = (_config) => { 
+    const renderColumn = (_config) => {   console.log("Render column (tab) is called"); console.log(_config);
         
         let widget = null,
             titles = [],
@@ -140,6 +140,13 @@ const Tab = (props, ref) => {
             const holderRef = React.createRef();
             widget = <div ref={holderRef} id={_config.placeholder} className="pharmarack-cms-placeholder-container"></div>;
             window._controller.registerField(_config.placeholder, _config.type, holderRef);
+
+        } else if (_config.type === "view") {
+
+            if (_config.view) {                           
+                const viewConfig = {...contextObj.config.views[_config.view]};
+                widget = <SubView config={viewConfig} handle={_config.view} />;
+            }            
 
         } else if (_config.type === "tab") {            
             /* Nested tab not yet supported */

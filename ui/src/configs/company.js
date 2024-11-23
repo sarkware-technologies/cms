@@ -2,6 +2,7 @@ let company_config = {
 
     views: {
         main_view: { 
+            context: "company", 
             context_header: {
                 show: true,
                 title: "Companies",
@@ -85,6 +86,7 @@ let company_config = {
             manage: true             
         },
         company_form: {
+            context: "company", 
             context_header: {
                 show: true,
                 title: "Company",

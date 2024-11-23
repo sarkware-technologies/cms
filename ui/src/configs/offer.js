@@ -2,6 +2,7 @@ let offer_config = {
 
     views: {
         main_view: { 
+            context: "offer",
             context_header: {
                 show: true,
                 title: "Upload Company Offers",

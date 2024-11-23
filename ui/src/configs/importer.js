@@ -2,6 +2,7 @@ let importer_config = {
 
     views: {
         main_view: { 
+            context: "importer", 
             context_header: {
                 show: true,
                 title: "Importers",
@@ -97,6 +98,7 @@ let importer_config = {
             manage: true             
         },
         importer_form: {
+            context: "importer", 
             context_header: {
                 show: true,
                 title: "Auth Type",

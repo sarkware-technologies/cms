@@ -1,7 +1,7 @@
 let retailer_config = {
 
     views: {
-        main_view: { 
+        main_view: {             
             context_header: {
                 show: true,
                 title: "Retailers",

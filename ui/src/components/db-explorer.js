@@ -14,9 +14,24 @@ const DbExplorer = (props, ref) => {
         setCurrentResource(_resource);
     };
 
-    const loadResources = async () => {
+    const loadSelectedResource = async () => {
 
-        let widgets = [];
+        const request = {
+            method: "GET",
+            endpoint: "/system/v1/query_browser/selectResource?tableName="+ currentResource
+        };
+
+        try {
+            const _res = await window._controller.docker.dock(request);
+            setResourceList(_res);
+        } catch (e) {
+            console.log(e);
+        }
+
+    };
+
+    const loadResources = async () => {
+        
         const request = {
             method: "GET",
             endpoint: "/system/v1/query_browser/listResources?type=1"
@@ -29,9 +44,13 @@ const DbExplorer = (props, ref) => {
             console.log(e);
         }
 
-        return widgets;
-
     };
+
+    const self = {        
+        getCurrentResource: () => currentResource
+    };
+
+    useImperativeHandle(ref, () => self);
 
     useEffect(() => {
         loadResources();

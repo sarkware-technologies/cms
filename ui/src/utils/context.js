@@ -221,12 +221,12 @@ const ContextWrapper = (props, ref) => {
                 Object.setPrototypeOf(self, new _module.default(self));
                 props.registerInstance(context);
 
+                /* Load capability for this module */
                 self.capability = window._controller.getModuleCapability(context);
 
             } catch (_e) {                
                 return;
             }
-
         }
 
         loadContext();        

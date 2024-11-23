@@ -2,6 +2,7 @@ let user_config = {
 
     views: {
         main_view: { 
+            context: "user",
             context_header: {
                 show: true,
                 title: "Users",
@@ -108,6 +109,7 @@ let user_config = {
             manage: true             
         },
         user_form: {
+            context: "user",
             context_header: {
                 show: true,
                 title: "User",
