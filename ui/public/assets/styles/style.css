@@ -952,6 +952,8 @@ div.pharmarack-cms-data-table-paginator > a {
     height: 30px;    
     align-items: center;
     justify-content: center;
+    padding: 0px 5px;
+    border-radius: 4px;
 }
 
 div.pharmarack-cms-data-table-paginator.disabled > a {
@@ -3655,6 +3657,10 @@ input[type="range"]::-moz-range-thumb {
     right: 0px;
 }
 
+.query_browser.main_view > div > div {
+    height: 100%;
+}
+
 .pharmarack-cms-db-explorer {
     display: flex;
     height: 100%;
@@ -3703,18 +3709,19 @@ input[type="range"]::-moz-range-thumb {
 
 .pharmarack-cms-db-explorer-result-container {
     width: calc(100% - 280px);
+    height: 100%;
 }
 
-.query_browser.main_view .pharmarack-cms-view-content-section {
+.pharmarack-cms-view-content-section.query_result_view { 
     height: 100%;    
 }
 
 .pharmarack-cms-view-content-section.db_query_view {
-    padding-left: 20px;
+    padding: 0px 20px;
 }
 
 .pharmarack-cms-view-content-section.db_query_view textarea {
-    height: 200px;
+    height: 120px;
     outline: none;
     margin-top: 5px;
 }
@@ -3732,6 +3739,89 @@ input[type="range"]::-moz-range-thumb {
     overflow: auto;
 }
 
-.pharmarack-cms-data-table-container.selectorGrid table {
-    width: auto;
+.pharmarack-cms-data-table-container.customQueryGrid,
+.pharmarack-cms-data-table-container.selectorGrid {    
+    overflow: auto;
+}
+
+.pharmarack-cms-data-table-container.schemaGrid table,
+.pharmarack-cms-data-table-container.selectorGrid table,
+.pharmarack-cms-data-table-container.customQueryGrid table {
+    width: auto;    
+}
+
+.pharmarack-cms-data-table-paginator.db-explorer-grid {
+    position: absolute;
+    right: 0px;
+    top: -70px;
+    z-index: 99999;
+}
+
+.pharmarack-cms-data-table-paginator.db-explorer-grid a {
+    min-width: 32px;   
+}
+
+.pharmarack-cms-db-explorer-result {
+    position: absolute;
+    right: 0px;
+    top: 8px;
+    z-index: 99999;
+    font-size: 14px;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.pharmarack-cms-tab-body.query_tab,
+.pharmarack-cms-tab-body.result_tab {
+    flex: none;
+    overflow: auto;
+    height: calc(100% - 52px);
+}
+
+.pharmarack-cms-tab-body.query_tab {
+    height: calc(100% - 67px);
+}
+
+.pharmarack-cms-tab-body.query_tab > div,
+.pharmarack-cms-tab-body.query_tab > div > div,
+.pharmarack-cms-tab-body.query_tab > div > div > div,
+.pharmarack-cms-tab-body.query_tab > div > div > div > div,
+.pharmarack-cms-tab.query_result_tab,
+.pharmarack-cms-view-content-section.query_result_view > div,
+.pharmarack-cms-view-content-section.query_result_view > div > div > div {
+    height: 100%;
+}
+
+.pharmarack-cms-view.db_query_view > div.after {
+    padding: 0px 20px;
+    position: relative;
+    height: calc(100% - 220px);
+    margin-top: 35px;
+}
+
+.pharmarack-cms-view-content-section.db_query_view button.EXECUTE {
+    margin-top: -5px;
+}
+
+.pharmarack-cms-data-table-container.customQueryGrid > .db-explorer-grid {
+    top: -40px;
+    padding: 0px 10px;
+}
+
+.pharmarack-cms-data-table-container.customQueryGrid .pharmarack-cms-db-explorer-result {
+    top: -80px;
+    right: 10px;
+}
+
+.pharmarack-cms-data-table-container.customQueryGrid table.loaded {    
+    border-top: 1px solid #ccc;
+}
+
+.pharmarack-cms-data-table-container.schemaGrid table {
+    margin-top: -15px;
+}
+
+.pharmarack-cms-data-table-container.schemaGrid table th {
+    background: #2196f3;
+    color: #fff;
 }

@@ -210,7 +210,8 @@
                                 collapsible: false,
                                 classes: "",
                                 fields: [
-                                    { type: "textarea", label: "", handle: "query", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
+                                    { type: "textarea", label: "", handle: "query", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },                                    
+                                    { type: "button", label: "Execute", theme: "primary", action: "EXECUTE", classes: "icon-left", icon: "fa fa-play", tabindex : 8, status: true, shortcut: "" }
                                 ]
                             }
                         ]

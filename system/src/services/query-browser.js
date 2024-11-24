@@ -133,11 +133,10 @@ export default class QueryBrowser {
 
             // Get paginated records
             const selectQuery = `SELECT * FROM ${tableName} LIMIT ? OFFSET ?`;
-            const records = await MYDBM.queryWithConditions(selectQuery, [limit, skip]);
-            const elapsed = Date.now() - startTime;
+            const records = await MYDBM.queryWithConditions(selectQuery, [limit, skip]);            
 
             result.records = records;
-            result.elapsed = elapsed;
+            result.elapsed = this.calculateElapsedTime(startTime, Date.now());
             result.pageSize = limit;
             
             return result;
@@ -155,9 +154,18 @@ export default class QueryBrowser {
      * @returns {Promise<Array<Object>>}
      * 
      */
-    async getTableStructure(tableName) {
+    async getTableStructure(_req) {
 
         try {
+
+            const result = {
+                records: [],                
+                totalRecords: 0,
+                elapsed: 0,
+                pageSize: 25
+            };
+
+            const tableName = _req.query.tableName;
 
             const columnsQuery = `
                 SELECT column_name, data_type, is_nullable, column_default, extra 
@@ -166,15 +174,20 @@ export default class QueryBrowser {
             `;
             const columns = await MYDBM.queryWithConditions(columnsQuery, [process.env.API_DB, tableName]);
 
-            return columns.map((column) => ({
+            result.records = columns.map((column) => ({
                 NAME: column.COLUMN_NAME,
                 TYPE: column.DATA_TYPE,
                 NULL: column.IS_NULLABLE === "YES",
                 DEFAULT: column.COLUMN_DEFAULT
             }));
 
-        } finally {
-            await connection.end();
+            result.totalRecords = result.records.length;
+            result.pageSize = result.records.length;
+
+            return result;
+
+        } catch (e) {
+            throw e;
         }
 
     }
@@ -188,43 +201,51 @@ export default class QueryBrowser {
      */
     executeSnippet = async (_req) => {
 
-        const query = _req.query.query;
-        const page = parseInt(_req.query.page) || 1;
-        const limit = parseInt(process.env.PAGE_SIZE) || 25;
-        const offset = (page - 1) * limit;
-
-        if (this.containsUnsafeStatements(query)) {
-            throw new Error("Query contains unsafe statements (DROP, DELETE, or UPDATE).");
-        }
-
-        const paginatedQuery = `${query} LIMIT ${limit} OFFSET ${offset}`;
-        const result = {
-            message: "",
-            records: [],
-            elapsed: 0,
-            totalRecords: 0,
-        };
-
         try {
+
+            if (!_req.body) {
+                throw new Error("request body is missing");   
+            }
+
+            if (!_req.body.query) {
+                throw new Error("query is missing");   
+            }
+
+            const query = _req.body.query;
+            const page = parseInt(_req.query.page) || 1;
+            const limit = parseInt(process.env.PAGE_SIZE) || 25;
+            const offset = (page - 1) * limit;
+
+            if (this.containsUnsafeStatements(query)) { console.log("validation error  - insafe query");
+                throw new Error("Query contains unsafe statements (DROP, DELETE, or UPDATE).");
+            }
+
+            const paginatedQuery = `${query} LIMIT ${limit} OFFSET ${offset}`;
+            const result = {                
+                records: [],
+                elapsed: 0,
+                totalRecords: 0,
+                pageSize: 25
+            };
+
             // Get total records for the base query
             const countQuery = `SELECT COUNT(*) AS total FROM (${query}) AS subquery`;
             const [countRows] = await MYDBM.query(countQuery);
-            result.totalRecords = countRows[0]?.total || 0;
+            result.totalRecords = countRows?.total || 0;
 
             const startTime = Date.now();
             const records = await MYDBM.query(paginatedQuery);
-            const elapsed = Date.now() - startTime;
+            const elapsed = this.calculateElapsedTime(startTime, Date.now());
+            result.pageSize = limit;
 
             if (Array.isArray(records)) {
                 result.records = records;
-            } else {
-                result.message = "Query Executed Successfully!";
             }
 
             result.elapsed = elapsed;
 
             return result;
-        } catch (error) {
+        } catch (error) { console.log(error);
             throw new Error(`Error executing query: ${error.message}`);
         }
 
@@ -240,6 +261,19 @@ export default class QueryBrowser {
     containsUnsafeStatements = (query) => {
         const unsafePatterns = /\b(DROP|DELETE|UPDATE|INSERT)\b/i;
         return unsafePatterns.test(query);
+    };
+
+    calculateElapsedTime = (_startTime, _endTime) => {
+
+        const elapsedMilliseconds = _endTime - _startTime;
+
+        const hours = Math.floor(elapsedMilliseconds / (1000 * 60 * 60));
+        const minutes = Math.floor((elapsedMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((elapsedMilliseconds % (1000 * 60)) / 1000);
+        const milliseconds = elapsedMilliseconds % 1000;
+
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
+
     };
 
 }

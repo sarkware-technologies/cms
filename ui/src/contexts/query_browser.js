@@ -50,6 +50,16 @@ export default function PreviewContext(_component) {
             _widgets = <DbGrid ref={this.dbGridRef} key={uuidv4()} handle="selectorGrid" />
             return { component: _widgets, pos: "replace" };
 
+        } else if (_handle == "db_schema_view" && _section === "content") {
+
+            _widgets = <DbGrid ref={this.dbGridRef} key={uuidv4()} handle="schemaGrid" />
+            return { component: _widgets, pos: "after" };
+
+        } else if (_handle == "db_query_view" && _section === "content") {
+
+            _widgets = <DbGrid ref={this.dbGridRef} key={uuidv4()} handle="customQueryGrid" />
+            return { component: _widgets, pos: "after" };
+
         }
 
         /* 'pos' could be 'before', 'after' or 'replace' */
@@ -66,8 +76,6 @@ export default function PreviewContext(_component) {
      * 
      */
     this.onTabViewMounted = ( _tabHandle, _tabItemHandle ) => {
-        
-        console.log(_tabHandle, _tabItemHandle);
 
     };
 
@@ -80,14 +88,29 @@ export default function PreviewContext(_component) {
      * 
      */
     this.beforeViewMount = (_handle, _viewConfig) => {
+        return _viewConfig;
+    };
 
-        if (_handle == "db_result_view") {
+    /**
+     * 
+     * @param {*} _action 
+     * 
+     * This handler called for any ( context specific ) action button click events 
+     * 
+     */
+    this.onActionBtnClick = (_action) => {
+
+        if (_action === "EXECUTE") {
+            
+            const queryText = this.controller.getField("db_query_view_query");
+            if (queryText && queryText.getVal()) {
+                this.dbGridRef.current.executeQuery();
+            } else {
+                this.controller.notify("Enter your query to execute", "error");
+            }
 
         }
 
-        console.log(_handle, _viewConfig);
-
-        return _viewConfig;
-    };
+    }
 
 };

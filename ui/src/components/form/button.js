@@ -19,7 +19,7 @@ const Button = (props, ref) => {
 
     const renderButton = () => {
         
-        let classes = "pharmarack-cms-btn ";
+        let classes = "pharmarack-cms-btn "+ config.action +" ";
         if (config.theme) {
             classes += config.theme +" ";
         }

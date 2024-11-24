@@ -14,22 +14,6 @@ const DbExplorer = (props, ref) => {
         setCurrentResource(_resource);
     };
 
-    const loadSelectedResource = async () => {
-
-        const request = {
-            method: "GET",
-            endpoint: "/system/v1/query_browser/selectResource?tableName="+ currentResource
-        };
-
-        try {
-            const _res = await window._controller.docker.dock(request);
-            setResourceList(_res);
-        } catch (e) {
-            console.log(e);
-        }
-
-    };
-
     const loadResources = async () => {
         
         const request = {

@@ -296,7 +296,7 @@ const View = (props, ref) => {
         } else if (_config.type === "image") {            
             field = <Image ref={fieldRef} namespace={_namespace} config={_config} />
         } else if (_config.type === "button") {            
-            field = <Button ref={fieldRef} namespace={_namespace} config={_config} />
+            field = <Button key={_config.handle} ref={fieldRef} namespace={_namespace} config={_config} />
         } else if (_config.type === "media") {
             field = <Media ref={fieldRef} namespace={_namespace} config={_config} />
         } else if (_config.type === "view") {

@@ -107,7 +107,7 @@ const Tab = (props, ref) => {
 
     };
 
-    const renderColumn = (_config) => {   console.log("Render column (tab) is called"); console.log(_config);
+    const renderColumn = (_config) => {
         
         let widget = null,
             titles = [],
@@ -303,7 +303,7 @@ const Tab = (props, ref) => {
             sections.push(prepareTabItems());
         }
         sections.push(renderTabBody());
-        return <div key={uuidv4()} className={`pharmarack-cms-tab ${state.config.position}`}>{sections}</div>
+        return <div key={uuidv4()} className={`pharmarack-cms-tab ${state.config.position} ${handle}`}>{sections}</div>
 
     };
 
