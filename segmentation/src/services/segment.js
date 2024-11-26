@@ -2,7 +2,7 @@ import EM from "../utils/entity.js";
 import AP from "./api.js";
 import MYDBM from "../utils/mysql.js";
 import Utils from "../utils/utils.js";
-import SegmentBuildManager from "../builders/build-manager.js";
+import SegmentBuildManager from "../builders/segment-build-manager.js";
 
 import SegmentType from "../enums/segment-type.js";
 import SegmentStatus from "../enums/segment-status.js";

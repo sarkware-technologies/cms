@@ -4,11 +4,14 @@ import View from "./view";
 
 const DbExplorer = (props, ref) => {
 
-    const viewRef = React.createRef(); 
-    const [currentResource, setCurrentResource] = useState("");
-    const [resourceList, setResourceList] = useState([]);
-    const contextObj = window._controller.getCurrentModuleInstance();  
-    const _config = contextObj.config
+    const viewRef = React.createRef(null); 
+    const searchResourceRef = React.createRef(null); 
+    const [currentResource, setCurrentResource] = useState(null);
+    const [state, setState] = useState({
+        source: [],
+        result: []
+    });
+    const contextObj = window._controller.getCurrentModuleInstance();      
 
     const selectResource = (_resource) => {
         setCurrentResource(_resource);
@@ -23,10 +26,35 @@ const DbExplorer = (props, ref) => {
 
         try {
             const _res = await window._controller.docker.dock(request);
-            setResourceList(_res);
-        } catch (e) {
-            console.log(e);
+            setState({
+                source: _res,
+                result: _res
+            });
+        } catch (e) {            
+            window._controller.notify(e.message, "error");
         }
+
+    };
+
+    const handleSearch = (event) => {
+        
+        const searchText = event.target.value.toLowerCase();
+
+        // Separate resources into "starts with" and "contains" groups
+        const startsWith = state.source.filter((resource) =>
+            resource.toLowerCase().startsWith(searchText)
+        );
+        const contains = state.source.filter((resource) =>
+            !resource.toLowerCase().startsWith(searchText) && resource.toLowerCase().includes(searchText)
+        );
+
+        // Combine both lists, prioritizing "starts with"
+        const filteredResources = [...startsWith, ...contains];
+        
+        setState((prevState) => ({
+            ...prevState,
+            result: filteredResources
+        }));
 
     };
 
@@ -44,9 +72,9 @@ const DbExplorer = (props, ref) => {
         <div className="pharmarack-cms-db-explorer">
 
             <div className="pharmarack-cms-db-explorer-resource-container">
-                <input type="search" className="pharmarack-cms-resource-search-txt" />
+                <input ref={searchResourceRef} type="search" onChange={handleSearch} className="pharmarack-cms-resource-search-txt" />
                 <div className="pharmarack-cms-resource-window">
-                    {resourceList.map((_resource) => <a key={uuidv4()} href="#" className={`${ (currentResource == _resource) ? "active" : "" }`} onClick={() => selectResource(_resource)}>{_resource}</a>)}
+                    {state.result.map((_resource) => <a key={uuidv4()} href="#" className={`${ (currentResource == _resource) ? "active" : "" }`} onClick={() => selectResource(_resource)}>{_resource}</a>)}
                 </div>
             </div>
             <div className="pharmarack-cms-db-explorer-result-container">                

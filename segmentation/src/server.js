@@ -7,7 +7,6 @@ import routes from "./routes/index.js"
 import MDBM from "./utils/mongo.js";
 import MYDBM from "./utils/mysql.js";
 import RC from "./utils/request-interceptor.js";
-import SegmentBuildManager from "./builders/build-manager.js";
 import HK from "./utils/house-keep.js";
 
 /**
@@ -70,13 +69,9 @@ class SegmentServer {
         try {
 
             await MDBM.connect();   
-            await MYDBM.connect(true);  
-            
+            await MYDBM.connect(true);              
             await HK.check();
 
-            const builder = new SegmentBuildManager();
-            //builder.processQueue();
-            
             if (MDBM.isConnected()) {
                 this.app.listen(process.env.SYSTEM_PORT);
             } else {

@@ -3730,8 +3730,13 @@ input[type="range"]::-moz-range-thumb {
     border: solid 1px #2196F3;    
 }
 
+.pharmarack-cms-tab-body.schema_tab,
 .pharmarack-cms-tab-body.result_tab {
     margin-top: -15px;
+}
+
+.pharmarack-cms-tab-body.schema_tab {
+    padding-top: 15px;
 }
 
 .pharmarack-cms-view.db_result_view {
@@ -3771,6 +3776,7 @@ input[type="range"]::-moz-range-thumb {
     padding-right: 10px;
 }
 
+.pharmarack-cms-tab-body.schema_tab,
 .pharmarack-cms-tab-body.query_tab,
 .pharmarack-cms-tab-body.result_tab {
     flex: none;
@@ -3778,6 +3784,7 @@ input[type="range"]::-moz-range-thumb {
     height: calc(100% - 52px);
 }
 
+.pharmarack-cms-tab-body.schema_tab,
 .pharmarack-cms-tab-body.query_tab {
     height: calc(100% - 67px);
 }

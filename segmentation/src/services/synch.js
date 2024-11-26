@@ -1,5 +1,6 @@
 import EM from '../utils/entity.js';
 import MYDBM from '../utils/mysql.js';
+import QueueStatus from '../enums/queue-status.js';
 
 export default class SynchService {
 
@@ -18,6 +19,7 @@ export default class SynchService {
                 throw new Error("RetailerId parameter is missing");
             }
 
+            const retailerQueueModel = await EM.getModel("cms_segment_retailer_queue");
             const retailerModel = await EM.getModel("cms_master_retailer");
             const retailer = await MYDBM.queryWithConditions(`
                 select 
@@ -53,7 +55,15 @@ export default class SynchService {
                     }
                 );
     
-                await retailerObj.save();    
+                await retailerObj.save();                  
+                
+                /* Add it to the queue */
+                const retailerQueue = new retailerQueueModel({
+                    retailerId: RetailerId,
+                    queueStatus : QueueStatus.WAITING
+                });
+                await retailerQueue.save();
+                
                 return { status: true, message: "Retailer "+ retailer[0].RetailerName +" has been synched" };
 
             } else {
@@ -84,12 +94,28 @@ export default class SynchService {
 
             delete body["RetailerId"];            
 
-            const retailerModel = await EM.getModel("cms_master_retailer");            
+            const retailerModel = await EM.getModel("cms_master_retailer");  
+            const retailerQueueModel = await EM.getModel("cms_segment_retailer_queue");
+
             const retailer = await retailerModel.findOneAndUpdate(
                 { RetailerId: RetailerId },
                 { $set: { ...body } },
                 { new: true }
             );
+
+            /* Add it to the queue */
+            const queue = await retailerQueueModel.findOne({
+                retailerId: RetailerId,
+                queueStatus : QueueStatus.WAITING
+            }).lean();
+
+            if (!queue) {
+                const orderQueue = new retailerQueueModel({
+                    retailerId: RetailerId,
+                    queueStatus : QueueStatus.WAITING
+                });
+                await orderQueue.save();
+            }
 
             if (retailer) {
                 return { status: true, message: "Retailer "+ retailer.RetailerName +" has been updated" };
@@ -141,7 +167,8 @@ export default class SynchService {
             const orderModel = await EM.getModel("cms_master_order");
             const orderItemModel = await EM.getModel("cms_master_order_item");            
             const retailerModel = await EM.getModel("cms_master_retailer"); 
-            const storeModel = await EM.getModel("cms_master_store");   
+            const storeModel = await EM.getModel("cms_master_store"); 
+            const orderQueueModel = await EM.getModel("cms_segment_order_queue");  
 
             const orders = await MYDBM.queryWithConditions(`
                 SELECT 
@@ -242,6 +269,14 @@ export default class SynchService {
                     }));
 
                     await orderItemModel.insertMany(itemsObj, { ordered: false });
+
+                    /* Add it to the queue */
+                    const orderQueue = new orderQueueModel({
+                        orderId: OrderId,
+                        queueStatus : QueueStatus.WAITING
+                    });
+                    await orderQueue.save();
+
                     return { status: true, message: "Order "+ OrderId +" has been synched" }; 
 
                 } else {
@@ -276,12 +311,28 @@ export default class SynchService {
 
             delete body["OrderId"];            
 
-            const orderModel = await EM.getModel("cms_master_order");          
+            const orderModel = await EM.getModel("cms_master_order");
+            const orderQueueModel = await EM.getModel("cms_segment_order_queue");  
+
             const order = await orderModel.findOneAndUpdate(
                 { orderId: OrderId },
                 { $set: { ...body } },
                 { new: true }
             );
+
+            /* Add it to the queue */
+            const queue = await orderQueueModel.findOne({
+                orderId: OrderId,
+                queueStatus : QueueStatus.WAITING
+            }).lean();
+
+            if (!queue) {
+                const orderQueue = new orderQueueModel({
+                    orderId: OrderId,
+                    queueStatus : QueueStatus.WAITING
+                });
+                await orderQueue.save();
+            }            
 
             if (order) {
                 return { status: true, message: "Order "+ OrderId +" has been synched" };

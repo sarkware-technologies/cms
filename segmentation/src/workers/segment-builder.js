@@ -146,7 +146,7 @@ const checkSegmentRules = async(_retailerId, _orders, _segment) => {
                 );
 
                 await models.cms_segment_retailer_rules_summary.findOneAndUpdate(
-                    { retailer: _retailerId, segment: _segment._id },
+                    { retailer: _retailerId, segmentRule: rule._id },
                     {            
                         ruleType,
                         target,
@@ -273,9 +273,9 @@ const checkRetailerEligibility = async (_retailerId, _segment) => {
         const { from, latest } = finalOrders.reduce((acc, order) => {
             try {
 
-                const orderDate = new Date(order.orderDate.$date);        
+                const orderDate = new Date(order.orderDate);        
                 if (isNaN(orderDate)) {
-                    throw new Error(`Invalid date: ${order.orderDate.$date}`);
+                    throw new Error(`Invalid date: ${order.orderDate}`);
                 }
         
                 if (!acc.from || orderDate < acc.from) {
