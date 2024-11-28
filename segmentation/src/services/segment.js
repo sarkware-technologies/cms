@@ -65,7 +65,7 @@ export default class SegmentService {
                 _count = await segmentModel.countDocuments({});
                 _segments = await segmentModel.find({}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
             }
-            
+
             for (let i = 0; i < _segments.length; i++) {
                 
                 if (_segments[i].segmentType == SegmentType.DYNAMIC) {
@@ -848,6 +848,105 @@ export default class SegmentService {
 
     };
 
+    searchBrands = async (_req) => {
+
+        try {
+
+            const pageSize = 10;
+            const page = parseInt(_req.query.page) || 1;
+            const skip = (page - 1) * pageSize;                       
+            const search = _req.query.search ? `%${_req.query.search}%` : "%";
+
+            const _records = await MYDBM.queryWithConditions(
+                'SELECT * FROM brands b WHERE b.IsDeleted = 0 AND b.IsApproved = 1 AND LOWER(Name) LIKE LOWER(?) LIMIT ?, ?',
+                [search, skip, pageSize]
+            );
+            const totalCount = await MYDBM.queryWithConditions(
+                'SELECT COUNT(*) as count FROM brands b WHERE b.IsDeleted = 0 AND b.IsApproved = 1 AND LOWER(Name) LIKE LOWER(?)',
+                [search]
+            );
+
+            return [((Array.isArray(totalCount) && totalCount.length == 1) ? totalCount[0].count : 0), page, _records];                  
+
+        } catch (e) {
+            throw e;
+        }
+
+    };
+
+    searchCategories = async (_req) => {
+
+        try {
+
+            const pageSize = 10;
+            const page = parseInt(_req.query.page) || 1;
+            const skip = (page - 1) * pageSize;                       
+            const search = _req.query.search ? `%${_req.query.search}%` : "%";
+
+            const _records = await MYDBM.queryWithConditions(
+                `SELECT DISTINCT(s.Category) AS Name
+                FROM storeproducts s
+                WHERE LOWER(s.Category) LIKE LOWER(?)
+                ORDER BY s.Category
+                LIMIT ? OFFSET ?`
+                [search, skip, pageSize]
+            );
+            const totalCount = await MYDBM.queryWithConditions(
+                `SELECT COUNT(DISTINCT s.Category) AS TotalCount
+                FROM storeproducts s
+                WHERE LOWER(s.Category) LIKE LOWER(?)`,
+                [search]
+            );
+
+            return [((Array.isArray(totalCount) && totalCount.length == 1) ? totalCount[0].count : 0), page, _records];                        
+
+        } catch (e) {
+            throw e;
+        }
+
+    };
+
+    searchMdmProducts = async (_req) => {
+
+        try {
+
+            const pageSize = 10;
+            const page = parseInt(_req.query.page) || 1;
+            const skip = (page - 1) * pageSize;                       
+            const search = _req.query.search ? `'%${_req.query.search}%'` : `'%'`;
+
+            const _records = await MYDBM.queryWithConditions(
+                `SELECT DISTINCT mspm.MDM_PRODUCT_CODE, 
+                CONCAT(mspm.MDM_PRODUCT_CODE, ' - ', mgpm.PRODUCT_NAME) AS ProductName
+                FROM mdm_store_product_master mspm
+                INNER JOIN prproduct_mdm_product_linkage pmpl 
+                    ON pmpl.PRODUCT_CODE = mspm.PRODUCT_CODE
+                INNER JOIN mdm_golden_product_master mgpm 
+                    ON pmpl.MDM_PRODUCT_CODE = mgpm.MDM_PRODUCT_CODE
+                WHERE (LOWER(mgpm.PRODUCT_NAME) LIKE LOWER(${search}) OR LOWER(mspm.MDM_PRODUCT_CODE) LIKE LOWER(${search}))
+                LIMIT ${skip}, ${pageSize}`,
+                []
+            );
+
+            const totalCount = await MYDBM.queryWithConditions(
+                `SELECT COUNT(DISTINCT mspm.MDM_PRODUCT_CODE) AS TotalCount
+                FROM mdm_store_product_master mspm
+                INNER JOIN prproduct_mdm_product_linkage pmpl 
+                    ON pmpl.PRODUCT_CODE = mspm.PRODUCT_CODE
+                INNER JOIN mdm_golden_product_master mgpm 
+                    ON pmpl.MDM_PRODUCT_CODE = mgpm.MDM_PRODUCT_CODE
+                WHERE (LOWER(mgpm.PRODUCT_NAME) LIKE LOWER(${search}) OR LOWER(mspm.MDM_PRODUCT_CODE) LIKE LOWER(${search}))`,
+                []
+            );
+
+            return [((Array.isArray(totalCount) && totalCount.length == 1) ? totalCount[0].TotalCount : 0), page, _records];            
+
+        } catch (e) {  console.log(e);
+            throw e;
+        }
+
+    };
+
     init = async () => {
 
         AP.event.on('on_segment_segment_multi_select_list', async (_params, callback) => {
@@ -860,20 +959,25 @@ export default class SegmentService {
 
                 if (_entity) {
 
-                    if (_entity === "segment") {  
+                    if (_entity === "segment") { 
+
                         callback(await segmentModel.find().lean(), null);
+
                     } else if (_entity === "brands") {
-                        callback(await MYDBM.query(`select * from brands b where b.IsDeleted = 0 AND b.IsApproved = 1`), null);
-                    } else if (_entity === "mdms") { 
-                        callback(await MYDBM.query(`SELECT DISTINCT mspm.MDM_PRODUCT_CODE, 
-                                                    CONCAT(mspm.MDM_PRODUCT_CODE, ' - ', mgpm.PRODUCT_NAME) AS ProductName
-                                                    FROM mdm_store_product_master mspm
-                                                    INNER JOIN prproduct_mdm_product_linkage pmpl 
-                                                    ON pmpl.PRODUCT_CODE = mspm.PRODUCT_CODE 
-                                                    INNER JOIN mdm_golden_product_master mgpm 
-                                                    ON pmpl.MDM_PRODUCT_CODE = mgpm.MDM_PRODUCT_CODE;`), null);
+
+                        const [count, page, records] = await this.searchBrands(_req);
+                        callback(Utils.response(count, page, records), null);
+
+                    } else if (_entity === "mdms") {   console.log("entity is mdms,a bout to call searchMdmProducts");
+
+                        const [count, page, records] = await this.searchMdmProducts(_req);  console.log([count]);
+                        callback(Utils.response(count, page, records, 10), null);
+
                     } else if (_entity === "categories") { 
-                        callback(await MYDBM.query("select DISTINCT(s.Category) as Name from storeproducts s"), null);                         
+                        
+                        const [count, page, records] = await this.searchCategories(_req);
+                        callback(Utils.response(count, page, records), null);
+
                     } else if (_entity === "companies") {
                         callback(await MYDBM.query("select * from companies c where c.IsDeleted = 0 AND c.IsApproved = 1"), null);
                     } else if (_entity === "cities") {
@@ -922,26 +1026,27 @@ export default class SegmentService {
                 /* Update the batch options - if provided */
 
                 const {
-                    chunkSize,
-                    batchType,
-                    maxThread,
-                    recordIdsPerBatch,
+                    chunkSize,                    
+                    maxThread,                    
                     recordsPerBatch
                 } = _req.body;
     
-                if (chunkSize && batchType && maxThread && recordIdsPerBatch && recordsPerBatch) {  
-                    const batchOptionModel = await EM.getModel("cms_importer_batch_options");
-                    await batchOptionModel.findOneAndUpdate(
-                        { segment: _req.params.id },
-                        {            
-                            chunkSize,                            
-                            maxThread,
-                            recordIdsPerBatch,
-                            recordsPerBatch,
-                            segment: _req.params.id
-                        },
-                        { upsert: true, new: true }
-                    );
+                if (chunkSize && maxThread && recordsPerBatch) {  
+                    try {
+                        const batchOptionModel = await EM.getModel("cms_segment_batch_options");
+                        await batchOptionModel.findOneAndUpdate(
+                            { segment: _req.params.id },
+                            {            
+                                chunkSize,                            
+                                maxThread,                                
+                                recordsPerBatch,
+                                segment: _req.params.id
+                            },
+                            { upsert: true, new: true }
+                        );
+                    } catch (e) {
+                        console.log(e);
+                    }                    
                 }                
 
             }

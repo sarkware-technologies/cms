@@ -1,4 +1,4 @@
-import React from "react";
+import React, { createRef } from "react";
 import { createRoot } from 'react-dom/client';
 import { v4 as uuidv4 } from 'uuid';
 import SegmentPreview from "../components/segment-preview";
@@ -17,6 +17,8 @@ export default function SegmentContext(_component) {
     this.geographySelectorRef = null;
     this.segmentRuleContainer = null;
     this.blacklistRetailerId = null;
+
+    this.segmentActionRef = createRef(null);
 
     /**
      * 
@@ -443,7 +445,7 @@ export default function SegmentContext(_component) {
 
             const _optionHolder = document.getElementById('segment_build_option_widget');
             const optionRoot = createRoot(_optionHolder);
-            optionRoot.render(<SegmentAction />);
+            optionRoot.render(<SegmentAction ref={this.segmentActionRef} />);
 
         }
 
@@ -559,6 +561,10 @@ export default function SegmentContext(_component) {
                 request["method"] = "POST";
                 request["endpoint"] = "/segmentation/v1/segment/" + segment._id +"/build"; 
 
+                if (this.segmentActionRef.current) {
+                    request["payload"] = this.segmentActionRef.current.getOptions();                    
+                }
+
                 this.controller.docker.dock(request).then((_res) => {
                     this.controller.notify(_res.message);                                        
                 })
@@ -571,10 +577,6 @@ export default function SegmentContext(_component) {
             }
 
         }
-
-    };
-
-    this.triggerBuildSegment = () => {
 
     };
 
@@ -723,11 +725,12 @@ export default function SegmentContext(_component) {
 
                 if (_res.status) {
                     this.controller.notify(((_res.payload ? _res.payload.title : _res.title )  + " saved successfully.!"));
+                    this.controller.switchView("main_view");
+                    this.component.currentRecord = {};
+                } else {
+                    this.controller.notify("Failed to save segment.!", "error");
                 }
 
-                
-                this.controller.switchView("main_view");
-                this.component.currentRecord = {};
             })
             .catch((e) => {
                 this.controller.notify(e.message, "error");

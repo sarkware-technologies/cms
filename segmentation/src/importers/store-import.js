@@ -30,7 +30,7 @@ export default class StoreImporter {
             await MYDBM.connect(false);
 
             const batchOptionModel = await EM.getModel("cms_importer_batch_options");
-            const batchOption = await batchOptionModel.findOne({batchType: ImportType.ORDER_IMPORTER}).lean();
+            const batchOption = await batchOptionModel.findOne({batchType: ImportType.STORE_IMPORTER}).lean();
             if (batchOption) {
                 this.storesPerBatch = batchOption.recordsPerBatch;
                 this.storeIdsPerBatch = batchOption.recordIdsPerBatch;

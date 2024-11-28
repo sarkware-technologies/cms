@@ -25,7 +25,8 @@ const Search = (props, ref) => {
     });
 
     const fetchRecords = (page = 1, searchText = "") => {
-        setState((prevState) => ({ ...prevState, isLoading: true }));
+
+        setState({ ...state, active: true, isLoading: true });
 
         let endPoint = props.config.datasource.endpoint;
         if (!props.config.datasource.cached) {
@@ -48,6 +49,7 @@ const Search = (props, ref) => {
 
                 setState({
                     ...state,
+                    active: true,
                     allRecords,
                     records: allRecords.slice(0, state.recordsPerPage),
                     totalPages,
@@ -58,6 +60,7 @@ const Search = (props, ref) => {
             } else {
                 setState({
                     ...state,
+                    active: true,
                     records: _res.payload,
                     totalPages: _res.totalPages,
                     currentPage: page,
@@ -73,11 +76,16 @@ const Search = (props, ref) => {
     };
 
     const handleResultBoxFocus = () => {
-        setState((prevState) => ({ ...prevState, active: true }));
-        if (props.config.datasource.cached && state.allRecords.length === 0) {
-            fetchRecords();
-        } else if (!props.config.datasource.cached) {
-            fetchRecords(state.currentPage, state.searchText);
+        // Ensure dropdown only activates when it's not already active
+        if (!state.active) {
+            setState({ ...state, active: true });
+
+            // Fetch records only when necessary
+            if (props.config.datasource.cached && state.allRecords.length === 0) {
+                fetchRecords();
+            } else if (!props.config.datasource.cached) {
+                fetchRecords(state.currentPage, state.searchText);
+            }
         }
     };
 
@@ -224,25 +232,20 @@ const Search = (props, ref) => {
 
     useEffect(() => {
 
-        const handleBlur = (event) => {
+        const handleBlur = (event) => { console.log("handleBlur is called");
             if (containerRef.current && !containerRef.current.contains(event.relatedTarget)) {
                 setState((prevState) => ({ ...prevState, active: false }));
             }
         };
-
-        resultInputRef.current.addEventListener("focus", handleResultBoxFocus);
+        
         containerRef.current.addEventListener("blur", handleBlur, true);
 
         return () => {
-
-            if (resultInputRef.current) {
-                resultInputRef.current.removeEventListener("focus", handleResultBoxFocus);
-            }
             if (containerRef.current) {
                 containerRef.current.removeEventListener("blur", handleBlur, true);
-            }
-            
+            }            
         };
+
     }, []);
 
     const self = {
@@ -302,7 +305,7 @@ const Search = (props, ref) => {
 
                     <div className="pharmarack-cms-search-records">
                         {state.isLoading ? (
-                            <div className="pharmarack-cms-search-box-progress"><i className="fa fa-spinner fa-spin"></i> Loading...</div>
+                            <div className="pharmarack-cms-search-box-progress"><i className="fa fa-spinner fa-spin"></i>&nbsp;&nbsp;Loading...</div>
                         ) : (
                             renderSearchRecords()
                         )}

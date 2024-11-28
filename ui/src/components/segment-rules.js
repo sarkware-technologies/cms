@@ -1,5 +1,6 @@
 import React, {forwardRef, useImperativeHandle, useState, useRef, useEffect, useMemo} from "react";
 import DropDown from "./dropdown";
+import Search from "./search";
 
 const SegmentRule = (props, ref) => {
 
@@ -27,7 +28,7 @@ const SegmentRule = (props, ref) => {
         validation_message: "", 
         value_key: "MDM_PRODUCT_CODE", 
         label_key: "ProductName", 
-        datasource: {endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=mdms", cached: true, recordsPerPage: 10}
+        datasource: {endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=mdms", cached: false, recordsPerPage: 10}
     }), []);
 
     const brandSelectorConfig = useMemo(() => ({ 
@@ -50,7 +51,7 @@ const SegmentRule = (props, ref) => {
         validation_message: "", 
         value_key: "BrandId", 
         label_key: "Name", 
-        datasource: {endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=brands", cached: true, recordsPerPage: 10}
+        datasource: {endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=brands", cached: false, recordsPerPage: 10}
     }), []);
 
     const categorySelectorConfig = useMemo(() => ({ 
@@ -73,7 +74,7 @@ const SegmentRule = (props, ref) => {
         validation_message: "", 
         value_key: "Name", 
         label_key: "Name", 
-        datasource: {endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=categories", cached: true, recordsPerPage: 10}
+        datasource: {endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=categories", cached: false, recordsPerPage: 10}
     }), []);
 
     const citySelectorConfig = useMemo(() => ({ 
@@ -181,7 +182,7 @@ const SegmentRule = (props, ref) => {
             selectorRefs.current[`selector_${_index}`] = React.createRef();
         }
 
-        return <DropDown ref={selectorRefs["selector_"+ _index]} config={_config} value={rules[_index].target} index={_index} onRecordSelected={handleTargetChange}/>
+        return <Search key={"selector_"+ _index} ref={selectorRefs["selector_"+ _index]} config={_config} value={rules[_index].target} index={_index} onRecordSelected={handleTargetChange}/>
 
     };
 

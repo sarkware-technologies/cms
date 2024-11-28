@@ -238,6 +238,11 @@ export default function ImporterContext(_component) {
                 request["endpoint"] = "/segmentation/v1/master_import/store/start";
             }
 
+            if (this.taskOption.current) {
+                request["payload"] = this.taskOption.current.getOptions();
+                request["payload"]["batchType"] = record.type;
+            }   
+            
             this.controller.docker.dock(request).then((_res) => {
 
                 this.controller.notify(("Importer process started successfully.!"));    

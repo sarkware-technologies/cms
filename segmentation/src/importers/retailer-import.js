@@ -31,7 +31,7 @@ export default class RetailerImporter {
             await MYDBM.connect(false);
 
             const batchOptionModel = await EM.getModel("cms_importer_batch_options");
-            const batchOption = await batchOptionModel.findOne({batchType: ImportType.ORDER_IMPORTER}).lean();
+            const batchOption = await batchOptionModel.findOne({batchType: ImportType.RETAILER_IMPORTER}).lean();
             if (batchOption) {
                 this.retailersPerBatch = batchOption.recordsPerBatch;
                 this.retailerIdsPerBatch = batchOption.recordIdsPerBatch;

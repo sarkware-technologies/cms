@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const DbGrid = (props, ref) => {
 
+    const lastSearchForRef = createRef(null);
     const contextObj = window._controller.getCurrentModuleInstance();
 
     const [state, setState] = useState({
@@ -16,12 +17,6 @@ const DbGrid = (props, ref) => {
         elapsed: 0,
         message: (props.handle == "selectorGrid") ? "Select a table from the selector window" : "Enter your query and click on the Execute button"
     });
-
-    const lastSearchForRef = createRef(null);
-    const [rows, setRows] = useState([]);
-    const [columns, setColumns] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(15);    
 
     useImperativeHandle(ref, () => ({
         executeQuery: executeQuery,
@@ -53,7 +48,7 @@ const DbGrid = (props, ref) => {
         } else {
             _currentPage = _page;            
         } 
-        
+
         setState((prevState) => ({...prevState, currentPage: _currentPage}));            
         
     }
@@ -133,7 +128,7 @@ const DbGrid = (props, ref) => {
     const executeQuery = async () => {
 
         const queryText = contextObj.getField("db_query_view_query");
-        if (queryText) {
+        if (queryText && queryText.getVal()) {
 
             setState((prevState) => ({
                 ...prevState,
@@ -142,7 +137,7 @@ const DbGrid = (props, ref) => {
 
             const request = {
                 method: "POST",
-                endpoint: "/system/v1/query_browser/executeSnippet",
+                endpoint: "/system/v1/query_browser/executeSnippet?page="+ state.currentPage,
                 payload: { query: queryText.getVal()}
             };
 
@@ -287,6 +282,8 @@ const DbGrid = (props, ref) => {
             fetchRecords();
         } else if (props.handle == "schemaGrid") {
             fetchSchema();
+        } else {
+            executeQuery();
         }
     }, [state.currentPage]);
 

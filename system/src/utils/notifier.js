@@ -2,9 +2,9 @@ import AWS from 'aws-sdk';
 import axios from 'axios';
 
 AWS.config.update({
-	accessKeyId: process.env.SES_AWS_ACCESS_KEY,
-	secretAccessKey: process.env.SES_AWS_SECRET_KEY,
-	region: process.env.SES_AWS_REGION
+	accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY,	
+	region: process.env.AWS_REGION
 });
 
 class NotificationService {
@@ -15,29 +15,31 @@ class NotificationService {
 	}
 
 	// Internal method to send email
-	async sendFinalEmail(body, senderEmails) {
+	async sendFinalEmail(body, senderEmails) {  console.log(body);
 		try {
 			const parameters = {
 				Destination: { ToAddresses: senderEmails },
 				Message: {
 					Body: {},
-					Subject: { Charset: 'UTF-8', Data: body.subject },
+					Subject: { Charset: 'UTF-8', Data: body.subject || "No Subject" },
 				},
-				Source: process.env.SES_SOURCE_EMAIL_ID,
+				Source: process.env.SES_SOURCE_EMAIL_ID || "info@pharmarack.com",
 			};
-
+	
 			if (body.htmlData) {
 				parameters.Message.Body.Html = {
 					Charset: 'UTF-8',
 					Data: body.htmlData
 				};
-			} else {
+			} else if (body.data) {
 				parameters.Message.Body.Text = {
 					Charset: 'UTF-8',
 					Data: body.data
 				};
+			} else {
+				throw new Error("Email body is missing. Provide 'htmlData' or 'data' in the body.");
 			}
-
+	
 			await this.ses.sendEmail(parameters).promise();
 		} catch (error) {
 			console.error(error);

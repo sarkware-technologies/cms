@@ -168,7 +168,7 @@ const checkSegmentRules = async(_retailerId, _orders, _segment) => {
 
 };
 
-const checkRetailerEligibility = async (_retailerId, _segment) => {   
+const checkRetailerEligibility = async (_retailer, _segment) => {   
 
     try {
 
@@ -178,7 +178,7 @@ const checkRetailerEligibility = async (_retailerId, _segment) => {
         const filterOrderQuery = {};                
         const populateOrderQuery = [];            
         
-        filterOrderQuery["retailerId"] = _retailerId;
+        filterOrderQuery["retailerId"] = _retailer.RetailerId;
 
         if (_segment.fromDate && _segment.toDate) {
             filterOrderQuery["orderDate"] = { $gte: new Date(_segment.fromDate), $lte: new Date(_segment.toDate) };
@@ -237,8 +237,7 @@ const checkRetailerEligibility = async (_retailerId, _segment) => {
         }
 
         let finalOrders = await models.cms_master_order.find(filterOrderQuery)
-            .populate(populateOrderQuery)
-            .select("_id store retailer")
+            .populate(populateOrderQuery)            
             .lean();
 
         if (populateOrderQuery.some(item => item.path === "store")) {
@@ -246,63 +245,73 @@ const checkRetailerEligibility = async (_retailerId, _segment) => {
         }
         if (populateOrderQuery.some(item => item.path === "retailer")) {
             finalOrders = finalOrders.filter(order => order.retailer && order.retailer.isAuthorized);
-        }    
+        }
+
+        const oIds = finalOrders.map((order) => {
+
+            if (!stateIds.includes(order.stateId)) {
+                stateIds.push(order.stateId);
+            }
+            if (!regionIds.includes(order.regionId)) {
+                regionIds.push(order.regionId);
+            }
+            if (!_storeIds.includes(order.storeId)) {
+                _storeIds.push(order.storeId);
+            }
+            
+            return new ObjectId(order._id)
+
+        });
+        
+        const { from, latest } = finalOrders.reduce(
+            (acc, order) => {
+                try {
+                    // Parse the date if it exists
+                    const orderDate = order?.orderDate ? new Date(order?.orderDate) : null;
+        
+                    // Validate the parsed date
+                    if (!orderDate || isNaN(orderDate.getTime())) {
+                        throw new Error(`Invalid date: ${order?.orderDate}`);
+                    }
+        
+                    // Update the earliest date
+                    if (!acc.from || orderDate < acc.from) {
+                        acc.from = orderDate;
+                    }
+        
+                    // Update the latest date
+                    if (!acc.latest || orderDate > acc.latest) {
+                        acc.latest = orderDate;
+                    }
+                } catch (e) {
+                    console.error(`Error processing date for order ${order.orderId}: ${e.message}`);
+                }
+        
+                return acc;
+            },
+            { from: null, latest: null }
+        );
+        
+        try {
+            const sss = await models.cms_segment_retailer_summary.findOneAndUpdate(
+                { retailer: _retailer._id, segment: _segment._id },
+                {
+                    states: stateIds,
+                    regions: regionIds,
+                    stores: _storeIds,
+                    dateFrom: from,
+                    dateTo: latest
+                },
+                { upsert: true, new: true }
+            );
+        } catch (e) {
+            /* Ignore */
+            console.log(e);
+        }  
         
         if (segmentRules.length > 0) {
-
-            const oIds = finalOrders.map((order) => {
-
-                if (!stateIds.includes(order.stateId)) {
-                    stateIds.push(order.stateId);
-                }
-                if (!regionIds.includes(order)) {
-                    regionIds.push(order.regionId);
-                }
-                if (!_storeIds.includes(order)) {
-                    _storeIds.push(order.storeId);
-                }
-                
-                return new ObjectId(order._id)
-
-            });
-
-            return await checkSegmentRules(_retailerId, oIds, _segment);
-
-        } 
-
-        const { from, latest } = finalOrders.reduce((acc, order) => {
-            try {
-
-                const orderDate = new Date(order.orderDate);        
-                if (isNaN(orderDate)) {
-                    throw new Error(`Invalid date: ${order.orderDate}`);
-                }
-        
-                if (!acc.from || orderDate < acc.from) {
-                    acc.from = orderDate;
-                }
-                if (!acc.latest || orderDate > acc.latest) {
-                    acc.latest = orderDate;
-                }
-
-            } catch (e) {
-                console.error(`Error processing date for order ${order.orderId}: ${e.message}`);
-            }
-
-            return acc;
-        }, { from: null, latest: null });
-
-        await models.cms_segment_retailer_summary.findOneAndUpdate(
-            { retailer: _retailerId, segment: _segment._id },
-            {
-                states: stateIds,
-                regions: regionIds,
-                stores: _storeIds,
-                dateFrom: from,
-                dateTo: latest
-            },
-            { upsert: true, new: true }
-        );
+            return await checkSegmentRules(_retailer.RetailerId, oIds, _segment);
+        }     
         
         return finalOrders.length > 0 ? true : false;        
 
@@ -363,7 +372,7 @@ const processBatch = async (data) => {
 
             const eligibilityChecks = chunk.map((retailer) =>
                 limit(async () => {
-                    const isEligible = await checkRetailerEligibility(retailer.RetailerId, segment);
+                    const isEligible = await checkRetailerEligibility(retailer, segment);
                     if (isEligible) {
                         eligibleRetailersBatch.push({ segment: segment._id, retailer: retailer._id });
                     }

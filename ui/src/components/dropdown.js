@@ -68,27 +68,51 @@ const DropDown = (props, ref) => {
         .then((_res) => {
 
             let currentRecord = {};
-            const allRecords = _res;
-            const totalPages = Math.ceil(allRecords.length / state.recordsPerPage);
-            
-            if (props.value) {
-                for (let i = 0; i < allRecords.length; i++) {
-                    if (allRecords[i][props.config.value_key] == props.value) {
-                        currentRecord = allRecords[i];
-                    }
-                }                
-            }
 
-            setState({
-                ...state,
-                allRecords,
-                records: allRecords.slice(0, state.recordsPerPage),
-                totalPages,
-                currentPage: 1,                
-                loading: false,
-                active: state.active,
-                currentRecord: currentRecord
-            });
+            if (props.config.datasource.cached) {
+                
+                const allRecords = _res;
+                const totalPages = Math.ceil(allRecords.length / state.recordsPerPage);
+
+                if (props.value) {
+                    for (let i = 0; i < allRecords.length; i++) {
+                        if (allRecords[i][props.config.value_key] == props.value) {
+                            currentRecord = allRecords[i];
+                        }
+                    }                
+                }
+
+                setState({
+                    ...state,
+                    allRecords,
+                    records: allRecords.slice(0, state.recordsPerPage),
+                    totalPages,
+                    currentPage: 1,
+                    loading: false,
+                    active: state.active,
+                    currentRecord: currentRecord
+                });
+
+            } else {
+
+                if (props.value) {
+                    for (let i = 0; i < _res.payload.length; i++) {
+                        if (_res.payload[i][props.config.value_key] == props.value) {
+                            currentRecord = _res.payload[i];
+                        }
+                    }                
+                }
+
+                setState({
+                    ...state,
+                    records: _res.payload,
+                    totalPages: _res.totalPages,
+                    currentPage: _res.currentPage,
+                    loading: false,
+                    active: state.active,
+                    currentRecord: currentRecord
+                });
+            }
             
         })
         .catch((e) => {

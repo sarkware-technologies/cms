@@ -200,54 +200,73 @@ export default class QueryBrowser {
      * 
      */
     executeSnippet = async (_req) => {
-
+        
         try {
-
-            if (!_req.body) {
-                throw new Error("request body is missing");   
+            if (!_req.body || !_req.body.query) {
+                throw new Error("Request body or query is missing.");
             }
-
-            if (!_req.body.query) {
-                throw new Error("query is missing");   
-            }
-
-            const query = _req.body.query;
+    
+            const originalQuery = _req.body.query.trim(); // Frontend query
             const page = parseInt(_req.query.page) || 1;
             const limit = parseInt(process.env.PAGE_SIZE) || 25;
             const offset = (page - 1) * limit;
-
-            if (this.containsUnsafeStatements(query)) { console.log("validation error  - insafe query");
-                throw new Error("Query contains unsafe statements (DROP, DELETE, or UPDATE).");
+    
+            // Check for unsafe statements
+            if (this.containsUnsafeStatements(originalQuery)) {
+                throw new Error("Query contains unsafe statements (DROP, DELETE, UPDATE, etc.).");
             }
-
-            const paginatedQuery = `${query} LIMIT ${limit} OFFSET ${offset}`;
-            const result = {                
+    
+            // Parse and transform query for pagination
+            const paginatedQuery = `${originalQuery} LIMIT ${limit} OFFSET ${offset}`;
+            console.log(`Paginated Query: ${paginatedQuery}`);
+    
+            const result = {
                 records: [],
                 elapsed: 0,
                 totalRecords: 0,
-                pageSize: 25
+                pageSize: limit
             };
-
-            // Get total records for the base query
-            const countQuery = `SELECT COUNT(*) AS total FROM (${query}) AS subquery`;
+    
+            // Generate count query dynamically
+            const countQuery = this.generateCountQuery(originalQuery);
+            console.log(`Count Query: ${countQuery}`);
+    
+            // Fetch total records
             const [countRows] = await MYDBM.query(countQuery);
             result.totalRecords = countRows?.total || 0;
-
+    
+            // Fetch paginated records
             const startTime = Date.now();
             const records = await MYDBM.query(paginatedQuery);
-            const elapsed = this.calculateElapsedTime(startTime, Date.now());
+            result.elapsed = this.calculateElapsedTime(startTime, Date.now());
             result.pageSize = limit;
-
+    
             if (Array.isArray(records)) {
                 result.records = records;
             }
-
-            result.elapsed = elapsed;
-
+    
             return result;
-        } catch (error) { console.log(error);
+        } catch (error) {
+            console.error(`Error in executeSnippet: ${error.message}`);
             throw new Error(`Error executing query: ${error.message}`);
         }
+
+    };    
+
+    generateCountQuery = (query) => {
+        
+        const lowerQuery = query.toLowerCase();
+        const selectIndex = lowerQuery.indexOf("select");
+        const fromIndex = lowerQuery.indexOf("from");
+    
+        if (selectIndex === -1 || fromIndex === -1) {
+            throw new Error("Invalid SQL query: Missing SELECT or FROM clause.");
+        }
+    
+        // Replace SELECT clause with COUNT(*) for the count query
+        const countQuery = `SELECT COUNT(*) AS total ${query.substring(fromIndex)}`;
+    
+        return countQuery;
 
     };
 

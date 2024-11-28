@@ -4,18 +4,9 @@ const ImportAction = (props, ref) => {
 
     const [recordsPerBatch, setRecordsPerBatch] = useState(1000);
     const [recordIdsPerBatch, setRecordIdsPerBatch] = useState(25000);    
-    const [maxThreads, setMaxThreads] = useState(10);
+    const [maxThread, setMaxThreads] = useState(10);
     const [chunkSize, setChunkSize] = useState(100);
 
-    const startProcess = () => {
-        console.log("Starting process with configuration:");
-        console.log(`Records per Batch: ${recordsPerBatch}`);
-        console.log(`Record IDs per Batch: ${recordIdsPerBatch}`);
-        console.log(`Max Threads: ${maxThreads}`);
-        console.log(`Chunk Size: ${chunkSize}`);
-        alert("Process started!");
-    };
-    
     const resetDefaults = () => {
         setRecordsPerBatch(500);
         setRecordIdsPerBatch(12500);
@@ -25,10 +16,12 @@ const ImportAction = (props, ref) => {
 
     const self = {        
         getOptions: () => {
-          recordsPerBatch,
-          recordIdsPerBatch,
-          maxThreads,
-          chunkSize
+          return {
+            recordsPerBatch,
+            recordIdsPerBatch,
+            maxThread,
+            chunkSize          
+          }
         }
     };
 
@@ -42,13 +35,13 @@ const ImportAction = (props, ref) => {
             <div className="pharmarack-cms-config-step">
               <div className="pharmarack-cms-step-header">
                 <h3>Max Threads</h3>
-                <span className="pharmarack-cms-step-value">{maxThreads}</span>
+                <span className="pharmarack-cms-step-value">{maxThread}</span>
               </div>
               <input
                 type="range"
                 min="1"
                 max="25"
-                value={maxThreads}
+                value={maxThread}
                 onChange={(e) => setMaxThreads(e.target.value)}
               />              
             </div>

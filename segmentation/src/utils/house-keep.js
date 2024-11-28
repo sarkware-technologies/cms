@@ -21,14 +21,8 @@ class HouseKeep {
             const segmentBuilderStatusModel = await EM.getModel("cms_segment_builder_status");
             const segmentRetailerBufferModel = await EM.getModel("cms_segment_retailer_buffer");
 
-            const buildQueue = await segmentQueueModel.find(
-                { queueStatus: SegmentQueueStatus.BUILDING }
-            ).lean();
-
-            await segmentQueueModel.updateMany(
-                { queueStatus: SegmentQueueStatus.BUILDING },
-                { queueStatus: SegmentQueueStatus.WAITING }
-            );
+            const buildQueue = await segmentQueueModel.find({}).lean();
+            await segmentQueueModel.deleteMany({});
             
             if (Array.isArray(buildQueue) && buildQueue.length > 0) {
                 console.log(`${buildQueue.length} corrupted queue cleared`);                
@@ -40,7 +34,7 @@ class HouseKeep {
 
             await segmentBuilderStatusModel.updateMany(
                 { status: true },
-                { status: false }
+                { status: false, totalBatch: 0, currentBatch: 0, totalRecord: 0, completedBatch: 0, pendingBatch: 0, elapsedTime: null }
             );
 
             if (Array.isArray(buildStatus) && buildStatus.length > 0) {

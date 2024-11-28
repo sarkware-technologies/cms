@@ -192,6 +192,11 @@ class EntityManager {
             
         }
 
+        /* This check is needed, as the model might be created because of foreign key ref */
+        if (mongoose.modelNames().includes(_collectionName)) {
+            return mongoose.model(_collectionName);
+        }
+
         const _model = mongoose.model(_collectionName, schema);        
         //await _model.createIndexes();
         return _model;

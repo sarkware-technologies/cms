@@ -35,18 +35,42 @@ export default class SegmentBuilder {
             const modelNames = ["cms_master_order", "cms_segment", "cms_segment_rule", "cms_segment_queue", 
                 "cms_master_retailer", "cms_segment_retailer", "cms_segment_blacklisted_retailer", 
                 "cms_segment_whitelisted_retailer", "cms_segment_builder_status", "cms_segment_retailer_buffer",
-                "cms_segment_build_log"
+                "cms_segment_build_log", "cms_segment_batch_options", "cms_segment_retailer_summary",
+                "cms_segment_retailer_rules_summary"
             ];
 
             this.models = Object.fromEntries(
                 await Promise.all(
                     modelNames.map(async name => [name, await EM.getModel(name)])
                 )
-            );          
+            );     
+            
+            try {
+                /* Update the batch options */            
+                const batchOption = await this.models.cms_segment_batch_options.findOne({segment: this.segmentId}).lean();
+                if (batchOption) {
+                    this.retailerPerBatch = batchOption.recordsPerBatch;                
+                    this.maxThread = batchOption.maxThread;
+                    this.chunkSize = batchOption.chunkSize;
+                }
+            } catch(_e) {
+                console.log(_e);
+            }
 
         } catch (e) {
             console.error("Error during initialization:", e);
             throw e;
+        }
+
+    };
+
+    clearSegmentSummary = async () => { 
+
+        if (this.segmentId && this.models.cms_segment_retailer_summary) {
+            await this.models.cms_segment_retailer_summary.deleteMany({segment: this.segmentId});
+            if (this.segmentRules) {
+                await this.models.cms_segment_retailer_rules_summary.deleteMany({segment: this.segmentId});
+            }
         }
 
     };
@@ -98,18 +122,23 @@ export default class SegmentBuilder {
     start = async (_segmentId) => {        
 
         try {
-            await this.init();    
+                
             this.segmentId = _segmentId;
+            await this.init();
 
             this.queueItem = await this.models.cms_segment_queue.findOne({
                 segment: this.segmentId,
                 queueStatus: SegmentQueueStatus.BUILDING,
-            }).lean();
+            }).lean();            
 
             const segment = await this.models.cms_segment.findById(_segmentId).lean();
     
             if (segment) {
                 this.segmentRules = await this.models.cms_segment_rule.find({ segment: segment._id }).lean();
+
+                /* Clear the summary if alreday there */
+                await this.clearSegmentSummary();
+
                 const retailerCount = await this.models.cms_master_retailer.countDocuments({});
                 const totalBatches = Math.ceil(retailerCount / this.retailerPerBatch);
     

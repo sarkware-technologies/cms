@@ -1,9 +1,10 @@
 import dotenv from "dotenv";
 dotenv.config();
-import mysql from 'mysql';
+import mysql from 'mysql2/promise';
 
 class MysqlManager {
-    constructor () {
+
+    constructor() {
         if (!MysqlManager.instance) {
             MysqlManager.instance = this;
             this.connection = null;
@@ -14,133 +15,120 @@ class MysqlManager {
         return MysqlManager.instance;
     }
 
+    // Initialize connection (pool or dedicated connection based on usePool)
     connect = async (usePool = true) => {
+
         this.isPool = usePool;
 
         // Avoid reconnecting if already connected
-        if ((usePool && this.pool) || (!usePool && this.connection)) {
+        if (usePool && this.pool) {
+            return;
+        }
+        if (!usePool && this.connection) {
             return;
         }
 
-        if (usePool) {
-            this.pool = mysql.createPool({
-                connectionLimit: process.env.DB_CONNECTION_LIMIT || 10,
-                host: process.env.API_DB_HOST,
-                port: process.env.API_DB_PORT,
-                user: process.env.API_DB_USER,
-                password: process.env.API_DB_PASS,
-                database: process.env.API_DB,
-                connectTimeout: process.env.DB_CONNECT_TIMEOUT || 30000
-            });
-        } else {
-            this.connection = mysql.createConnection({
-                host: process.env.API_DB_HOST,
-                port: process.env.API_DB_PORT,
-                user: process.env.API_DB_USER,
-                password: process.env.API_DB_PASS,
-                database: process.env.API_DB,
-                connectTimeout: process.env.DB_CONNECT_TIMEOUT || 30000
-            });
-
-            return new Promise((resolve, reject) => {
-                this.connection.connect((err) => {
-                    if (err) {
-                        console.error("Error connecting to MySQL:", err.message);
-                        reject(err);
-                    } else {                        
-                        resolve();
-                    }
-                });
-            });
-        }
-    }
-
-    // General query method
-    query = async (_query, retries = 3) => {
         try {
-            return await this.queryWithConditions(_query, [], retries);
+            if (usePool) {
+                // Initialize connection pool
+                this.pool = mysql.createPool({
+                    connectionLimit: process.env.DB_CONNECTION_LIMIT || 10,
+                    host: process.env.API_DB_HOST,
+                    port: process.env.API_DB_PORT,
+                    user: process.env.API_DB_USER,
+                    password: process.env.API_DB_PASS,
+                    database: process.env.API_DB,
+                    connectTimeout: parseInt(process.env.DB_CONNECT_TIMEOUT, 10) || 30000
+                });
+                console.log("MySQL connection pool created successfully.");
+            } else {
+                // Initialize dedicated connection
+                this.connection = await mysql.createConnection({
+                    host: process.env.API_DB_HOST,
+                    port: process.env.API_DB_PORT,
+                    user: process.env.API_DB_USER,
+                    password: process.env.API_DB_PASS,
+                    database: process.env.API_DB,
+                    connectTimeout: parseInt(process.env.DB_CONNECT_TIMEOUT, 10) || 30000
+                });
+                console.log("Dedicated MySQL connection established successfully.");
+            }
+        } catch (error) {
+            console.error("Error initializing MySQL connection:", error.message);
+            throw error;
+        }
+        
+    };
+
+    // Execute a query
+    query = async (_query, _params = [], retries = 3) => {
+        try {
+            return await this.queryWithConditions(_query, _params, retries);
         } catch (err) {
             throw err;
-        }        
-    }
+        }
+    };
 
-    // Query with parameters and retry logic
-    queryWithConditions = async (_query, _params, retries = 3) => {
+    // Query with retry logic
+    queryWithConditions = async (_query, _params = [], retries = 3) => {
         if (this.isPool && !this.pool) {
             throw new Error("Connection pool not initialized. Call `connect(true)` first.");
         }
         if (!this.isPool && !this.connection) {
-            throw new Error("Single connection not initialized. Call `connect(false)` first.");
+            throw new Error("Dedicated connection not initialized. Call `connect(false)` first.");
         }
 
         try {
-            return await new Promise((resolve, reject) => {
-                const connectionMethod = this.isPool ? this.pool : this.connection;
-                
-                connectionMethod.query(_query, _params, (err, rows) => {
-                    if (err) {
-                        this.errorMessages.push(err.message);
-                        if (retries > 0) {
-                            console.warn(`Query failed. Retrying... (${retries} retries left)`);
-                            setTimeout(() => {
-                                resolve(this.queryWithConditions(_query, _params, retries - 1));
-                            }, 1000);
-                        } else {
-                            reject(err);
-                        }
-                        return;
-                    }
-                    resolve(JSON.parse(JSON.stringify(rows)));
-                });
-            });
+            const connectionMethod = this.isPool ? this.pool : this.connection;
+
+            const [rows] = await connectionMethod.query(_query, _params);
+            return rows;
         } catch (err) {
-            console.error('Query execution error:', err.message);
+            this.errorMessages.push(err.message);
+            if (retries > 0) {
+                console.warn(`Query failed. Retrying... (${retries} retries left)`);
+                await this.delay(1000); // Wait for 1 second before retrying
+                return this.queryWithConditions(_query, _params, retries - 1);
+            }
+            console.error("Query execution error:", err.message);
             throw err;
         }
     };
 
-    // Method to close the pool or single connection
+    // Close the pool or dedicated connection
     close = async () => {
-        if (this.isPool && this.pool) {
-            // Close connection pool
-            return new Promise((resolve, reject) => {
-                this.pool.end((err) => {
-                    if (err) {
-                        console.error('Error closing MySQL connection pool:', err.message);
-                        reject(err);
-                    } else {                        
-                        this.pool = null; // Set pool to null after closing
-                        resolve();
-                    }
-                });
-            });
-        } else if (this.connection) {
-            // Close single connection
-            return new Promise((resolve, reject) => {
-                this.connection.end((err) => {
-                    if (err) {
-                        console.error('Error closing MySQL connection:', err.message);
-                        reject(err);
-                    } else {                        
-                        this.connection = null; // Set connection to null after closing
-                        resolve();
-                    }
-                });
-            });
+        try {
+            if (this.isPool && this.pool) {
+                await this.pool.end();
+                console.log("MySQL connection pool closed successfully.");
+                this.pool = null; // Reset pool
+            } else if (this.connection) {
+                await this.connection.end();
+                console.log("Dedicated MySQL connection closed successfully.");
+                this.connection = null; // Reset connection
+            }
+        } catch (err) {
+            console.error("Error closing MySQL connection:", err.message);
+            throw err;
         }
     };
 
-    // Method to get logged error messages
+    // Retrieve error messages
     getErrorMessages = () => {
         const errors = [...this.errorMessages];
         this.errorMessages = []; // Optional: clear after retrieval
         return errors;
-    }
+    };
 
     // Check if connected
     isConnected = () => {
-        return this.isPool ? this.pool !== null : this.connection && this.connection.state !== 'disconnected';
-    }
+        return this.isPool
+            ? this.pool !== null
+            : this.connection && this.connection.connection.state !== 'disconnected';
+    };
+
+    // Utility method for delay
+    delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 const MYDBM = new MysqlManager();

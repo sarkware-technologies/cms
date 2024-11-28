@@ -5,8 +5,8 @@ const ImportStatus = (props, ref) => {
     const contextObj = window._controller.getCurrentModuleInstance(); 
 
     const [state, setState] = useState({
-        completedBatches: 0,
-        totalBatches: 18,
+        completedBatch: 0,
+        totalBatch: 18,
         totalRecords: 17499,
         recordsPerBatch: 1000,
         elapsedTime: "",
