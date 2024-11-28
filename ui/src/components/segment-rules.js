@@ -101,9 +101,20 @@ const SegmentRule = (props, ref) => {
     }), []);
 
     const handleTargetChange = (_value, _index) => {
+
         const _rules = [...rules];
-        _rules[_index].target = _value;
+
+        if (_rules[_index].ruleType == 1) {
+            _rules[_index].target = _value["MDM_PRODUCT_CODE"];
+            return "Mdm Code";
+        } else if (_rules[_index].ruleType == 2) {
+            _rules[_index].target = _value["BrandId"];            
+        }  else {
+            _rules[_index].target = _value["Name"];    
+        }
+        
         setRules(_rules);
+        
     };
 
     const handleFromChange = (_e, _index) => {        
@@ -196,7 +207,7 @@ const SegmentRule = (props, ref) => {
 
     useImperativeHandle(ref, () => {
         return {
-            getRules: () => {
+            getRules: () => {  console.log("getRules is called");  console.log(rules);
                 const _rules = [];
                 for (let i = 0; i < rules.length; i++) {
                     if (rules[i].target && rules[i].ruleType) {
@@ -208,7 +219,7 @@ const SegmentRule = (props, ref) => {
                             to: rules[i].to ? rules[i].to : -1
                         });
                     }
-                }                
+                }      console.log(_rules);          
                 return _rules;
             },
             setRules: (_rules) => setRules(_rules)

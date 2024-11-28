@@ -221,11 +221,17 @@ const Search = (props, ref) => {
     const handleRecordClick = (e, record) => {
 
         e.preventDefault();
+        e.stopPropagation();
 
         setState({ ...state, active: false, resultText: record[props.config.label_key], currentRecord: record });
-        if (contextObj && contextObj.onSearchRecordSelected) {
+
+        if (props.onRecordSelected) {  console.log("onRecordSelected call back is there, about to call it");
+            /* this option exclusively used by segment rule widget */
+            props.onRecordSelected(record, props.index);
+        } else if (contextObj && contextObj.onSearchRecordSelected) {
             contextObj.onSearchRecordSelected(props.config.handle, record);
         }
+        
     };
 
     const dropdownClass = state.active ? `${props.config.popup_class} visible` : props.config.popup_class;

@@ -45,7 +45,7 @@ const init = async () => {
 
 };
 
-const checkSegmentRules = async(_retailerId, _orders, _segment) => {
+const checkSegmentRules = async(_retailer, _orders, _segment) => {
 
     try {
 
@@ -146,7 +146,7 @@ const checkSegmentRules = async(_retailerId, _orders, _segment) => {
                 );
 
                 await models.cms_segment_retailer_rules_summary.findOneAndUpdate(
-                    { retailer: _retailerId, segmentRule: rule._id },
+                    { retailer: _retailer._id, segmentRule: rule._id },
                     {            
                         ruleType,
                         target,
@@ -310,7 +310,7 @@ const checkRetailerEligibility = async (_retailer, _segment) => {
         }  
         
         if (segmentRules.length > 0) {
-            return await checkSegmentRules(_retailer.RetailerId, oIds, _segment);
+            return await checkSegmentRules(_retailer, oIds, _segment);
         }     
         
         return finalOrders.length > 0 ? true : false;        
