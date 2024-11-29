@@ -81,38 +81,48 @@ const checkSegmentRules = async(_retailer, _orders, _segment) => {
                     qty = 0;
 
                     if (rule.ruleType === SegmentRuleType.PRODUCT) {
-                        if (item.mdmProductCode && item.mdmProductCode === rule.target) {                             
 
-                            entry = summaryProducts.get(item.mdmProductCode) || { quantity: 0, amount: 0 };
+                        if (
+                            item.mdmProductCode && 
+                            item.mdmProductCode.trim().toLowerCase() === rule.target.trim().toLowerCase()) {                             
+
+                            entry = summaryProducts.get(rule.target) || { quantity: 0, amount: 0 };
                             qty = item.receivedQty || item.orderedQty || 0;
                             entry.quantity += qty;
                             entry.amount += qty * item.ptr;
 
-                            summaryProducts.set(item.mdmProductCode, entry);  
+                            summaryProducts.set(rule.target, entry);  
 
                         }                        
+
                     } else if (rule.ruleType === SegmentRuleType.BRAND) {
-                        if (item.brandId && item.brandId === rule.target) { 
+
+                        if (item.brandId && item.brandId == rule.target) { 
                             
-                            entry = summaryBrands.get(item.brandId) || { quantity: 0, amount: 0 };
+                            entry = summaryBrands.get(rule.target) || { quantity: 0, amount: 0 };
                             qty = item.receivedQty || item.orderedQty || 0;
                             entry.quantity += qty;
                             entry.amount += qty * item.ptr;
 
-                            summaryBrands.set(item.brandId, entry);
+                            summaryBrands.set(rule.target, entry);
                                              
                         }                        
+
                     } else if (rule.ruleType === SegmentRuleType.CATEGORY) {
-                        if (item.category && item.category === rule.target) {  
+
+                        if (
+                            item.category && 
+                            item.category.trim().toLowerCase() === rule.target.trim().toLowerCase()) {  
                             
-                            entry = summaryCategories.get(item.category) || { quantity: 0, amount: 0 };
+                            entry = summaryCategories.get(rule.target) || { quantity: 0, amount: 0 };
                             qty = item.receivedQty || item.orderedQty || 0;
                             entry.quantity += qty;
                             entry.amount += qty * item.ptr;
 
-                            summaryCategories.set(item.category, entry);
+                            summaryCategories.set(rule.target, entry);
                                                    
                         }                        
+
                     }
 
                 });
@@ -145,15 +155,22 @@ const checkSegmentRules = async(_retailer, _orders, _segment) => {
                     (!_from && !_to)
                 );
 
-                await models.cms_segment_retailer_rules_summary.findOneAndUpdate(
-                    { retailer: _retailer._id, segmentRule: rule._id },
-                    {            
-                        ruleType,
-                        target,
-                        value
-                    },
-                    { upsert: true, new: true }
-                );  
+                try {
+                    const sss = await models.cms_segment_retailer_rules_summary.findOneAndUpdate(
+                        { 
+                            retailer: _retailer._id, 
+                            segmentRule: rule._id 
+                        },
+                        {            
+                            ruleType,
+                            target,
+                            value
+                        },
+                        { upsert: true, new: true }
+                    );                     
+                } catch (e) {
+                    console.log(e);
+                }                
 
             }            
 
@@ -292,28 +309,43 @@ const checkRetailerEligibility = async (_retailer, _segment) => {
             { from: null, latest: null }
         );
         
-        try {
-            const sss = await models.cms_segment_retailer_summary.findOneAndUpdate(
-                { retailer: _retailer._id, segment: _segment._id },
-                {
-                    states: stateIds,
-                    regions: regionIds,
-                    stores: _storeIds,
-                    dateFrom: from,
-                    dateTo: latest
-                },
-                { upsert: true, new: true }
-            );
-        } catch (e) {
-            /* Ignore */
-            console.log(e);
-        }  
-        
+        let ruleSucceed = true;
         if (segmentRules.length > 0) {
-            return await checkSegmentRules(_retailer, oIds, _segment);
-        }     
+            ruleSucceed = await checkSegmentRules(_retailer, oIds, _segment);
+        } 
         
-        return finalOrders.length > 0 ? true : false;        
+        if (ruleSucceed && finalOrders.length > 0) {
+            /* We are adding or updating the summary only when ther retailer is eligible */
+            try {
+                await models.cms_segment_retailer_summary.findOneAndUpdate(
+                    { retailer: _retailer._id, segment: _segment._id },
+                    {
+                        states: stateIds,
+                        regions: regionIds,
+                        stores: _storeIds,
+                        dateFrom: from,
+                        dateTo: latest
+                    },
+                    { upsert: true, new: true }
+                );
+            } catch (e) {
+                /* Ignore */
+                console.log(e);
+            }  
+        } else {
+            /* Retailer is not eligible, delete the segment summary if it already there */
+            try {
+                await models.cms_segment_retailer_summary.deleteOne({ 
+                    retailer: _retailer._id, 
+                    segment: _segment._id 
+                });
+            } catch (e) {
+                /* Ignore */
+                console.log(e);
+            }  
+        }
+        
+        return (ruleSucceed && finalOrders.length > 0)        
 
     } catch (e) {  
         console.log(e);

@@ -306,7 +306,15 @@ export default class SegmentService {
             const segmentRetailerModel = await EM.getModel("cms_segment_retailer"); 
             const segmentBlacklistedRetailerModel = await EM.getModel("cms_segment_blacklisted_retailer"); 
             const segmentWhitelistedRetailerModel = await EM.getModel("cms_segment_whitelisted_retailer"); 
+            const segmentRetailerSummaryModel = await EM.getModel("cms_segment_retailer_summary");
+            const segmentRetailerRuleSummaryModel = await EM.getModel("cms_segment_retailer_rules_summary");
+            const segmentBatchOptionModel = await EM.getModel("cms_segment_batch_options");
+            const segmentBuildLogModel = await EM.getModel("cms_segment_build_log");
             
+            const retailerRules = await segmentRuleModel.find({ segment: _req.params.id }).lean();
+            for (let i = 0; i < retailerRules.length; i++) {
+                await segmentRetailerRuleSummaryModel.deleteMany({ segmentRule: retailerRules[i]._id });
+            }
 
             await segmentRuleModel.deleteMany({ segment: _req.params.id });              
             await segmentRetailerModel.deleteMany({ segment: _req.params.id });
@@ -314,6 +322,9 @@ export default class SegmentService {
             await segmentWhitelistedRetailerModel.deleteMany({ segment: _req.params.id });
             await segmentQueueModel.deleteMany({ segment: _req.params.id });
             await segmentBuildStatusModel.deleteMany({ segment: _req.params.id });
+            await segmentRetailerSummaryModel.deleteMany({ segment: _req.params.id });
+            await segmentBatchOptionModel.deleteMany({ segment: _req.params.id });
+            await segmentBuildLogModel.deleteMany({ segment: _req.params.id });
 
             return await segmentModel.deleteOne({ _id: _req.params.id });            
 
@@ -968,9 +979,9 @@ export default class SegmentService {
                         const [count, page, records] = await this.searchBrands(_req);
                         callback(Utils.response(count, page, records), null);
 
-                    } else if (_entity === "mdms") {   console.log("entity is mdms,a bout to call searchMdmProducts");
+                    } else if (_entity === "mdms") {
 
-                        const [count, page, records] = await this.searchMdmProducts(_req);  console.log([count]);
+                        const [count, page, records] = await this.searchMdmProducts(_req);
                         callback(Utils.response(count, page, records, 10), null);
 
                     } else if (_entity === "categories") { 
@@ -979,10 +990,15 @@ export default class SegmentService {
                         callback(Utils.response(count, page, records), null);
 
                     } else if (_entity === "companies") {
+
                         callback(await MYDBM.query("select * from companies c where c.IsDeleted = 0 AND c.IsApproved = 1"), null);
+
                     } else if (_entity === "cities") {
+
                         callback(await MYDBM.query("select DISTINCT r.City from retailers r"), null);
+
                     } else {                      
+
                         const targetModel = await EM.getModel(_entity);
                         if (targetModel) {
 
@@ -999,6 +1015,7 @@ export default class SegmentService {
                             
                             callback(await targetModel.find().select(selectObject).lean(), null);
                         }
+
                     }
                     
                 }

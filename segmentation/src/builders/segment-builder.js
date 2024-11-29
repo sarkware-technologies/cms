@@ -14,7 +14,7 @@ export default class SegmentBuilder {
         this.activeWorkers = 0;
         this.batchQueue = [];
         this.maxThread = 10;
-        this.chunkSize = 5;
+        this.chunkSize = 100;
         this.currentOffset = 0;        
         this.segmentRules = [];
 
@@ -66,12 +66,12 @@ export default class SegmentBuilder {
 
     clearSegmentSummary = async () => { 
 
-        if (this.segmentId && this.models.cms_segment_retailer_summary) {
-            await this.models.cms_segment_retailer_summary.deleteMany({segment: this.segmentId});
-            if (this.segmentRules) {
-                await this.models.cms_segment_retailer_rules_summary.deleteMany({segment: this.segmentId});
-            }
-        }
+        await this.models.cms_segment_retailer_summary.deleteMany({segment: this.segmentId});
+        if (this.segmentRules) {
+            for (let i = 0; i < this.segmentRules.length; i++) {
+                await this.models.cms_segment_retailer_rules_summary.deleteMany({segmentRule: this.segmentRules[i]._id});
+            }                
+        }         
 
     };
 

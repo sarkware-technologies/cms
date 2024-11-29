@@ -1117,24 +1117,13 @@ let segment_config = {
                                     columns: [                                        
                                         {
                                             show: true, 
-                                            width: "10", 
+                                            width: "5", 
                                             search: false,
                                             filter: false,                                            
                                             classes: "",
                                             header: {title: "S.No", align: "left"}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                             field: {handle: "#", type: "serial", align: "left", editable: false},
-                                            prompt: ""
-                                        },
-                                        {
-                                            show: true, 
-                                            width: "20",
-                                            search: false,
-                                            filter: false,
-                                            classes: "",
-                                            header: {title: "Total Records", align: "left", filterable: false, searchable: false, sortable: false}, 
-                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "totalRecord", type: "alphanumeric", align: "left", editable: false},
                                             prompt: ""
                                         },
                                         {
@@ -1147,10 +1136,32 @@ let segment_config = {
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                             field: {handle: "maxThread", type: "alphanumeric", align: "left", editable: false},
                                             prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "10",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Per Batch", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "recordsPerBatch", type: "alphanumeric", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "10",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Chunk Size", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "chunkSize", type: "alphanumeric", align: "left", editable: false},
+                                            prompt: ""
                                         }, 
                                         {
                                             show: true, 
-                                            width: "20",
+                                            width: "25",
                                             search: false,
                                             filter: false,
                                             classes: "",
@@ -1161,7 +1172,7 @@ let segment_config = {
                                         }, 
                                         {
                                             show: true, 
-                                            width: "20",
+                                            width: "25",
                                             search: false,
                                             filter: false,
                                             classes: "",
@@ -1172,7 +1183,7 @@ let segment_config = {
                                         }, 
                                         {
                                             show: true, 
-                                            width: "20",
+                                            width: "15",
                                             search: false,
                                             filter: false,
                                             classes: "",

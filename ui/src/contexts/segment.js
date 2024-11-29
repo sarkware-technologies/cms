@@ -19,6 +19,7 @@ export default function SegmentContext(_component) {
     this.blacklistRetailerId = null;
 
     this.segmentActionRef = createRef(null);
+    this.segmentStatusRef = createRef(null);
 
     /**
      * 
@@ -441,7 +442,7 @@ export default function SegmentContext(_component) {
             const statusRoot = createRoot(_statusHolder);
 
             this.geographySelectorRef = React.createRef();                
-            statusRoot.render(<SegmentStatus segmentId={record._id} />);
+            statusRoot.render(<SegmentStatus ref={this.segmentStatusRef} segmentId={record._id} />);
 
             const _optionHolder = document.getElementById('segment_build_option_widget');
             const optionRoot = createRoot(_optionHolder);
@@ -566,7 +567,11 @@ export default function SegmentContext(_component) {
                 }
 
                 this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(_res.message);                                        
+                    this.controller.notify(_res.message);  
+                    /* Init the status refreshing timer */                                      
+                    if (this.segmentStatusRef.current) {
+                        this.segmentStatusRef.current.startRefreshingTimer();
+                    }
                 })
                 .catch((e) => {
                     this.controller.notify(e.message, "error");
@@ -578,6 +583,13 @@ export default function SegmentContext(_component) {
 
         }
 
+    };
+
+    this.onSegmentBuildCompleted = (_segmentId) => {
+        const buildHistoryGrid = this.controller.getField("build_history_grid");
+        if (buildHistoryGrid) {
+            buildHistoryGrid.initFetch();
+        }
     };
 
     this.removeFromWhitelistedForSegment = () => {

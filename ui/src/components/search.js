@@ -182,7 +182,12 @@ const Search = (props, ref) => {
                             return state.records[i][label]?.toString();
                           }
                     }).join(" - ");
-                    recordsElement.push(<a href="#" key={i} className={ (state.currentRecord[props.config.value_key] && state.currentRecord[props.config.value_key] === state.records[i][props.config.value_key]) ? "selected" : "" } onClick={(e) => {handleRecordClick(e, state.records[i])}}>{title}</a>);
+
+                    if (!props.value) {
+                        recordsElement.push(<a href="#" key={i} className={ (state.currentRecord[props.config.value_key] && state.currentRecord[props.config.value_key] === state.records[i][props.config.value_key]) ? "selected" : "" } onClick={(e) => {handleRecordClick(e, state.records[i])}}>{title}</a>);
+                    } else {
+                        recordsElement.push(<a href="#" key={i} className={ (props.value && props.value === state.records[i][props.config.value_key]) ? "selected" : "" } onClick={(e) => {handleRecordClick(e, state.records[i])}}>{title}</a>);
+                    }                    
 
                 }
 
@@ -291,7 +296,7 @@ const Search = (props, ref) => {
                     type="text"
                     placeholder={props.config.placeholder}
                     onFocus={handleResultBoxFocus}
-                    value={state.currentRecord ? state.currentRecord[props.config.label_key] : ""}
+                    value={state.currentRecord ? state.currentRecord[props.config.label_key] : (props.value ? props.value : "")}
                     readOnly
                 />
                 <i className="fa fa-angle-down"></i>

@@ -1,6 +1,10 @@
-import React, { forwardRef, useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useState, useImperativeHandle } from "react";
 
 const SegmentStatus = (props, ref) => {
+
+  let refreshTimer = null;
+  const contextObj = window._controller.getCurrentModuleInstance(); 
+
   const [state, setState] = useState({
     completedBatches: 0,
     totalBatches: 18,
@@ -13,12 +17,13 @@ const SegmentStatus = (props, ref) => {
   });
 
   const refreshBuildStatus = () => {
-    const request = {
-      method: "GET",
-      endpoint: `/segmentation/v1/segment/${props.segmentId}/build/status`,
-    };
 
-    window._controller.docker
+      const request = {
+        method: "GET",
+        endpoint: `/segmentation/v1/segment/${props.segmentId}/build/status`,
+      };
+
+      window._controller.docker
       .dock(request)
       .then((_res) => {
 
@@ -29,10 +34,27 @@ const SegmentStatus = (props, ref) => {
                     totalRecord: _res.buildStatus.totalRecord,
                     recordsPerBatch: _res.buildStatus.recordsPerBatch,
                     elapsedTime: _res.buildStatus.elapsedTime,
-                    startTime: _res.buildStatus.startTime,
-                    endTime: _res.buildStatus.endTime ? _res.buildStatus.endTime : "In Progress",
+                    startTime: _res.buildStatus.startTime ? _res.buildStatus.startTime : "",
+                    endTime: _res.buildStatus.endTime ? _res.buildStatus.endTime : (_res.buildStatus.status ? "In Progress" : ""),
                     status: _res.buildStatus.status
                 });
+
+                /* If the status is completed, then stop the refresh timer too */                
+                if (!_res.buildStatus.status && refreshTimer) {
+                    clearInterval(refreshTimer);
+                    /* Let the context know that the build is completed */
+                    if (contextObj && contextObj.onSegmentBuildCompleted) {
+                        contextObj.onSegmentBuildCompleted(props.segmentId);
+                    }
+                }
+
+                /* Also if the nuild progress is running and timer is not active then start */
+                if (_res.buildStatus.status && !refreshTimer) {
+                    refreshTimer = setInterval(() => {
+                        refreshBuildStatus();
+                    }, 10000);
+                }
+
             } else {
                 setState({
                     completedBatch: 0,
@@ -48,22 +70,39 @@ const SegmentStatus = (props, ref) => {
         
       })
       .catch((e) => {
-        window._controller.notify(e.message, "error");
+          window._controller.notify(e.message, "error");
+          /* Since some error, remove the timer */
+          if (refreshTimer) {
+              clearInterval(refreshTimer);
+          }
       });
+
   };
+
+  const self = {        
+    startRefreshingTimer: () => {
+        if (!refreshTimer) {
+          refreshTimer = setInterval(() => {
+            refreshBuildStatus();
+          }, 10000);
+        }
+    }
+  };
+
+  useImperativeHandle(ref, () => self);
 
   useEffect(() => {
     // Refresh immediately on mount
     refreshBuildStatus();
 
     // Set up interval to refresh every 10 seconds
-    const intervalId = setInterval(() => {
+    refreshTimer = setInterval(() => {
       refreshBuildStatus();
     }, 10000);
 
     // Cleanup interval on component unmount
     return () => {
-      clearInterval(intervalId);
+      clearInterval(refreshTimer);
     };
   }, [props.segmentId]); // Re-run effect if segmentId changes
 

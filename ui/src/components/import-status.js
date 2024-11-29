@@ -2,6 +2,7 @@ import React, { forwardRef, useEffect, useState } from "react";
 
 const ImportStatus = (props, ref) => {
 
+    let refreshTimer = null;
     const contextObj = window._controller.getCurrentModuleInstance(); 
 
     const [state, setState] = useState({
@@ -42,10 +43,16 @@ const ImportStatus = (props, ref) => {
                       totalRecord: _res.progressStatus.totalRecord,
                       recordsPerBatch: _res.progressStatus.recordsPerBatch,
                       elapsedTime: _res.progressStatus.elapsedTime,
-                      startTime: _res.progressStatus.startTime,
-                      endTime: _res.progressStatus.endTime ? _res.progressStatus.endTime : "In Progress",
+                      startTime: _res.progressStatus.status ? _res.progressStatus.startTime : "",
+                      endTime: _res.progressStatus.endTime ? _res.progressStatus.endTime : (_res.progressStatus.status ? "In Progress" : ""),
                       status: _res.progressStatus.status
                   });
+
+                  /* If the status is completed, then stop the refresh timer too */
+                  if (!_res.progressStatus.status && refreshTimer) {
+                      clearInterval(refreshTimer);
+                  }
+
               } else {
                   setState({
                       completedBatch: 0,
@@ -62,6 +69,10 @@ const ImportStatus = (props, ref) => {
         })
         .catch((e) => {
             window._controller.notify(e.message, "error");
+            /* Since some error, remove the timer */
+            if (refreshTimer) {
+              clearInterval(refreshTimer);
+            }
         });
 
     };
@@ -71,13 +82,13 @@ const ImportStatus = (props, ref) => {
     refreshBuildStatus();
 
     // Set up interval to refresh every 10 seconds
-    const intervalId = setInterval(() => {
+    refreshTimer = setInterval(() => {
       refreshBuildStatus();
     }, 10000);
 
     // Cleanup interval on component unmount
     return () => {
-      clearInterval(intervalId);
+      clearInterval(refreshTimer);
     };
   }, [props.segmentId]); // Re-run effect if segmentId changes
 
