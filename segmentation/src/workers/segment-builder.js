@@ -52,6 +52,7 @@ const checkSegmentRules = async(_retailer, _orders, _segment) => {
         let entry = null;
         let qty = 0;
 
+        const rulesSummary = {};
         const ruleResult = [];
         const summaryProducts = new Map();
         const summaryBrands = new Map();
@@ -80,11 +81,11 @@ const checkSegmentRules = async(_retailer, _orders, _segment) => {
                     entry = null;
                     qty = 0;
 
-                    if (rule.ruleType === SegmentRuleType.PRODUCT) {
+                    if (rule.ruleType == SegmentRuleType.PRODUCT) {
 
                         if (
                             item.mdmProductCode && 
-                            item.mdmProductCode.trim().toLowerCase() === rule.target.trim().toLowerCase()) {                             
+                            item.mdmProductCode.trim().toLowerCase() == rule.target.trim().toLowerCase()) {                             
 
                             entry = summaryProducts.get(rule.target) || { quantity: 0, amount: 0 };
                             qty = item.receivedQty || item.orderedQty || 0;
@@ -95,7 +96,7 @@ const checkSegmentRules = async(_retailer, _orders, _segment) => {
 
                         }                        
 
-                    } else if (rule.ruleType === SegmentRuleType.BRAND) {
+                    } else if (rule.ruleType == SegmentRuleType.BRAND) {
 
                         if (item.brandId && item.brandId == rule.target) { 
                             
@@ -108,11 +109,11 @@ const checkSegmentRules = async(_retailer, _orders, _segment) => {
                                              
                         }                        
 
-                    } else if (rule.ruleType === SegmentRuleType.CATEGORY) {
+                    } else if (rule.ruleType == SegmentRuleType.CATEGORY) {
 
                         if (
                             item.category && 
-                            item.category.trim().toLowerCase() === rule.target.trim().toLowerCase()) {  
+                            item.category.trim().toLowerCase() == rule.target.trim().toLowerCase()) {  
                             
                             entry = summaryCategories.get(rule.target) || { quantity: 0, amount: 0 };
                             qty = item.receivedQty || item.orderedQty || 0;
@@ -155,26 +156,41 @@ const checkSegmentRules = async(_retailer, _orders, _segment) => {
                     (!_from && !_to)
                 );
 
+                rulesSummary[rule._id] = {            
+                    ruleType,
+                    target,
+                    value
+                };
+            } else {
+                /* If no aggrgation value for onle rule item, then consider it is a failed condition */
+                ruleResult.push(false);
+            }            
+
+        });
+
+        if (ruleResult.length > 0 && ruleResult.every(Boolean)) {
+
+            const rsIds = Object.keys(rulesSummary);
+            for (const ruleId of rsIds) {
                 try {
-                    const sss = await models.cms_segment_retailer_rules_summary.findOneAndUpdate(
+                    await models.cms_segment_retailer_rules_summary.findOneAndUpdate(
                         { 
                             retailer: _retailer._id, 
-                            segmentRule: rule._id 
+                            segmentRule: ruleId 
                         },
                         {            
-                            ruleType,
-                            target,
-                            value
+                            ruleType: rulesSummary[ruleId].ruleType,
+                            target: rulesSummary[ruleId].target,
+                            value: rulesSummary[ruleId].value
                         },
                         { upsert: true, new: true }
                     );                     
                 } catch (e) {
                     console.log(e);
-                }                
-
+                }
             }            
 
-        });
+        }
 
         return ruleResult.length > 0 ? ruleResult.every(Boolean) : false;
         

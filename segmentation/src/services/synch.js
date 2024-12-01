@@ -223,7 +223,7 @@ export default class SynchService {
                     grandTotal: orders[0].OrderAmount,
                     isProcessed: orders[0].IsProcessed,
                     isUploaded: orders[0].IsUploaded,
-                    orderDate: orders[0].OrderDate,
+                    orderDate: this.normalizeDate(orders[0].OrderDate),
                     orderId: orders[0].OrderId,
                     orderSource: orders[0].OrderSource,
                     orderStatus: orders[0].IsProcessed ? "Processed" : (orders[0].IsUploaded ? "Uploaded" : "Placed"),
@@ -345,6 +345,16 @@ export default class SynchService {
             throw e;
         }
 
+    };
+
+    normalizeDate = (date) => {
+        try {
+            const dateObj = new Date(date);
+            dateObj.setHours(0, 0, 0, 0);
+            return dateObj;
+        } catch (e) {
+            return null;
+        }    
     };
 
 }

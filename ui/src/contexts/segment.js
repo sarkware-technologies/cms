@@ -806,12 +806,16 @@ export default function SegmentContext(_component) {
 
         const fromField = this.controller.getField("segment_form_tab_fromDate");
         if (fromField) {
-            _segmentFields["fromDate"] = fromField.getVal();
+            const _fromDate = new Date(fromField.getVal());
+            _fromDate.setHours(0, 0, 0, 0);
+            _segmentFields["fromDate"] = _fromDate;
         }
 
         const toField = this.controller.getField("segment_form_tab_toDate");
         if (toField) {
-            _segmentFields["toDate"] = toField.getVal();
+            const _toDate = new Date(toField.getVal());
+            _toDate.setHours(0, 0, 0, 0);
+            _segmentFields["toDate"] = _toDate;
         }
 
         if (_segmentFields.companies == "none") { 

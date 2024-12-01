@@ -4,6 +4,16 @@ import MYDBM from "../utils/mysql.js";
 import EM from "../utils/entity.js";
 import ImportType from '../enums/importer-type.js';
 
+const normalizeDate = (date) => {
+    try {
+        const dateObj = new Date(date);
+        dateObj.setHours(0, 0, 0, 0);
+        return dateObj;
+    } catch (e) {
+        return null;
+    }    
+};
+
 async function processBatch(data) {
 
     const { batch, orderIds, chunkSize } = data;    
@@ -136,7 +146,7 @@ async function processBatch(data) {
                     grandTotal: orderData.OrderAmount,
                     isProcessed: orderData.IsProcessed,
                     isUploaded: orderData.IsUploaded,
-                    orderDate: orderData.OrderDate,
+                    orderDate: normalizeDate(orderData.OrderDate),
                     orderId: orderData.OrderId,
                     orderSource: orderData.OrderSource,
                     orderStatus: orderData.IsProcessed ? "Processed" : (orderData.IsUploaded ? "Uploaded" : "Placed"),
