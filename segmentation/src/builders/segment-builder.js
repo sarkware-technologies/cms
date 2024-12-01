@@ -5,6 +5,9 @@ import EM from "../utils/entity.js";
 import SegmentQueueStatus from '../enums/segment-queue-status.js';
 import mongoose from 'mongoose';
 import SegmentStatus from '../enums/segment-status.js';
+import SegmentGeography from '../enums/segment-geography.js';
+import SegmentRetailerStatus from '../enums/segment-retailer-status.js';
+import SegmentStoreStatus from '../enums/segment-store-status.js';
 
 export default class SegmentBuilder {
 
@@ -22,6 +25,7 @@ export default class SegmentBuilder {
         this.segmentId = null;
         this.builderStatus = null;
         this.queueItem = null;
+        this.isOpen = false;
 
     }
 
@@ -64,6 +68,33 @@ export default class SegmentBuilder {
 
     };
 
+    isOpenSegment = (_segment) => {
+        
+        if (_segment.fromDate || _segment.toDate) {
+            return false;
+        }
+    
+        if (
+            (_segment.geography === SegmentGeography.STATE && Array.isArray(_segment.states) && _segment.states.length > 0) ||
+            (_segment.geography === SegmentGeography.REGION && Array.isArray(_segment.regions) && _segment.regions.length > 0)
+        ) {
+            return false;
+        }
+    
+        if ((Array.isArray(_segment.orderStatus) && _segment.orderStatus.length > 0) || 
+            (Array.isArray(_segment.excludedStores) && _segment.excludedStores.length > 0)) {
+            return false;
+        }
+    
+        if (_segment.retailerStatus === SegmentRetailerStatus.AUTHORIZED || 
+            _segment.storeStatus === SegmentStoreStatus.AUTHORIZED) {
+            return false;
+        }
+    
+        return true;
+        
+    };
+
     clearSegmentSummary = async () => { 
 
         await this.models.cms_segment_retailer_summary.deleteMany({segment: this.segmentId});
@@ -89,7 +120,7 @@ export default class SegmentBuilder {
         this.activeWorkers++;
 
         const worker = new Worker('./src/workers/segment-builder.js', {
-            workerData: { batch, retailers, chunkSize: this.chunkSize, segmentId: this.segmentId }
+            workerData: { batch, retailers, chunkSize: this.chunkSize, segmentId: this.segmentId, isOpen: this.isOpen }
         });
 
         worker.once('exit', (code) => {
@@ -134,16 +165,15 @@ export default class SegmentBuilder {
             const segment = await this.models.cms_segment.findById(_segmentId).lean();
     
             if (segment) {
+
+                this.isOpen = this.isOpenSegment(segment);
                 this.segmentRules = await this.models.cms_segment_rule.find({ segment: segment._id }).lean();
 
                 /* Clear the summary if alreday there */
                 await this.clearSegmentSummary();
 
                 const retailerCount = await this.models.cms_master_retailer.countDocuments({});
-                const totalBatches = Math.ceil(retailerCount / this.retailerPerBatch);
-    
-                console.log("Reatiler Count : "+ retailerCount);
-                console.log("Total Batches : "+ totalBatches);
+                const totalBatches = Math.ceil(retailerCount / this.retailerPerBatch);    
 
                 this.builderStatus = await this.models.cms_segment_builder_status.findOne({ segment: segment._id }).lean();
                 if (!this.builderStatus) {

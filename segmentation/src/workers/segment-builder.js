@@ -401,7 +401,7 @@ const processWithLimit = async (items, task, limit) => {
 
 const processBatch = async (data) => {  
 
-    const { batch, retailers, segmentId, chunkSize } = data; 
+    const { batch, retailers, segmentId, chunkSize, isOpen } = data; 
     const limit = pLimit(3); // Limit concurrent checks to a manageable number (e.g., 5)
 
     try {
@@ -420,7 +420,7 @@ const processBatch = async (data) => {
 
             const eligibilityChecks = chunk.map((retailer) =>
                 limit(async () => {
-                    const isEligible = await checkRetailerEligibility(retailer, segment);
+                    const isEligible = isOpen || await checkRetailerEligibility(retailer, segment);
                     if (isEligible) {
                         eligibleRetailersBatch.push({ segment: segment._id, retailer: retailer._id });
                     }

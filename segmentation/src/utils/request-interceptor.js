@@ -13,8 +13,7 @@ class RequestInterceptor {
         this.whiteListUrls = [
             "/segmentation/v1/health",                
             "/segmentation/v1/synch/retailer",
-            "/segmentation/v1/synch/order",
-            "/segmentation/v1/synch/order/status"
+            "/segmentation/v1/synch/order"
         ]
 
         this.express = null;

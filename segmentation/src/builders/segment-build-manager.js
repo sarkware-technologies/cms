@@ -40,6 +40,7 @@ class SegmentBuildManager {
     
             if (buildingSegments.length > 0) {
                 console.log("Segment build is already in progress (Running in Other Replica). Exiting processQueue.");
+                return;
             }
 
             /* Ok, now check for the waiting queue */

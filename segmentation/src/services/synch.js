@@ -1,10 +1,15 @@
 import EM from '../utils/entity.js';
 import MYDBM from '../utils/mysql.js';
 import QueueStatus from '../enums/queue-status.js';
+import OrderBuildManager from '../builders/order-build-manager.js';
+import RetailerBuilder from '../utils/retailer-builder.js';
 
 export default class SynchService {
 
-    constructor () {}
+    constructor () {
+        this.orderBuildManager = new OrderBuildManager();
+        this.retailerBuilder = new RetailerBuilder();        
+    }
 
     addRetailer = async (_req) => {
 
@@ -19,7 +24,6 @@ export default class SynchService {
                 throw new Error("RetailerId parameter is missing");
             }
 
-            const retailerQueueModel = await EM.getModel("cms_segment_retailer_queue");
             const retailerModel = await EM.getModel("cms_master_retailer");
             const retailer = await MYDBM.queryWithConditions(`
                 select 
@@ -55,14 +59,8 @@ export default class SynchService {
                     }
                 );
     
-                await retailerObj.save();                  
-                
-                /* Add it to the queue */
-                const retailerQueue = new retailerQueueModel({
-                    retailerId: RetailerId,
-                    queueStatus : QueueStatus.WAITING
-                });
-                await retailerQueue.save();
+                await retailerObj.save();                                  
+                await this.retailerBuilder.mapSegments(RetailerId, true);
                 
                 return { status: true, message: "Retailer "+ retailer[0].RetailerName +" has been synched" };
 
@@ -95,27 +93,13 @@ export default class SynchService {
             delete body["RetailerId"];            
 
             const retailerModel = await EM.getModel("cms_master_retailer");  
-            const retailerQueueModel = await EM.getModel("cms_segment_retailer_queue");
-
             const retailer = await retailerModel.findOneAndUpdate(
                 { RetailerId: RetailerId },
                 { $set: { ...body } },
                 { new: true }
             );
 
-            /* Add it to the queue */
-            const queue = await retailerQueueModel.findOne({
-                retailerId: RetailerId,
-                queueStatus : QueueStatus.WAITING
-            }).lean();
-
-            if (!queue) {
-                const orderQueue = new retailerQueueModel({
-                    retailerId: RetailerId,
-                    queueStatus : QueueStatus.WAITING
-                });
-                await orderQueue.save();
-            }
+            await this.retailerBuilder.mapSegments(RetailerId, false);
 
             if (retailer) {
                 return { status: true, message: "Retailer "+ retailer.RetailerName +" has been updated" };
@@ -277,6 +261,9 @@ export default class SynchService {
                     });
                     await orderQueue.save();
 
+                    /* Trigger the order builder */
+                    await this.orderBuildManager.processQueue();
+
                     return { status: true, message: "Order "+ OrderId +" has been synched" }; 
 
                 } else {
@@ -331,8 +318,11 @@ export default class SynchService {
                     orderId: OrderId,
                     queueStatus : QueueStatus.WAITING
                 });
-                await orderQueue.save();
+                await orderQueue.save();                
             }            
+
+            /* Trigger the order builder */
+            await this.orderBuildManager.processQueue();
 
             if (order) {
                 return { status: true, message: "Order "+ OrderId +" has been synched" };
