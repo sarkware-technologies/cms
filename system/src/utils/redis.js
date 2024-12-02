@@ -12,11 +12,11 @@ export default class RedisClient {
 
         try {
             this.writeClient = redis.createClient({
-                url: process.env.REDIS_WRITE_CLIENT_USER_SESSION,
+                url: process.env.REDIS_WRITE_CLIENT,
             });
 
             this.readClient = redis.createClient({
-                url: process.env.REDIS_READ_CLIENT_USER_SESSION,
+                url: process.env.REDIS_READ_CLIENT,
             });
 
             this.writeClient.connect();

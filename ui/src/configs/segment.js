@@ -7,7 +7,10 @@ let segment_config = {
                 show: true,
                 title: "Segments",
                 breadcrumb: "",
-                actions: [{ label: "New Segment", theme: "primary", method: "post", action: "NEW_SEGMENT", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [
+                    { label: "Purge Builder", theme: "danger", method: "get", action: "HOUSE_KEEP_SEGMENT", classes: "pharmarack-cms-action-clear icon-left", icon: "fa fa-broom", tabindex : 8, status: true, shortcut: "" },
+                    { label: "New Segment", theme: "primary", method: "post", action: "NEW_SEGMENT", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }
+                ]
             },           
             header: {
                 show: false
@@ -1018,13 +1021,22 @@ let segment_config = {
                                 title: "",
                                 sub_title: "",
                                 type: "fields",
-                                width: "100%",
+                                width: "50%",
                                 layout: "horizontal",
                                 classes: "",
                                 fields: [                                                                        
                                     { type: "label", label: "Title", handle: "title", value : "",  classes : "", align: "right", label_width: 0, label_position: "top" },                                                                    
                                     { type: "label", label: "Description", handle: "description", value : "", classes : "", align: "right", label_width: 0, label_position: "top" }
                                 ]
+                            },
+                            {
+                                title: "",
+                                sub_title: "",
+                                type: "placeholder",
+                                width: "50%",
+                                layout: "horizontal",
+                                classes: "",
+                                placeholder: "segment_summary"
                             }
                         ]
                     },

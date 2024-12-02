@@ -7,7 +7,6 @@ import routes from "./routes/index.js"
 import MDBM from "./utils/mongo.js";
 import MYDBM from "./utils/mysql.js";
 import RC from "./utils/request-interceptor.js";
-import HK from "./utils/house-keep.js";
 
 /**
  * 
@@ -70,10 +69,9 @@ class SegmentServer {
 
             await MDBM.connect();   
             await MYDBM.connect(true);              
-            await HK.check();
 
             if (MDBM.isConnected()) {
-                this.app.listen(process.env.SYSTEM_PORT);
+                this.app.listen(6060);
             } else {
                 console.log("MongoDB connection error");
             }

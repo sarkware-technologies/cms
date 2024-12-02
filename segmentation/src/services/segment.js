@@ -3,6 +3,7 @@ import AP from "./api.js";
 import MYDBM from "../utils/mysql.js";
 import Utils from "../utils/utils.js";
 import SegmentBuildManager from "../builders/segment-build-manager.js";
+import HK from "../utils/house-keep.js";
 
 import SegmentType from "../enums/segment-type.js";
 import SegmentStatus from "../enums/segment-status.js";
@@ -122,6 +123,18 @@ export default class SegmentService {
             const segmentModel = await EM.getModel("cms_segment");
             return await segmentModel.find({}).sort({ title: 1 }).lean();
         } catch (e) {
+            throw e;
+        }
+
+    };
+
+    houseKeep = async (_req) => {
+
+        try {
+            await HK.check();
+            return { status: true, message : "House keeping done" }
+        } catch (e) {
+            console.log(e);
             throw e;
         }
 
@@ -387,14 +400,14 @@ export default class SegmentService {
                     }
                 }                 
                 
-                const segmentQueueModel = await EM.getModel("cms_segment_queue");
-                const segmentQueue = new segmentQueueModel({
-                    segment: segment._id,
-                    queueStatus: SegmentQueueStatus.WAITING
-                });
+                // const segmentQueueModel = await EM.getModel("cms_segment_queue");
+                // const segmentQueue = new segmentQueueModel({
+                //     segment: segment._id,
+                //     queueStatus: SegmentQueueStatus.WAITING
+                // });
                 
-                await segmentQueue.save();                    
-                await this.buildManager.processQueue();                
+                // await segmentQueue.save();                    
+                // await this.buildManager.processQueue();                
 
             }
 
@@ -425,6 +438,35 @@ export default class SegmentService {
                 message: e.message || 'An error occurred while creating segment'
             };
 
+        }
+
+    };
+
+    segmentSummary = async (_req) => {
+
+        if (!_req.params.id) {
+            throw new Error("Segment id is missing");
+        }
+
+        try {
+            
+            const segmentRetailerModel = await EM.getModel("cms_segment_retailer");
+            const segmentWhitelistedRetailerModel = await EM.getModel("cms_segment_whitelisted_retailer");
+            const segmentBlacklistedRetailerModel = await EM.getModel("cms_segment_blacklisted_retailer");
+            
+
+            const retailerCount = await segmentRetailerModel.countDocuments({ segment: _req.params.id });
+            const whitelistCount = await segmentWhitelistedRetailerModel.countDocuments({ segment: _req.params.id });
+            const blacklistCount = await segmentBlacklistedRetailerModel.countDocuments({ segment: _req.params.id });
+
+            return {
+                retailer: retailerCount,
+                whitelisted: whitelistCount,
+                balcklisted: blacklistCount 
+            }
+            
+        } catch (_e) {
+            throw _e;
         }
 
     };

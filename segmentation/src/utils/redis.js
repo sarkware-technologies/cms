@@ -9,13 +9,16 @@ export default class RedisClient {
             return RedisClient.instance;
         }
 
-        try {
+        try { 
+            
             this.writeClient = redis.createClient({
-                url: process.env.REDIS_WRITE_CLIENT_USER_SESSION,
+                //url: "redis://pharmretail-uat-cmsreplicationgroup.desm5w.ng.0001.aps1.cache.amazonaws.com:6379",
+                url: process.env.REDIS_WRITE_CLIENT
             });
 
             this.readClient = redis.createClient({
-                url: process.env.REDIS_READ_CLIENT_USER_SESSION,
+                //url: "redis://pharmretail-uat-cmsreplicationgroup-ro.desm5w.ng.0001.aps1.cache.amazonaws.com:6379",
+                url: process.env.REDIS_READ_CLIENT
             });
 
             this.writeClient.connect();
@@ -24,6 +27,8 @@ export default class RedisClient {
         } catch (error) {
             console.log(error);
         }
+
+        console.log("Redis client is connected");
 
         RedisClient.instance = this;
     }

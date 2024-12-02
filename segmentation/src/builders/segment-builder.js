@@ -150,8 +150,7 @@ export default class SegmentBuilder {
 
     };
 
-    start = async (_segmentId) => {        
-
+    start = async (_segmentId) => {       
         try {
                 
             this.segmentId = _segmentId;
@@ -166,8 +165,10 @@ export default class SegmentBuilder {
     
             if (segment) {
 
-                this.isOpen = this.isOpenSegment(segment);
                 this.segmentRules = await this.models.cms_segment_rule.find({ segment: segment._id }).lean();
+                if (this.segmentRules.length == 0) {
+                    this.isOpen = this.isOpenSegment(segment);                
+                }
 
                 /* Clear the summary if alreday there */
                 await this.clearSegmentSummary();
@@ -259,8 +260,7 @@ export default class SegmentBuilder {
             } catch (e) {
                 console.log("Error in cleanup or status update:", e);
             }
-        }
-        
+        }        
     };
 
     updateSegmentRetailer = async () => {

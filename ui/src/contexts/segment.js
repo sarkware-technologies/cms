@@ -448,6 +448,28 @@ export default function SegmentContext(_component) {
             const optionRoot = createRoot(_optionHolder);
             optionRoot.render(<SegmentAction ref={this.segmentActionRef} />);
 
+        } else if (_handle == "segment_form") {
+
+            const request = {};
+            request["method"] = "GET";
+            request["endpoint"] = "/segmentation/v1/segment/"+ record._id +"/summary";                
+
+            this.controller.docker.dock(request).then((_res) => {                
+                const _summaryHolder = document.getElementById('segment_summary');
+                const summaryRoot = createRoot(_summaryHolder);
+                summaryRoot.render(<table className="segment-summary-widget">
+                    <tr>
+                        <td><span>Retailers</span><span>{_res.retailer}</span></td>
+                        <td><span>Whitelisted</span><span>{_res.whitelisted}</span></td>
+                        <td><span>Blacklisted</span><span>{_res.balcklisted}</span></td>
+                    </tr>
+                </table>);                
+            })
+            .catch((e) => {
+                this.controller.notify(e.message, "error");
+            });
+
+            
         }
 
     };
@@ -517,9 +539,11 @@ export default function SegmentContext(_component) {
             this.removeFromWhitelistedForSegment();
         } else if (_action === "START_BUILD_SEGMENT") {
             this.controller.getUserConfirm("START_BUILD_SEGMENT", "Are you sure ?", "This is a lengthy process, could take few mitues to many hours, and the existing retailer mapping will be wiped out.");
+        } else if (_action === "HOUSE_KEEP_SEGMENT") {
+            this.controller.getUserConfirm("HOUSE_KEEP_SEGMENT", "Are you sure ?", "This is will clear all the queues related  to all segment that is being build as well the retailer buffer");
         }
 
-    };
+    };    
 
     this.onUserConfirm = (_task, _choice) => {
 
@@ -579,11 +603,28 @@ export default function SegmentContext(_component) {
 
             } else if (_task == "BLACKLIST_RETAILER_RECORD") {
                 this.removeRetailersFromSegment([this.blacklistRetailerId]);
+            } else if (_task == "HOUSE_KEEP_SEGMENT") {
+                this.purgeSegmentBuilder();
             }
 
         }
 
     };
+
+    this.purgeSegmentBuilder = () => {
+
+        const request = {};
+        request["method"] = "GET";
+        request["endpoint"] = "/segmentation/v1/segment/houseKeep";                
+
+        this.controller.docker.dock(request).then((_res) => {
+            this.controller.notify("Segment builder is ready");            
+        })
+        .catch((e) => {
+            this.controller.notify(e.message, "error");
+        });
+
+    };    
 
     this.onSegmentBuildCompleted = (_segmentId) => {
         const buildHistoryGrid = this.controller.getField("build_history_grid");

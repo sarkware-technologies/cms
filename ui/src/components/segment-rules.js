@@ -100,19 +100,17 @@ const SegmentRule = (props, ref) => {
         datasource: {endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=cities", cached: true, recordsPerPage: 10}
     }), []);
 
-    const handleTargetChange = (_value, _index) => {
+    const handleTargetChange = (_e, _index) => {
 
         const _rules = [...rules];
-
-        if (_rules[_index].ruleType == 1) {
-            _rules[_index].target = _value["MDM_PRODUCT_CODE"];
-            return "Mdm Code";
-        } else if (_rules[_index].ruleType == 2) {
-            _rules[_index].target = _value["BrandId"];            
-        }  else {
-            _rules[_index].target = _value["Name"];    
-        }
-        
+        _rules[_index].target = _e.target.value;
+        // if (_rules[_index].ruleType == 1) {
+        //     _rules[_index].target = _value["MDM_PRODUCT_CODE"];            
+        // } else if (_rules[_index].ruleType == 2) {
+        //     _rules[_index].target = _value["BrandId"];            
+        // }  else {
+        //     _rules[_index].target = _value["Name"];    
+        // }        
         setRules(_rules);
         
     };
@@ -243,8 +241,8 @@ const SegmentRule = (props, ref) => {
                                 </select>
                             </td>
                             <td className="target-td">
-                                <label>{getSelectorLabel(rule.ruleType)}</label>
-                                {renderSelector(index, rule.ruleType)}                                
+                                <label>{getSelectorLabel(rule.ruleType)}</label>                                
+                                <input type="text" value={rule.target} onChange={(e) => handleTargetChange(e,  index)} />
                             </td>
                             <td className="qty-td">
                                 <div className="pharmarack-cms-segment-rule-type-box">

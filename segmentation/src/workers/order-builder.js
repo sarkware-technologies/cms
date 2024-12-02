@@ -27,7 +27,8 @@ const init = async () => {
             "cms_master_retailer",
             "cms_master_store",
             "cms_segment_retailer",
-            "cms_segment_blacklisted_retailer"
+            "cms_segment_blacklisted_retailer",
+            "cms_segment_order_queue"
         ];
 
         models = Object.fromEntries(
@@ -91,11 +92,12 @@ const checkRetailerMaster = async (_retailerId) => {
             }
         }
 
+        return retailer;
+
     } catch (e) {
         console.log(e);
-    }
-
-    return retailer;
+        return null;
+    }    
 
 };
 
@@ -141,15 +143,13 @@ const checkOrderHeader = async (_order, _retailer, _segment) => {
         const store = await models.cms_master_store.findById(_order.store);
         if (store) {
             if (_segment.storeStatus == SegmentStoreStatus.AUTHORIZED) {
-                storeOk = _retailer.isAuthorized
+                storeOk = store.isAuthorized
             }
-        } else {
-            storeOk = false;
         }
 
         /* Check the retailer */
         if (_segment.retailerStatus == SegmentRetailerStatus.AUTHORIZED) {
-            retailerOk = store.IsAuthorized
+            retailerOk = _retailer.IsAuthorized
         }
 
         if (_segment.geography == SegmentGeography.STATE) {
@@ -170,29 +170,32 @@ const checkOrderHeader = async (_order, _retailer, _segment) => {
 
         }
 
+        console.log(("storeOk : " + storeOk +", regionOk: "+ regionOk +", stateOk: "+ stateOk +",  retailerOk: "+ retailerOk +", dateFromOk : "+ dateFromOk +", dateToOk : "+ dateToOk));
+
         return (storeOk && regionOk && stateOk && retailerOk && dateFromOk && dateToOk);
 
-    } catch (e) {
+    } catch (e) { console.log(e);
         return false;        
     }
 
 };
 
-const updateSummary = async (order, retailer) => {
+const updateSummary = async (order, retailer) => {  console.log("updfateSummary is called");
 
-    try {
+    try {        
         
+        const segmentResults = {};
         const orderItems = await models.cms_master_order_item.find({ orderId: order.orderId }).lean();
         const segments = await models.cms_segment.find({ status: true }).lean();
 
         for (let i = 0; i < segments.length; i++) {
 
-            let rulesSummary = [];
+            let orderSucceed = false;
             const segmentRules = await models.cms_segment_rule.find({ segment: segments[i]._id }).lean() || []; 
             let segmentSummary = await models.cms_segment_retailer_summary.findOne({ retailer: order.retailer, segment: segments[i]._id }).lean();
-            
+
             /* Order header part */
-            if (segmentSummary) {
+            if (segmentSummary) { console.log("Prior segment summary found");  console.log("segmentSummary : ", segmentSummary);
 
                 /* This retailer is already on this segment */
 
@@ -216,8 +219,10 @@ const updateSummary = async (order, retailer) => {
                     }
                 }
 
-                const isOrderEligible = await checkOrderHeader(order, retailer);
-                if (isOrderEligible) {
+                const isOrderEligible = await checkOrderHeader(order, retailer, segments[i]); console.log("Order  : "+ order.orderId +" isOrderEligible : "+ isOrderEligible);
+                if (isOrderEligible) { 
+                    
+                    orderSucceed = true;
 
                     /* Update thge summary */
 
@@ -255,28 +260,18 @@ const updateSummary = async (order, retailer) => {
                         { upsert: true, new: true }
                     ); 
 
-                } else {
-
-                    /* Remove the summary */
-                    await models.cms_segment_retailer_summary.deleteOne({ 
-                        retailer: retailer._id, 
-                        segment: segments[i]._id
-                    });
-
-                    /* Remove the rule summary as well, it is no longer valid */
-                    for (const rule of segmentRules) {
-                        await models.cms_segment_retailer_rules_summary.deleteOne({ retailer: retailer._id, segmentRule: rule._id });
-                    }
-
+                } else {    console.log("Since order itself not eligible continueing to next segment");
                     continue;
-
                 }                
 
-            } else {  
+            } else {     console.log("No prior summary for segment : "+ segments[i].title);
 
                 /* He is not on this segment - check whether he is eligible or not */
-                const isOrderEligible = await checkOrderHeader(order, retailer);
+                const isOrderEligible = await checkOrderHeader(order, retailer, segments[i]);  console.log("Order  : "+ order.orderId +" isOrderEligible : "+ isOrderEligible);
                 if (isOrderEligible) {
+
+                    orderSucceed = true;
+
                     const retailerSummaryObj = new models.cms_segment_retailer_summary({
                         segment: segments[i]._id,
                         retailer: retailer._id,
@@ -286,16 +281,23 @@ const updateSummary = async (order, retailer) => {
                         dateFrom: order.orderDate,
                         dateTo: order.orderDate
                     });
+
                     segmentSummary = await retailerSummaryObj.save();                    
+
+                } else {
+                    console.log("Since order id  : "+ order.orderId +", not eligible for segment : "+ segments[i].title +", we are moving to next segment");
+                    continue;
                 }                    
                 
             }  
             
             /* If this segment doesn't have  any rules, then safe to move to next segment */
-            if (segmentRules.length == 0) {
+            if (segmentRules.length == 0) {  
+                console.log("Since no rule for segment : "+ segments[i].title +", just moving to nexct segment, before it check the order succedd, then the reailer is eligible");                
+                segmentResults[segments[i]._id] = orderSucceed;                
                 continue;
             }
-            
+
             /**
              * 
              * Order item part
@@ -303,9 +305,10 @@ const updateSummary = async (order, retailer) => {
              */
 
             /* Proceed to check order item only if segmentSummary is there */
-            if (segmentSummary) {
+            if (segmentSummary) {  console.log("There are rules for segment : "+ segments[i].title +", going to evoluate");   console.log("segmentSummary is valid");
 
                 let qty = 0; 
+                let entry = {};
                 const existingRuleSummary = {};
                 const ruleResult = [];             
                 const summaryProducts = new Map();
@@ -316,12 +319,13 @@ const updateSummary = async (order, retailer) => {
                  * 
                  * Aggregation
                  * 
-                 */
-                  
+                 */                  
                 for (const item of orderItems) {
                     for (const rule of segmentRules) {
 
-                        if (rule.ruleType == SegmentRuleType.PRODUCT) {
+                        if (rule.ruleType == SegmentRuleType.PRODUCT) {  console.log("rule type is mdmCode");
+
+                            console.log(item.mdmProductCode.trim().toLowerCase() +" == "+ rule.target.trim().toLowerCase());
 
                             if (
                                 item.mdmProductCode && 
@@ -332,6 +336,8 @@ const updateSummary = async (order, retailer) => {
                                 entry.quantity += qty;
                                 entry.amount += qty * item.ptr;
     
+                                console.log(entry);
+
                                 summaryProducts.set(rule.target, entry);  
     
                             }                        
@@ -374,7 +380,6 @@ const updateSummary = async (order, retailer) => {
                  * Load the existing rule summary, if any
                  * 
                  */
-
                 for (const rule of segmentRules) {
                     const ruleSummary = await models.cms_segment_retailer_rules_summary.findOne({ retailer: retailer._id, segmentRule: rule._id }).lean();
                     if (ruleSummary) {
@@ -382,12 +387,13 @@ const updateSummary = async (order, retailer) => {
                     }                    
                 }
 
+                console.log("existingRuleSummary : ", existingRuleSummary);
+
                 /**
                  * 
                  * Condition evoluation
                  * 
                  */
-
                 for (const rule of segmentRules) {
 
                     const { ruleType, target, from, to, qtyType } = rule;
@@ -403,14 +409,21 @@ const updateSummary = async (order, retailer) => {
                             : summaryCategories;
 
                     const targetSummary = summary.get(target);
+
+                    console.log(targetSummary);
+
                     if (targetSummary) {
 
                         let value = targetSummary[property];
+
+                        console.log("Before Value : "+ value);
 
                         /* Before evoluating, update the value with existing rule summary */
                         if(existingRuleSummary[rule._id]) {
                             value = (value + parseFloat(existingRuleSummary[rule._id]));
                         }
+
+                        console.log("After Value : "+ value);
 
                         ruleResult.push(
                             (_from && _to && value >= _from && value <= _to) ||
@@ -419,65 +432,43 @@ const updateSummary = async (order, retailer) => {
                             (!_from && !_to)
                         );
 
-                        rulesSummary[rule._id] = {            
-                            ruleType,
-                            target,
-                            value
-                        };
-
-                    } else {
-                        /* If no aggrgation value for onle rule item, then consider it is a failed condition */
-                        ruleResult.push(false);
-                    }
-
-                }                
-
-                if (ruleResult.length > 0 && ruleResult.every(Boolean)) {
-
-                    const rsIds = Object.keys(rulesSummary);
-                    for (const ruleId of rsIds) {
                         try {
                             await models.cms_segment_retailer_rules_summary.findOneAndUpdate(
                                 { 
                                     retailer: retailer._id, 
-                                    segmentRule: ruleId 
+                                    segmentRule: rule._id 
                                 },
                                 {            
-                                    ruleType: rulesSummary[ruleId].ruleType,
-                                    target: rulesSummary[ruleId].target,
-                                    value: rulesSummary[ruleId].value
+                                    ruleType,
+                                    target,
+                                    value
                                 },
                                 { upsert: true, new: true }
                             );                     
                         } catch (e) {
                             console.log(e);
                         }
-                    }
-                } else {
 
-                    /**
-                     * 
-                     * Ok, the  segment rule evolution is failed
-                     * Remove the segment retailer rules summary & retailer summary
-                     * 
-                     */
-
-                    /* Remove the retailer summary */
-                    await models.cms_segment_retailer_summary.deleteOne({ 
-                        retailer: retailer._id, 
-                        segment: segments[i]._id
-                    });
-
-                    /* Remove the retailer rule summary */
-                    for (const rule of segmentRules) {
-                        await models.cms_segment_retailer_rules_summary.deleteOne({ retailer: retailer._id, segmentRule: rule._id });
+                    } else { console.log("targetSummary is not found");
+                        /* If no aggrgation value for onle rule item, then consider it is a failed condition */
+                        ruleResult.push(false);
                     }
 
+                }              
+                
+                console.log("ruleResult : ", ruleResult);
+
+                if (ruleResult.length > 0 && ruleResult.every(Boolean)) {
+                    segmentResults[segments[i]._id] = true; 
+                } else {  console.log("Since segment rule summary failed, going to remove the  summaryu from the collection");
+                    segmentResults[segments[i]._id] = false; 
                 }
 
             }
 
-        }       
+        }   
+        
+        return segmentResults;
 
     } catch(e) {
         console.log(e);
@@ -486,7 +477,7 @@ const updateSummary = async (order, retailer) => {
 
 };
 
-const addRetailerToSegment = async (_segmentId, _retailerId) => {
+const addRetailerToSegment = async (_segmentId, _retailerId) => {  console.log("addRetailerToSegment is called");
 
     try {
 
@@ -526,32 +517,32 @@ const addRetailerToSegment = async (_segmentId, _retailerId) => {
 
 };
 
-const updateRetailerMapping = async (retailer) => {
+const updateRetailerMapping = async (retailer, segmentResults) => {   console.log("updateRetailerMapping is called"); console.log(segmentResults);
 
     try {
 
-        let retailerSummary = null;
-        let retailerRulesSummary = [];
-        const segments = await models.cms_segment.find({ status: true }).lean();
+        if (!segmentResults) {
+            return;
+        }
 
-        for (let i = 0; i < segments.length; i++) {
-            retailerSummary = await models.cms_segment_retailer_summary.findOne({ retailer: retailer._id, segment: segments[i]._id }).lean();
-            if (retailerSummary) {
+        const segmentIds = Object.keys(segmentResults);
+        for (let i = 0; i < segmentIds.length; i++) {
+            if (segmentResults[segmentIds[i]]) {
                 /* Retailer is eligible */
-                await addRetailerToSegment(segments[i]._id, retailer._id);
-            } else {
+                await addRetailerToSegment(segmentIds[i], retailer._id);
+            } else {    
                 /* Retailer is not eligible */
                 try {
                     await models.cms_segment_retailer.deleteOne({
                         retailer: retailer._id,
-                        segment: segments[i]._id  
+                        segment: segmentIds[i]  
                     });
                 } catch (e) {
                     console.log(e);
-                }                
+                }
             }
         }
-        
+
     } catch (e) {
         console.log(e);
     }
@@ -560,11 +551,11 @@ const updateRetailerMapping = async (retailer) => {
 
 const processBatch = async (data) => {  
 
-    const { orderId } = data; 
+    const { orderId } = data;   console.log("processBatch called for orderId : "+ orderId);
 
     try {
 
-        await init();
+        await init();  console.log("Thread is initialized ");
 
         /**
          * 
@@ -573,7 +564,7 @@ const processBatch = async (data) => {
          */
         const order = await models.cms_master_order.findOne({ orderId: orderId }).lean();
 
-        if (order) {
+        if (order) {  console.log("Order  retrived for id : "+orderId );
 
             /**
              * 
@@ -583,7 +574,7 @@ const processBatch = async (data) => {
              */
             const retailer = await checkRetailerMaster(order.retailerId);
 
-            if (retailer) {
+            if (retailer) {  console.log("Retailer is retrived for id : "+ order.retailerId);
 
                 /**
                  * 
@@ -591,7 +582,7 @@ const processBatch = async (data) => {
                  * Add, update or remove segment retailer rule summary
                  * 
                  */
-                await updateSummary(order);
+                const segmentResults = await updateSummary(order, retailer);
 
                 /**
                  * 
@@ -599,7 +590,7 @@ const processBatch = async (data) => {
                  * evoluate segment summaries and b ased on that add or remove retailer for a segment
                  * 
                  */
-                await updateRetailerMapping(retailer);
+                await updateRetailerMapping(retailer, segmentResults);
                 
             } else {
                 throw new Error("Retailer not found for Id : "+ order.retailerId);
@@ -614,6 +605,9 @@ const processBatch = async (data) => {
     } finally {
 
         try {
+
+            /* Remove the order from queue */
+            await models.cms_segment_order_queue.deleteOne({ orderId: orderId });
 
             await Promise.all([MDBM.close(), MYDBM.close()]);
             process.exit(0);

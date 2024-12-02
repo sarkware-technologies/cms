@@ -307,24 +307,30 @@ export default class AuthService {
             }
 
             if (user) {
-
                 if (user.status) {
 
-                    const _token = ""
+                    /* Check roles */
+                    let roles = await UserRoleMappingModel.find({user: user._id}).populate({
+                        path: 'role',
+                        match: { status: true }
+                    }).lean().exec();
 
+                    if (roles.length > 0) {
+
+                        
+                        
+                    } else {
+                        throw new Error("Your account has no roles assigned, please contact support team");
+                    }
+
+                } else {
+                    throw new Error("Your account is disabled, please contact support team");    
                 }
-
-            }
-
-            if (roles.length === 1) {
-                return await this.prepareUser(user, _roles[0]);
             } else {
-                return {
-                    type: "role",
-                    roles: roles,
-                    tempAccessToken: this.TM.issueTempToken(user._id)
-                };
+                throw new Error("Please enter a valid email");
             }
+
+            
 
 
         } catch (e) {

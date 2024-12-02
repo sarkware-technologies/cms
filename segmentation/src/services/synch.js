@@ -135,7 +135,7 @@ export default class SynchService {
 
     };
 
-    addOrder = async (_req) => {
+    addOrder = async (_req) => {  console.log("AddOrder is called");
 
         try {
 
@@ -259,7 +259,9 @@ export default class SynchService {
                         orderId: OrderId,
                         queueStatus : QueueStatus.WAITING
                     });
-                    await orderQueue.save();
+                    const ddd = await orderQueue.save();
+                    console.log(ddd);
+                    console.log("About to call processQueue");
 
                     /* Trigger the order builder */
                     await this.orderBuildManager.processQueue();

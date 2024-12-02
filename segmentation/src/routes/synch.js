@@ -8,7 +8,7 @@ const synchService = new SynchService();
 const moduleHandle = "synch";
 const basicAuthToken = process.env.CMS_SYNC_BASIC_AUTH || "0f777851-ac8a-4f42-84f2-230f98d7c8d1";
 
-const verifyBasicAuth = (_req) => {
+const verifyBasicAuth = (_req) => { console.log("Cerify basic auth is called");
 
     try {
 

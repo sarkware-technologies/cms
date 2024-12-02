@@ -3832,3 +3832,30 @@ input[type="range"]::-moz-range-thumb {
     background: #2196f3;
     color: #fff;
 }
+
+table.segment-summary-widget {
+    width: auto;
+    float: right;
+    border-spacing: 5px;
+    border-collapse: separate;
+}
+
+table.segment-summary-widget td {
+    padding: 15px 25px;
+    text-align: center;
+    background: #eee;
+}
+
+table.segment-summary-widget td span {
+    display: block;
+}
+
+table.segment-summary-widget td span:first-child {    
+    margin-bottom: 10px;
+
+}
+
+table.segment-summary-widget td span:last-child {
+    font-weight: bold;
+    font-size: 18px;
+}

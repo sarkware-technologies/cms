@@ -15,7 +15,8 @@ export default class RetailerBuilder {
         try {
     
             const modelNames = [
-                "cms_segment",            
+                "cms_segment",      
+                "cms_segment_rule",      
                 "cms_master_retailer",            
                 "cms_segment_retailer",
                 "cms_segment_blacklisted_retailer"
@@ -179,7 +180,9 @@ export default class RetailerBuilder {
                 const segments = await this.models.cms_segment.find({ status: true }).lean();
                 for (let i = 0; i < segments.length; i++) {
                     try {
-                        if(this.isOpenSegment(segments[i])) {
+
+                        const segmentRules = await this.models.cms_segment_rule.find({ segment: segments[i]._id }).lean();
+                        if(segmentRules.length == 0 && this.isOpenSegment(segments[i])) {
                             await this.addRetailerToSegment(segments[i]._id);
                         }
                     } catch (e) {

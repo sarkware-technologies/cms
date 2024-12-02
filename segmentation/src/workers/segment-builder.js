@@ -52,7 +52,6 @@ const checkSegmentRules = async(_retailer, _orders, _segment) => {
         let entry = null;
         let qty = 0;
 
-        const rulesSummary = {};
         const ruleResult = [];
         const summaryProducts = new Map();
         const summaryBrands = new Map();
@@ -156,41 +155,29 @@ const checkSegmentRules = async(_retailer, _orders, _segment) => {
                     (!_from && !_to)
                 );
 
-                rulesSummary[rule._id] = {            
-                    ruleType,
-                    target,
-                    value
-                };
-            } else {
-                /* If no aggrgation value for onle rule item, then consider it is a failed condition */
-                ruleResult.push(false);
-            }            
-
-        });
-
-        if (ruleResult.length > 0 && ruleResult.every(Boolean)) {
-
-            const rsIds = Object.keys(rulesSummary);
-            for (const ruleId of rsIds) {
                 try {
                     await models.cms_segment_retailer_rules_summary.findOneAndUpdate(
                         { 
                             retailer: _retailer._id, 
-                            segmentRule: ruleId 
+                            segmentRule: rule._id 
                         },
                         {            
-                            ruleType: rulesSummary[ruleId].ruleType,
-                            target: rulesSummary[ruleId].target,
-                            value: rulesSummary[ruleId].value
+                            ruleType,
+                            target,
+                            value
                         },
                         { upsert: true, new: true }
                     );                     
                 } catch (e) {
                     console.log(e);
                 }
+
+            } else {
+                /* If no aggrgation value for onle rule item, then consider it is a failed condition */
+                ruleResult.push(false);
             }            
 
-        }
+        });
 
         return ruleResult.length > 0 ? ruleResult.every(Boolean) : false;
         
@@ -326,7 +313,7 @@ const checkRetailerEligibility = async (_retailer, _segment) => {
         );
         
         let ruleSucceed = true;
-        if (segmentRules.length > 0) {
+        if (finalOrders.length > 0 && segmentRules.length > 0) {
             ruleSucceed = await checkSegmentRules(_retailer, oIds, _segment);
         } 
         
@@ -348,17 +335,6 @@ const checkRetailerEligibility = async (_retailer, _segment) => {
                 /* Ignore */
                 console.log(e);
             }  
-        } else {
-            /* Retailer is not eligible, delete the segment summary if it already there */
-            try {
-                await models.cms_segment_retailer_summary.deleteOne({ 
-                    retailer: _retailer._id, 
-                    segment: _segment._id 
-                });
-            } catch (e) {
-                /* Ignore */
-                console.log(e);
-            }  
         }
         
         return (ruleSucceed && finalOrders.length > 0)        
@@ -369,35 +345,6 @@ const checkRetailerEligibility = async (_retailer, _segment) => {
     }
 
 };
-
-const processWithLimit = async (items, task, limit) => {
-
-    const queue = [...items];
-    const results = [];
-    const promises = [];
-
-    while (queue.length > 0) {
-        if (promises.length < limit) {
-            const item = queue.shift();
-            const promise = task(item)
-                .then(result => {
-                    results.push(result);
-                    promises.splice(promises.indexOf(promise), 1);
-                })
-                .catch(error => {
-                    console.error("Error in processing item:", error);
-                    promises.splice(promises.indexOf(promise), 1);
-                });
-            promises.push(promise);
-        } else {
-            await Promise.race(promises);
-        }
-    }
-
-    await Promise.all(promises);
-    return results;
-
-}
 
 const processBatch = async (data) => {  
 
