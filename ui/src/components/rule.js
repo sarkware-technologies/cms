@@ -343,16 +343,16 @@ const Rule = (props, ref) => {
 
         if (rule.type == 1) {
             /* Retailer */
-            if (rule.retailer_lookup == 1) {
+            // if (rule.retailer_lookup == 1) {
 
-                filters.push(<td key={uuidv4()} className="filter"><MultiSelect ref={countryRef} key={uuidv4()} config={countryMultiSelectConfig} original={window._controller.bucket.countryRecords} selected={rule.countries} parent={null} child={stateRef} /></td>);
-                filters.push(<td key={uuidv4()} className="filter"><MultiSelect ref={stateRef} key={uuidv4()} config={stateMultiSelectConfig} original={window._controller.bucket.stateRecords} selected={rule.states} parent={countryRef} child={regionRef} /></td>);
-                filters.push(<td key={uuidv4()} className="filter"><MultiSelect ref={regionRef} key={uuidv4()} config={regionMultiSelectConfig} original={window._controller.bucket.regionRecords} selected={rule.regions} parent={stateRef} child={retailerRef} /></td>);
-                filters.push(<td key={uuidv4()} className="filter"><MultiSelect ref={retailerRef} key={uuidv4()} config={retailerMultiSelectConfig} original={window._controller.bucket.retailerRecords} selected={rule.retailers} parent={regionRef} child={null} /></td>);
+            //     filters.push(<td key={uuidv4()} className="filter"><MultiSelect ref={countryRef} key={uuidv4()} config={countryMultiSelectConfig} original={window._controller.bucket.countryRecords} selected={rule.countries} parent={null} child={stateRef} /></td>);
+            //     filters.push(<td key={uuidv4()} className="filter"><MultiSelect ref={stateRef} key={uuidv4()} config={stateMultiSelectConfig} original={window._controller.bucket.stateRecords} selected={rule.states} parent={countryRef} child={regionRef} /></td>);
+            //     filters.push(<td key={uuidv4()} className="filter"><MultiSelect ref={regionRef} key={uuidv4()} config={regionMultiSelectConfig} original={window._controller.bucket.regionRecords} selected={rule.regions} parent={stateRef} child={retailerRef} /></td>);
+            //     filters.push(<td key={uuidv4()} className="filter"><MultiSelect ref={retailerRef} key={uuidv4()} config={retailerMultiSelectConfig} original={window._controller.bucket.retailerRecords} selected={rule.retailers} parent={regionRef} child={null} /></td>);
     
-            } else {
+            // } else {
                 filters.push(<td key={uuidv4()} className="filter"><MultiSelect ref={segmentRef} key={uuidv4()} config={segmentMultiSelectConfig} original={window._controller.bucket.segmentRecords} selected={rule.segments} parent={null} child={null} /></td>);
-            }
+            //}
         } else if (rule.type == 2) {
             /* Distributor */
             filters.push(<td key={uuidv4()} className="filter"><MultiSelect ref={distributorRef} key={uuidv4()} config={distributorMultiSelectConfig} original={window._controller.bucket.distributorRecords} selected={rule.distributors} parent={null} child={null} /></td>);

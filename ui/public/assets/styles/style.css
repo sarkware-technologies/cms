@@ -3852,10 +3852,10 @@ table.segment-summary-widget td span {
 
 table.segment-summary-widget td span:first-child {    
     margin-bottom: 10px;
-
+    font-weight: bold;
+    font-size: 18px;
 }
 
 table.segment-summary-widget td span:last-child {
-    font-weight: bold;
-    font-size: 18px;
+    font-size: 14px;
 }

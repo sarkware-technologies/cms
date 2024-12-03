@@ -10,12 +10,7 @@ export default function PreviewContext(_component) {
     this.controller = window._controller;
 
     this.dbGridRef = createRef(null);
-    this.dbExplorerRef = createRef(null);
-
-    this.countryRecords = [];
-    this.stateRecords = [];
-    this.regionRecords = [];
-    this.retailerRecords = [];
+    this.dbExplorerRef = createRef(null);    
 
     /**
      * 

@@ -97,8 +97,7 @@ export default class Controller extends React.Component {
         this.bucket = {
             countryRecords: [],
             stateRecords: [],
-            regionRecords: [],
-            retailerRecords: [],
+            regionRecords: [],            
             segmentRecords: [],
             distributorRecords: [],
             companyRecords: [],

@@ -41,8 +41,7 @@ const ContextWrapper = (props, ref) => {
      */
     const [state, setState] = useState({        
         currentView: null,     
-        viewConfig: null,
-        dataGrids: {}
+        viewConfig: null        
     });
 
     /* Reference for exposing the current state to the child & parent components */
@@ -83,6 +82,8 @@ const ContextWrapper = (props, ref) => {
         viewMode: "archive",
 
         capability: null,
+
+        dataGrids: {},
         
         /**
          * 

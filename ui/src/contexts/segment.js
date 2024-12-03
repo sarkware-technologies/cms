@@ -6,6 +6,7 @@ import MultiSelect from "../components/multi-select";
 import SegmentRules from "../components/segment-rules";
 import SegmentStatus from "../components/segment-status";
 import SegmentAction from "../components/segment-action";
+import SegmentSummary from "../components/segment-summary";
 
 export default function SegmentContext(_component) {
 
@@ -20,6 +21,7 @@ export default function SegmentContext(_component) {
 
     this.segmentActionRef = createRef(null);
     this.segmentStatusRef = createRef(null);
+    this.segmentSummaryRef = createRef(null);
 
     /**
      * 
@@ -266,7 +268,8 @@ export default function SegmentContext(_component) {
 
                     this.controller.docker.dock(request).then((_res) => {
                         this.controller.notify(selectedRetailers.length + " retailers were whitelisted successfully.!");
-                        retailerGrid.initFetch();    
+                        retailerGrid.initFetch();  
+                        this.refreshSegmentSummary();  
                     })
                     .catch((e) => {
                         this.controller.notify(e.message, "error");
@@ -457,13 +460,7 @@ export default function SegmentContext(_component) {
             this.controller.docker.dock(request).then((_res) => {                
                 const _summaryHolder = document.getElementById('segment_summary');
                 const summaryRoot = createRoot(_summaryHolder);
-                summaryRoot.render(<table className="segment-summary-widget">
-                    <tr>
-                        <td><span>Retailers</span><span>{_res.retailer}</span></td>
-                        <td><span>Whitelisted</span><span>{_res.whitelisted}</span></td>
-                        <td><span>Blacklisted</span><span>{_res.balcklisted}</span></td>
-                    </tr>
-                </table>);                
+                summaryRoot.render(<SegmentSummary ref={this.segmentSummaryRef} options={_res} />);                
             })
             .catch((e) => {
                 this.controller.notify(e.message, "error");
@@ -611,6 +608,27 @@ export default function SegmentContext(_component) {
 
     };
 
+    this.refreshSegmentSummary = () => {
+
+        const record = this.getCurrentSegmentRecord();
+
+        if (record && this.segmentSummaryRef.current) {
+
+            const request = {};
+            request["method"] = "GET";
+            request["endpoint"] = "/segmentation/v1/segment/"+ record._id +"/summary";                
+
+            this.controller.docker.dock(request).then((_res) => {                
+                this.segmentSummaryRef.current.setSummary(_res);                                
+            })
+            .catch((e) => {
+                console.log(e);
+            });
+
+        }        
+
+    };
+
     this.purgeSegmentBuilder = () => {
 
         const request = {};
@@ -707,7 +725,8 @@ export default function SegmentContext(_component) {
 
             this.controller.docker.dock(request).then((_res) => {
                 this.controller.notify("Retailer(s) were removed successfully.!");
-                retailerGrid.initFetch();    
+                retailerGrid.initFetch();  
+                this.refreshSegmentSummary();  
             })
             .catch((e) => {
                 this.controller.notify(e.message, "error");

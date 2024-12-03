@@ -936,39 +936,39 @@ export default function ComponentContext(_component) {
             }).then((_res) => {
                 //this.regionRecords = _res;
                 window._controller.bucket.regionRecords = _res;
-                this.fetchRetailerList();
+                this.fetchDistributorList();
             })
             .catch((e) => {
                 console.log(e);
             });
 
         } else {
-            this.fetchRetailerList();
+            this.fetchDistributorList();
         }
 
     };
 
-    this.fetchRetailerList = () => {
+    // this.fetchRetailerList = () => {
 
-        if (Array.isArray(window._controller.bucket.retailerRecords) && window._controller.bucket.retailerRecords.length === 0) {
+    //     if (Array.isArray(window._controller.bucket.retailerRecords) && window._controller.bucket.retailerRecords.length === 0) {
 
-            this.controller.docker.dock({
-                method: "GET",
-                endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_master_retailer"
-            }).then((_res) => {
-                //this.retailerRecords = _res;    
-                window._controller.bucket.retailerRecords = _res;
-                this.fetchDistributorList(); 
-            })
-            .catch((e) => {
-                console.log(e);
-            });
+    //         this.controller.docker.dock({
+    //             method: "GET",
+    //             endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_master_retailer"
+    //         }).then((_res) => {
+    //             //this.retailerRecords = _res;    
+    //             window._controller.bucket.retailerRecords = _res;
+    //             this.fetchDistributorList(); 
+    //         })
+    //         .catch((e) => {
+    //             console.log(e);
+    //         });
 
-        } else {
-            this.fetchDistributorList();   
-        }
+    //     } else {
+    //         this.fetchDistributorList();   
+    //     }
 
-    };
+    // };
 
     this.fetchDistributorList = () => {
 

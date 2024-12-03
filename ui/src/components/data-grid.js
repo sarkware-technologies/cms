@@ -407,13 +407,13 @@ const DataGrid = (props, ref) => {
     const [checked, setChecked] = useState([]);
 
     const contextObj = window._controller.getCurrentModuleInstance();
-    
+
     /* State used by Paginator component */
     const [state, setState] = useState({
         records: [],
         headers: props.config.columns,
         progress: false,
-        currentPage: 1,
+        currentPage: (contextObj && contextObj.dataGrids[props.config.handle]) ? contextObj.dataGrids[props.config.handle].currentPage : 1,
         currentRecord: {},
         totalPages: 0,       
         recordsPerPage: 25
@@ -796,7 +796,7 @@ const DataGrid = (props, ref) => {
         }        
 
         if (_props.config.field.type === "link" || _props.config.field.type === "link_search") {
-            return <td style={cssProperties} className={_props.config.classes}><a href="#" onClick={e => handleRecordLinkClick(e, props.config.handle, props.config.link.context, _props.record)}>{_props.data}</a></td>;
+            return <td style={cssProperties} className={_props.config.classes}><a href="" onClick={e => handleRecordLinkClick(e, props.config.handle, props.config.link.context, _props.record)}>{_props.data}</a></td>;
         } else if (_props.config.field.type === "button") {
             if (!_props.config.field.icon) {
                 return <td style={cssProperties} className={_props.config.classes}><button className={`pharmarack-cms-btn ${_props.config.field.classes}`} onClick={e => handleRecordBtnClick(e, _props.config.field.action, props.config.handle, _props.record)}>{_props.data}</button></td>
@@ -1062,11 +1062,21 @@ const DataGrid = (props, ref) => {
 
             if (state.currentPage == 1) {
 
-                setState((prevState) => ({...prevState, progress: false}));
+                setState((prevState) => ({...prevState, progress: true}));
 
                 try {
 
                     const _res = await window._controller.docker.dock(request);
+
+                    /* Persist the state in context */
+                    if (contextObj) {
+                        contextObj.dataGrids[props.config.handle] = {
+                            currentPage: state.currentPage,
+                            headers: state.headers,
+                            endPoint: endPoint
+                        }
+                    }
+
                     let _records = _res.payload;
                     if (contextObj && contextObj.beforeLoadingDatagrid) {
                         _records = contextObj.beforeLoadingDatagrid(props.config.handle, _res.payload);
@@ -1120,11 +1130,21 @@ const DataGrid = (props, ref) => {
 
         } else {                        
 
-            setState((prevState) => ({...prevState, progress: false}));
+            setState((prevState) => ({...prevState, progress: true}));
 
             try {
 
                 const _res = await window._controller.docker.dock(request);
+
+                /* Persist the state in context */
+                if (contextObj) {
+                    contextObj.dataGrids[props.config.handle] = {
+                        currentPage: state.currentPage,
+                        headers: state.headers,
+                        endPoint: endPoint
+                    }
+                }
+
                 let _records = _res.payload;
                 if (contextObj && contextObj.beforeLoadingDatagrid) {
                     _records = contextObj.beforeLoadingDatagrid(props.config.handle, _res.payload);
@@ -1179,6 +1199,7 @@ const DataGrid = (props, ref) => {
     };
 
     useEffect(() => {
+
         // Add event listener for keydown event
         window.addEventListener('keydown', handleEscapeKey);
 
@@ -1186,6 +1207,7 @@ const DataGrid = (props, ref) => {
         return () => {
             window.removeEventListener('keydown', handleEscapeKey);
         };
+
     }, []);
 
     const self = {

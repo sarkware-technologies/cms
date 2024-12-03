@@ -100,19 +100,10 @@ const SegmentRule = (props, ref) => {
         datasource: {endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=cities", cached: true, recordsPerPage: 10}
     }), []);
 
-    const handleTargetChange = (_e, _index) => {
-
+    const handleTargetChange = (_value, _index) => {
         const _rules = [...rules];
-        _rules[_index].target = _e.target.value;
-        // if (_rules[_index].ruleType == 1) {
-        //     _rules[_index].target = _value["MDM_PRODUCT_CODE"];            
-        // } else if (_rules[_index].ruleType == 2) {
-        //     _rules[_index].target = _value["BrandId"];            
-        // }  else {
-        //     _rules[_index].target = _value["Name"];    
-        // }        
+        _rules[_index].target = _value;
         setRules(_rules);
-        
     };
 
     const handleFromChange = (_e, _index) => {        
@@ -205,7 +196,7 @@ const SegmentRule = (props, ref) => {
 
     useImperativeHandle(ref, () => {
         return {
-            getRules: () => {  console.log("getRules is called");  console.log(rules);
+            getRules: () => {
                 const _rules = [];
                 for (let i = 0; i < rules.length; i++) {
                     if (rules[i].target && rules[i].ruleType) {
@@ -217,7 +208,7 @@ const SegmentRule = (props, ref) => {
                             to: rules[i].to ? rules[i].to : -1
                         });
                     }
-                }      console.log(_rules);          
+                }                
                 return _rules;
             },
             setRules: (_rules) => setRules(_rules)
@@ -241,8 +232,8 @@ const SegmentRule = (props, ref) => {
                                 </select>
                             </td>
                             <td className="target-td">
-                                <label>{getSelectorLabel(rule.ruleType)}</label>                                
-                                <input type="text" value={rule.target} onChange={(e) => handleTargetChange(e,  index)} />
+                                <label>{getSelectorLabel(rule.ruleType)}</label>
+                                {renderSelector(index, rule.ruleType)}                                
                             </td>
                             <td className="qty-td">
                                 <div className="pharmarack-cms-segment-rule-type-box">
