@@ -3988,3 +3988,20 @@ table.segment-summary-widget td span:last-child {
       transform: rotate(360deg);
     }
 }
+
+.sponsored_product_form .pharmarack-cms-view-column-title {
+    border-bottom: none;
+    padding-bottom: 0px;
+    margin-bottom: 5px;
+}
+
+.sponsored_product_form .pharmarack-cms-view-column-title h3 {
+    color: #495057 !important;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.sponsored_product_form .pharmarack-cms-form-field-wrapper.to {
+    margin-bottom: 0px;
+    margin-top: 20px;
+}

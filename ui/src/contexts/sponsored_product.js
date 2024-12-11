@@ -1,4 +1,4 @@
-export default function AuthTypeContext(_component) {
+export default function SponsoredProductContext(_component) {
 
     this.component = _component;
     this.config = this.component.config;

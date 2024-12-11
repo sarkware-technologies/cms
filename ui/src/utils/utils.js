@@ -43,17 +43,30 @@ export default class Utils {
     loadDependencies = async () => {
         try {
 
-            const deps = Object.keys(app_config.dependencies);            
-            const fetchPromises = deps.map(async (_key) => {
-                const endpoint = app_config.dependencies[_key];
-                const result = await window._controller.docker.dock({ method: "get", endpoint });
-                window._controller.bucket[_key] = result || [];
-            });
+            if (this.isAuthenticated()) {
 
-            await Promise.all(fetchPromises);
+                const deps = Object.keys(app_config.dependencies);            
+                const fetchPromises = deps.map(async (_key) => {
+                    const endpoint = app_config.dependencies[_key];
+                    const result = await window._controller.docker.dock({ method: "get", endpoint });
+                    window._controller.bucket[_key] = result || [];
+                });
+
+                await Promise.all(fetchPromises);
+
+            }
             window._controller.setState({ loading: false });
 
         } catch (error) {
+
+            localStorage.removeItem("pharmarack_cms_email");
+            localStorage.removeItem("pharmarack_cms_mobile");
+            localStorage.removeItem("pharmarack_cms_role_name");                    
+            localStorage.removeItem("pharmarack_cms_full_name");
+            localStorage.removeItem("pharmarack_cms_access_token");
+            localStorage.removeItem("pharmarack_cms_refresh_token");
+            localStorage.removeItem("pharmarack_cms_menus");
+
             console.error("Error loading dependencies:", error);
         }
     };
@@ -76,7 +89,7 @@ export default class Utils {
         const accessToken = localStorage.getItem("pharmarack_cms_access_token");
         const refreshToken = localStorage.getItem("pharmarack_cms_refresh_token");
     
-        return accessToken && refreshToken;
+        return (accessToken && refreshToken);
 
     };
 

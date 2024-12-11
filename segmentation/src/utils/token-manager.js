@@ -15,7 +15,7 @@ export default class TokenManager {
     
     constructor() {
         this.commonSecretKey = process.env.JWT_SECRET_KEY;     
-        this.systemSecretKey = process.env.CMS_COMMON_SECRET;     
+        this.systemSecretKey = process.env.CMS_SYSTEM_SECRET;     
         this.tempSecretKey = process.env.CMS_COMMON_SECRET;
         this.refreshSecretKey = process.env.CMS_COMMON_SECRET;
         this.forgotSecretKey = process.env.CMS_COMMON_SECRET;  
