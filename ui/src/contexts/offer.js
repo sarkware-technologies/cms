@@ -9,8 +9,8 @@ export default function XlsUploadContext(_component) {
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
      *
      **/
-    this.init = () => {
-        this.controller.switchView("main_view");
+    this.init = (_view) => {
+        this.controller.switchView(_view);
     };  
 
     /**     

@@ -4,7 +4,10 @@ let register_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "register",
+            viewFor: "",
+            match: ['/register'],
             context_header: {
                 show: true,
                 title: "Registers",
@@ -67,7 +70,7 @@ let register_config = {
                                                                     is_main_grid: true,
                                                                     empty_message: "No register submitted yet.!",
                                                                     datasource: {endpoint: "/system/v1/register?populate=true&isApproved=null", page: 0, populate: false, handler: "dedicated"},
-                                                                    link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/system/v1/register/"},
+                                                                    link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/main/register/"},
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -304,7 +307,7 @@ let register_config = {
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "32",
+                                                                            width: "25",
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",
@@ -315,7 +318,7 @@ let register_config = {
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "32",
+                                                                            width: "30",
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",
@@ -337,13 +340,24 @@ let register_config = {
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "16",
+                                                                            width: "15",
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",
                                                                             header: {title: "User Type", align: "left", filterable: false, searchable: false, sortable: false}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                                                             field: {handle: "userType", type: "search", label_key: "title", value_key: "_id"},
+                                                                            prompt: ""
+                                                                        },
+                                                                        {
+                                                                            show: true, 
+                                                                            width: "10",
+                                                                            search: false,
+                                                                            filter: false,
+                                                                            classes: "",
+                                                                            header: {title: "Approve", align: "center", filterable: false, searchable: false, sortable: false}, 
+                                                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                                                            field: {handle: "", type: "button", label: "Approve", action: "APPROVE", align: "center", icon: "", classes: "icon-left approve-btn"},
                                                                             prompt: ""
                                                                         }                                   
                                                                     ]
@@ -374,13 +388,16 @@ let register_config = {
             manage: true             
         },
         register_form: {
+            source: "/system/v1/register/",
             context: "register",
+            viewFor: "register_pending_grid",
+            match: ['/register/:id'],
             context_header: {
                 show: true,
                 title: "Register",
-                breadcrumb: "title",
+                breadcrumb: "fullName",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_REGISTER", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                     { label: "Update", theme: "primary", method: "put", action: "SAVE_REGISTER", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" },
                     { label: "Reject", theme: "warning", method: "put", action: "REJECT_REGISTER", classes: "icon-left", icon: "fa fa-thumbs-down", tabindex : 8, status: true, shortcut: "" },
                     { label: "Update & Approve", theme: "primary", method: "put", action: "UPDATE_APPROVE_REGISTER", classes: "icon-left", icon: "fa fa-thumbs-up", tabindex : 8, status: true, shortcut: "" }

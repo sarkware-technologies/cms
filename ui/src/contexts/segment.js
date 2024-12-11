@@ -28,8 +28,8 @@ export default function SegmentContext(_component) {
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
      *
      **/
-    this.init = () => {
-        this.controller.switchView("main_view");
+    this.init = (_view) => {
+        this.controller.switchView(_view);
     };  
 
     /**
@@ -52,13 +52,44 @@ export default function SegmentContext(_component) {
             datasource.endpoint = "/segmentation/v1/segment/"+ segment._id +"/whitelistedRetailers";             
         } else if (_handle === "blacklist_retailer_grid" && segment) {
             datasource.endpoint = "/segmentation/v1/segment/"+ segment._id +"/blacklistedRetailers";             
-        } else if (_handle === "build_history_grid") {
+        } else if (_handle === "build_history_grid" && segment) {
             datasource.endpoint = "/segmentation/v1/segment/"+ segment._id +"/buildHistory";             
         }
 
         return datasource;
 
     };    
+
+    /**
+     * 
+     * @param {*} _targetView 
+     * @param {*} _response 
+     * 
+     * Called before storing current record for view
+     * 
+     */
+    this.onCurrentRecordResponse = (_targetView, _response) => {
+
+        if (_targetView == "segment_form") {
+            let _grid = null;
+            const _tab = this.controller.snapshot.tabs["segment_tab"];
+            if (_tab == "dynamic_segment_tab") {
+                _grid = "dynamic_segment_grid";
+            } else if (_tab == "static_segment_tab") {
+                _grid = "static_segment_grid";
+            } else if (_tab == "in_progress_segment_tab") {
+                _grid = "progress_segment_grid";
+            } else if (_tab == "disabled_segment_tab") {
+                _grid = "disabled_segment_grid";
+            } else {
+                _grid = "all_segment_grid";
+            }
+            return _grid;
+        }
+
+        return null;
+
+    };
 
     /**
      * 
@@ -357,7 +388,7 @@ export default function SegmentContext(_component) {
      * Called whenever a Tab Item is go to visible state 
      * 
      */
-    this.onTabViewMounted = ( _tabHandle, _tabItemHandle ) => {  
+    this.onTabViewMounted = ( _tabHandle, _tabItemHandle ) => {
         
         if (_tabHandle == "segment_form_tab") {
 
@@ -398,12 +429,12 @@ export default function SegmentContext(_component) {
             const segment = this.getCurrentSegmentRecord();  
             if (segment && segment.segmentType == 2) {    
                 _viewConfig.context_header.actions = [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
                     { label: "Delete Segment", theme: "danger", method: "delete", action: "DELETE_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
                 ];                
             } else {
                 _viewConfig.context_header.actions = [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
                     { label: "Delete", theme: "danger", method: "delete", action: "DELETE_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
                     { label: "Edit", theme: "primary", method: "post", action: "EDIT_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex : 8, status: true, shortcut: "" },
                     { label: "", theme: "primary", method: "put", action: "BUILD_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "fa fa-gear", tabindex : 8, status: true, shortcut: "" },
@@ -419,6 +450,7 @@ export default function SegmentContext(_component) {
         }
 
         return _viewConfig;
+
     };       
     
     /**
@@ -429,6 +461,12 @@ export default function SegmentContext(_component) {
      * 
      */
     this.onViewMounted = (_handle) => {
+
+        /**
+         * 
+         * Since the view is reloaded, we need to update the vi
+         * 
+         */
 
         const record = this.getCurrentSegmentRecord();
 
@@ -465,7 +503,6 @@ export default function SegmentContext(_component) {
             .catch((e) => {
                 this.controller.notify(e.message, "error");
             });
-
             
         }
 
@@ -499,13 +536,7 @@ export default function SegmentContext(_component) {
      */
     this.onActionBtnClick = (_action) => {
 
-        if (_action === "NEW_SEGMENT") {
-            this.component.currentRecord = {};
-            this.controller.switchView("new_segment_form");
-        } else if (_action === "CANCEL_SEGMENT") {     
-            this.component.currentRecord = {};       
-            this.controller.switchView("main_view");
-        } else if (_action === "SAVE_SEGMENT") {
+        if (_action === "SAVE_SEGMENT") {
             this.saveSegment();
         } else if (_action === "WHITELIST_RETAILER") {
             const newRetailerSelector = this.controller.getField("segment_retailer_form_add_retailers");
@@ -540,7 +571,16 @@ export default function SegmentContext(_component) {
             this.controller.getUserConfirm("HOUSE_KEEP_SEGMENT", "Are you sure ?", "This is will clear all the queues related  to all segment that is being build as well the retailer buffer");
         }
 
-    };    
+    };  
+    
+    /**
+     * 
+     * Called whenever user click on back button (or cancel button click)
+     * 
+     */
+    this.onBackAction = () => {
+        this.component.currentRecord = {};  
+    };
 
     this.onUserConfirm = (_task, _choice) => {
 
@@ -709,8 +749,6 @@ export default function SegmentContext(_component) {
 
     };
 
-
-
     this.removeRetailersFromSegment = (_retailersIds) => {
 
         const request = {};            
@@ -791,7 +829,6 @@ export default function SegmentContext(_component) {
         if (request["payload"]) {
 
             /* Add segment handler */
-
 
             this.controller.docker.dock(request).then((_res) => {
 
@@ -952,22 +989,24 @@ export default function SegmentContext(_component) {
     };
 
     this.getCurrentSegmentRecord = () => {
+        
         let _grid = null;
-        const _tab = this.component.tab["segment_tab"];
+        const _tab = this.controller.snapshot.tabs["segment_tab"];
 
-        if (_tab == "all_segment_tab") {
-            _grid = "all_segment_grid";
-        } else if (_tab == "dynamic_segment_tab") {
+        if (_tab == "dynamic_segment_tab") {
             _grid = "dynamic_segment_grid";
         } else if (_tab == "static_segment_tab") {
             _grid = "static_segment_grid";
         } else if (_tab == "in_progress_segment_tab") {
             _grid = "progress_segment_grid";
-        } else {
+        } else if (_tab == "disabled_segment_tab") {
             _grid = "disabled_segment_grid";
+        } else {
+            _grid = "all_segment_grid";
         }
 
         return this.component.currentRecord[_grid];
+
     };    
 
     this.validateDates = () => {

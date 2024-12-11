@@ -2,12 +2,15 @@ let entity_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "entity", 
+            viewFor: "",
+            match: ["/entity"],
             context_header: {
                 show: true,
                 title: "Entities",
                 breadcrumb: "",
-                actions: [{ label: "New Entity", theme: "primary", method: "post", action: "NEW_ENTITY", classes: "icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ type: "link", label: "New Entity", theme: "primary", method: "post", action: "/entity/new", classes: "icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -38,7 +41,7 @@ let entity_config = {
                                     is_main_grid: true,
                                     empty_message: "No entity configured yet.!",
                                     datasource: {endpoint: "/system/v1/entity", page: 0, populate: "", handler: "dedicated"},
-                                    link: {key: "_id", context: "entity", target_type: "view", view: "entity_form", data: "remote", endpoint: "/system/v1/entity/"},
+                                    link: {key: "_id", context: "entity", target_type: "view", view: "entity_form", data: "remote", endpoint: "/main/entity/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -98,13 +101,16 @@ let entity_config = {
             manage: false             
         },
         entity_form: {
+            source: "/system/v1/entity/",
             context: "entity", 
+            viewFor: "entity_grid",
+            match: ["/entity/new", "/entity/:id"],
             context_header: {
                 show: true,
                 title: "Entity",
                 breadcrumb: "title",
                 actions: [  
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_ENTITY", classes: "pharmarack-cms-action-cancel icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "pharmarack-cms-action-cancel icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                     { label: "Delete", theme: "danger", method: "delete", action: "DELETE_ENTITY", classes: "pharmarack-cms-action-delete icon-left", icon: "fa fa-trash", tabindex : 8, status: true, shortcut: "" },
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_ENTITY", classes: "pharmarack-cms-action-save icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
@@ -143,39 +149,6 @@ let entity_config = {
             },
             sidebar: null,
             manage: true 
-        },
-        entity_sidebar_form: {
-            context: "entity", 
-            context_header: {
-                show: false
-            },
-            header: {
-                show: false
-            },
-            content: {
-                show: true,
-                rows: [
-                    {
-                        seperator: false,
-                        columns: [
-                            {
-                                title: "Taxonomies",
-                                sub_title: "Mapping taxonomies for this Entity",
-                                type: "taxonomies",
-                                width: "100%",
-                                layout: "vertical",
-                                classes: "",
-                                taxonomy: { handle: "entity_taxonomies", type: "taxonomy", record_key: "entity_grid", endpoint: "/system/v1/entity" }
-                            }
-                        ]
-                    }
-                ]                                
-            },
-            footer: {
-                show: false
-            },
-            sidebar: null,
-            manage: false
         }
         
     }

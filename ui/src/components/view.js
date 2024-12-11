@@ -31,8 +31,8 @@ const View = (props, ref) => {
     if (isSubView && contextObj && contextObj.beforeViewMount) {        
         _preConfig = contextObj.beforeViewMount(handle, _preConfig);
     }
+    
     const config = _preConfig;
-
     let record = null;
 
     let caps = {
@@ -197,6 +197,10 @@ const View = (props, ref) => {
            
             const tabRef = React.createRef();            
             const childTabConfig = {..._config.tab};
+            if (window._controller.snapshot.tabs[childTabConfig.handle]) {
+                childTabConfig.default_tab = window._controller.snapshot.tabs[childTabConfig.handle];
+            }
+
             widget = <Tab ref={tabRef} config={childTabConfig} />
             window._controller.registerField(childTabConfig.handle, _config.type, tabRef);
 
@@ -431,9 +435,6 @@ const View = (props, ref) => {
                 Helper.resetForm(_namespace, config.footer.rows);
             }
 
-        },
-        setViewConfig: (_config) => {
-            setConfig({..._config});
         },
         getViewConfig: () => config
 

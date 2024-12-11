@@ -22,8 +22,8 @@ export default function ImporterContext(_component) {
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
      *
      **/
-    this.init = () => {
-        this.controller.switchView("main_view");
+    this.init = (_view) => {
+        this.controller.switchView(_view);
     };  
 
     /**
@@ -134,10 +134,7 @@ export default function ImporterContext(_component) {
      */
     this.onActionBtnClick = (_action) => {
 
-        if (_action === "CANCEL") {     
-            this.component.currentRecord["importer_grid"] = null;       
-            this.controller.switchView("main_view");
-        } else if (_action === "START") {
+        if (_action === "START") {
             this.controller.getUserConfirm("START", "Are you sure ?");
         } else if (_action === "STOP") {
             this.controller.getUserConfirm("STOP", "Are you sure ?");
@@ -160,6 +157,15 @@ export default function ImporterContext(_component) {
             
         }
 
+    };
+
+    /**
+     * 
+     * Called whenever user click on back button (or cancel button click)
+     * 
+     */
+    this.onBackAction = () => {
+        this.component.currentRecord["importer_grid"] = null;    
     };
 
     this.onUserConfirm = (_task, _choice) => {

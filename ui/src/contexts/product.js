@@ -10,8 +10,8 @@ export default function ProductContext(_component) {
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
      *
      **/
-    this.init = () => {
-        this.controller.switchView("main_view");
+    this.init = (_view) => {
+        this.controller.switchView(_view);
     };  
 
     /**     
@@ -34,17 +34,18 @@ export default function ProductContext(_component) {
      * 
      */
     this.onActionBtnClick = (_action) => {
-
-        if (_action === "NEW_PRODUCT") {
-            this.component.currentRecord["product_grid"] = null;
-            this.controller.switchView("product_form");
-        } else if (_action === "CANCEL_PRODUCT") {            
-            this.component.currentRecord["product_grid"] = null;
-            this.controller.switchView("main_view");
-        } else if (_action === "SAVE_PRODUCT") {
+        if (_action === "SAVE_PRODUCT") {
             this.saveProduct();
         }
+    };
 
+    /**
+     * 
+     * Called whenever user click on back button (or cancel button click)
+     * 
+     */
+    this.onBackAction = () => {
+        this.component.currentRecord["product_grid"] = null;    
     };
 
     this.saveProduct = () => {

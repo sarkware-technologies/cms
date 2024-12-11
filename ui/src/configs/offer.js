@@ -2,7 +2,10 @@ let offer_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "offer",
+            viewFor: "",
+            match: ["/offer"],
             context_header: {
                 show: true,
                 title: "Upload Company Offers",

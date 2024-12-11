@@ -2,12 +2,15 @@ let page_type_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "product",
+            viewFor: "",
+            match: ["/product"],
             context_header: {
                 show: true,
                 title: "Products",
                 breadcrumb: "",
-                actions: [{ label: "New Product", theme: "primary", action: "NEW_PRODUCT", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ type: "link", label: "New Product", theme: "primary", action: "/product/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -38,7 +41,7 @@ let page_type_config = {
                                     is_main_grid: true,
                                     empty_message: "No product configured yet.!",
                                     datasource: {endpoint: "/system/v1/api/master/product/list?select=_id|MDM_PRODUCT_CODE|PRODUCT_NAME|BRAND_NAME|PTR|MRP|PTS", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "product", target_type: "view", view: "product_form", data: "remote", endpoint: "/system/v1/api/master/product/record?id="},
+                                    link: {key: "_id", context: "product", target_type: "view", view: "product_form", data: "remote", endpoint: "/main/product/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -120,13 +123,16 @@ let page_type_config = {
             manage: true             
         },
         product_form: {
+            source: "/system/v1/api/master/product/record?id=",
             context: "product",
+            viewFor: "product_grid",
+            match: ["/product/new", "/product/:id"],
             context_header: {
                 show: true,
                 title: "Product",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", action: "CANCEL_PRODUCT", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                     { label: "Save", theme: "primary", action: "SAVE_PRODUCT", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           

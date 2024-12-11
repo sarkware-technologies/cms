@@ -3,14 +3,18 @@ import UserLoginDetailsModel from "../models/user-login-details.js";
 import UserRoleMappingModel from "../models/user-role-mapping.js";
 import UserModel from "../models/user.js";
 import TokenManager from "../utils/token-manager.js";
+import NotificationService from "../utils/notifier.js";
 
 import bcrypt from "bcrypt";
+import AuthTypeModel from "../models/auth-type.js";
 
 export default class AuthService {
 
     constructor () {
         this.TM = new TokenManager();
         this.roleService = new RoleService();
+        this.notifier = new NotificationService();
+        this.portalUrl = process.env.CMS_PORTAL_URL || "https://pharmretail-modernization-uat-cmsui.ragabh.com/submit-password"
     }
 
     signIn = async (_req) => {   
@@ -232,6 +236,8 @@ export default class AuthService {
 
                 return {status: true, message: "Logged out Successfully"};
 
+            } else {
+                throw new Error("User not found in request");
             }
 
         } catch (e) {
@@ -317,7 +323,25 @@ export default class AuthService {
 
                     if (roles.length > 0) {
 
-                        
+                        /* Generate the reset token */
+                        const forgotToken = this.TM.issueForgotToken(user._id);
+
+                        const eBody = {
+                            toEmailId: user.email,
+                            subject: "Pharmarack CMS - Password Reset Request",
+                            htmlData: `
+                                <p>Dear ${user.fullName || "User"},</p>
+                                <p>We received a request to reset your password for the Pharmarack CMS portal. Please click the link below to reset your password:</p>
+                                <p><a href="${this.portalUrl}?token=${forgotToken}" style="color: #007BFF; text-decoration: none;">Click here to Reset</a></p>
+                                <p>If you did not request this, please ignore this email or contact our support team if you have any concerns.</p>
+                                <p>This link will expire in <strong>30 minutes</strong> for your security.</p>
+                                <p>Best regards,</p>
+                                <p>The Pharmarack Team</p>
+                            `
+                        }                                   
+            
+                        await this.notifier.sendEmail(eBody);
+                        return {status: true, message: "Password reset link is send"};
                         
                     } else {
                         throw new Error("Your account has no roles assigned, please contact support team");
@@ -330,9 +354,6 @@ export default class AuthService {
                 throw new Error("Please enter a valid email");
             }
 
-            
-
-
         } catch (e) {
             throw e;
         }
@@ -343,9 +364,75 @@ export default class AuthService {
 
         try {
 
+            const {body} = _req;
+            if (!body || !body.password) {
+                throw new Error("Password is required");
+            }
 
+            if (_req.user && _req.user._id) {
+
+                const passwordHash = await bcrypt.hash(body.password, 12);
+                await UserModel.findByIdAndUpdate(_req.user._id, { $set: { password: passwordHash } }, { runValidators: true, new: true });                        
+                await UserLoginDetailsModel.updateOne(
+                    { userId: _req.user._id },
+                    { $set: { 
+                        accessToken: null,
+                        refreshToken: null,
+                        isRevoked: true,
+                        failedAttempt: 0,
+                        lockUntil: null,
+                        lastPasswordUpdated: Date.now() 
+                    }
+                    },
+                    { upsert: true }
+                );
+
+                return {status: true, message: "Password updated successfully"};
+
+            } else {
+                throw new Error("User not found");
+            }
 
         } catch (e) {
+            throw e;
+        }
+
+    };
+
+    getUserAuthType = async (_req) => {
+
+        try {
+
+            const { body } = _req;
+            if (!body || !body.token) {
+                throw new Error("Token is missing");
+            }
+
+            const result = this.TM.verifyForgotToken(body.token);
+            if (result.payload) {
+                const user = await UserModel.findById(result.payload.user).lean();
+                if (user) {
+
+                    /* Check roles */
+                    let roles = await UserRoleMappingModel.find({user: user._id}).populate({  
+                        path: 'role',
+                        match: { status: true }
+                    }).lean().exec();
+    
+                    if (roles.length > 0) {
+                        return await AuthTypeModel.findById(roles[0].role.authType).lean();
+                    } else {
+                        throw new Error("Your account has no roles assigned, please contact support team");
+                    }
+
+                } else {
+                    throw new Error("Token seems to be corrupted");
+                }
+            } else {
+                throw new Error("Token invalid or expired");
+            }
+
+        } catch (e) { console.log(e);
             throw e;
         }
 

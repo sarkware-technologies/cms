@@ -2,6 +2,7 @@ import React, { createRef } from "react";
 import Utils from "./utils/utils";
 import LayoutLoader from "./utils/layout";
 import Docker from "./utils/docker";
+import Splash from "./layouts/splash";
 
 /**
  *
@@ -22,7 +23,10 @@ export default class Controller extends React.Component {
          * Used to store the snapshot of the contexts
          * 
          */
-        this.snapshot = {};
+        this.snapshot = {
+            tabs: {},
+            dataGrids: {}
+        };
         
         /**
          * 
@@ -72,7 +76,12 @@ export default class Controller extends React.Component {
          * we use to contorl the theme, locale and menus
          * 
          */
-        this.state = { theme: "", locale: "", menus: [] };
+        this.state = { 
+            theme: "", 
+            locale: "", 
+            menus: [], 
+            loading: true 
+        };
 
         /**
          * 
@@ -90,19 +99,18 @@ export default class Controller extends React.Component {
 
         /**
          * 
+         * 
+         * 
+         */
+        this.isLoading = true;
+
+        /**
+         * 
          * Since app is the root component, we can use this bucket to store shared data
          * which needs to be fetched only once and used across the application
          * 
          */
-        this.bucket = {
-            countryRecords: [],
-            stateRecords: [],
-            regionRecords: [],            
-            segmentRecords: [],
-            distributorRecords: [],
-            companyRecords: [],
-            componentTypeList: []
-        };
+        this.bucket = {};
 
         /**
          * 
@@ -142,23 +150,15 @@ export default class Controller extends React.Component {
     setCurrentModuleInstance = (_module, _instance) => {
         this.current = _module;
         this.instances[_module] = _instance;
-        this.instances[_module].init();
+        this.instances[_module]._init();        
     };
 
     setCurrentModule = (_module) => {
         this.current = _module;
     };
 
-    setModuleState = (_module, _state) => {
-        this.snapshot[_module] = _state;
-    };
-
     setLayoutInstance = (_instance) => {
         this.layout = _instance;
-    };
-
-    getModuleState = (_module) => {
-        return this.snapshot[_module] ? this.snapshot[_module] : null;
     };
 
     registerField = (_handle, _type, _field) => {
@@ -385,7 +385,21 @@ export default class Controller extends React.Component {
     getUserConfirm = (_task, _title, _msg) => {
         this.confirm.current.show(_task, _title, _msg);
     };
+    
+    componentDidMount() {
+        this.utils.loadDependencies();
+    }
 
-    render = () => <LayoutLoader />;
+    render = () => {
+
+        const { loading } = this.state;
+
+        if (loading) {
+            return <Splash />;
+        }
+
+        return <LayoutLoader />;        
+        
+    };
 
 }

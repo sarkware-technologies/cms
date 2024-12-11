@@ -280,7 +280,7 @@ class ApiManager {
 
             if (model) {  
                 
-                const { body } = _req.body;
+                const { body } = _req;
 
                 body["createdBy"] = _req.user._id
                 const modelObj = new model(body);
@@ -298,7 +298,7 @@ class ApiManager {
                 return {
                     status: true,
                     message: _message,
-                    payload: authType
+                    payload: record
                 };
             }
 

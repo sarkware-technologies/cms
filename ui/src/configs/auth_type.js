@@ -2,12 +2,15 @@ let auth_type_config = {
 
     views: {
         main_view: { 
+            source: "",
+            match: ['/auth_type'],
             context: "auth_type", 
+            viewFor: "",
             context_header: {
                 show: true,
                 title: "Auth Types",
                 breadcrumb: "",
-                actions: [{ label: "New Auth Type", theme: "primary", method: "post", action: "NEW_AUTH_TYPE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ type: "link", label: "New Auth Type", theme: "primary", method: "post", action: "/auth_type/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -38,7 +41,7 @@ let auth_type_config = {
                                     is_main_grid: true,
                                     empty_message: "No auth type configured yet.!",
                                     datasource: {endpoint: "/system/v1/auth_type", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "auth_type", target_type: "view", view: "auth_type_form", data: "remote", endpoint: "/system/v1/auth-type/"},
+                                    link: {key: "_id", context: "auth_type", target_type: "view", view: "auth_type_form", data: "remote", endpoint: "/main/auth_type/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -98,14 +101,17 @@ let auth_type_config = {
             manage: true             
         },
         auth_type_form: {
+            source: "/system/v1/auth_type/",
+            match: ['/auth_type/new', '/auth_type/:id'],
             context: "auth_type", 
+            viewFor: "auth_type_grid",
             context_header: {
                 show: true,
                 title: "Auth Type",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_AUTH_TYPE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Save", theme: "primary", method: "post", action: "SAVE_AUTH_TYPE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { type: "button", label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { type: "button", label: "Save", theme: "primary", method: "post", action: "SAVE_AUTH_TYPE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {

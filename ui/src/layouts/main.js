@@ -13,8 +13,10 @@ const System = (props) => {
         window._controller.setCurrentModuleInstance(_moduleName, currentModule.current);
     }
 
-    useEffect(() => {       
+    useEffect(() => {  
+
         try {
+            
             const _modules = JSON.parse(localStorage.getItem("pharmarack_cms_menus"));
             if (_modules && Array.isArray(_modules)) {
                 setModules(_modules); 
@@ -37,7 +39,7 @@ const System = (props) => {
                     {modules.map((module) => (
                         <Route
                             key={module._id}
-                            path={module.handle} // Create dynamic routes
+                            path={module.handle +'/*'} // Create dynamic routes
                             element={
                                 <ContextWrapper
                                     key={module.handle}

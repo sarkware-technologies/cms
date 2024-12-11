@@ -2,7 +2,10 @@ let preview_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "preview",
+            viewFor: "",
+            match: ["/preview"],
             context_header: {
                 show: true,
                 title: "Preview",

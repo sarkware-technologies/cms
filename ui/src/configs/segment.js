@@ -2,14 +2,17 @@ let segment_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "segment",
+            viewFor: "",
+            match: ["/segment"],
             context_header: {
                 show: true,
                 title: "Segments",
                 breadcrumb: "",
                 actions: [
                     { label: "Purge Builder", theme: "danger", method: "get", action: "HOUSE_KEEP_SEGMENT", classes: "pharmarack-cms-action-clear icon-left", icon: "fa fa-broom", tabindex : 8, status: true, shortcut: "" },
-                    { label: "New Segment", theme: "primary", method: "post", action: "NEW_SEGMENT", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }
+                    { type: "link", label: "New Segment", theme: "primary", method: "post", action: "/segment/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {
@@ -68,7 +71,7 @@ let segment_config = {
                                                                     is_main_grid: true,
                                                                     empty_message: "No segment configured yet.!",
                                                                     datasource: {endpoint: "/segmentation/v1/segment?result=all", page: 0, populate: false, handler: "dedicated"},
-                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segmentation/v1/segment/"},
+                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/main/segment/"},
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -190,7 +193,7 @@ let segment_config = {
                                                                     is_main_grid: true,
                                                                     empty_message: "No dynamic segment found",
                                                                     datasource: {endpoint: "/segmentation/v1/segment?result=dynamic", page: 0, populate: false, handler: "dedicated"},
-                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segmentation/v1/segment/"},
+                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/main/segment/"},
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -301,7 +304,7 @@ let segment_config = {
                                                                     is_main_grid: true,
                                                                     empty_message: "No static segment found",
                                                                     datasource: {endpoint: "/segmentation/v1/segment?result=static", page: 0, populate: false, handler: "dedicated"},
-                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segmentation/v1/segment/"},
+                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/main/segment/"},
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -412,7 +415,7 @@ let segment_config = {
                                                                     is_main_grid: true,
                                                                     empty_message: "No in progress segment found",
                                                                     datasource: {endpoint: "/segmentation/v1/segment?result=scheduled", page: 0, populate: false, handler: "dedicated"},
-                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segmentation/v1/segment/"},
+                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/main/segment/"},
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -512,7 +515,7 @@ let segment_config = {
                                                                     is_main_grid: true,
                                                                     empty_message: "No disabled segment found.!",
                                                                     datasource: {endpoint: "/segmentation/v1/segment?result=disabled", page: 0, populate: false, handler: "dedicated"},
-                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segmentation/v1/segment/"},
+                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/main/segment/"},
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -607,13 +610,16 @@ let segment_config = {
             manage: true             
         },
         new_segment_form: {
+            source: "",
             context: "segment",
+            viewFor: "",
+            match: ["/segment/new"],
             context_header: {
                 show: true,
                 title: "Segment",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_SEGMENT", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_SEGMENT", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
@@ -996,13 +1002,16 @@ let segment_config = {
             manage: false 
         },
         segment_form: {
+            source: "/segmentation/v1/segment/",
             context: "segment",
+            viewFor: "",
+            match: ["/segment/:id"],
             context_header: {
                 show: true,
                 title: "Segment",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
                     { label: "Delete", theme: "danger", method: "delete", action: "DELETE_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
                     { label: "Build", theme: "warning", method: "put", action: "BUILD_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
                     { label: "Edit", theme: "primary", method: "post", action: "EDIT_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex : 8, status: true, shortcut: "" }
@@ -1063,13 +1072,16 @@ let segment_config = {
             manage: true
         },
         segment_build_form: {
+            source: "",
             context: "segment",
+            viewFor: "",
+            match: [""],
             context_header: {
                 show: true,
                 title: "Segment",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Back", theme: "secondary", method: "cancel", action: "CANCEL_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Back", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
                     { label: "Add to Build Queue", theme: "warning", method: "post", action: "START_BUILD_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" }                                        
                 ]
             },           
@@ -1218,7 +1230,10 @@ let segment_config = {
             manage: true
         },
         segment_retailer_form: {
+            source: "",
             context: "segment",
+            viewFor: "",
+            match: [""],
             context_header: {
                 show: false                
             },           
@@ -1292,7 +1307,10 @@ let segment_config = {
             manage: false
         },        
         static_retailer_list_form: {
+            source: "",
             context: "segment",
+            viewFor: "",
+            match: [""],
             context_header: {show: false},           
             header: {
                 show: true,
@@ -1406,7 +1424,10 @@ let segment_config = {
             manage: false
         },
         dynamic_retailer_list_form: {
+            source: "",
             context: "segment",
+            viewFor: "",
+            match: [""],
             context_header: {show: false},           
             header: {show: false},
             content: {

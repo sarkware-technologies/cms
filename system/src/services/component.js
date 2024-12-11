@@ -13,10 +13,10 @@ export default class ComponentService {
 
         this.upload = multer({ storage: multer.memoryStorage() });
         this.s3Client = new S3Client({
-            region: process.env.AWS_REGION,
+            region: "ap-south-1",
             credentials: {
-                accessKeyId: process.env.AWS_ACCESS_KEY,
-                secretAccessKey: process.env.AWS_SECRET_KEY
+                accessKeyId: "",
+                secretAccessKey: ""
             }
         });
 
@@ -357,7 +357,7 @@ export default class ComponentService {
 
         });    
         
-        AP.event.on('on_component_component_type_component_type_list', async (_params, callback) => {
+        AP.event.on('on_component_component_type_parent_component_type', async (_params, callback) => {
 
             try {         
                 
@@ -365,6 +365,24 @@ export default class ComponentService {
 
                 if (componentTypeModel) {                        
                     callback(await componentTypeModel.find({is_child: false}).lean());                                                                          
+                } else {
+                    callback(null, new Error("component_type entity not found"));
+                }
+                
+            } catch (_e) {
+                callback(null, _e);
+            }
+
+        });
+
+        AP.event.on('on_component_component_type_all_component_type', async (_params, callback) => {
+
+            try {         
+                
+                const componentTypeModel = await EM.getModel("component_type");
+
+                if (componentTypeModel) {                        
+                    callback(await componentTypeModel.find().lean());                                                                          
                 } else {
                     callback(null, new Error("component_type entity not found"));
                 }

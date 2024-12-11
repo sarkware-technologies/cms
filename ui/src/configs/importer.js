@@ -2,7 +2,10 @@ let importer_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "importer", 
+            viewFor: "",
+            match: ["/importer"],
             context_header: {
                 show: true,
                 title: "Importers",
@@ -38,7 +41,7 @@ let importer_config = {
                                     is_main_grid: true,
                                     empty_message: "No importer configured yet.!",
                                     datasource: {endpoint: "/segmentation/v1/master_import", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "importer", target_type: "view", view: "importer_form", data: "local", endpoint: "/segmentation/v1/master_import/"},
+                                    link: {key: "_id", context: "importer", target_type: "view", view: "importer_form", data: "local", endpoint: "/main/importer/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -98,15 +101,18 @@ let importer_config = {
             manage: true             
         },
         importer_form: {
+            source: "/segmentation/v1/master_import/",
             context: "importer", 
+            viewFor: "importer_grid",
+            match: ["/importer/:id"],
             context_header: {
                 show: true,
                 title: "Auth Type",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                     { label: "Start Import", theme: "primary", method: "post", action: "START", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Stop Import", theme: "primary", method: "post", action: "START", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Stop Import", theme: "primary", method: "post", action: "STOP", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {

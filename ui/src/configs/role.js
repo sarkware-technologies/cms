@@ -2,12 +2,15 @@ let role_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "role",
+            viewFor: "",
+            match: ["/role"],
             context_header: {
                 show: true,
                 title: "Roles",
                 breadcrumb: "",
-                actions: [{ label: "New Role", theme: "primary", method: "post", action: "NEW_ROLE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ type: "link", label: "New Role", theme: "primary", method: "post", action: "/role/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -38,7 +41,7 @@ let role_config = {
                                     is_main_grid: true,
                                     empty_message: "No role configured yet.!",
                                     datasource: {endpoint: "/system/v1/role", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "role", target_type: "view", view: "role_form", data: "remote", endpoint: "/system/v1/role/"},
+                                    link: {key: "_id", context: "role", target_type: "view", view: "role_form", data: "remote", endpoint: "/main/role/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -87,13 +90,16 @@ let role_config = {
             manage: true             
         },
         role_form: {
+            source: "/system/v1/role/",
             context: "role",
+            viewFor: "role_grid",
+            match: ["/role/new", "/role/:id"],
             context_header: {
                 show: true,
                 title: "Role",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_ROLE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_ROLE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           

@@ -1,12 +1,18 @@
+import context from "../utils/context";
+
 let retailer_config = {
 
     views: {
-        main_view: {             
+        main_view: {
+            source: "", 
+            context: "retailer",
+            viewFor: "", 
+            match: ["/retailer"],           
             context_header: {
                 show: true,
                 title: "Retailers",
                 breadcrumb: "",
-                actions: [{ label: "New Retailer", theme: "primary", action: "NEW_RETAILER", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ type: "link", label: "New Retailer", theme: "primary", action: "/retailer/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -37,7 +43,7 @@ let retailer_config = {
                                     is_main_grid: true,
                                     empty_message: "No retailer configured yet.!",
                                     datasource: {endpoint: "/system/v1/api/master/retailer/list?fields=_id|RetailerId|RetailerName|City|MobileNumber|Email", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "retailer", target_type: "view", view: "retailer_form", data: "remote", endpoint: "/system/v1/api/master/retailer/record?id="},
+                                    link: {key: "_id", context: "retailer", target_type: "view", view: "retailer_form", data: "remote", endpoint: "/main/retailer/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -108,12 +114,16 @@ let retailer_config = {
             manage: true             
         },
         retailer_form: {
+            source: "/system/v1/api/master/retailer/record?id=",
+            context: "retailer",
+            viewFor: "retailer_grid",
+            match: ["/retailer/new", "/retailer/:id"],  
             context_header: {
                 show: true,
                 title: "Page Type",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", action: "CANCEL_RETAILER", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                     { label: "Save", theme: "primary", action: "SAVE_RETAILER", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           

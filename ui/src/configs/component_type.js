@@ -2,12 +2,15 @@ let component_type_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "component_type", 
+            viewFor: "",
+            match: ['/component_type'],
             context_header: {
                 show: true,
                 title: "Component Types",
                 breadcrumb: "",
-                actions: [{ label: "New Component Type", theme: "primary", method: "post", action: "NEW_COMPONENT_TYPE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ type: "link", label: "New Component Type", theme: "primary", method: "post", action: "/component_type/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -38,7 +41,7 @@ let component_type_config = {
                                     is_main_grid: true,
                                     empty_message: "No component types found.!",
                                     datasource: {endpoint: "/system/v1/api/component/component_type/list", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "component_type", target_type: "view", view: "component_type_form", data: "remote", endpoint: "/system/v1/api/component/component_type/record?id="},
+                                    link: {key: "_id", context: "component_type", target_type: "view", view: "component_type_form", data: "remote", endpoint: "/main/component_type/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -87,14 +90,17 @@ let component_type_config = {
             manage: true             
         },
         component_type_form: {
+            source: "/system/v1/api/component/component_type/record?id=",
             context: "component_type", 
+            viewFor: "component_type_grid",
+            match: ['/component_type/new', '/component_type/:id'],
             context_header: {
                 show: true,
                 title: "Component Type",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_COMPONENT_TYPE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Save", theme: "primary", method: "post", action: "SAVE_COMPONENT_TYPE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { type: "button", label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { type: "button", label: "Save", theme: "primary", method: "post", action: "SAVE_COMPONENT_TYPE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {

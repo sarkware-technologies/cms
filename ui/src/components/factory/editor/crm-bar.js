@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Helper from "../../../utils/helper";
 import Media from "../../media";
 import Input from "../../form/input";
-import RuleGroups from "../../rule-groups";
+import ComponentRuleGroup from "../../component-rule-group";
 
 const CrmBar = (props, ref) => {
 
@@ -242,7 +242,7 @@ const CrmBar = (props, ref) => {
                 {result.fields}
                 <div className="component-item-rules">
                     <label>Mapping Rules</label>
-                    {<RuleGroups ref={groupsRef} id={currentItem._id} />}
+                    {<ComponentRuleGroup ref={groupsRef} id={currentItem._id} />}
                 </div>
             </div>
         );
@@ -450,10 +450,10 @@ const CrmBar = (props, ref) => {
                     }
 
                     if (Array.isArray(record.configuration.sequence)) {
-                        record.configuration.sequence.push(_res._id);
+                        record.configuration.sequence.push(_res.payload._id);
                     }                
                     
-                    window._controller.notify(_res.title + " saved successfully.!");
+                    window._controller.notify(_res.payload.title + " saved successfully.!");
                     fetchChildrens();
 
                     setTimeout(() => updateSequence(), 1000);   

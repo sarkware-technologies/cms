@@ -35,6 +35,29 @@ export default class Utils {
 
     }
 
+    /**
+     * 
+     * Load all dependencies
+     * 
+     */
+    loadDependencies = async () => {
+        try {
+
+            const deps = Object.keys(app_config.dependencies);            
+            const fetchPromises = deps.map(async (_key) => {
+                const endpoint = app_config.dependencies[_key];
+                const result = await window._controller.docker.dock({ method: "get", endpoint });
+                window._controller.bucket[_key] = result || [];
+            });
+
+            await Promise.all(fetchPromises);
+            window._controller.setState({ loading: false });
+
+        } catch (error) {
+            console.error("Error loading dependencies:", error);
+        }
+    };
+
     indicate = (_msg) => {
         this.indicatorCounter++;
         this.indicator.current.show(_msg);

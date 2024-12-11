@@ -224,7 +224,20 @@ export default class RegisterService {
 
             body.password = await bcrypt.hash(body.password, 12);
             const model = new RegisterModel(body);
-            const registered = await model.save();           
+            const registered = await model.save();  
+            
+            const eBody = {
+                toEmailId: body.email,
+                subject: "Pharmarack CMS - Registration Submitted",
+                data: `Dear ${body.fullName || "User"},
+                
+Thank you for submitting your registration. Your request is under review and will be approved by the administrator shortly.
+
+Regards,  
+The Pharmarack Team`
+            }            
+
+            await this.notifier.sendEmail(eBody);
 
             return {
                 status: true,
@@ -285,7 +298,24 @@ export default class RegisterService {
                 if (register.isApproved === null) {
 
                     await RegisterModel.findByIdAndUpdate(_req.params.id, { $set: { isApproved: false, updatedBy: _req.user._id } }, { runValidators: true, new: false });   
-                    await this.userService.createFromRegister(register, _req.user._id);
+                    //await this.userService.createFromRegister(register, _req.user._id);
+
+                    const eBody = {
+                        toEmailId: register.email,
+                        subject: "Pharmarack CMS - Registration Update",
+                        data: `Dear ${register.fullName || "User"},
+                    
+We regret to inform you that your registration for the Pharmarack CMS portal has not been approved at this time. 
+
+If you believe this decision was made in error or require further assistance, please contact our support team.
+
+Thank you for your understanding.
+
+Best regards,  
+The Pharmarack Team`
+                    } 
+                    
+                    await this.notifier.sendEmail(eBody);
 
                     return { status: true, message: "Rejected successfully" }
 
@@ -322,7 +352,7 @@ export default class RegisterService {
             const register = await RegisterModel.findById(_registerId).lean();
             if (register) {
 
-                if (register.isApproved === null) {
+                if (register.isApproved === null || register.isApproved === 'false') {
 
                     await RegisterModel.findByIdAndUpdate(_registerId, { $set: { isApproved: true, updatedBy: _userId } }, { runValidators: true, new: false });
                     
@@ -335,10 +365,18 @@ export default class RegisterService {
 
                     const eBody = {
                         toEmailId: register.email,
-                        data: "Hi, your registration is approved, You may start using the CMS portal"
-                    }
+                        subject: "Pharmarack CMS - Registration Approved",
+                        data: `Dear ${register.fullName || "User"},
+                    
+We are pleased to inform you that your registration has been approved. You can now access and start using the CMS portal.
 
-                    this.notifier.sendEmail(eBody);
+If you have any questions, feel free to reach out to our support team.
+
+Best regards,  
+The Pharmarack Team`
+                    }                    
+
+                    await this.notifier.sendEmail(eBody);
 
                     return { status: true, message: "Approved successfully" }
 
@@ -352,7 +390,7 @@ export default class RegisterService {
 
             }
 
-        } catch (e) { console.log(e);
+        } catch (e) {
             throw e;
         }
 

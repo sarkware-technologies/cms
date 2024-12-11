@@ -1,4 +1,5 @@
 import React, {useState, forwardRef, useImperativeHandle} from "react";
+import { useNavigate } from "react-router-dom";
 
 const TopBar = (props, ref) => {
 
@@ -15,6 +16,8 @@ const TopBar = (props, ref) => {
         put: false,
         cancel: true
     };
+
+    const navigate = useNavigate();
     const contextObj = window._controller.getCurrentModuleInstance();     
 
     if (contextObj) {
@@ -31,10 +34,23 @@ const TopBar = (props, ref) => {
     /* Expose the component to the consumer */
     useImperativeHandle(ref, () => self);
 
-    const dispatchClickEvent = (_e, _action) => {        
-        if (contextObj && contextObj.onActionBtnClick) {
-            contextObj.onActionBtnClick(_action);
+    const dispatchClickEvent = (_e, _action) => { 
+
+        _e.preventDefault();
+
+        const href = _e.target.getAttribute("href");
+        if (href) {
+            navigate(href);
+        } else {
+            if (contextObj && contextObj.onActionBtnClick) {
+                if (_action.toLowerCase() == "back") {
+                    contextObj.triggerBack();
+                } else {
+                    contextObj.onActionBtnClick(_action);
+                }            
+            }
         }
+        
     };    
 
     const handleCollapsibleClick = (_e) => {
@@ -58,7 +74,11 @@ const TopBar = (props, ref) => {
             icon = <i className={_config.icon}></i>
         }
 
-        return <button key={_config.action} className={classes} onClick={(e) => dispatchClickEvent(e, _config.action)}>{icon}{_config.label}</button>
+        if (_config.type && _config.type == "link") {
+            return <a href={'/main'+_config.action} key={_config.action} className={classes} onClick={(e) => dispatchClickEvent(e,  _config.action)}>{icon}{_config.label}</a>
+        } else {
+            return <button key={_config.action} className={classes} onClick={(e) => dispatchClickEvent(e, _config.action)}>{icon}{_config.label}</button>
+        }
 
     };
 

@@ -2,9 +2,9 @@ import AWS from 'aws-sdk';
 import axios from 'axios';
 
 AWS.config.update({
-	accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_KEY,	
-	region: process.env.AWS_REGION
+	accessKeyId: "",
+    secretAccessKey: "",	
+	region: "ap-south-1"
 });
 
 class NotificationService {
@@ -15,7 +15,7 @@ class NotificationService {
 	}
 
 	// Internal method to send email
-	async sendFinalEmail(body, senderEmails) {  console.log(body);
+	async sendFinalEmail(body, senderEmails) {
 		try {
 			const parameters = {
 				Destination: { ToAddresses: senderEmails },
@@ -23,7 +23,7 @@ class NotificationService {
 					Body: {},
 					Subject: { Charset: 'UTF-8', Data: body.subject || "No Subject" },
 				},
-				Source: process.env.SES_SOURCE_EMAIL_ID || "info@pharmarack.com",
+				Source: process.env.SOURCE_EMAIL_ID || "info@pharmarack.com",
 			};
 	
 			if (body.htmlData) {

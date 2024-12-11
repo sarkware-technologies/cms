@@ -17,9 +17,13 @@ const Actions = (props, ref) => {
         caps = window._controller.getModuleCapability(props.context);
     }
 
-    const handleActionButtonClick = (_e, _action) => {               
+    const handleActionButtonClick = (_e, _action) => {
         if (contextObj && contextObj.onActionBtnClick) {
-            contextObj.onActionBtnClick(_action);
+            if (_action.toLowerCase() == "back") {
+                contextObj.triggerBack();
+            } else {
+                contextObj.onActionBtnClick(_action);
+            }            
         } else {
             console.error("Unexpected Error, current module is missing.!");
         }

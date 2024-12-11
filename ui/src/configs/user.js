@@ -2,12 +2,15 @@ let user_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "user",
+            viewFor: "",
+            match: ["/user"],
             context_header: {
                 show: true,
                 title: "Users",
                 breadcrumb: "",
-                actions: [{ label: "New User", theme: "primary", method: "post", action: "NEW_USER", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-user-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ type: "link", label: "New User", theme: "primary", method: "post", action: "/user/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-user-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -38,7 +41,7 @@ let user_config = {
                                     is_main_grid: true,
                                     empty_message: "No user configured yet.!",
                                     datasource: {endpoint: "/system/v1/user", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "user", target_type: "view", view: "user_form", data: "remote", endpoint: "/system/v1/user/"},
+                                    link: {key: "_id", context: "user", target_type: "view", view: "user_form", data: "remote", endpoint: "/main/user/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -109,13 +112,16 @@ let user_config = {
             manage: true             
         },
         user_form: {
+            source: "/system/v1/user/",
             context: "user",
+            viewFor: "user_grid",
+            match: ["/user/new", "/user/:id"],
             context_header: {
                 show: true,
                 title: "User",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_USER", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_USER", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           

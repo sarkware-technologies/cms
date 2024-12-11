@@ -31,8 +31,8 @@ const Tab = (props, ref) => {
         capability: { get: true, post: false, delete: false, put: false } 
     });
     
-    const handleTabItemClick = (_currentView) => { 
-        contextObj.tab[handle] = _currentView;  
+    const handleTabItemClick = (_currentView) => {         
+        window._controller.snapshot.tabs[handle] = _currentView;  
         if (contextObj && contextObj.beforeTabViewSwitch) {
             if (contextObj.beforeTabViewSwitch(state.config.handle, state.config.currentView, _currentView)) {
                 setState({
@@ -430,7 +430,7 @@ const Tab = (props, ref) => {
     }, [state]);
     
     useEffect(() => {        
-        contextObj.tab[handle] = state.config.default_tab;
+        window._controller.snapshot.tabs[handle] = state.config.default_tab;
         window._controller.onTabMount(state.config.handle, state.config.default_tab);
     }, []);    
 

@@ -1,4 +1,5 @@
 import React from "react";
+import { createRoot } from 'react-dom/client';
 import Carousel from "../components/factory/editor/carousel";
 import CrmBar from "../components/factory/editor/crm-bar";
 import Feedback from "../components/factory/editor/feedback";
@@ -42,16 +43,8 @@ export default function ComponentContext(_component) {
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
      *
      **/
-    this.init = () => {
-
-        this.fetchComponentTypeList();         
-
-        if (this.component.currentRecord["component_grid"]) {
-            this.component.currentRecord["component_grid"] = null;
-        }
-
-        this.controller.switchView("main_view");        
-        
+    this.init = (_view) => {
+        this.controller.switchView(_view);                
     };  
 
     /**
@@ -208,7 +201,7 @@ export default function ComponentContext(_component) {
         if (_record && _record.sequence) {
             for (let i = 0; i < _record.sequence.length; i++) {
 
-                type = this.getComponentType(_record.sequence[i]);
+                type = this.getComponentTypeRecord(_record.sequence[i]);
                 if (type) {
                     if (typeList[type._id]) {
                         typeList[type._id]++;
@@ -324,75 +317,6 @@ export default function ComponentContext(_component) {
 
     };
 
-    /**
-     * 
-     * @param {*} _config 
-     * @param {*} _section 
-     * @param {*} _row 
-     * @param {*} _column 
-     * @returns 
-     * 
-     * Column's render callback (chance to insert your own component into each columns)
-     * 
-     */
-    this.onColumnSectionRendering = (_handle, _config, _section, _row, _column) => {
-        
-        let _widgets = [];
-        
-        if (_handle === "component_form" && _section === "content" && this.component.currentRecord["component_grid"] && _row === 0 && _column === 0) {
-
-            let componentType = null;
-            const currentRecord = this.component.currentRecord["component_grid"];
-
-            for (let i = 0; i < window._controller.bucket.componentTypeList.length; i++) {
-                if (currentRecord.type == window._controller.bucket.componentTypeList[i]._id) {
-                    componentType = window._controller.bucket.componentTypeList[i];
-                }                
-            }
-            
-            if (currentRecord && componentType) {
-
-                let widget = null;
-                this.componentEditor = React.createRef();
-
-                /* Makesure you are passing component configuration as an object not as string */
-                if (currentRecord.configuration && typeof currentRecord.configuration === 'string') {
-                    currentRecord["configuration"] = JSON.parse(currentRecord.configuration);
-                }
-
-                if (componentType.handle === "carousel") {
-                    widget = <Carousel ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
-                } else if (componentType.handle === "top_widget") {
-                    widget = <TopWidget ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
-                } else if (componentType.handle === "feedback") {
-                    widget = <Feedback ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
-                } else if (componentType.handle === "card") {
-                    widget = <Card ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
-                } else if (componentType.handle === "reward") {
-                    widget = <Reward ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
-                } else if (componentType.handle === "crm_bar") {
-                    widget = <CrmBar ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
-                } else if (componentType.handle === "image") {
-                    widget = <Image ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
-                } else if (componentType.handle === "video") {
-                    widget = <Video ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
-                } else if (componentType.handle === "notification") {
-                    widget = <Notification ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
-                } else if (componentType.handle === "therapy") {
-                    widget = <Therapy ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />; 
-                }
-
-                _widgets.push(<div key={uuidv4()} style={{width: "66.6666%"}} className={`pharmarack-cms-view-column flex-remaining-width ${_config.layout}`}>{widget}</div>);
-
-            }
-            
-        }
-
-        /* 'pos' could be 'before', 'after' or 'replace' */
-        return { component: _widgets, pos: "after" };
-
-    };
-
     /**     
      * 
      * @param {*} _handle 
@@ -429,7 +353,7 @@ export default function ComponentContext(_component) {
             } 
             
             _viewConfig.context_header.actions = [
-                { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_COMPONENT", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                 { label: "Delete", theme: "danger", method: "delete", action: "DELETE_COMPONENT", classes: "icon-left", icon: "fa fa-trash", tabindex : 8, status: true, shortcut: "" },
                 { label: "Clone", theme: "warning", method: "post", action: "CLONE_COMPONENT", classes: "icon-left", icon: "fa fa-clone", tabindex : 8, status: true, shortcut: "" },
                 { label: "Save", theme: "primary", method: "post", action: "SAVE_COMPONENT", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
@@ -440,7 +364,7 @@ export default function ComponentContext(_component) {
             if (_viewConfig.content.rows[0].columns[0].fields && _viewConfig.content.rows[0].columns[0].fields.length === 8) {
                 _viewConfig.content.rows[0].columns[0].fields.splice(7, 1);
                 _viewConfig.context_header.actions = [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_COMPONENT", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },             
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },             
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_COMPONENT", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             }
@@ -460,14 +384,56 @@ export default function ComponentContext(_component) {
      * Called whenever view is mounted on the DOM
      * 
      */
-    this.onViewMounted = (_handle) => {  
+    this.onViewMounted = (_handle) => {
         
         const currentRecord = this.component.currentRecord["component_grid"];
         if (currentRecord) {
+
             const typeSelect = this.controller.getField("component_form_type");
             if (typeSelect) {
                 typeSelect.disable();
             }
+
+            const componentType = this.getComponentTypeRecord(currentRecord.type);
+            if (componentType) {
+
+                let widget = null;
+                this.componentEditor = React.createRef();
+
+                /* Makesure you are passing component configuration as an object not as string */
+                if (currentRecord.configuration && typeof currentRecord.configuration === 'string') {
+                    currentRecord["configuration"] = JSON.parse(currentRecord.configuration);
+                }
+
+                if (componentType.handle === "carousel") {
+                    widget = <Carousel ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
+                } else if (componentType.handle === "top_widget") {
+                    widget = <TopWidget ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
+                } else if (componentType.handle === "feedback") {
+                    widget = <Feedback ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
+                } else if (componentType.handle === "card") {
+                    widget = <Card ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
+                } else if (componentType.handle === "reward") {
+                    widget = <Reward ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
+                } else if (componentType.handle === "crm_bar") {
+                    widget = <CrmBar ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
+                } else if (componentType.handle === "image") {
+                    widget = <Image ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
+                } else if (componentType.handle === "video") {
+                    widget = <Video ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
+                } else if (componentType.handle === "notification") {
+                    widget = <Notification ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />;
+                } else if (componentType.handle === "therapy") {
+                    widget = <Therapy ref={this.componentEditor} key={uuidv4()} config={componentType.configuration} record={currentRecord} />; 
+                }
+
+                const _editorHolder = document.getElementById('component_editor_container');
+                const editorRoot = createRoot(_editorHolder);
+        
+                editorRoot.render(<div key={uuidv4()} style={{width: "100%"}} className={`pharmarack-cms-view-column flex-remaining-width`}>{widget}</div>);
+
+            }
+
         }
 
     };
@@ -484,9 +450,6 @@ export default function ComponentContext(_component) {
         if (_action === "NEW_COMPONENT") {
             this.component.currentRecord["component_grid"] = null;
             this.controller.switchView("component_form");
-        } else if (_action === "CANCEL_COMPONENT") {     
-            this.component.currentRecord["component_grid"] = null;       
-            this.controller.switchView("main_view");
         } else if (_action === "SAVE_COMPONENT") {
             this.saveComponent();
         } else if (_action === "DELETE_COMPONENT") {
@@ -497,6 +460,15 @@ export default function ComponentContext(_component) {
             this.cloneComponent();
         }
 
+    };
+
+    /**
+     * 
+     * Called whenever user click on back button (or cancel button click)
+     * 
+     */
+    this.onBackAction = () => {
+        this.component.currentRecord["component_grid"] = null; 
     };
 
     /**
@@ -810,9 +782,14 @@ export default function ComponentContext(_component) {
             if (request["payload"] && Object.keys(request["payload"]).length > 0) {
 
                 this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(_res.title + " saved successfully.!");
-                    this.component.currentRecord["component_grid"] = null;
-                    this.controller.switchView("main_view");   
+
+                    if (request["method"] == "POST") {
+                        this.controller.notify(_res.payload.title + " saved successfully.!");
+                    } else {
+                        this.controller.notify(_res.title + " updated successfully.!");
+                    }                   
+                    this.component.triggerBack();  
+                    
                 })
                 .catch((e) => {
                     this.controller.notify(e.message, "error");
@@ -833,220 +810,6 @@ export default function ComponentContext(_component) {
             }                
         }
 
-        return null;
-
-    };
-
-    this.fetchComponentTypeList = () => {
-       
-        if (Array.isArray(window._controller.bucket.componentTypeList) && window._controller.bucket.componentTypeList.length === 0) {        
-            
-            const request = {
-                method: "GET",
-                endpoint: "/system/v1/api/component/component_type/list"
-            }
-
-            this.controller.docker.dock(request).then((_res) => {
-                window._controller.bucket.componentTypeList = _res.payload;     
-                this.fetchSegmentList(); 
-            })
-            .catch((e) => {
-                this.controller.notify(e.message, "error");
-            });
-
-        } else {
-            this.fetchSegmentList();
-        }
-
-    };
-
-    this.fetchSegmentList = () => {
-  
-        if (Array.isArray(window._controller.bucket.segmentRecords) && window._controller.bucket.segmentRecords.length === 0) {
-            
-            this.controller.docker.dock({
-                method: "GET",
-                endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_segment"
-            }).then((_res) => {
-                //this.segmentRecords = _res;   
-                window._controller.bucket.segmentRecords = _res; 
-                this.fetchCountryList(); 
-            })
-            .catch((e) => {
-                console.log(e);
-            });
-            
-        } else {
-            this.fetchCountryList();     
-        }
-
-    };
-
-    this.fetchCountryList = () => {
-
-        if (Array.isArray(window._controller.bucket.countryRecords) && window._controller.bucket.countryRecords.length === 0) {
-
-            this.controller.docker.dock({
-                method: "GET",
-                endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_master_country"
-            }).then((_res) => {
-                //this.countryRecords = _res;
-                window._controller.bucket.countryRecords = _res;
-                this.fetchStateList();
-            })
-            .catch((e) => {
-                console.log(e);
-            });
-
-        } else {
-            this.fetchStateList();
-        }
-
-    };
-
-    this.fetchStateList = () => {
-
-        if (Array.isArray(window._controller.bucket.stateRecords) && window._controller.bucket.stateRecords.length === 0) {
-
-            this.controller.docker.dock({
-                method: "GET",
-                endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_master_state"
-            }).then((_res) => {
-                //this.stateRecords = _res;
-                window._controller.bucket.stateRecords = _res;
-                this.fetchRegionList();
-            })
-            .catch((e) => {
-                console.log(e);
-            });
-
-        } else {
-            this.fetchRegionList();
-        }
-
-    };
-
-    this.fetchRegionList = () => {
-
-        if (Array.isArray(window._controller.bucket.regionRecords) && window._controller.bucket.regionRecords.length === 0) {
-
-            this.controller.docker.dock({
-                method: "GET",
-                endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_master_region"
-            }).then((_res) => {
-                //this.regionRecords = _res;
-                window._controller.bucket.regionRecords = _res;
-                this.fetchDistributorList();
-            })
-            .catch((e) => {
-                console.log(e);
-            });
-
-        } else {
-            this.fetchDistributorList();
-        }
-
-    };
-
-    // this.fetchRetailerList = () => {
-
-    //     if (Array.isArray(window._controller.bucket.retailerRecords) && window._controller.bucket.retailerRecords.length === 0) {
-
-    //         this.controller.docker.dock({
-    //             method: "GET",
-    //             endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_master_retailer"
-    //         }).then((_res) => {
-    //             //this.retailerRecords = _res;    
-    //             window._controller.bucket.retailerRecords = _res;
-    //             this.fetchDistributorList(); 
-    //         })
-    //         .catch((e) => {
-    //             console.log(e);
-    //         });
-
-    //     } else {
-    //         this.fetchDistributorList();   
-    //     }
-
-    // };
-
-    this.fetchDistributorList = () => {
-
-        if (Array.isArray(window._controller.bucket.distributorRecords) && window._controller.bucket.distributorRecords.length === 0) {
-
-            this.controller.docker.dock({
-                method: "GET",
-                endpoint: "/system/v1/api/component/component/multi_select_list?entity=distributor"
-            }).then((_res) => {
-                //this.distributorRecords = _res;
-                window._controller.bucket.distributorRecords = _res;
-                this.fetchCompanyList();
-            })
-            .catch((e) => {
-                console.log(e);
-            });
-
-        } else {
-            this.fetchCompanyList();
-        }
-
-    };
-
-    this.fetchCompanyList = () => {
-
-        if (Array.isArray(window._controller.bucket.companyRecords) && window._controller.bucket.companyRecords.length === 0) {
-            
-            this.controller.docker.dock({
-                method: "GET",
-                endpoint: "/system/v1/api/component/component/multi_select_list?entity=company"
-            }).then((_res) => {
-                //this.companyRecords = _res;                       
-                window._controller.bucket.companyRecords = _res;
-                this.checkForRecordView();
-            })
-            .catch((e) => {
-                console.log(e);
-            });
-
-        } else {
-            this.checkForRecordView();
-        }
-
-    }; 
-    
-    this.checkForRecordView = () => {
-
-        const searchParams = new URLSearchParams(window.location.search);
-        if (searchParams.has('id')) {
-
-            const request = {
-                method: "GET",
-                endpoint: "/system/v1/api/component/component/record?id="+ searchParams.get('id')
-            }
-
-            this.controller.docker.dock(request).then((_res) => {
-                const contextObj = window._controller.getCurrentModuleInstance();
-                contextObj.viewMode = "single";
-                contextObj.currentGrid = "component_grid";
-                contextObj.mainGrid = "component_grid";
-                contextObj.currentRecord["component_grid"] = _res;  
-                window._controller.switchView("component_form");
-            })
-            .catch((e) => {
-                console.log(e);
-            });    
-
-        }
-
-    };
-    
-    this.getComponentType = (_typeId) => {
-
-        for (let i = 0; i < window._controller.bucket.componentTypeList.length; i++) {
-            if (_typeId == window._controller.bucket.componentTypeList[i]._id) {
-                return window._controller.bucket.componentTypeList[i];
-            }
-        }   
         return null;
 
     };

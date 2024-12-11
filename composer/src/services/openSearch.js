@@ -41,6 +41,7 @@ export default class OpensearchApi {
 
 
     getOfferdetails = async (userId) => {
+        try {
         this.startTime =new Date();
         let store = [];
         const redisClientReader = await this.redisPool.getReaderConnection();
@@ -83,7 +84,6 @@ export default class OpensearchApi {
             nullPriority,
         );
        
-        try {
             if (!responseOfferReader) {
                 
                 const redisWriteReader = await this.redisPool.getWriterConnection();

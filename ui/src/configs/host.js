@@ -2,12 +2,15 @@ let host_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "host", 
+            viewFor: "",
+            match: ["/host"],
             context_header: {
                 show: true,
                 title: "Hosts",
                 breadcrumb: "",
-                actions: [{ label: "New Host", theme: "primary", method: "post", action: "NEW_HOST", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ type: "link", label: "New Host", theme: "primary", method: "post", action: "/host/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -38,7 +41,7 @@ let host_config = {
                                     is_main_grid: true,
                                     empty_message: "No host configured yet.!",
                                     datasource: {endpoint: "/system/v1/host", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "host", target_type: "view", view: "host_form", data: "remote", endpoint: "/system/v1/host/"},
+                                    link: {key: "_id", context: "host", target_type: "view", view: "host_form", data: "remote", endpoint: "/main/host/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -98,13 +101,16 @@ let host_config = {
             manage: true             
         },
         host_form: {
+            source: "/system/v1/host/",
             context: "host", 
+            viewFor: "host_grid",
+            match: ["/host/new", "/host/:id"],
             context_header: {
                 show: true,
                 title: "Host",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_HOST", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_HOST", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           

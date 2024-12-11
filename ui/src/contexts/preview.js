@@ -17,9 +17,9 @@ export default function PreviewContext(_component) {
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
      *
      **/
-    this.init = () => {
+    this.init = (_view) => {
         //this.fetchCountryList();        
-        this.controller.switchView("main_view");
+        this.controller.switchView(_view);
     };     
 
     /**

@@ -41,8 +41,41 @@ export default class ComposeService {
 
     }
 
+    get_retailer = async (_req, res) => {
+        // const retailerPromise = await MYDBM.queryWithConditions(
+        //     `select * from retailers r inner join retailermanagers r2 on r2.RetailerId = r.RetailerId inner join regions r3  on r3.RegionId = r.RegionId  where r2.UserId=?`,
+        //     [_req.query.id]
+        // );
+        try {
+            const token = _req.headers["authorization"].split(" ")[1];
+            const user = Utils.verifyToken(token);
+
+            // const retailermanager = await MYDBM.queryWithConditions(
+            //     'CALL PR_GetRetailerDetailsByUserId(?)'
+            //     [_req.query.id]
+            // );
+            const retailerregisn = await MYDBM.queryWithConditions(
+                `select r.RetailerId, r.RetailerName,r3.RegionName, r3.StateId, r3.RegionId from retailers r inner join retailermanagers r2 on r2.RetailerId = r.RetailerId inner join regions r3  on r3.RegionId = r.RegionId  where r2.UserId=?`,
+                [_req.query.id]
+            );
+
+            res.send({
+                retailerregisn, id: _req.query.id, user: user, host: {
+                    host: process.env.API_DB_HOST,
+                    port: process.env.API_DB_PORT,
+                    user: process.env.API_DB_USER,
+                    password: process.env.API_DB_PASS,
+                    database: process.env.API_DB
+                }
+            });
+        }
+        catch (e) {
+            res.send(e);
+        }
+    }
+
     handlePageRequest = async (_req) => {
-        
+
         /** 
          * 
          * module : /cms
@@ -85,7 +118,7 @@ export default class ComposeService {
                 pageKey += "_" + companyId;
             }
 
-            const pageCache = await this.redisClient.get(pageKey);
+            const pageCache = await this.redisClient.get("PAGE", pageKey);
             if (pageCache) {
                 return pageCache;
             }
@@ -116,7 +149,7 @@ export default class ComposeService {
                 }
 
                 if (!retailerId) {
-                    throw new Error("No retailer found");
+                    throw new Error("No retailer found", retailer);
                 }
 
             } catch (e) {
@@ -132,15 +165,15 @@ export default class ComposeService {
                     {
                         const endTime = new Date();
                         const diffInMillySecod = Math.abs(new Date(this.startTime) - endTime);
-                        console.log(diffInMillySecod,1111);
+                        console.log(diffInMillySecod, 1111);
                     }
                     const detailsPromise = this.OpensearchApi.getOfferdetails(user);
-                 
+
                     const [pageTypeObj, details] = await Promise.all([pageTypeObjPromise, detailsPromise]);
-                       {
+                    {
                         const endTime = new Date();
                         const diffInMillySecod = Math.abs(new Date(this.startTime) - endTime);
-                        console.log(diffInMillySecod,22222);
+                        console.log(diffInMillySecod, 22222);
                     }
                     if (pageTypeObj) {
                         let page = null;
@@ -158,7 +191,7 @@ export default class ComposeService {
                             /* Read the sequence */
                             if (page.sequence && Array.isArray(page.sequence)) {
 
-                                const payload = {
+                                let payload = {
                                     title: "",
                                     meta: [],
                                     description: "",
@@ -168,7 +201,7 @@ export default class ComposeService {
                                 };
 
                                 let typeList = {};
-                            
+
                                 const batchPromises = page.sequence.map((seq, i) => {
                                     typeList[seq] = (typeList[seq] || 0) + 1; // Increment type count
                                     return this.prepareComponent(page._id, seq, typeList[seq], retailerId, distributorId, companyId, RegionId, StateId, _token, user, regionName, details, i);
@@ -213,9 +246,18 @@ export default class ComposeService {
                                     }
 
                                 }
-
+                                if(pageType =="home_page"){
+                                if (payload != null) {
+                                    payload.components['65fc01c082d219999d4a2c86'].childrens.map((e) => {
+                                        if (e.title == "Prescription") {
+                                                e.asset_url ='https://cms-pagecomposer.s3.ap-south-1.amazonaws.com/assets/1733483272744-Image.jpeg';
+                                        }
+                                    });
+                                    payload.components['6752d46ff113da328887d271'].mobile_asset_url="https://cms-pagecomposer.s3.ap-south-1.amazonaws.com/assets/1733481966416-Group%201000004152%20(1).png";
+                                }
+                            }
                                 // Cache the result
-                                await this.redisClient.put(pageKey, payload);
+                                await this.redisClient.put("PAGE", pageKey, payload);
 
                                 return payload;
 
@@ -371,7 +413,7 @@ export default class ComposeService {
                             }
                         }
 
-                        if (this.cdnBaseUrl) {
+                        if (this.cdnBaseUrl && (childConfiguration["id"] != "6752da87b723d5b5609feda7")) {
                             /* Prepare the CDN url */
                             configuration = this.prepareAssetCDNUrl(configuration);
                         }
@@ -477,7 +519,7 @@ export default class ComposeService {
 
                             }
 
-                            if (this.cdnBaseUrl) {
+                            if (this.cdnBaseUrl && childConfiguration["id"] != "6752d46ff113da328887d271") {
                                 /* Prepare the CDN url */
                                 configuration = this.prepareAssetCDNUrl(configuration);
                             }

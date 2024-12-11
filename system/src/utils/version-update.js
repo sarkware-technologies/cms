@@ -4,13 +4,13 @@ dotenv.config();
 import DBM from "./db.js";
 import MYDBM from "./mysql.js";
 import EM from "./entity.js";
-import RedisClient from "./redis.js"
+import RedisClientSession from "./redisSessionManager.js"
 
 export default class VersionToggler {
 
     constructor() {
         this.BATCH_SIZE = 1000;
-        this.redisClient = RedisClient.getInstance();
+        this.redisClient = RedisClientSession.getInstance();
     }
 
     processUpdate = async (_regionId, _version) => {
@@ -44,7 +44,7 @@ export default class VersionToggler {
                     }
                 }));
                 batch.map(async retailer => {
-                    await this.redisClient.put(retailer.RetailerId.toString(), { RetailerId: retailer.RetailerId, RegionId: _regionId, Version: parseInt(_version) });
+                    await this.redisClient.put("VERSION_MANAGER",retailer.RetailerId.toString(), { RetailerId: retailer.RetailerId, RegionId: _regionId, Version: parseInt(_version) });
                 });
                 processedCount += bulkOps.length;
                 const result = await userAppVersionModel.bulkWrite(bulkOps);

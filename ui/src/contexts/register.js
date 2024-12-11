@@ -4,13 +4,15 @@ export default function ServiceContext(_component) {
     this.config = this.component.config;
     this.controller = window._controller;
 
+    this.registerRecord = null;
+
     /**
      * 
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
      *
      **/
-    this.init = () => {
-        this.controller.switchView("main_view");
+    this.init = (_view) => {
+        this.controller.switchView(_view);
     };  
 
     /**
@@ -20,7 +22,7 @@ export default function ServiceContext(_component) {
      * Called after the select box component option's loaded (happens only remote config)
      * 
      */
-    this.afterSelectBoxLoaded = (_handle) => {  console.log(_handle);
+    this.afterSelectBoxLoaded = (_handle) => {
 
         if (_handle == "register_form_userType" && this.component.currentRecord["register_pending_grid"]) {
 
@@ -72,12 +74,18 @@ export default function ServiceContext(_component) {
     this.onRecordButtonClick = (_e, _field, _grid, _record) => {
 
         if (_grid == "register_pending_grid") {
-            if (_field == "APPROVE") {
-                this.approveRegister(_record);
-            } else if (_field == "REJECT") {
-                this.rejectRegister(_record);
+            this.registerRecord = _record;
+            if (_field == "APPROVE") {                
+                this.controller.getUserConfirm("APPROVE", "Are you sure ?");                
+            } else if (_field == "REJECT") {                
+                this.controller.getUserConfirm("REJECT", "Are you sure ?"); 
             } else if (_field == "EDIT") {                
                 this.controller.switchView("register_form");
+            }
+        } else if (_grid == "register_rejected_grid") {
+            this.registerRecord = _record;
+            if (_field == "APPROVE") {                
+                this.controller.getUserConfirm("APPROVE", "Are you sure ?");                
             }
         }
 
@@ -92,23 +100,44 @@ export default function ServiceContext(_component) {
      */
     this.onActionBtnClick = (_action) => {
 
-        if (_action === "NEW_REGISTER") {
-            this.component.currentRecord["register_pending_grid"] = null;
-            this.controller.switchView("register_form");
-        } else if (_action === "CANCEL_REGISTER") {     
-            this.component.currentRecord["register_pending_grid"] = null;       
-            this.controller.switchView("main_view");
-        } else if (_action === "SAVE_REGISTER") {
+        if (_action === "SAVE_REGISTER") {
             this.saveRegister();
         } else if (_action === "REJECT_REGISTER") {
-            const record = this.component.currentRecord["register_pending_grid"];
-            if (record) {
-                this.rejectRegister(record);
-            } else {
-                this.controller.notify("Couldn't reject, pls try again later", "error");
-            }            
+            this.controller.getUserConfirm("REJECT_REGISTER", "Are you sure ?");        
         } else if (_action === "UPDATE_APPROVE_REGISTER") {
-            this.updateApproveRegister();
+            this.controller.getUserConfirm("UPDATE_APPROVE_REGISTER", "Are you sure ?");             
+        }
+
+    };
+
+    /**
+     * 
+     * Called whenever user click on back button (or cancel button click)
+     * 
+     */
+    this.onBackAction = () => {
+        this.component.currentRecord["register_pending_grid"] = null;    
+    };
+
+    this.onUserConfirm = (_task, _choice) => {
+
+        if (_choice) {
+
+            if (_task == "APPROVE") {
+                this.approveRegister();                
+            } else if (_task == "REJECT") {
+                this.rejectRegister();
+            } else if (_task == "UPDATE_APPROVE_REGISTER") {
+                this.updateApproveRegister();
+            } else if (_task == "REJECT_REGISTER") {
+                const record = this.component.currentRecord["register_pending_grid"];
+                if (record) {
+                    this.rejectRegister(record);
+                } else {
+                    this.controller.notify("Couldn't reject, pls try again later", "error");
+                }   
+            }
+
         }
 
     };
@@ -136,9 +165,14 @@ export default function ServiceContext(_component) {
             if (request["payload"] && Object.keys(request["payload"]).length > 0) {
 
                 this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(((_res.payload ? _res.payload.fullName : _res.fullName )  + " saved successfully.!"));
-                    this.controller.switchView("main_view");
-                    this.component.currentRecord["register_pending_grid"] = null;
+                    
+                    if (request["method"] == "POST") {
+                        this.controller.notify(_res.payload.title + " saved successfully.!");
+                    } else {
+                        this.controller.notify(_res.title + " updated successfully.!");
+                    }                   
+                    this.component.triggerBack();
+
                 })
                 .catch((e) => {
                     this.controller.notify(e.message, "error");
@@ -176,16 +210,20 @@ export default function ServiceContext(_component) {
 
     };
 
-    this.approveRegister = (_record) => {
+    this.approveRegister = () => {
+
+        if (!this.registerRecord) {
+            return;
+        }
 
         const request = {};    
         request["method"] = "PUT";
-        request["endpoint"] = "/system/v1/register/"+ _record._id +"/approve";
+        request["endpoint"] = "/system/v1/register/"+ this.registerRecord._id +"/approve";
 
         const pendingGrid = this.controller.getField("register_pending_grid");
 
         this.controller.docker.dock(request).then((_res) => {
-            this.controller.notify("User "+ _record.fullName + " has been approved successfully.!");
+            this.controller.notify("User "+ this.registerRecord.fullName + " has been approved successfully.!");
             if (pendingGrid) {
                 pendingGrid.initFetch();
             } else {
@@ -207,14 +245,20 @@ export default function ServiceContext(_component) {
 
     this.rejectRegister = (_record) => {
 
+        const record = _record ? _record : this.registerRecord;
+
+        if (!record) {
+            return;
+        }
+
         const request = {};    
         request["method"] = "PUT";
-        request["endpoint"] = "/system/v1/register/"+ _record._id +"/reject";
+        request["endpoint"] = "/system/v1/register/"+ record._id +"/reject";
 
         const pendingGrid = this.controller.getField("register_pending_grid");
 
         this.controller.docker.dock(request).then((_res) => {
-            this.controller.notify("User "+ _record.fullName + " has been rejected successfully.!");
+            this.controller.notify("User "+ record.fullName + " has been rejected successfully.!");
             if (pendingGrid) {
                 pendingGrid.initFetch();
             } else {

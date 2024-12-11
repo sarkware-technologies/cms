@@ -9,8 +9,8 @@ export default function UserContext(_component) {
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
      *
      **/
-    this.init = () => {
-        this.controller.switchView("main_view");
+    this.init = (_view) => {
+        this.controller.switchView(_view);
     };  
 
     /**     
@@ -88,6 +88,15 @@ export default function UserContext(_component) {
 
     };
 
+    /**
+     * 
+     * Called whenever user click on back button (or cancel button click)
+     * 
+     */
+    this.onBackAction = () => {
+        this.component.currentRecord["user_grid"] = null;
+    };
+
     this.saveUser = () => {
 
         const request = {};    
@@ -111,9 +120,14 @@ export default function UserContext(_component) {
             if (request["payload"] && Object.keys(request["payload"]).length > 0) {
 
                 this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(_res.title + " saved successfully.!");
-                        this.controller.switchView("main_view");
-                        this.component.currentRecord["user_grid"] = null;
+                    
+                    if (request["method"] == "POST") {
+                        this.controller.notify(_res.payload.title + " saved successfully.!");
+                    } else {
+                        this.controller.notify(_res.title + " updated successfully.!");
+                    }                   
+                    this.component.triggerBack();
+
                 })
                 .catch((e) => {
                     this.controller.notify(e.message, "error");

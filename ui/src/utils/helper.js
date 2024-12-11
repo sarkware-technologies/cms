@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import React, {useState, useEffect, useRef, forwardRef, useImperativeHandle} from "react";
+import React from "react";
 import Input from "../components/form/input";
 import Select from "../components/form/select";
 import RadioButton from "../components/form/radiobutton";
@@ -13,6 +13,49 @@ import Media from '../components/media';
 import MultiSelect from '../components/multi-select';
 
 class Helper {
+
+	static matchUrlPattern = (_patterns, location) => {
+	
+		const parseUrl = (pattern, path) => {
+		
+			const keys = [];
+			const regexString = (
+				"/main" + pattern
+			)
+				.replace(/\/:([^/]+)/g, (_, key) => {
+					keys.push(key);
+					return "/([^/]+)";
+				})
+				.replace(/\*/g, "(.*)");
+		
+			const regex = new RegExp(`^${regexString}$`);
+			const matches = path.match(regex);		
+
+			if (!matches) return null;
+		
+			// If there are no dynamic parameters (keys are empty), return true			
+			if (keys.length === 0) return true;
+		
+			const values = matches.slice(1); // Extract matched groups
+			const result = keys.reduce((acc, key, index) => {
+				acc[key] = values[index];
+				return acc;
+			}, {});
+		
+			return result;
+
+		};
+
+		for (let i = 0; i < _patterns.length; i++) { 
+			const parsedParams = parseUrl(_patterns[i], location.pathname);
+			if (parsedParams) {
+				return parsedParams;
+			}
+		}
+	
+		return false;
+
+	};
 
 	static setFieldValues = (_namespace, _rows, _payload) => { 
 
@@ -222,19 +265,19 @@ class Helper {
 
 	static buildWrapper = (_config, _field) => {
 
-        return (
-            <div key={uuidv4()} className={`pharmarack-cms-form-field-wrapper ${_config.classes}`}>
-                <div className={`pharmarack-cms-form-field-wrap ${_config.label_position}`}>
+		return _config ? (
+            <div key={uuidv4()} className={`pharmarack-cms-form-field-wrapper ${_config?.classes}`}>
+                <div className={`pharmarack-cms-form-field-wrap ${_config?.label_position}`}>
                     <div>
-						<label className={`pharmarack-cms-form-field-label ${ _config.mandatory ? "required" : "" }`} dangerouslySetInnerHTML={{ __html: _config.label }}></label>
+						<label className={`pharmarack-cms-form-field-label ${ _config?.mandatory ? "required" : "" }`} dangerouslySetInnerHTML={{ __html: _config.label }}></label>
                     </div>
                     <div>
 						{_field}
-						<p className="pharmarack-cms-form-error-message">{_config.validation_message}</p>
+						<p className="pharmarack-cms-form-error-message">{_config?.validation_message}</p>
                     </div>
                 </div>
             </div>
-        );
+        ) : _field;
 
     };
 

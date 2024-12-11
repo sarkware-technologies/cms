@@ -33,18 +33,17 @@ export default class RedisClient {
     return RedisClient.instance;
   }
 
-  async put(key, object) {
+  async put(group, key, object) {
     try {
-      await this.writeClient.set(key, JSON.stringify(object),{ EX: 60*60 });
-      console.log(`Object stored under key: ${key}`);
+      await this.writeClient.hSet(group, key, JSON.stringify(object));          
     } catch (err) {
       console.error("Error storing object in Redis:", err);
     }
   }
 
-  async get(key) {
-    try {
-      const data = await this.readClient.get(key);
+  async get(group, key) {
+    try {      
+      const data = await this.readClient.hGet(group, key);
       if (data) {
         return JSON.parse(data);
       } else {
@@ -56,11 +55,9 @@ export default class RedisClient {
     }
   }
 
-  async invalidateAllCache() {
+  async invalidateAllCache(group) {
     try {
-      await this.writeClient.flushAll();
-      await this.readClient.flushAll();
-      console.log("All cache invalidated.");
+      await this.writeClient.del(group);            
     } catch (err) {
       console.error("Error invalidating cache in Redis:", err);
     }

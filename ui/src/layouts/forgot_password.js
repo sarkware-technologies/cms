@@ -2,16 +2,18 @@ import React, { useState, useEffect } from 'react';
 
 const ForgotPassword = (props) => {  console.log("ForgotPassword is called");
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-    const mobileRegex = /^[6-9]\d{9}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;    
 
     const [state, setState] = useState({
         username: "",
         userNameEmpty: true,
-        loading: false
+        loading: false,
+        authError: false, 
+        authErrorMsg: ""
     });
 
     const [btnEnable, setBtnEnable] = useState(false);
+    const [linkSend, setLinkSend] = useState(false);
 
     useEffect(() => { 
         if (!state.userNameEmpty ) {
@@ -42,23 +44,20 @@ const ForgotPassword = (props) => {  console.log("ForgotPassword is called");
 
         try {
 
+            setState((prevState) => ({ ...prevState, authError: false, authErrorMsg: "" }));
+
             const response = await window._controller.docker.dock({
                 method: "POST",
-                endpoint: "/system/v1/auth/sign-in",
+                endpoint: "/system/v1/auth/send-forgot-password-token",
                 payload: { 
-                    user: state.username,
-                    password: state.password
+                    user: state.username
                 }
             }, false); 
 
-            if (response.type == "role") {
-                setRoles(response.roles);
-                setState((prevState) => ({ ...prevState, roleSelectorVisible: true, authError: false }));
-            } else if (response.type == "locked") {
-                setState((prevState) => ({ ...prevState, roleSelectorVisible: false, authError: true, authErrorMsg: response.message }));
-            } else if (response.type == "success") {
-                setupSession(response);
-            }            
+            setLinkSend(true);
+            setTimeout(() => {
+                location.href="/";
+            }, 5000);
 
         } catch (e) {
             setState((prevState) => ({ ...prevState, authError: true, authErrorMsg: e.message }));
@@ -74,22 +73,36 @@ const ForgotPassword = (props) => {  console.log("ForgotPassword is called");
 
             <div className="pharmarack-cms-login-form">
 
+            {
+                !linkSend ? 
                 <div className="pharmarack-cms-login-form-header">
                     <img src="/assets/imgs/logo.svg" />
                     <p>Forgot Password</p>
-                    <p className="pharmarack-cms-forgot-password-form-desc">Reset link will be sent to your email</p>
+                    <p className="pharmarack-cms-forgot-password-form-desc">{ linkSend ? "" : "Reset link will be sent to your email" }</p>
                 </div>
+                : ""
+            }
 
-                <div className="pharmarack-cms-form-fields">
-                    <div className="pharmarack-cms-form-row">
-                        <input type='text' placeholder='Registered Email' onKeyDown={handleUserKeyDown} onChange={handleUserChange} value={state.username} />
+                {
+                    linkSend ? 
+                    <div className='pharmarack-cms-forgot-sumbitted-view'>
+                        <div className='send-header'><i className='fa fa-paper-plane'></i></div>                        
+                        <p>Password reset link has been sent to your email, please check and follow the instruction.!</p>
                     </div>
-                </div>
+                    :
+                    <div>
+                        <div className="pharmarack-cms-form-fields">
+                            <div className="pharmarack-cms-form-row">
+                                <input type='text' placeholder='Registered Email' onKeyDown={handleUserKeyDown} onChange={handleUserChange} value={state.username} />
+                            </div>
+                        </div>
 
-                <div className="pharmarack-cms-form-action">
-                    <button className={`pharmarack-cms-btn primary block ${!btnEnable ? "disabled" : ""}`} disabled={!btnEnable} onClick={handleSubmitBtnClick}>Send Reset Link</button>
-                    <p className="pharmarack-cms-login-link-p">Remember password? <a href="/login" className='pharmarack-cms-register-link'>Login Now</a></p>
-                </div>
+                        <div className="pharmarack-cms-form-action">
+                            <button className={`pharmarack-cms-btn primary block ${!btnEnable ? "disabled" : ""}`} disabled={!btnEnable} onClick={handleSubmitBtnClick}>Send Reset Link</button>
+                            <p className="pharmarack-cms-login-link-p">Remember password? <a href="/login" className='pharmarack-cms-register-link'>Login Now</a></p>
+                        </div>
+                    </div>
+                }
 
                 <div className="pharmarack-cms-login-powered-by">
                     <span>Powered by</span>

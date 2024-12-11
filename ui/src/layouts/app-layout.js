@@ -16,7 +16,7 @@ const AppLayout = (props, ref) => {
         window._controller.logout();
     };
 
-    const handleClick = (_context) => {
+    const handleClick = (_context) => {  console.log("handleClick is called  : "+ _context);
         const current = window._controller.getCurrentModule();
         if (current == _context) {
             const contextObj = window._controller.getCurrentModuleInstance();
@@ -42,62 +42,7 @@ const AppLayout = (props, ref) => {
 
     };
 
-    const handleSignInBtnClick = async () => {
-
-        try {
-
-            if (state.roleSelectorVisible) {
-
-                if (state.role) {
-
-                    const response = await window._controller.docker.dock({
-                        method: "POST",
-                        endpoint: "/system/v1/auth/select-role",
-                        payload: { 
-                            user: state.username,
-                            password: state.password,
-                            role: state.role
-                        }
-                    }); 
-
-                    if (response.type == "success") {
-                        setupSession(response);
-                    } else {
-                        setState((prevState) => ({ ...prevState, authError: true, authErrorMsg: "Something went wrong, please try again" }));
-                    }
-
-                } else {
-                    setState((prevState) => ({ ...prevState, authError: true, authErrorMsg: "Please select your role" }));
-                }
-
-            } else {
-
-                const response = await window._controller.docker.dock({
-                    method: "POST",
-                    endpoint: "/system/v1/auth/sign-in",
-                    payload: { 
-                        user: state.username,
-                        password: state.password
-                    }
-                }); 
-    
-                if (response.type == "role") {
-                    setRoles(response.roles);
-                    setState((prevState) => ({ ...prevState, roleSelectorVisible: true, authError: false }));
-                } else if (response.type == "locked") {
-                    setState((prevState) => ({ ...prevState, roleSelectorVisible: false, authError: true, authErrorMsg: response.message }));
-                } else if (response.type == "success") {
-                    setupSession(response);
-                }
-            }
-
-        } catch (e) {
-            setState((prevState) => ({ ...prevState, authError: true, authErrorMsg: e.message }));
-        }
-        
-    }
-
-    const handleLogoutClick = async() => { console.log("handleLogoutClick is called");
+    const handleLogoutClick = async() => {
 
         try {
 
@@ -190,6 +135,7 @@ const AppLayout = (props, ref) => {
                                             : "pharmarack-cms-system-menu-item"
                                     }
                                     onClick={() => handleClick(module.handle)}
+                                    title={module.title}
                                 >
                                     <span>{module.title}</span>
                                     {renderMenuIcon(module)}

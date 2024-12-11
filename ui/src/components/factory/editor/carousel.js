@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Helper from "../../../utils/helper";
 import Media from "../../media";
 import Input from "../../form/input";
-import RuleGroups from "../../rule-groups";
+import ComponentRuleGroup from "../../component-rule-group";
 
 const Carousel = (props, ref) => {
 
@@ -194,8 +194,8 @@ const Carousel = (props, ref) => {
             }
         } else {
             _config = _item.configuration ? _item.configuration : {};
-        }
-        
+        }        
+
         groupsRef = React.createRef();
 
         webAssetMediaRef = React.createRef();
@@ -203,7 +203,7 @@ const Carousel = (props, ref) => {
         
         carouselItemTitleRef = React.createRef();        
         carouselItemEndDateRef = React.createRef();
-        carouselItemStartDateRef = React.createRef();  
+        carouselItemStartDateRef = React.createRef();
 
         const _webAssetMedia = <Media key={uuidv4()} ref={webAssetMediaRef} config={carouselItemConfig["web_asset_url"]} type={_type} handleMediaChange={handleMediaChange} handleMediaDelete={handleMediaDelete} value={_config["web_asset_url"]} />;
         const _mobileAssetMedia = <Media key={uuidv4()} ref={mobileAssetMediaRef} config={carouselItemConfig["mobile_asset_url"]} type={_type} handleMediaChange={handleMediaChange} handleMediaDelete={handleMediaDelete} value={_config["mobile_asset_url"]} />;
@@ -251,7 +251,7 @@ const Carousel = (props, ref) => {
                 {result.fields}
                 <div className="component-item-rules">
                     <label>Mapping Rules</label>
-                    {<RuleGroups ref={groupsRef} id={currentItem._id} />}
+                    {<ComponentRuleGroup ref={groupsRef} id={currentItem._id} />}
                 </div>
             </div>
         );
@@ -456,10 +456,10 @@ const Carousel = (props, ref) => {
                     }
 
                     if (Array.isArray(record.configuration.sequence)) {
-                        record.configuration.sequence.push(_res._id);
+                        record.configuration.sequence.push(_res.payload._id);
                     }               
                     
-                    window._controller.notify(_res.title + " saved successfully.!");
+                    window._controller.notify(_res.payload.title + " saved successfully.!");
                     fetchChildrens();
 
                     setTimeout(() => updateSequence(), 1000);
@@ -697,8 +697,16 @@ const Carousel = (props, ref) => {
             return;
         }
 
+        console.log("About to get carousel item config");
+
         for (let i = 0; i < window._controller.bucket.componentTypeList.length; i++) {
+
+            console.log(window._controller.bucket.componentTypeList[i].handle);
+
             if (window._controller.bucket.componentTypeList[i].handle === "carousel_item") {
+
+                console.log(window._controller.bucket.componentTypeList[i]);
+
                 setCarouselItemMeta(window._controller.bucket.componentTypeList[i]);  
                 break;
             }

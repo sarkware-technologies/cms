@@ -35,6 +35,10 @@ const app_config = {
                 layout: "forgot_password"
             },
             {
+                path: "/submit-password",
+                layout: "submit_password"
+            },
+            {
                 path: "/reset-password",
                 layout: "reset_password"
             },
@@ -53,13 +57,18 @@ const app_config = {
         }
     },
     session: {    
-        type: "sessionstorage", // cookie, localstorage or sessionstorage
+        type: "sessionstorage",
         keys: {
             user: "user",
             role: "role",
             token: "token"
         }
-
+    },
+    dependencies: {        
+        segmentRecords: '/system/v1/api/component/component/multi_select_list?entity=cms_segment',
+        distributorRecords: '/system/v1/api/component/component/multi_select_list?entity=distributor',
+        companyRecords: '/system/v1/api/component/component/multi_select_list?entity=company',
+        componentTypeList: '/system/v1/api/component/component_type/all_component_type'
     }
 
 };

@@ -189,6 +189,6 @@ export default class AuthTypeService {
 
         }
 
-    };
+    };    
 
 }

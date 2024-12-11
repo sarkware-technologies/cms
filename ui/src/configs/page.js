@@ -2,13 +2,16 @@ let page_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "page",
+            viewFor: "",
+            match: ["/page"],
             context_header: {
                 show: true,
                 title: "Pages",
                 breadcrumb: "",
                 actions: [                    
-                    { label: "New Page", theme: "primary", method: "post", action: "NEW_PAGE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }
+                    { type: "link", label: "New Page", theme: "primary", method: "post", action: "/page/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {
@@ -40,7 +43,7 @@ let page_config = {
                                     is_main_grid: true,
                                     empty_message: "No page configured yet.!",
                                     datasource: {endpoint: "/system/v1/api/page/page/list?populate=type", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "page", target_type: "view", view: "page_form", data: "remote", endpoint: "/system/v1/api/page/page/record?id="},
+                                    link: {key: "_id", context: "page", target_type: "view", view: "page_form", data: "remote", endpoint: "/main/page/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -122,13 +125,16 @@ let page_config = {
             manage: false             
         },
         page_form: {
+            source: "/system/v1/api/page/page/record?id=",
             context: "page",
+            viewFor: "page_grid",
+            match: ["/page/new", "/page/:id"],
             context_header: {
                 show: true,
                 title: "Page",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_PAGE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_PAGE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           

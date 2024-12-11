@@ -2,7 +2,10 @@ let distributor_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "distributor", 
+            viewFor: "",
+            match: ["/distributor"],
             context_header: {
                 show: true,
                 title: "Distributor",
@@ -38,7 +41,7 @@ let distributor_config = {
                                     is_main_grid: true,
                                     empty_message: "No distributor configured yet.!",
                                     datasource: {endpoint: "/system/v1/api/master/distributor/list", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "distributor", target_type: "view", view: "distributor_form", data: "remote", endpoint: "/system/v1/api/master/distributor/record?id="},
+                                    link: {key: "_id", context: "distributor", target_type: "view", view: "distributor_form", data: "remote", endpoint: "/main/distributor/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -87,7 +90,10 @@ let distributor_config = {
             manage: true             
         },
         distributor_form: {
+            source: "/system/v1/api/master/distributor/record?id=",
             context: "distributor", 
+            viewFor: "distributor_grid",
+            match: ["/distributor/new", "/distributor/:id"],
             context_header: {
                 show: true,
                 title: "Distributor",

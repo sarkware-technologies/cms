@@ -4,12 +4,12 @@ import MYDBM from "../utils/mysql.js";
 import Utils from "../utils/utils.js";
 import EM from "../utils/entity.js";
 
-import RedisClient from "../utils/redis.js"
+import RedisClientSession from "../utils/redisSessionManager.js"
 
 export default class VersionService {
 
     constructor() {
-        this.redisClient = RedisClient.getInstance();
+        this.redisClient = RedisClientSession.getInstance();
     }
 
     listRegions = async (_req) => {
@@ -336,7 +336,7 @@ export default class VersionService {
 
             if (_versionDetail && _versionDetail.Version) {
                 _versionDetail = await userAppVersionModel.findByIdAndUpdate(_versionDetail._id, { $set: { Version: _req.query.version } }, { runValidators: true, new: true });
-                this.redisClient.put(_req.query.retailerId.toString(), _versionDetail);
+                this.redisClient.put("VERSION_MANAGER",_req.query.retailerId.toString(), _versionDetail);
             } else {
 
                 /* Fetch retailer details */
@@ -349,7 +349,7 @@ export default class VersionService {
                         Version: _req.query.version
                     });
                     await model.save();
-                    this.redisClient.put(retailer[0].RetailerId.toString(), model);
+                    this.redisClient.put("VERSION_MANAGER",retailer[0].RetailerId.toString(), model);
                 }
 
             }
@@ -419,7 +419,7 @@ export default class VersionService {
                                 await versionDetail.save();
                             }
     
-                            await this.redisClient.put(retailers[0].RetailerId.toString(), versionDetail);
+                            await this.redisClient.put("VERSION_MANAGER",retailers[0].RetailerId.toString(), versionDetail);
 
                             let _msg = "Version "+ version +" has been enabled for "+ retailers[0].RetailerName;
                             if (version == 3) {

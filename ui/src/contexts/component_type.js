@@ -11,8 +11,8 @@ export default function PageContext(_component) {
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
      *
      **/
-    this.init = () => {
-        this.controller.switchView("main_view");
+    this.init = (_view) => {
+        this.controller.switchView(_view);
     };      
 
     /**
@@ -53,17 +53,9 @@ export default function PageContext(_component) {
      * 
      */
     this.onActionBtnClick = (_action) => {
-
-        if (_action === "NEW_COMPONENT_TYPE") {
-            this.component.currentRecord["component_type_grid"] = null;
-            this.controller.switchView("component_type_form");
-        } else if (_action === "CANCEL_COMPONENT_TYPE") {            
-            this.component.currentRecord["component_type_grid"] = null;
-            this.controller.switchView("main_view");
-        } else if (_action === "SAVE_COMPONENT_TYPE") {
+        if (_action === "SAVE_COMPONENT_TYPE") {
             this.saveComponentType();
         }
-
     };
 
     this.saveComponentType = () => {
@@ -87,9 +79,14 @@ export default function PageContext(_component) {
             if (request["payload"] && Object.keys(request["payload"]).length > 0) {
 
                 this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(_res.title + " saved successfully.!");
-                    this.controller.switchView("main_view");
-                    this.component.currentRecord["component_type_grid"] = null;
+
+                    if (request["method"] == "POST") {
+                        this.controller.notify(_res.payload.title + " saved successfully.!");
+                    } else {
+                        this.controller.notify(_res.title + " updated successfully.!");
+                    }                   
+                    this.component.triggerBack();                    
+                    
                 })
                 .catch((e) => {
                     this.controller.notify(e.message, "error");

@@ -2,7 +2,10 @@
 
     views: {
         main_view: { 
+            source: "",
             context: "query_browser",
+            viewFor: "",
+            match: ["/query_browser"],
             context_header: {
                 show: true,
                 title: "Db Explorer",
@@ -31,7 +34,10 @@
             manage: false
         },    
         query_result_view: { 
+            source: "",
             context: "query_browser",
+            viewFor: "",
+            match: [""],
             context_header: {
                 show: true,
                 title: "Registers",
@@ -153,7 +159,10 @@
             footer: {show: false}
         },
         db_result_view: { 
+            source: "",
             context: "query_browser",
+            viewFor: "",
+            match: [""],
             context_header: {show: false},           
             header: {show: false},
             content: {
@@ -173,7 +182,10 @@
             manage: false
         },
         db_schema_view: { 
+            source: "",
             context: "query_browser",
+            viewFor: "",
+            match: [""],
             context_header: {show: false},           
             header: {show: false},
             content: {
@@ -193,7 +205,10 @@
             manage: false
         },
         db_query_view: { 
+            source: "",
             context: "query_browser",
+            viewFor: "",
+            match: [""],
             context_header: {show: false},           
             header: {show: false},
             content: {

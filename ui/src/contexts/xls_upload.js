@@ -12,8 +12,8 @@ export default function XlsUploadContext(_component) {
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
      *
      **/
-    this.init = () => {
-        this.controller.switchView("main_view");
+    this.init = (_view) => {
+        this.controller.switchView(_view);
     };  
 
     /**
@@ -123,13 +123,19 @@ export default function XlsUploadContext(_component) {
         if (_action === "NEW_UPLOAD") {            
             this.component.currentRecord["upload_grid"] = null;
             this.controller.switchView("upload_form");
-        } else if (_action === "CANCEL_UPLOAD") {
-            this.component.currentRecord["upload_grid"] = null;               
-            this.controller.switchView("main_view");
         } else if (_action === "PROCESS_UPLOAD") {
             this.processUpload();
         }
 
+    };
+
+    /**
+     * 
+     * Called whenever user click on back button (or cancel button click)
+     * 
+     */
+    this.onBackAction = () => {
+        this.component.currentRecord["upload_grid"] = null;
     };
 
     this.processUpload = async () => {

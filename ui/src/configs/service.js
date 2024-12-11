@@ -2,12 +2,15 @@ let service_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "service",
+            viewFor: "",
+            match: ["/service"],
             context_header: {
                 show: true,
                 title: "Services",
                 breadcrumb: "",
-                actions: [{ label: "New Service", theme: "primary", method: "post", action: "NEW_SERVICE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ type: "link", label: "New Service", theme: "primary", method: "post", action: "/service/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -38,7 +41,7 @@ let service_config = {
                                     is_main_grid: true,
                                     empty_message: "No service configured yet.!",
                                     datasource: {endpoint: "/system/v1/service", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "service", target_type: "view", view: "service_form", data: "remote", endpoint: "/system/v1/service/"},
+                                    link: {key: "_id", context: "service", target_type: "view", view: "service_form", data: "remote", endpoint: "/main/service/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -87,13 +90,16 @@ let service_config = {
             manage: true             
         },
         service_form: {
+            source: "/system/v1/service/",
             context: "service",
+            viewFor: "service_grid",
+            match: ["/service/new", "/service/:id"],
             context_header: {
                 show: true,
                 title: "Service",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_SERVICE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_SERVICE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           

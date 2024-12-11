@@ -10,6 +10,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import React, {useState, useEffect, forwardRef, useRef, memo, useImperativeHandle} from "react";
+import { useNavigate } from "react-router-dom";
 
 /**
  *
@@ -406,6 +407,7 @@ const DataGrid = (props, ref) => {
     const [collapseState, setCollapseState] = useState({});
     const [checked, setChecked] = useState([]);
 
+    const navigate = useNavigate();
     const contextObj = window._controller.getCurrentModuleInstance();
 
     /* State used by Paginator component */
@@ -413,7 +415,7 @@ const DataGrid = (props, ref) => {
         records: [],
         headers: props.config.columns,
         progress: false,
-        currentPage: (contextObj && contextObj.dataGrids[props.config.handle]) ? contextObj.dataGrids[props.config.handle].currentPage : 1,
+        currentPage: (window._controller.snapshot.dataGrids[props.config.handle]) ? window._controller.snapshot.dataGrids[props.config.handle].currentPage : 1,
         currentRecord: {},
         totalPages: 0,       
         recordsPerPage: 25
@@ -547,51 +549,27 @@ const DataGrid = (props, ref) => {
                 contextObj.mainGrid = props.config.handle;
             } 
 
-            if (props.config.link.data === "remote") {
-
-                let _endPoint = props.config.link.endpoint;
-                const id = state.currentRecord[props.config.link.key];
-                if (props.config.link.endpoint.endsWith("/") || props.config.link.endpoint.endsWith("=")) {
-                    _endPoint = props.config.link.endpoint + id;
-                } else {
-                    _endPoint = props.config.link.endpoint +"/"+ id;
-                }
-
-                if (contextObj.onCurrentRecordRequest) {
-                    _endPoint = contextObj.onCurrentRecordRequest(props.config.handle, _endPoint);   
-                }                             
-            
-                const request = {};
-                request["method"] = "GET";
-                request["endpoint"] = _endPoint;
-
-                contextObj.currentRecord[props.config.handle] = null;
-
-                window._controller.docker.dock(request)
-                .then((_res) => {
-                    contextObj.currentRecord[props.config.handle] = _res;                        
-                    switchView();
-                })
-                .catch((e) => {
-                    console.log(e);
-                });
-
-            } else {
-                contextObj.currentRecord[props.config.handle] = _value;
-                switchView();
-            }
-
-            if (window._controller.current != _targetContext) {
-                //const navigate = useNavigate();
-                /* This means it's a cross context request */
-                //navigate(`/${_targetContext}?id=${_value._id}`);                
-            } else {
-                
-            }   
-            
             if (contextObj && contextObj.onRecordLinkClick) {
                 contextObj.onRecordLinkClick(_e, _gridName, _targetContext, state.currentRecord);
+                return;
             }
+
+            if (props.config.link.target_type == "tab") {
+                /* Target is view */
+                switchView();
+            } else {
+                /* Target is view */
+                /* Persist the context state */
+                window._controller.snapshot[window._controller.current] = {
+                    mainGrid: props.config.handle,
+                    currentGrid: props.config.handle
+                }
+
+                const href = _e.target.getAttribute("href");
+                if (href) {
+                    navigate(href);
+                }
+            }            
 
         } else {
             console.error("Unexpected Error, current module is missing.!");
@@ -796,7 +774,7 @@ const DataGrid = (props, ref) => {
         }        
 
         if (_props.config.field.type === "link" || _props.config.field.type === "link_search") {
-            return <td style={cssProperties} className={_props.config.classes}><a href="" onClick={e => handleRecordLinkClick(e, props.config.handle, props.config.link.context, _props.record)}>{_props.data}</a></td>;
+            return <td style={cssProperties} className={_props.config.classes}><a href={props.config.link.endpoint + _props.record[props.config.link.key]} onClick={e => handleRecordLinkClick(e, props.config.handle, props.config.link.context, _props.record)}>{_props.data}</a></td>;
         } else if (_props.config.field.type === "button") {
             if (!_props.config.field.icon) {
                 return <td style={cssProperties} className={_props.config.classes}><button className={`pharmarack-cms-btn ${_props.config.field.classes}`} onClick={e => handleRecordBtnClick(e, _props.config.field.action, props.config.handle, _props.record)}>{_props.data}</button></td>
@@ -923,7 +901,7 @@ const DataGrid = (props, ref) => {
             }        
 
         } else {
-            widget = <tbody key={uuidv4()} id="pharmarack-cms-data-grid-record-body" style={{height: bodyHeight+"px"}}><tr><td colSpan={state.headers.length}><h2 className="pharmarack-cms-data-grid-no-record"><i class="fa fa-cog fa-spin"></i></h2></td></tr></tbody>;
+            widget = <tbody key={uuidv4()} id="pharmarack-cms-data-grid-record-body" style={{height: bodyHeight+"px"}}><tr><td colSpan={state.headers.length}><h2 className="pharmarack-cms-data-grid-no-record"><i className="fa fa-cog fa-spin"></i></h2></td></tr></tbody>;
         }
 
         useEffect(() => {            
@@ -1069,13 +1047,11 @@ const DataGrid = (props, ref) => {
                     const _res = await window._controller.docker.dock(request);
 
                     /* Persist the state in context */
-                    if (contextObj) {
-                        contextObj.dataGrids[props.config.handle] = {
-                            currentPage: state.currentPage,
-                            headers: state.headers,
-                            endPoint: endPoint
-                        }
-                    }
+                    window._controller.snapshot.dataGrids[props.config.handle] = {
+                        currentPage: state.currentPage,
+                        headers: state.headers,
+                        endPoint: endPoint
+                    };                    
 
                     let _records = _res.payload;
                     if (contextObj && contextObj.beforeLoadingDatagrid) {
@@ -1137,13 +1113,11 @@ const DataGrid = (props, ref) => {
                 const _res = await window._controller.docker.dock(request);
 
                 /* Persist the state in context */
-                if (contextObj) {
-                    contextObj.dataGrids[props.config.handle] = {
-                        currentPage: state.currentPage,
-                        headers: state.headers,
-                        endPoint: endPoint
-                    }
-                }
+                window._controller.snapshot.dataGrids[props.config.handle] = {
+                    currentPage: state.currentPage,
+                    headers: state.headers,
+                    endPoint: endPoint
+                };                  
 
                 let _records = _res.payload;
                 if (contextObj && contextObj.beforeLoadingDatagrid) {

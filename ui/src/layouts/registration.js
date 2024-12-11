@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const Login = (props) => {
+const Registration = (props) => {
 
     const emailRegx = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     const mobileRegx = /^[6-9]\d{9}$/;
@@ -254,4 +254,4 @@ const Login = (props) => {
 
 }
 
-export default Login;
+export default Registration;

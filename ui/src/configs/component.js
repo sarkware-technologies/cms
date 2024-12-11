@@ -2,13 +2,16 @@ let component_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "component", 
+            viewFor: "",
+            match: ['/component'],
             context_header: {
                 show: true,
                 title: "Components",
                 breadcrumb: "",
                 actions: [                   
-                    { label: "New Component", theme: "primary", method: "post", action: "NEW_COMPONENT", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }
+                    { type: "link", label: "New Component", theme: "primary", method: "post", action: "/component/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {
@@ -40,7 +43,7 @@ let component_config = {
                                     is_main_grid: true,
                                     empty_message: "No component configured yet.!",
                                     datasource: {endpoint: "/system/v1/api/component/component/parent_list?populate=type", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "component", target_type: "view", view: "component_form", data: "remote", endpoint: "/system/v1/api/component/component/record?id="},
+                                    link: {key: "_id", context: "component", target_type: "view", view: "component_form", data: "remote", endpoint: "/main/component/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -133,13 +136,16 @@ let component_config = {
             manage: true             
         },
         component_form: {
+            source: "/system/v1/api/component/component/record?id=",
             context: "component", 
+            viewFor: "component_grid",
+            match: ['/component/new',  '/component/:id'],
             context_header: {
                 show: true,
                 title: "Component",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_COMPONENT", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },                    
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },                    
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_COMPONENT", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
@@ -165,10 +171,20 @@ let component_config = {
                                     { type: "text", label: "Title", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "text", label: "Sub Title", handle: "sub_title", value : "", placeholder: "", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "text", label: "Handle", handle: "handle", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "select", label: "Component Type", handle: "type", value : "1", placeholder: "-- select page type --", value_key: "_id", label_key: "title", options: [], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/v1/api/component/component_type/component_type_list"},
+                                    { type: "select", label: "Component Type", handle: "type", value : "1", placeholder: "-- select page type --", value_key: "_id", label_key: "title", options: [], classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", prompt_message: "", validation_message: "", source: "remote", endpoint: "/system/v1/api/component/component_type/parent_component_type"},
                                     { type: "date", label: "Start Date", handle: "start_date", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     { type: "date", label: "End Date", handle: "end_date", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
                                 ]
+                            },
+                            {
+                                title: "",
+                                sub_title: "",
+                                type: "placeholder",
+                                width: "66.6666%",
+                                layout: "horizontal",
+                                collapsible: false,
+                                classes: "",
+                                placeholder: "component_editor_container"                                
                             }
                         ]
                     }      
@@ -181,7 +197,10 @@ let component_config = {
             manage: true 
         },
         mapping_form: {
+            source: "",
             context: "component", 
+            viewFor: "",
+            match: "",
             context_header: {
                 show: false                
             },           
@@ -256,7 +275,7 @@ let component_config = {
                                     columns: [
                                         {
                                             show: true, 
-                                            width: "5", 
+                                            width: "10", 
                                             search: false,
                                             filter: false,
                                             classes: "",
@@ -267,7 +286,7 @@ let component_config = {
                                         },
                                         {
                                             show: true, 
-                                            width: "31",
+                                            width: "29",
                                             search: false,
                                             filter: false,
                                             classes: "",
@@ -278,7 +297,7 @@ let component_config = {
                                         },
                                         {
                                             show: true, 
-                                            width: "21", 
+                                            width: "18", 
                                             search: false,
                                             filter: false,
                                             classes: "",

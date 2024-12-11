@@ -1412,6 +1412,11 @@ div.pharmarack-cms-multi-select-search-container input {
     text-overflow: ellipsis;
 }
 
+.pharmarack-cms-search-widget-header input,
+div.pharmarack-cms-multi-select-search-container input {
+    cursor: pointer;
+}
+
 .pharmarack-cms-search-box-text-container input {
     border-radius: 5px;
 }
@@ -3491,6 +3496,16 @@ table.mapped-entity-list-factory-table {
     width: 50%;
 }
 
+.region_tab_open .pharmarack-cms-action-bar,
+.build_tab_open .pharmarack-cms-action-bar,
+.retailer_tab_open .pharmarack-cms-action-bar {
+    margin-top: -75px;
+    padding-bottom: 20px;
+    z-index: 999;
+    position: relative;
+    width: 50%;
+}
+
 .pharmarack-cms-version-csv {
     height: 200px !important;
 }
@@ -3591,10 +3606,12 @@ table.mapped-entity-list-factory-table {
     margin-bottom: 10px;
 }
   
-.pharmarack-cms-step-header h3 {
+.pharmarack-cms-step-header label,
+.pharmarack-cms-importer-action-row label {
     margin: 0;
     font-size: 16px;
     color: #333;
+    font-weight: bold;
 }
   
 .pharmarack-cms-step-value {
@@ -3858,4 +3875,116 @@ table.segment-summary-widget td span:first-child {
 
 table.segment-summary-widget td span:last-child {
     font-size: 14px;
+}
+
+.pharmarack-cms-forgot-sumbitted-view {
+
+}
+
+.pharmarack-cms-forgot-sumbitted-view > div {
+    background: #2196f3;
+    margin: -40px -50px 35px;
+    border-radius: 20px 20px 0px 0px;
+    height: 85px;
+}
+
+.pharmarack-cms-forgot-sumbitted-view > div i {
+    display: inline-block;
+    font-size: 25px;
+    background: #fff;
+    color: #2196f3;
+    width: 64px;
+    height: 64px;
+    line-height: 64px;
+    border-radius: 50%;
+    text-align: center;
+    margin-top: 52px;
+}
+
+.pharmarack-cms-forgot-sumbitted-view p {
+    width: 300px;
+    margin: 50px 1px 100px;
+}
+
+.pharmarack-cms-importer-action-row {
+    display: flex;
+}
+
+.pharmarack-cms-importer-action-row.one-col > div {
+    width: 100%;
+}
+
+.pharmarack-cms-importer-action-row.two-col > div {
+    width: 50%;
+}
+
+.pharmarack-cms-importer-action-row.date-range {
+    padding: 0px 15px;
+    gap: 25px;
+    padding-top: 15px;
+}
+
+.build_history_grid,
+.all_segment_grid,
+.dynamic_segment_grid,
+.static_segment_grid,
+.progress_segment_grid,
+.disabled_segment_grid,
+.importer_history_grid {
+    margin-top: -15px;
+}
+
+.pharmarack-cms-splash-container {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+
+
+.pharmarack-cms-splash-container > p {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #555;
+}
+
+.pharmarack-cms-splash-container .progress-container {
+    width: 64px;
+    height: 64px;
+    position: relative;
+}
+  
+.pharmarack-cms-splash-container .progress-ring {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 8px solid #ddd;
+    position: relative;
+}
+  
+.pharmarack-cms-splash-container .progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border-top: 8px solid #3498db;
+    animation: rotate 2s linear infinite;
+}
+  
+@keyframes rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
 }

@@ -2,7 +2,10 @@ let xls_upload_config = {
 
     views: {
         main_view: {
+            source: "",
             context: "xls_upload",
+            viewFor: "",
+            match: ["/xls_upload"],
             context_header: {
                 show: true,
                 title: "Upload Components",
@@ -153,13 +156,16 @@ let xls_upload_config = {
             manage: true
         },
         upload_form: {
+            source: "/system/v1/upload/",
             context: "xls_upload",
+            viewFor: "upload_grid",
+            match: ["/xls_upload/:id"],
             context_header: {
                 show: true,
                 title: "Upload",
                 breadcrumb: "file",
                 actions: [
-                    { label: "Cancel", theme: "secondary", action: "CANCEL_UPLOAD", classes: "icon-left", icon: "fa fa-times", tabindex: 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex: 8, status: true, shortcut: "" },
                     { label: "Upload", theme: "primary", action: "PROCESS_UPLOAD", classes: "icon-left", icon: "fa fa-upload", tabindex: 8, status: true, shortcut: "" }
                 ]
             },

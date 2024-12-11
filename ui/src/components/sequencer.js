@@ -318,10 +318,10 @@ const Sequencer = (props, ref) => {
                     if (editMode.components.length > 0) {
                         const _components = [];
                         for (let i = 0; i < editMode.components.length; i++) {
-                            //_components.push(<a href={`/component?id=${editMode.components[i]._id}`} className="sequence-edit-link-btn">{editMode.components[i].title}</a>);
+                            //_components.push(<a href={`/main/component/${editMode.components[i]._id}`} className="sequence-edit-link-btn">{editMode.components[i].title}</a>);
                             _components.push(<Link
                                 key={editMode.components[i]._id}
-                                to={`/component?id=${editMode.components[i]._id}`}
+                                to={`/main/component/${editMode.components[i]._id}`}
                                 className="sequence-edit-link-btn"
                               >
                                 {editMode.components[i].title}

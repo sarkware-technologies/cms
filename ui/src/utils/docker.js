@@ -9,7 +9,7 @@ export default class Docker {
         this.indicatorCounter = 0;
     }
 
-    dock = async (_request, isPrivate = true) => {
+    dock = async (_request, isPrivate = true, _token = null) => {
 
         try {
 
@@ -23,6 +23,9 @@ export default class Docker {
                 const token = localStorage.getItem("pharmarack_cms_access_token");
                 if (token) {              
                     header.append("Authorization", `Bearer ${token}`);
+                } else if (_token) {
+                    /* Check whether token passed as */
+                    header.append("Authorization", `Bearer ${_token}`);
                 } else {
                     throw new Error("Access token is not found");
                 }
@@ -66,7 +69,7 @@ export default class Docker {
 
             } else {
 
-                if (response.status === 401) {
+                if (response.status === 401 && !_token) {
                     
                     localStorage.removeItem("pharmarack_cms_email");
                     localStorage.removeItem("pharmarack_cms_mobile");
@@ -79,7 +82,7 @@ export default class Docker {
                     document.location.href = "";
                     return;
 
-                } else if (response.status === 504) {  console.log(response.url);
+                } else if (response.status === 504) {
                     const pathSegments = new URL(response.url).pathname.split("/");
                     window._controller.notify( pathSegments[1] +" service is down", "error");
                 }
@@ -116,7 +119,10 @@ export default class Docker {
     upload = async (_endpoint, _formData) => {
 
         const headers = new Headers();
-        this.indicatorRef.current.style.display = "block";    
+
+        if (this.indicatorRef.current) {
+            this.indicatorRef.current.style.display = "block";    
+        }
         
         const token = localStorage.getItem("pharmarack_cms_access_token");
         if (token) {              
@@ -133,7 +139,9 @@ export default class Docker {
                 headers: headers
             });
 
-            this.indicatorRef.current.style.display = "none";
+            if (this.indicatorRef.current) {
+                this.indicatorRef.current.style.display = "none";
+            }
 
             if (!response.ok) {
                 throw new Error(`Error uploading file: ${response.statusText}`);
@@ -142,7 +150,9 @@ export default class Docker {
             return await response.json();
 
         } catch (error) {
-            this.indicatorRef.current.style.display = "none";
+            if (this.indicatorRef.current) {
+                this.indicatorRef.current.style.display = "none";
+            }
             return error.message;
         }
 

@@ -2,12 +2,15 @@ let module_config = {
 
     views: {
         main_view: {
+            source: "",
             context: "module", 
+            viewFor: "",
+            match: ["/module"],
             context_header: {
                 show: true,
                 title: "Modules",
                 breadcrumb: "",
-                actions: [{ label: "New Module", theme: "primary", method: "post", action: "NEW_MODULE", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ type: "link", label: "New Module", theme: "primary", method: "post", action: "/main/module/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -38,7 +41,7 @@ let module_config = {
                                     is_main_grid: true,
                                     empty_message: "No module configured yet.!",
                                     datasource: {endpoint: "/system/v1/module?populate=true", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "module", target_type: "view", view: "module_form", data: "remote", endpoint: "/system/v1/module/"},
+                                    link: {key: "_id", context: "module", target_type: "view", view: "module_form", data: "remote", endpoint: "/main/module/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -109,13 +112,16 @@ let module_config = {
             manage: true             
         },
         module_form: {
+            source: "/system/v1/module/",
             context: "module",
+            viewFor: "module_grid",
+            match: ["/module/new", "/module/:id"],
             context_header: {
                 show: true,
                 title: "Module",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_MODULE", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_MODULE", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           

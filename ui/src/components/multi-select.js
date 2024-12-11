@@ -56,145 +56,7 @@ const MultiSelect = (props, ref) => {
         selectedRecords: ('selected' in props) ? ( Array.isArray(props.selected) ? props.selected : []) : [],
         searchText: "",
         resultText: ""
-    });   
-    
-    const determineParentLevel = () => {        
-
-        if (props.config.handle === "retailer") {
-
-            const regionSelector = props.parent.current;
-            if (regionSelector) {
-                const regionMode = regionSelector.getMode();
-                if (regionMode === "all") {
-
-                    /* Region is set to all, hence go back to states */
-                    const stateSelector = props.parent.current;
-                    if (stateSelector) {
-                        const stateMode = stateSelector.getMode();
-                        if (stateMode === "all") {
-
-                            /* State is set to all check for the country */
-                            const countrySelector = props.parent.current;
-                            if (countrySelector) {
-
-                                const countryMode = countrySelector.getMode();
-                                if (countryMode === "all" || countryMode === "selected") {
-
-                                    const ids = [];
-                                    const stateRecords = stateSelector.getOriginalRecords();
-                                    for (let i = 0; i < stateRecords.length; i++) {
-                                        ids.push(stateRecords[i].StateId);
-                                    }
-
-                                    /* Since we have only one country - we are safe to return true */
-                                    return ["state", "all", ids, ""];
-
-                                } else {
-                                    return ["country", "none", [], "Please select the country(s)"];
-                                }
-
-                            } else {
-                                /* Should'nt be the case, but incase */
-                                return ["state", "none", [], "Please select the state(s)"];
-                            }
-
-                        } else if (stateMode === "selected") {
-
-                            const ids = [];                            
-                            const selectedStates = stateSelector.getSelectedRecords();   
-                            
-                            for (let i = 0; i < selectedStates.length; i++) {
-                                ids.push(selectedStates[i].StateId);
-                            }
-
-                            return ["state", "selected", ids, ""];
-
-                        } else {
-                            return ["state", "none", [], "Please select the state(s)"];
-                        }                        
-
-                    } else {
-                        /* Should'nt be the case, but incase */
-                        return ["region", "none", [], "Please select the region(s)"];
-                    }
-
-                } else if (regionMode === "selected") {
-                    return ["region", "selected", regionSelector.getSelectedRecords(), ""];
-                } else {
-                    return ["region", "none", [], "Please select the region(s)"];
-                }
-            } else {
-                /* Should'nt be the case, but incase */
-                return ["region", "none", [], "Please select the region(s)"];
-            }
-            
-        } else if (props.config.handle === "region") {
-
-            const stateSelector = props.parent.current;
-            if (stateSelector) {
-                const stateMode = stateSelector.getMode();
-                if (stateMode === "all") {            
-
-                    /* State is set to all check for the country */
-                    const countrySelector = props.parent.current;
-                    if (countrySelector) {
-
-                        const countryMode = countrySelector.getMode();
-                        if (countryMode === "all" || countryMode === "selected") {
-
-                            const ids = [];
-                            const stateRecords = stateSelector.getOriginalRecords(); 
-                            for (let i = 0; i < stateRecords.length; i++) {
-                                ids.push(stateRecords[i].StateId);
-                            }
-
-                            /* Since we have only one country - we are safe to return true */
-                            return ["state", "all", ids, ""];
-
-                        } else {
-                            return ["country", "none", [], "Please select the country(s)"];
-                        }
-
-                    } else {
-                        /* Should'nt be the case, but incase */
-                        return ["state", "none", [], "Please select the state(s)"];
-                    }
-
-                } else if (stateMode === "selected") {
-                    return ["state", "selected", stateSelector.getSelectedRecords(), ""];
-                } else {
-                    return ["state", "none", [], "Please select the state(s)"];
-                }
-            }
-
-        } else if (props.config.handle === "state") {
-
-            const countrySelector = props.parent.current;
-            if (countrySelector) {
-
-                const countryMode = countrySelector.getMode();
-                if (countryMode === "all") {
-                    /* Since we have only one country - we are safe to return true */
-                    return ["country", "all", [], ""];
-                } else if (countryMode === "selected") {
-                    return ["country", "selected", countrySelector.getSelectedRecords(), ""];
-                } else {
-                    return ["country", "none", [], "Please select the country(s)"];
-                }
-
-            } else {
-                /* Should'nt be the case, but incase */
-                return ["country", "none", [], "Please select the state(s)"];
-            }
-
-        } else {
-            
-            /* Must be for country selector */
-            return [null, "all", [], ""];
-
-        }
-
-    }; 
+    });        
 
     const self = { 
 
@@ -304,79 +166,17 @@ const MultiSelect = (props, ref) => {
 
     const handleResultBoxClick = () => {
 
-        /* Now prepare the source & records */
-        const [_level, _mode, pIds, _msg] = determineParentLevel();
-        
-        let _records = [];
-        let userMessage = _msg;
+        //let userMessage = _msg;
         const _originalRecords = JSON.parse(JSON.stringify(original));
 
-        if (props.config.handle !== "country" && props.config.handle !== "state" && props.config.handle !== "region" && props.config.handle !== "retailer" && props.config.handle !== "segment") {
-
-            /* Normal multi select */
-            _records = _originalRecords;
-
-        } else {
-
-            /* Hierarchical Filter Mode */
-            if (_level === "state" || _level === "country") {
-
-                if (_mode === "none") {
-                    _records = [];                
-                } else if (_mode === "all") {
-                    _records = _originalRecords;   
-                } else {
-
-                    if (props.config.handle === "state") {
-                        for (let i = 0; i < _originalRecords.length; i++) {
-                            if (pIds.indexOf( _originalRecords[i].country ) !== -1) {
-                                _records.push(_originalRecords[i]);
-                            }
-                        }
-                    } else {
-                        for (let i = 0; i < _originalRecords.length; i++) {
-                            if (pIds.indexOf( _originalRecords[i].StateId ) !== -1) {
-                                _records.push(_originalRecords[i]);
-                            }
-                        }
-                    }
-                    
-                }
-
-            } else if (_level === "region") {
-
-                if (_mode === "none") {
-                    _records = [];
-                } else if (_mode === "all") {
-                    _records = _originalRecords;   
-                } else {
-                    for (let i = 0; i < _originalRecords.length; i++) {
-                        if (pIds.indexOf( _originalRecords[i].RegionId ) !== -1) {
-                            _records.push(_originalRecords[i]);
-                        }
-                    }
-                }
-
-            }
-
-            if (_level === "state" && _mode === "all") {                
-                _records = _originalRecords;            
-            } else if (_level === "state" && _mode === "none") {            
-                _records = [];            
-            } else if(!_level && (props.config.handle === "country" || props.config.handle === "segment")) {
-                _records = _originalRecords;
-            } 
-            
-        }
-
-        setUserMessage(userMessage);
+        //setUserMessage(userMessage);
         setState((prevState) => ({
             ...prevState,                              
             active: true,
-            source: _records,
-            records: _records,
+            source: _originalRecords,
+            records: _originalRecords,
             currentPage: 0,           
-            totalPages: Math.floor(_records.length / props.config.recordsPerPage)                    
+            totalPages: Math.floor(_originalRecords.length / props.config.recordsPerPage)                    
         })); 
 
     };

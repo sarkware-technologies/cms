@@ -1,7 +1,7 @@
 import React, {forwardRef, useImperativeHandle, useState} from "react";
 import { v4 as uuidv4 } from 'uuid';
 import Helper from "../../../utils/helper";
-import RuleGroups from "../../rule-groups";
+import ComponentRuleGroup from "../../component-rule-group";
 
 const Video = (props, ref) => {
 
@@ -102,7 +102,7 @@ const Video = (props, ref) => {
                 </div>
 
                 <div className="component-editor-items-container">
-                    <div className="component-item-rules">{<RuleGroups ref={groupsRef} id={record._id} />}</div>
+                    <div className="component-item-rules">{<ComponentRuleGroup ref={groupsRef} id={record._id} />}</div>
                 </div>
 
             </div>

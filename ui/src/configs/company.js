@@ -2,12 +2,15 @@ let company_config = {
 
     views: {
         main_view: { 
+            source: "",
+            match: ['/company'],
             context: "company", 
+            viewFor: "",
             context_header: {
                 show: true,
                 title: "Companies",
                 breadcrumb: "",
-                actions: [{ label: "New Company", theme: "primary", action: "NEW_COMPANY", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ type: "link", label: "New Company", theme: "primary", action: "/company/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -37,7 +40,7 @@ let company_config = {
                                     is_main_grid: true,
                                     empty_message: "No brand configured yet.!",
                                     datasource: {endpoint: "/system/v1/api/master/company/list", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "company", target_type: "view", view: "company_form", data: "remote", endpoint: "/system/v1/api/master/company/record?id="},
+                                    link: {key: "_id", context: "company", target_type: "view", view: "company_form", data: "remote", endpoint: "/main/company/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -86,14 +89,17 @@ let company_config = {
             manage: true             
         },
         company_form: {
+            source: "/system/v1/api/master/company/record?id=",
             context: "company", 
+            viewFor: "company_grid",
+            match: ['/company/new', '/company/:id'],
             context_header: {
                 show: true,
                 title: "Company",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", action: "CANCEL_COMPANY", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Save", theme: "primary", action: "SAVE_COMPANY", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+                    { type: "button", label: "Cancel", theme: "secondary", action: "CANCEL_COMPANY", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { type: "button", label: "Save", theme: "primary", action: "SAVE_COMPANY", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           
             header: {

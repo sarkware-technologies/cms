@@ -29,7 +29,7 @@ const processTopPicksRequest = async (_req, _res) => {
 
         const _token = _req.headers["authorization"];
         if (!_token) {
-            throw new Error("Bearer token not present");
+            return _res.status(401).json({ message: "Unsupported token type - Expect Bearer token" });
         }
 
         _res.status(200).json(await elastic.getOrderedProducts(_token, 5));
@@ -43,7 +43,7 @@ const processTopTrendingRequest = async (_req, _res) => {
 
         const _token = _req.headers["authorization"];
         if (!_token) {
-            throw new Error("Bearer token not present");
+            return _res.status(401).json({ message: "Unsupported token type - Expect Bearer token" });
         }
 
         _res.status(200).json(await elastic.getTrendingProducts(_token, 5));
@@ -56,7 +56,7 @@ const processTopOfferedRequest = async (_req, _res) => {
     try {
         const _token = _req.headers["authorization"];
         if (!_token) {
-            throw new Error("Bearer token not present");
+            return _res.status(401).json({ message: "Unsupported token type - Expect Bearer token" });
         }
 
         /* validate token */
@@ -64,7 +64,7 @@ const processTopOfferedRequest = async (_req, _res) => {
         const user = Utils.verifyToken(token);
 
         if (!user) {
-            throw new Error("Invalid token");
+            return _res.status(401).json({ message: "Unauthorized request - token is invalid or expired" });
         }
 
         _res.status(200).json(await API.fetchTopOfferedProducts(_req, user));
@@ -79,7 +79,7 @@ const processCompanyProductRequest = async (_req, _res) => {
 
         const _token = _req.headers["authorization"];
         if (!_token) {
-            throw new Error("Bearer token not present");
+            return _res.status(401).json({ message: "Unsupported token type - Expect Bearer token" });
         }
 
         /* validate token */
@@ -87,7 +87,7 @@ const processCompanyProductRequest = async (_req, _res) => {
         const user = Utils.verifyToken(token);
 
         if (!user) {
-            throw new Error("Invalid token");
+            return _res.status(401).json({ message: "Unauthorized request - token is invalid or expired" });
         }
 
         const cid = _req.query.cid ? _req.query.cid : null;
@@ -105,7 +105,7 @@ const processCashBackProductRequest = async (_req, _res) => {
 
         const _token = _req.headers["authorization"];
         if (!_token) {
-            throw new Error("Bearer token not present");
+            return _res.status(401).json({ message: "Unsupported token type - Expect Bearer token" });
         }
 
         /* validate token */
@@ -113,7 +113,7 @@ const processCashBackProductRequest = async (_req, _res) => {
         const user = Utils.verifyToken(token);
 
         if (!user) {
-            throw new Error("Invalid token");
+            return _res.status(401).json({ message: "Unauthorized request - token is invalid or expired" });
         }
 
         _res.status(200).json(await API.prepareCashBackProductForRetailer(user));
@@ -129,7 +129,7 @@ const processOfferedProductRequestForElastic = async (_req, _res) => {
 
         const _token = _req.headers["authorization"];
         if (!_token) {
-            throw new Error("Bearer token not present");
+            return _res.status(401).json({ message: "Unsupported token type - Expect Bearer token" });
         }
 
         /* validate token */
@@ -137,7 +137,7 @@ const processOfferedProductRequestForElastic = async (_req, _res) => {
         const user = Utils.verifyToken(token);
 
         if (!user) {
-            throw new Error("Invalid token");
+            return _res.status(401).json({ message: "Unauthorized request - token is invalid or expired" });
         }
 
         _res.status(200).json(await API.prepareOfferedProductForElasticAPi(user));
@@ -153,7 +153,7 @@ const processDistributorProductRequest = async (_req, _res) => {
 
         const _token = _req.headers["authorization"];
         if (!_token) {
-            throw new Error("Bearer token not present");
+            return _res.status(401).json({ message: "Unsupported token type - Expect Bearer token" });
         }
 
         /* validate token */
@@ -161,7 +161,7 @@ const processDistributorProductRequest = async (_req, _res) => {
         const user = Utils.verifyToken(token);
 
         if (!user) {
-            throw new Error("Invalid token");
+            return _res.status(401).json({ message: "Unauthorized request - token is invalid or expired" });
         }
 
         const sid = _req.query.sid ? _req.query.sid : null;
@@ -179,7 +179,7 @@ const processCompanyTherapiesRequest = async (_req, _res) => {
 
         const _token = _req.headers["authorization"];
         if (!_token) {
-            throw new Error("Bearer token not present");
+            return _res.status(401).json({ message: "Unsupported token type - Expect Bearer token" });
         }
 
         /* validate token */
@@ -187,7 +187,7 @@ const processCompanyTherapiesRequest = async (_req, _res) => {
         const user = Utils.verifyToken(token);
 
         if (!user) {
-            throw new Error("Invalid token");
+            return _res.status(401).json({ message: "Unauthorized request - token is invalid or expired" });
         }
 
         const cid = _req.query.cid ? _req.query.cid : null;
@@ -203,15 +203,15 @@ const processDistributorTherapiesRequest = async (_req, _res) => {
 
     const _token = _req.headers["authorization"];
     if (!_token) {
-        throw new Error("Bearer token not present");
+        return _res.status(401).json({ message: "Unsupported token type - Expect Bearer token" });
     }
 
     /* validate token */
     const token = _req.headers["authorization"].split(" ")[1];
     const user = Utils.verifyToken(token);
 
-    if (!user) {
-        throw new Error("Invalid token");
+    if (!user) {        
+        return _res.status(401).json({ message: "Unauthorized request - token is invalid or expired" });
     }
 
     const sid = _req.query.sid ? _req.query.sid : null;
@@ -222,7 +222,7 @@ const processDistributorTherapiesRequest = async (_req, _res) => {
 const invalidatePageCache = async (_req, _res) => {
     try {
         //cache.removePageType(_req.query.page);
-        await redisClient.invalidateAllCache();
+        await redisClient.invalidateAllCache("PAGE");
         _res.status(200).json({ status: true });
     } catch (_e) {
         Utils.handleError(_e, _res);
@@ -232,7 +232,7 @@ const invalidatePageCache = async (_req, _res) => {
 const invalidateAllPageCache = async (_req, _res) => {
     try {
         //cache.removeAllPage();
-        await redisClient.invalidateAllCache();
+        await redisClient.invalidateAllCache("PAGE");
         _res.status(200).json({ status: true });
     } catch (_e) {
         Utils.handleError(_e, _res);
@@ -243,7 +243,7 @@ const processCompaniesRequest = async (_req, _res) => {
 
     const _token = _req.headers["authorization"];
     if (!_token) {
-        throw new Error("Bearer token not present");
+        return _res.status(401).json({ message: "Unsupported token type - Expect Bearer token" });
     }
 
     /* validate token */
@@ -251,19 +251,11 @@ const processCompaniesRequest = async (_req, _res) => {
     const user = Utils.verifyToken(token);
 
     if (!user) {
-        throw new Error("Invalid token");
+        return _res.status(401).json({ message: "Unauthorized request - token is invalid or expired" });
     }
 
     _res.status(200).json(await API.getCompanies());
 
-};
-
-const processDataPrepareRequest = async (_req, _res) => {
-    _res.status(200).json(await API.dataQuery());
-};
-
-const processCompaniesPrepareRequest = async (_req, _res) => {
-    _res.status(200).json(await API.companyQuery());
 };
 
 routes.get("/page/*", processPageRequest);
@@ -289,7 +281,7 @@ routes.get("/api/companies/list", companyservide.GetCompanys);
 routes.get("/api/companies/:id", companyservide.GetCompany);
 routes.put("/api/companies", companyservide.updateCompany);
 routes.delete("/api/companies", companyservide.deleteCompany);
-
+routes.get("/retailers", CS.get_retailer);
 //routes.get("/api/prepareData", processDataPrepareRequest);
 //routes.get("/api/prepareCompanies", processCompaniesPrepareRequest);
 

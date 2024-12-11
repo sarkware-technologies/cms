@@ -12,8 +12,8 @@ export default function EntityContext(_component) {
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
      *
      **/
-    this.init = () => {
-        this.controller.switchView("main_view");
+    this.init = (_view) => {
+        this.controller.switchView(_view);
     };  
 
     /**
@@ -69,13 +69,13 @@ export default function EntityContext(_component) {
         if (_handle == "entity_form") {
             if (entity) {  
                 _viewConfig.context_header.actions = [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_ENTITY", classes: "pharmarack-cms-action-cancel icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "pharmarack-cms-action-cancel icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                     { label: "Delete", theme: "danger", method: "delete", action: "DELETE_ENTITY", classes: "pharmarack-cms-action-delete icon-left", icon: "fa fa-trash", tabindex : 8, status: true, shortcut: "" },
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_ENTITY", classes: "pharmarack-cms-action-save icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ];                
             } else {
                 _viewConfig.context_header.actions = [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_ENTITY", classes: "pharmarack-cms-action-cancel icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },                
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "pharmarack-cms-action-cancel icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },                
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_ENTITY", classes: "pharmarack-cms-action-save icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ];                
             }
@@ -93,18 +93,22 @@ export default function EntityContext(_component) {
      */
     this.onActionBtnClick = (_action) => {
 
-        if (_action === "NEW_ENTITY") {            
-            this.component.currentRecord["entity_grid"] = null;
-            this.controller.switchView("entity_form");
-        } else if (_action === "CANCEL_ENTITY") {               
-            this.controller.switchView("main_view");
-        } else if (_action === "SAVE_ENTITY") {
+        if (_action === "SAVE_ENTITY") {
             this.saveEntity();
         } else if (_action === "DELETE_ENTITY") {
             this.controller.getUserConfirm("DELETE_ENTITY", "Are you sure ?");
         }
 
     };  
+
+    /**
+     * 
+     * Called whenever user click on back button (or cancel button click)
+     * 
+     */
+    this.onBackAction = () => {
+        this.component.currentRecord["entity_grid"] = null;    
+    };
     
     this.onUserConfirm = (_task, _choice) => {
 
@@ -160,9 +164,14 @@ export default function EntityContext(_component) {
             if (request["payload"] && Object.keys(request["payload"]).length > 0) {
 
                 this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(((_res.payload ? _res.payload.title : _res.title )  + " saved successfully.!"));
-                    this.controller.switchView("main_view");
-                    this.component.currentRecord["entity_grid"] = null;
+
+                    if (request["method"] == "POST") {
+                        this.controller.notify(_res.payload.title + " saved successfully.!");
+                    } else {
+                        this.controller.notify(_res.title + " updated successfully.!");
+                    }                   
+                    this.component.triggerBack();
+                    
                 })
                 .catch((e) => {
                     this.controller.notify(e.message, "error");

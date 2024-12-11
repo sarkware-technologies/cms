@@ -16,7 +16,7 @@ export default function RoleContext(_component) {
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
      *
      **/
-    this.init = () => {
+    this.init = (_view) => {
 
         this.controller.docker.dock({
             method: "GET",
@@ -38,7 +38,7 @@ export default function RoleContext(_component) {
             console.log(e);
         });
 
-        this.controller.switchView("main_view");
+        this.controller.switchView(_view);
 
     };  
 
@@ -122,17 +122,18 @@ export default function RoleContext(_component) {
      * 
      */
     this.onActionBtnClick = (_action) => {
-
-        if (_action === "NEW_ROLE") {
-            this.component.currentRecord["role_grid"] = null;
-            this.controller.switchView("role_form");
-        } else if (_action === "CANCEL_ROLE") {     
-            this.component.currentRecord["role_grid"] = null;       
-            this.controller.switchView("main_view");
-        } else if (_action === "SAVE_ROLE") {
+        if (_action === "SAVE_ROLE") {
             this.saveRole();
         }
+    };
 
+    /**
+     * 
+     * Called whenever user click on back button (or cancel button click)
+     * 
+     */
+    this.onBackAction = () => {
+        this.component.currentRecord["role_grid"] = null;    
     };
 
     this.saveRole = () => {
@@ -158,9 +159,14 @@ export default function RoleContext(_component) {
             if (request["payload"] && Object.keys(request["payload"]).length > 0) {
 
                 this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(((_res.payload ? _res.payload.title : _res.title )  + " saved successfully.!"));
-                    this.controller.switchView("main_view");
-                    this.component.currentRecord["role_grid"] = null;
+                    
+                    if (request["method"] == "POST") {
+                        this.controller.notify(_res.payload.title + " saved successfully.!");
+                    } else {
+                        this.controller.notify(_res.title + " updated successfully.!");
+                    }                   
+                    this.component.triggerBack();
+
                 })
                 .catch((e) => {
                     this.controller.notify(e.message, "error");

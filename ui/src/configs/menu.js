@@ -2,12 +2,15 @@ let menu_config = {
 
     views: {
         main_view: { 
+            source: "",
             context: "menu", 
+            viewFor: "",
+            match: ["/menu"],
             context_header: {
                 show: true,
                 title: "Menus",
                 breadcrumb: "",
-                actions: [{ label: "New Menu", theme: "primary", method: "post", action: "NEW_MENU", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ type: "link", label: "New Menu", theme: "primary", method: "post", action: "/menu/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -38,7 +41,7 @@ let menu_config = {
                                     is_main_grid: true,
                                     empty_message: "No menu configured yet.!",
                                     datasource: {endpoint: "/system/v1/menu?populate=true", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "menu", target_type: "view", view: "menu_form", data: "remote", endpoint: "/system/v1/menu/"},
+                                    link: {key: "_id", context: "menu", target_type: "view", view: "menu_form", data: "remote", endpoint: "/main/menu/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -98,13 +101,16 @@ let menu_config = {
             manage: true             
         },
         menu_form: {
+            source: "/system/v1/menu/",
             context: "menu", 
+            viewFor: "menu_grid",
+            match: ["/menu/new", "/menu/:id"],
             context_header: {
                 show: true,
                 title: "Menu",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_MENU", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_MENU", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
                 ]
             },           

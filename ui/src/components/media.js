@@ -61,7 +61,10 @@ const Media = (props, ref) => { //console.log(props.config);
 
     };
 
-    const handleDeleteBtnClick = () => {
+    const handleDeleteBtnClick = (e) => {
+
+        e.preventDefault();
+        
         if (props.handleMediaDelete) {
             props.handleMediaDelete(props.config.handle);
         } else {
@@ -75,9 +78,9 @@ const Media = (props, ref) => { //console.log(props.config);
             return <input type="file" accept={ (('accept' in props.config) ? props.config.accept : "image/*,video/*") } onChange={(e) => handleOnChange(e)} />;
         } else {
             if (mediaType && mediaType === "video") {
-                return <div className="pharmarack-cms-cms-preview-video"><video muted><source src={value} type="video/mp4" /></video><a href="#" onClick={handleDeleteBtnClick}><i className="fa fa-times"></i></a></div>;
+                return <div className="pharmarack-cms-cms-preview-video"><video muted><source src={value} type="video/mp4" /></video><a href="#" onClick={(e) => handleDeleteBtnClick(e)}><i className="fa fa-times"></i></a></div>;
             } else {
-                return <div className="pharmarack-cms-cms-preview-image"><img src={value} onLoad={handleImageLoad} /><a href="#" onClick={handleDeleteBtnClick}><i className="fa fa-times"></i></a></div>;
+                return <div className="pharmarack-cms-cms-preview-image"><img src={value} onLoad={handleImageLoad} /><a href="#" onClick={(e) => handleDeleteBtnClick(e)}><i className="fa fa-times"></i></a></div>;
             }
         }
 

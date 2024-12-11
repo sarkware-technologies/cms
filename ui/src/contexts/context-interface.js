@@ -9,7 +9,7 @@ export default function ContextInterface(_component) {
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
      *
      **/
-    this.init = () => {
+    this.init = (_view) => {
         
     };  
 
@@ -24,7 +24,7 @@ export default function ContextInterface(_component) {
      */
     this.onDatagridRequest = (_handle, _datasource) => {
         return _datasource;
-    };
+    };    
 
     /**
      * 
@@ -37,6 +37,18 @@ export default function ContextInterface(_component) {
      */
     this.onCurrentRecordRequest = (_handle, _endpoint) => {
         return _endpoint;
+    };
+
+    /**
+     * 
+     * @param {*} _targetView 
+     * @param {*} _response 
+     * 
+     * Called before storing current record for view
+     * 
+     */
+    this.onCurrentRecordResponse = (_targetView, _response) => {
+        return  "";
     };
 
     /**
@@ -490,6 +502,15 @@ export default function ContextInterface(_component) {
      *  
      */
     this.onProgressStatus = (_task, _res) => {
+
+    };
+
+    /**
+     * 
+     * Called whenever user click on back button (or cancel button click)
+     * 
+     */
+    this.onBackAction = () => {
 
     };
 

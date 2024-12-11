@@ -1,5 +1,7 @@
 import React, {useState, useEffect, useRef, forwardRef, useImperativeHandle} from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import View from "../components/view";
+import Helper from "./helper";
 
 /**
  * 
@@ -15,6 +17,9 @@ import View from "../components/view";
  * 
  */
 const ContextWrapper = (props, ref) => {
+
+    const navigate = useNavigate();
+    const location = useLocation();
 
     /**
      * 
@@ -67,7 +72,7 @@ const ContextWrapper = (props, ref) => {
         /* Reference for field's reference object - so that Usercomponent can have access to it */
         fields: fields,        
         
-        /* */
+        /* Holds he handle of of the current data grid */
         mainGrid: "",
 
         /* Reference to the current working record - (happens when user click on any records in the datagrids) */
@@ -84,6 +89,8 @@ const ContextWrapper = (props, ref) => {
         capability: null,
 
         dataGrids: {},
+
+        activeKeys: null,
         
         /**
          * 
@@ -150,33 +157,15 @@ const ContextWrapper = (props, ref) => {
     
         /**
          * 
-         * Used by the controller to maintain the proper state of the datagrid (while switching between archive and single views)
-         * 
-         * @param {*} _handle 
-         * @param {*} _records 
-         * @param {*} _totalPages 
+         * Trigger the browser's back button event
          * 
          */
-        loadDataGridSnap: (_handle, _records, _totalPages) => {
-            let grids = state.dataGrids;
-            grids[_handle] = {
-                records: _records,        
-                currentPage: 1,
-                totalPages: _totalPages
-            };                        
-            setState({...state, dataGrids: grids});
-        },   
-    
-        /**
-         * 
-         * Used by the controller to get the current snap of the datagrid (while switching between archive and single views)
-         * 
-         * @param {*} _handle 
-         * @returns 
-         * 
-         */
-        getDataGridSnap: (_handle) => {
-            return state.dataGrids[_handle];
+        triggerBack: () => {
+            navigate(-1);
+            const contextObj = window._controller.getCurrentModuleInstance();
+            if (contextObj.onBackAction) {
+                contextObj.onBackAction();   
+            } 
         },
 
         /**
@@ -197,6 +186,93 @@ const ContextWrapper = (props, ref) => {
                 });
             }
                         
+        },
+
+        _init: () => {
+
+            /* determine the view */
+            let targetView = null;
+            /*  */
+            let parsedResult = null;
+            /* Reset */
+            self.activeKeys = null;            
+            const viewKeys = Object.keys(self.config.views);
+            const contextObj = window._controller.getCurrentModuleInstance();
+
+            for (let i = 0; i < viewKeys.length; i++) {                
+                parsedResult = Helper.matchUrlPattern(self.config.views[viewKeys[i]].match, location);
+                if (parsedResult) {
+                    targetView = viewKeys[i];                    
+                    break;
+                }                
+            }
+
+            if (targetView) {
+
+                const viewObj = self.config.views[targetView];
+                /* Update the active keys */
+                if (typeof parsedResult === "object") {
+
+                    self.activeKeys = parsedResult;
+                    let _endPoint = viewObj.source;
+
+                    if (parsedResult["id"]) {
+                        _endPoint = _endPoint + parsedResult["id"];
+                    }
+
+                    if (contextObj.onCurrentRecordRequest) {
+                        _endPoint = contextObj.onCurrentRecordRequest(targetView, _endPoint);   
+                    } 
+
+                    const request = {};
+                    request["method"] = "GET";
+                    request["endpoint"] = _endPoint;
+
+                    contextObj.currentRecord[viewObj.viewFor] = null;
+                    window._controller.docker.dock(request).then((_res) => {
+
+                        /* Restore the context state */
+                        if (window._controller.snapshot[context]) {
+                            self.currentGrid = window._controller.snapshot[context].currentGrid;
+                            self.mainGrid = window._controller.snapshot[context].mainGrid;
+                        }
+
+                        /** 
+                         * 
+                         * Call back for updating the viewFor properties 
+                         * (Need when the main view doesn't has single data grid but it is has multiple grids on tab items) 
+                         * 
+                         **/
+                        let _viewFor = viewObj.viewFor;
+                        if (contextObj.onCurrentRecordResponse) {
+                            _viewFor = contextObj.onCurrentRecordResponse(targetView, _res);   
+                            _viewFor = _viewFor ? _viewFor : viewObj.viewFor;
+                        } 
+
+                        contextObj.currentRecord[_viewFor] = _res;                        
+
+                        if (!contextObj.currentGrid) {
+                            contextObj.currentGrid = _viewFor;
+
+                        }
+
+                        contextObj.init(targetView);
+                    })
+                    .catch((e) => {
+                        console.log(e);
+                    });
+
+                } else {                    
+                    if (contextObj) {
+                        contextObj.init(targetView);
+                    }
+                }
+                
+            } else {
+                /* No view is matching - inform the user */
+
+            }            
+            
         }
         
     };      
@@ -232,30 +308,7 @@ const ContextWrapper = (props, ref) => {
 
         loadContext();        
 
-    }, []);
-    
-    /**
-     * 
-     * Onload
-     * 
-     */
-    useEffect(() => {  
-        /* Try to retrieve sate from controller */
-        let prevState = window._controller.getModuleState(context);
-        if (prevState) {
-            setState(prevState);
-        }                    
-    }, [props]); 
-
-    /**
-     * 
-     * Onunload
-     * 
-     */
-    useEffect(()=>()=>{
-        /* Dump the state into the controller */
-        window._controller.setModuleState(context, state);
-    }, [state]);
+    }, [location.pathname]);
 
     /**
      * 
