@@ -15,10 +15,11 @@ import api from './api.js';
 import privilege from './privilege.js';
 import user from './user.js';
 import versionManager from './version.js';
-import queryBrowser from './query-browser.js'
+import queryBrowser from './query-browser.js';
 import CacheRouter from './cache.js';
-import ABTestingRouter from './abtesting.js'
-import ABTestmappingRouter from './abtestmapping.js'
+import ABTestingRouter from './abtesting.js';
+import ABTestmappingRouter from './abtestmapping.js';
+import SponsoredProductRouter from './sponsored-products.js';
 
 const ping = (_req, _res) => {
     _res.status(200).send("Its working");
@@ -45,6 +46,7 @@ routes.use(versionManager);
 routes.use(queryBrowser);
 routes.use(ABTestingRouter);
 routes.use(ABTestmappingRouter);
+routes.use(SponsoredProductRouter);
 routes.use(new CacheRouter().getRoutes());
 
 export default routes;

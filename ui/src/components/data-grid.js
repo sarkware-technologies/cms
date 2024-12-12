@@ -901,7 +901,16 @@ const DataGrid = (props, ref) => {
             }        
 
         } else {
-            widget = <tbody key={uuidv4()} id="pharmarack-cms-data-grid-record-body" style={{height: bodyHeight+"px"}}><tr><td colSpan={state.headers.length}><h2 className="pharmarack-cms-data-grid-no-record"><i className="fa fa-cog fa-spin"></i></h2></td></tr></tbody>;
+            widget = <tbody key={uuidv4()} id="pharmarack-cms-data-grid-record-body" style={{height: bodyHeight+"px"}}>
+                <tr>
+                    <td colSpan={state.headers.length}>
+                        <div className="data-grid-loading-container">
+                            <div className="data-grid-loading-spinner"></div>
+                            <p>Loading, please wait...</p>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>;
         }
 
         useEffect(() => {            
@@ -1077,6 +1086,8 @@ const DataGrid = (props, ref) => {
     
                 } catch (e) {
                     console.log(e);
+                    window._controller.notify(e.message, "error");
+                    setState((prevState) => ({...prevState, progress: false}));
                 }
 
             } else {
@@ -1136,7 +1147,8 @@ const DataGrid = (props, ref) => {
                 }));
 
             } catch (e) {
-                console.log(e);
+                window._controller.notify(e.message, "error");
+                setState((prevState) => ({...prevState, progress: false}));
             }
 
         }       

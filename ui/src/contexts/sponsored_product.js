@@ -1,8 +1,14 @@
+import { createRef } from "react";
+import { createRoot } from 'react-dom/client';
+import KeywordsManager from "../components/keywords-manager";
+
 export default function SponsoredProductContext(_component) {
 
     this.component = _component;
     this.config = this.component.config;
     this.controller = window._controller;
+
+    this.keywordManagerRef = createRef(null);
 
     /**
      * 
@@ -45,57 +51,99 @@ export default function SponsoredProductContext(_component) {
 
     /**
      * 
+     * @param {*} _handle 
+     * 
+     * Called whenever view is mounted on the DOM
+     * 
+     */
+    this.onViewMounted = (_handle) => {
+
+        if (_handle == "sponsored_product_form") {
+
+            const record = this.component.currentRecord["sponsored_product_grid"];
+            const _keywords = record ? record.keywords : [];
+
+            const _keywordHolder = document.getElementById('sponsored_product_keyword_container');
+            const keywordRoot = createRoot(_keywordHolder); 
+            keywordRoot.render(<KeywordsManager ref={this.keywordManagerRef} keywords={_keywords} />);
+            
+            const _segmentField = this.controller.getField("sponsored_product_form_segments");            
+            if (record && _segmentField) {
+                setTimeout(() => {
+                    _segmentField.setSelectedRecords(record.segments);
+                }, 1000);                
+            }
+
+        }
+
+    };
+
+    /**
+     * 
      * @param {*} _action 
      * 
      * This handler called for any ( context specific ) action button click events 
      * 
      */
     this.onActionBtnClick = (_action) => {
-
-        if (_action === "NEW_AUTH_TYPE") {
-            this.component.currentRecord["auth_type_grid"] = null;
-            this.controller.switchView("auth_type_form");
-        } else if (_action === "CANCEL_AUTH_TYPE") {     
-            this.component.currentRecord["auth_type_grid"] = null;       
-            this.controller.switchView("main_view");
-        } else if (_action === "SAVE_AUTH_TYPE") {
-            this.saveAuthType();
+        if (_action === "SAVE_SPONSORED_PRODUCT") {
+            this.saveSponsoredProduct();
         }
-
     };
 
-    this.saveAuthType = () => {
+    this.saveSponsoredProduct = () => {
 
         const request = {};    
-        const authType = this.component.currentRecord["auth_type_grid"];
+        const sponsoredProduct = this.component.currentRecord["sponsored_product_grid"];
 
-        if (authType) {
+        if (sponsoredProduct) {
             /* It's an uppdate call */
             request["method"] = "PUT";
-            request["endpoint"] = "/system/v1/auth_type/" + authType._id;
+            request["endpoint"] = "/system/v1/sponsored_product/" + sponsoredProduct._id;
         } else {
             /* It's a new record */
             request["method"] = "POST";
-            request["endpoint"] = "/system/v1/auth_type";
+            request["endpoint"] = "/system/v1/sponsored_product";
         }
 
-        const authTypeForm = this.controller.getField("auth_type_form");
-        if (authTypeForm) {
+        const sponsoredProductForm = this.controller.getField("sponsored_product_form");
+        if (sponsoredProductForm) {
 
-            request["payload"] = authTypeForm.getFormFields();   
+            request["payload"] = sponsoredProductForm.getFormFields();   
+            const _segmentField = this.controller.getField("sponsored_product_form_segments");
+            if (this.keywordManagerRef.current && _segmentField) {
 
-            if (request["payload"] && Object.keys(request["payload"]).length > 0) {
+                const _keywords = this.keywordManagerRef.current.getVal();
+                if (_keywords && _keywords.length > 0) {
 
-                this.controller.docker.dock(request).then((_res) => {
-                    this.controller.notify(((_res.payload ? _res.payload.title : _res.title )  + " saved successfully.!"));
-                        this.controller.switchView("main_view");
-                        this.component.currentRecord["auth_type_grid"] = null;
-                })
-                .catch((e) => {
-                    this.controller.notify(e.message, "error");
-                });
+                    const _segments = _segmentField.getSelectedRecords();
+                    if (_segments != "none") {
+
+                        request["payload"]["keywords"] = _keywords;
+                        this.controller.docker.dock(request).then((_res) => {
+                            
+                            if (request["method"] == "POST") {
+                                this.controller.notify(_res.payload.title + " saved successfully.!");
+                            } else {
+                                this.controller.notify(_res.title + " updated successfully.!");
+                            }                   
+                            this.component.triggerBack();
+                                
+                        })
+                        .catch((e) => {
+                            this.controller.notify(e.message, "error");
+                        });                        
+
+                    } else {
+                        this.controller.notify("Please select some or all segments", "error");
+                    }
+
+                } else {
+                    this.controller.notify("Keywords cannot be empty", "error");
+                }
 
             }
+
         }
 
     };

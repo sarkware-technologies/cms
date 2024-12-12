@@ -133,7 +133,7 @@ const MultiSelect = (props, ref) => {
             }
 
         },
-        setSelectedRecords: (_records) => {            
+        setSelectedRecords: (_records) => {
             setState((prevState) => ({
                 ...prevState,                           
                 selectedRecords: _records ? _records : []                                   

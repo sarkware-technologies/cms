@@ -5,7 +5,7 @@ let version_manager_config = {
             source: "",
             context: "version_manager",
             viewFor: "",
-            main: ["/version_manager"],
+            match: ["/version_manager"],
             context_header: {
                 show: true,
                 title: "Version Manager - (Retailers)",
@@ -132,7 +132,7 @@ let version_manager_config = {
             source: "",
             context: "version_manager",
             viewFor: "version_grid",
-            main: [],
+            match: [],
             context_header: {
                 show: true,
                 title: "Version Manager - (Regions)",
@@ -260,6 +260,7 @@ let version_manager_config = {
             source: "",
             context: "version_manager",
             viewFor: "",
+            match: [],
             context_header: {
                 show: true,
                 title: "Version Manager - (Bulk Update)",

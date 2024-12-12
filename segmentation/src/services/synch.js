@@ -305,7 +305,7 @@ export default class SynchService {
 
             const order = await orderModel.findOneAndUpdate(
                 { orderId: OrderId },
-                { $set: { ...body } },
+                { $set: { orderStatus: body.IsProcessed ? "Processed" : (body.IsUploaded ? "Uploaded" : "Placed") } },
                 { new: true }
             );
 

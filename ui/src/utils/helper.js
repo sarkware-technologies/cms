@@ -183,6 +183,7 @@ class Helper {
 				
 								if (fieldFlaq && value) {                        
 									payload[_fields[k].handle] = value;
+									fieldRef.clearError();
 								}
 				
 							} else if (_fields[k].type === "search") {
@@ -196,6 +197,7 @@ class Helper {
 								} else {
 									if (value) {
 										payload[_fields[k].handle] = value;
+										fieldRef.clearError();
 									}									
 								}
 				

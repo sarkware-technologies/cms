@@ -3989,6 +3989,31 @@ table.segment-summary-widget td span:last-child {
     }
 }
 
+.context-loading-container,
+.data-grid-loading-container {
+    text-align: center;
+    padding: 100px 0px;
+}
+
+.context-loading-container > div,
+.data-grid-loading-container > div {
+    width: 32px;
+    height: 32px;
+    border: 6px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: rotate 1s linear infinite;
+    margin: 0 auto;
+}
+
+.context-loading-container > p,
+.data-grid-loading-container > p {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #555;
+}
+
 .sponsored_product_form .pharmarack-cms-view-column-title {
     border-bottom: none;
     padding-bottom: 0px;
@@ -4001,7 +4026,71 @@ table.segment-summary-widget td span:last-child {
     font-weight: normal;
 }
 
-.sponsored_product_form .pharmarack-cms-form-field-wrapper.to {
-    margin-bottom: 0px;
-    margin-top: 20px;
+.pharmarack-cms-keyword-container {    
+    margin-bottom: 5px;
+}
+
+.pharmarack-cms-keyword-container > label {
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.pharmarack-cms-keyword-container > label > span {
+    color: red;
+}
+
+.pharmarack-cms-keyword-header {
+    position: relative;
+    width: calc(40% - 30px);
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.pharmarack-cms-form-field-wrapper.segments,
+.pharmarack-cms-form-field-wrapper.mdmProductCode {
+    width: calc(100% - 30px);
+}
+
+.pharmarack-cms-keyword-header > label {
+    color: #2196F3;
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 13px;
+    position: absolute;
+    right: 0px;
+    top: -20px;
+
+}
+
+.pharmarack-cms-keyword-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.pharmarack-cms-keyword-content > div {
+    display: flex;
+    align-items: center;
+    padding: 5px 5px 5px 12px;
+    background-color: #f1f1f1;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+}
+
+.pharmarack-cms-keyword-content button {
+    border: none;
+    background: none;
+    color: #A7A7A7;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0px 5px;
+    margin-left: 5px;
+}
+
+.pharmarack-cms-keyword-input {
+
 }

@@ -58,17 +58,24 @@ export default class Utils {
             window._controller.setState({ loading: false });
 
         } catch (error) {
-
-            localStorage.removeItem("pharmarack_cms_email");
-            localStorage.removeItem("pharmarack_cms_mobile");
-            localStorage.removeItem("pharmarack_cms_role_name");                    
-            localStorage.removeItem("pharmarack_cms_full_name");
-            localStorage.removeItem("pharmarack_cms_access_token");
-            localStorage.removeItem("pharmarack_cms_refresh_token");
-            localStorage.removeItem("pharmarack_cms_menus");
-
             console.error("Error loading dependencies:", error);
+            this.clearSession();
         }
+    };
+
+    clearSession = () => {
+
+        /* Successfully signed in */
+        localStorage.removeItem("pharmarack_cms_email");
+        localStorage.removeItem("pharmarack_cms_mobile");
+        localStorage.removeItem("pharmarack_cms_role_name");                    
+        localStorage.removeItem("pharmarack_cms_full_name");
+        localStorage.removeItem("pharmarack_cms_access_token");
+        localStorage.removeItem("pharmarack_cms_refresh_token");
+        localStorage.removeItem("pharmarack_cms_menus");
+
+        document.location.href = "/";
+        
     };
 
     indicate = (_msg) => {

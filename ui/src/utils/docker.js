@@ -69,19 +69,9 @@ export default class Docker {
 
             } else {
 
-                if (response.status === 401 && !_token) {
-                    
-                    localStorage.removeItem("pharmarack_cms_email");
-                    localStorage.removeItem("pharmarack_cms_mobile");
-                    localStorage.removeItem("pharmarack_cms_role_name");                    
-                    localStorage.removeItem("pharmarack_cms_full_name");
-                    localStorage.removeItem("pharmarack_cms_access_token");
-                    localStorage.removeItem("pharmarack_cms_refresh_token");
-                    localStorage.removeItem("pharmarack_cms_menus");
-
-                    document.location.href = "";
+                if (response.status === 401 && !_token) {                    
+                    window._controller.utils.clearSession();
                     return;
-
                 } else if (response.status === 504) {
                     const pathSegments = new URL(response.url).pathname.split("/");
                     window._controller.notify( pathSegments[1] +" service is down", "error");

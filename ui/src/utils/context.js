@@ -53,6 +53,8 @@ const ContextWrapper = (props, ref) => {
     const stateRef = useRef(state);
     stateRef.current = state;
 
+    const [contextErr, setContextErr] = useState(false);
+
     /**
      * 
      * Primary interface which allows this component to be extended by the Developer
@@ -301,7 +303,8 @@ const ContextWrapper = (props, ref) => {
                 /* Load capability for this module */
                 self.capability = window._controller.getModuleCapability(context);
 
-            } catch (_e) {                
+            } catch (_e) { 
+                setContextErr(true);               
                 return;
             }
         }
@@ -334,8 +337,17 @@ const ContextWrapper = (props, ref) => {
 
             return <div className={`pharmarack-cms-context-view ${context} ${state.currentView}`}>{view}</div>;
             
+        } else if (contextErr) {
+            return <div className="pharmarack-cms-context-view"><h1 className="pharmarack-cms-no-view-message">Error while loading config & context</h1></div>;        
         } else {
-            return <div className="pharmarack-cms-context-view"><h1 className="pharmarack-cms-no-view-message">No view configured</h1></div>;        
+            return (
+            <div className="pharmarack-cms-context-view">
+                <div className="context-loading-container">
+                    <div className="context-loading-spinner"></div>
+                    <p>Loading, please wait...</p>
+                </div>
+            </div>
+            );        
         }
     };
 

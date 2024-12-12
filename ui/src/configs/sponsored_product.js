@@ -45,7 +45,7 @@ let sponsored_product_config = {
                                     columns: [
                                         {
                                             show: true, 
-                                            width: "5", 
+                                            width: "10", 
                                             search: false,
                                             filter: false,
                                             classes: "",
@@ -56,13 +56,46 @@ let sponsored_product_config = {
                                         },
                                         {
                                             show: true, 
-                                            width: "85",
+                                            width: "35",
                                             search: false,
                                             filter: false,
                                             classes: "",
                                             header: {title: "Title", align: "left", filterable: false, searchable: true, sortable: false}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
                                             field: {handle: "title", type: "link", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "15",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Mdm Product Name", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "mdmProductCode", type: "alphanumeric", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "15",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Valid From", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "validFrom", type: "date", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "15",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Valid Upto", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "validUpto", type: "date", align: "left", editable: false},
                                             prompt: ""
                                         },
                                         {
@@ -113,7 +146,7 @@ let sponsored_product_config = {
                         seperator: false,
                         columns: [
                             {
-                                title: "Title",
+                                title: "",
                                 sub_title: "",
                                 type: "fields",
                                 width: "40%",
@@ -121,19 +154,7 @@ let sponsored_product_config = {
                                 collapsible: false,
                                 classes: "",
                                 fields: [                                    
-                                    { type: "text", label: "", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }                                    
-                                ]
-                            },
-                            {
-                                title: "Duration",
-                                sub_title: "",
-                                type: "fields",
-                                width: "20%",
-                                layout: "horizontal",
-                                collapsible: false,
-                                classes: "",
-                                fields: [                                    
-                                    { type: "date", label: "", handle: "from", value : "", placeholder: "From", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }                                    
+                                    { type: "text", label: "Title", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }                                    
                                 ]
                             },
                             {
@@ -145,7 +166,19 @@ let sponsored_product_config = {
                                 collapsible: false,
                                 classes: "",
                                 fields: [                                    
-                                    { type: "date", label: "", handle: "to", value : "", placeholder: "To", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }                                    
+                                    { type: "date", label: "Valid From", handle: "validFrom", value : "", placeholder: "From", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }                                    
+                                ]
+                            },
+                            {
+                                title: "",
+                                sub_title: "",
+                                type: "fields",
+                                width: "20%",
+                                layout: "horizontal",
+                                collapsible: false,
+                                classes: "",
+                                fields: [                                    
+                                    { type: "date", label: "Valid Upto", handle: "validUpto", value : "", placeholder: "To", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }                                    
                                 ]
                             },
                             {
@@ -174,19 +207,49 @@ let sponsored_product_config = {
                                 collapsible: false,
                                 classes: "",
                                 fields: [                                    
-                                    { type: "text", label: "MDM Product code", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
-                                    { type: "text", label: "Keywords", handle: "handle", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                    { type: "text", label: "MDM Product code", handle: "mdmProductCode", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
+                                ]
+                            }
+                        ]
+                    }, 
+                    {
+                        seperator: false,
+                        columns: [
+                            {
+                                title: "",
+                                sub_title: "",
+                                type: "placeholder",
+                                width: "100%",
+                                layout: "horizontal",
+                                collapsible: false,
+                                classes: "",
+                                placeholder: "sponsored_product_keyword_container"
+                            }
+                        ]
+                    }, 
+                    {
+                        seperator: false,
+                        columns: [
+                            {
+                                title: "",
+                                sub_title: "",
+                                type: "fields",
+                                width: "40%",
+                                layout: "horizontal",
+                                collapsible: false,
+                                classes: "",
+                                fields: [                                                                        
                                     {
                                         type: "multiselect", 
                                         label: "Segments", 
-                                        handle: "companies", 
+                                        handle: "segments", 
                                         value : "", 
                                         parents: {},
-                                        placeholder: "Select Companies", 
-                                        searchprompt: "Search for companies",
+                                        placeholder: "Segments", 
+                                        searchprompt: "Search for segments",
                                         search_class: "", 
                                         popup_class: "",
-                                        mandatory: false, 
+                                        mandatory: true, 
                                         readonly: false, 
                                         disabled: false, 
                                         tabindex: 1, 
@@ -196,10 +259,10 @@ let sponsored_product_config = {
                                         label_position: "top", 
                                         prompt_message: "", 
                                         validation_message: "", 
-                                        value_key: "CompanyId", 
-                                        label_key: "CompanyName", 
+                                        value_key: "_id", 
+                                        label_key: "title", 
                                         source: "remote",
-                                        endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=companies&select=_id|CompanyId|CompanyName"
+                                        endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_segment"
                                     }
                                 ]
                             }

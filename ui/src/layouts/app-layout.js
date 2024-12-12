@@ -52,27 +52,12 @@ const AppLayout = (props, ref) => {
                 payload: {}
             }); 
 
-            clearSession();
+            window._controller.utils.clearSession();
 
         } catch (e) {
             console.log(e);
         }
 
-    };
-
-    const clearSession = () => {
-
-        /* Successfully signed in */
-        localStorage.removeItem("pharmarack_cms_email");
-        localStorage.removeItem("pharmarack_cms_mobile");
-        localStorage.removeItem("pharmarack_cms_role_name");                    
-        localStorage.removeItem("pharmarack_cms_full_name");
-        localStorage.removeItem("pharmarack_cms_access_token");
-        localStorage.removeItem("pharmarack_cms_refresh_token");
-        localStorage.removeItem("pharmarack_cms_menus");
-
-        document.location.href = "/";
-        
     };
 
     // Example of setting modules from response
