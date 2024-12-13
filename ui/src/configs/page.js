@@ -1,11 +1,14 @@
 let page_config = {
 
+    routes: {
+        main_view: ['/page'],
+        page_form: ["/page/new", "/page/:id"],     
+    },
     views: {
         main_view: { 
-            source: "",
             context: "page",
-            viewFor: "",
-            match: ["/page"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Pages",
@@ -43,7 +46,7 @@ let page_config = {
                                     is_main_grid: true,
                                     empty_message: "No page configured yet.!",
                                     datasource: {endpoint: "/system/v1/api/page/page/list?populate=type", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "page", target_type: "view", view: "page_form", data: "remote", endpoint: "/main/page/"},
+                                    link: {key: "_id", context: "page", target_type: "view", view: "page_form", data: "remote", endpoint: "/page/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -125,10 +128,9 @@ let page_config = {
             manage: false             
         },
         page_form: {
-            source: "/system/v1/api/page/page/record?id=",
             context: "page",
-            viewFor: "page_grid",
-            match: ["/page/new", "/page/:id"],
+            source: "/system/v1/api/page/page/record?id=",            
+            viewFor: "page_grid",            
             context_header: {
                 show: true,
                 title: "Page",

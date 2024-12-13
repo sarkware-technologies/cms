@@ -1,11 +1,14 @@
 let host_config = {
 
+    routes: {
+        main_view: ['/host'],
+        host_form: ["/host/new", "/host/:id"],
+    },
     views: {
         main_view: { 
-            source: "",
             context: "host", 
-            viewFor: "",
-            match: ["/host"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Hosts",
@@ -41,7 +44,7 @@ let host_config = {
                                     is_main_grid: true,
                                     empty_message: "No host configured yet.!",
                                     datasource: {endpoint: "/system/v1/host", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "host", target_type: "view", view: "host_form", data: "remote", endpoint: "/main/host/"},
+                                    link: {key: "_id", context: "host", target_type: "view", view: "host_form", data: "remote", endpoint: "/host/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -101,10 +104,9 @@ let host_config = {
             manage: true             
         },
         host_form: {
-            source: "/system/v1/host/",
             context: "host", 
-            viewFor: "host_grid",
-            match: ["/host/new", "/host/:id"],
+            source: "/system/v1/host/",            
+            viewFor: "host_grid",            
             context_header: {
                 show: true,
                 title: "Host",

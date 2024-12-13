@@ -1,10 +1,13 @@
 let auth_type_config = {
 
+    routes: {
+        main_view: ['/auth_type'],
+        auth_type_form: ['/auth_type/new', '/auth_type/:id']
+    },
     views: {
         main_view: { 
-            source: "",
-            match: ['/auth_type'],
-            context: "auth_type", 
+            context: "auth_type",
+            source: "",                         
             viewFor: "",
             context_header: {
                 show: true,
@@ -41,7 +44,7 @@ let auth_type_config = {
                                     is_main_grid: true,
                                     empty_message: "No auth type configured yet.!",
                                     datasource: {endpoint: "/system/v1/auth_type", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "auth_type", target_type: "view", view: "auth_type_form", data: "remote", endpoint: "/main/auth_type/"},
+                                    link: {key: "_id", context: "auth_type", target_type: "view", view: "auth_type_form", data: "remote", endpoint: "/auth_type/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -101,9 +104,8 @@ let auth_type_config = {
             manage: true             
         },
         auth_type_form: {
-            source: "/system/v1/auth_type/",
-            match: ['/auth_type/new', '/auth_type/:id'],
-            context: "auth_type", 
+            context: "auth_type",
+            source: "/system/v1/auth_type/",                         
             viewFor: "auth_type_grid",
             context_header: {
                 show: true,

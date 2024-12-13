@@ -1,11 +1,14 @@
 let service_config = {
 
+    routes: {
+        main_view: ['/service'],
+        service_form: ["/service/new", "/service/:id"],   
+    },
     views: {
         main_view: { 
-            source: "",
             context: "service",
-            viewFor: "",
-            match: ["/service"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Services",
@@ -41,7 +44,7 @@ let service_config = {
                                     is_main_grid: true,
                                     empty_message: "No service configured yet.!",
                                     datasource: {endpoint: "/system/v1/service", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "service", target_type: "view", view: "service_form", data: "remote", endpoint: "/main/service/"},
+                                    link: {key: "_id", context: "service", target_type: "view", view: "service_form", data: "remote", endpoint: "/service/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -90,10 +93,9 @@ let service_config = {
             manage: true             
         },
         service_form: {
-            source: "/system/v1/service/",
             context: "service",
-            viewFor: "service_grid",
-            match: ["/service/new", "/service/:id"],
+            source: "/system/v1/service/",            
+            viewFor: "service_grid",            
             context_header: {
                 show: true,
                 title: "Service",

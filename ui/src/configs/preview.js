@@ -1,11 +1,13 @@
 let preview_config = {
 
+    routes: {
+        main_view: ['/preview']      
+    },
     views: {
         main_view: { 
-            source: "",
             context: "preview",
-            viewFor: "",
-            match: ["/preview"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Preview",

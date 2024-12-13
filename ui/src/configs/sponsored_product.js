@@ -1,11 +1,14 @@
 let sponsored_product_config = {
 
+    routes: {
+        main_view: ['/sponsored_product'],
+        sponsored_product_form: ["/sponsored_product/new", "/sponsored_product/:id"],   
+    },
     views: {
         main_view: { 
-            source: "",
             context: "sponsored_product",
-            viewFor: "",
-            match: ["/sponsored_product"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Sponsored Products",
@@ -41,7 +44,7 @@ let sponsored_product_config = {
                                     is_main_grid: true,
                                     empty_message: "No sponsored product configured yet.!",
                                     datasource: {endpoint: "/system/v1/sponsored_product", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "sponsored_product", target_type: "view", view: "sponsored_product_form", data: "remote", endpoint: "/main/sponsored_product/"},
+                                    link: {key: "_id", context: "sponsored_product", target_type: "view", view: "sponsored_product_form", data: "remote", endpoint: "/sponsored_product/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -123,10 +126,9 @@ let sponsored_product_config = {
             manage: true             
         },
         sponsored_product_form: {
-            source: "/system/v1/sponsored_product/",
             context: "sponsored_product",
-            viewFor: "sponsored_product_grid",
-            match: ["/sponsored_product/new", "/sponsored_product/:id"],
+            source: "/system/v1/sponsored_product/",            
+            viewFor: "sponsored_product_grid",            
             context_header: {
                 show: true,
                 title: "Sponsored Product",

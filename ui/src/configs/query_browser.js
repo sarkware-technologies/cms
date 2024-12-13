@@ -1,9 +1,12 @@
  let query_browser_config = {
 
+    routes: {
+        main_view: ['/query_browser']        
+    },
     views: {
         main_view: { 
-            source: "",
             context: "query_browser",
+            source: "",            
             viewFor: "",
             match: ["/query_browser"],
             context_header: {
@@ -34,10 +37,9 @@
             manage: false
         },    
         query_result_view: { 
-            source: "",
             context: "query_browser",
-            viewFor: "",
-            match: [""],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Registers",
@@ -159,10 +161,9 @@
             footer: {show: false}
         },
         db_result_view: { 
-            source: "",
             context: "query_browser",
-            viewFor: "",
-            match: [""],
+            source: "",            
+            viewFor: "",            
             context_header: {show: false},           
             header: {show: false},
             content: {
@@ -182,10 +183,9 @@
             manage: false
         },
         db_schema_view: { 
-            source: "",
             context: "query_browser",
-            viewFor: "",
-            match: [""],
+            source: "",            
+            viewFor: "",            
             context_header: {show: false},           
             header: {show: false},
             content: {
@@ -205,10 +205,9 @@
             manage: false
         },
         db_query_view: { 
-            source: "",
             context: "query_browser",
-            viewFor: "",
-            match: [""],
+            source: "",            
+            viewFor: "",            
             context_header: {show: false},           
             header: {show: false},
             content: {

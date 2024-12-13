@@ -1,16 +1,19 @@
 let module_config = {
 
+    routes: {
+        main_view: ['/module'],
+        module_form: ["/module/new", "/module/:id"],
+    },
     views: {
         main_view: {
-            source: "",
             context: "module", 
-            viewFor: "",
-            match: ["/module"],
+            source: "",            
+            viewFor: "",           
             context_header: {
                 show: true,
                 title: "Modules",
                 breadcrumb: "",
-                actions: [{ type: "link", label: "New Module", theme: "primary", method: "post", action: "/main/module/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
+                actions: [{ type: "link", label: "New Module", theme: "primary", method: "post", action: "/module/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }]
             },           
             header: {
                 show: false
@@ -41,7 +44,7 @@ let module_config = {
                                     is_main_grid: true,
                                     empty_message: "No module configured yet.!",
                                     datasource: {endpoint: "/system/v1/module?populate=true", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "module", target_type: "view", view: "module_form", data: "remote", endpoint: "/main/module/"},
+                                    link: {key: "_id", context: "module", target_type: "view", view: "module_form", data: "remote", endpoint: "/module/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -112,10 +115,9 @@ let module_config = {
             manage: true             
         },
         module_form: {
-            source: "/system/v1/module/",
             context: "module",
-            viewFor: "module_grid",
-            match: ["/module/new", "/module/:id"],
+            source: "/system/v1/module/",            
+            viewFor: "module_grid",            
             context_header: {
                 show: true,
                 title: "Module",

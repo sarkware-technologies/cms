@@ -1,10 +1,13 @@
 let company_config = {
 
+    routes: {
+        main_view: ['/company'],
+        company_form: ['/company/new', '/company/:id']
+    },
     views: {
         main_view: { 
-            source: "",
-            match: ['/company'],
             context: "company", 
+            source: "",                        
             viewFor: "",
             context_header: {
                 show: true,
@@ -40,7 +43,7 @@ let company_config = {
                                     is_main_grid: true,
                                     empty_message: "No brand configured yet.!",
                                     datasource: {endpoint: "/system/v1/api/master/company/list", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "company", target_type: "view", view: "company_form", data: "remote", endpoint: "/main/company/"},
+                                    link: {key: "_id", context: "company", target_type: "view", view: "company_form", data: "remote", endpoint: "/company/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -89,10 +92,9 @@ let company_config = {
             manage: true             
         },
         company_form: {
-            source: "/system/v1/api/master/company/record?id=",
             context: "company", 
+            source: "/system/v1/api/master/company/record?id=",            
             viewFor: "company_grid",
-            match: ['/company/new', '/company/:id'],
             context_header: {
                 show: true,
                 title: "Company",

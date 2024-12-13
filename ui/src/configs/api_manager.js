@@ -1,5 +1,8 @@
 let user_config = {
 
+    routes: {
+        main_view: ['/api_manager']        
+    },
     views: {
         main_view: {
             context: "api_manager",

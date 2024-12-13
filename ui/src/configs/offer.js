@@ -1,11 +1,13 @@
 let offer_config = {
 
+    routes: {
+        main_view: ['/offer']        
+    },
     views: {
         main_view: { 
-            source: "",
             context: "offer",
-            viewFor: "",
-            match: ["/offer"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Upload Company Offers",

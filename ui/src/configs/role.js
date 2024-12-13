@@ -1,11 +1,14 @@
 let role_config = {
 
+    routes: {
+        main_view: ['/role'],
+        role_form: ["/role/new", "/role/:id"],
+    },
     views: {
         main_view: { 
-            source: "",
             context: "role",
-            viewFor: "",
-            match: ["/role"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Roles",
@@ -41,7 +44,7 @@ let role_config = {
                                     is_main_grid: true,
                                     empty_message: "No role configured yet.!",
                                     datasource: {endpoint: "/system/v1/role", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "role", target_type: "view", view: "role_form", data: "remote", endpoint: "/main/role/"},
+                                    link: {key: "_id", context: "role", target_type: "view", view: "role_form", data: "remote", endpoint: "/role/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -90,10 +93,9 @@ let role_config = {
             manage: true             
         },
         role_form: {
-            source: "/system/v1/role/",
             context: "role",
-            viewFor: "role_grid",
-            match: ["/role/new", "/role/:id"],
+            source: "/system/v1/role/",            
+            viewFor: "role_grid",            
             context_header: {
                 show: true,
                 title: "Role",

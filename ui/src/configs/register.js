@@ -1,13 +1,14 @@
-import context from "../utils/context";
-
 let register_config = {
 
+    routes: {
+        main_view: ['/register'],
+        register_form: ['/register/:id']     
+    },
     views: {
         main_view: { 
-            source: "",
             context: "register",
-            viewFor: "",
-            match: ['/register'],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Registers",
@@ -70,7 +71,7 @@ let register_config = {
                                                                     is_main_grid: true,
                                                                     empty_message: "No register submitted yet.!",
                                                                     datasource: {endpoint: "/system/v1/register?populate=true&isApproved=null", page: 0, populate: false, handler: "dedicated"},
-                                                                    link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/main/register/"},
+                                                                    link: {key: "_id", context: "register", target_type: "view", view: "register_form", data: "remote", endpoint: "/register/"},
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -388,10 +389,9 @@ let register_config = {
             manage: true             
         },
         register_form: {
-            source: "/system/v1/register/",
             context: "register",
-            viewFor: "register_pending_grid",
-            match: ['/register/:id'],
+            source: "/system/v1/register/",            
+            viewFor: "register_pending_grid",            
             context_header: {
                 show: true,
                 title: "Register",

@@ -1,11 +1,14 @@
 let importer_config = {
 
+    routes: {
+        main_view: ['/importer'],
+        importer_form: ["/importer/:id"],
+    },
     views: {
         main_view: { 
-            source: "",
             context: "importer", 
-            viewFor: "",
-            match: ["/importer"],
+            source: "",            
+            viewFor: "",           
             context_header: {
                 show: true,
                 title: "Importers",
@@ -41,7 +44,7 @@ let importer_config = {
                                     is_main_grid: true,
                                     empty_message: "No importer configured yet.!",
                                     datasource: {endpoint: "/segmentation/v1/master_import", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "importer", target_type: "view", view: "importer_form", data: "local", endpoint: "/main/importer/"},
+                                    link: {key: "_id", context: "importer", target_type: "view", view: "importer_form", data: "local", endpoint: "/importer/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -101,10 +104,9 @@ let importer_config = {
             manage: true             
         },
         importer_form: {
-            source: "/segmentation/v1/master_import/",
             context: "importer", 
-            viewFor: "importer_grid",
-            match: ["/importer/:id"],
+            source: "/segmentation/v1/master_import/",            
+            viewFor: "importer_grid",            
             context_header: {
                 show: true,
                 title: "Auth Type",

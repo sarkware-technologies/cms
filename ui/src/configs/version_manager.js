@@ -1,11 +1,13 @@
 let version_manager_config = {
 
+    routes: {
+        main_view: ['/version_manager']
+    },
     views: {
         main_view: { 
-            source: "",
             context: "version_manager",
-            viewFor: "",
-            match: ["/version_manager"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Version Manager - (Retailers)",
@@ -44,7 +46,7 @@ let version_manager_config = {
                                     is_main_grid: true,
                                     empty_message: "No version configured yet.!",
                                     datasource: {endpoint: "/system/v1/version/retailers", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "version_manager", target_type: "view", view: "version_manager_form", data: "remote", endpoint: "/system/v1/version/retailers"},
+                                    link: {key: "_id", context: "version_manager", target_type: "view", view: "version_manager_form", data: "remote", endpoint: ""},
                                     columns: [
                                         {
                                             show: true, 
@@ -129,10 +131,9 @@ let version_manager_config = {
             manage: false
         },
         region_update_form: {
-            source: "",
             context: "version_manager",
-            viewFor: "version_grid",
-            match: [],
+            source: "",            
+            viewFor: "version_grid",            
             context_header: {
                 show: true,
                 title: "Version Manager - (Regions)",
@@ -257,10 +258,9 @@ let version_manager_config = {
             manage: true 
         },
         bulk_update_form: {
-            source: "",
             context: "version_manager",
-            viewFor: "",
-            match: [],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Version Manager - (Bulk Update)",

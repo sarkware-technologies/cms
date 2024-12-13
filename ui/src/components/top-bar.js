@@ -57,9 +57,9 @@ const TopBar = (props, ref) => {
         window._controller.layout.current.toggleSidebar();
     };
 
-    const renderAction = (_config) => {
+    const renderAction = (_config) => { console.log(_config);
 
-        if (!_config.method || !caps[_config.method]) {
+        if (!_config.method || !caps || !caps[_config.method]) {
             return null;
         }
 
@@ -90,7 +90,12 @@ const TopBar = (props, ref) => {
             <div className="pharmarack-cms-breadcrump-bar">
                 <h1><button onClick={(e) => handleCollapsibleClick(e)}><i className="fa fa-bars"></i></button> {context.title} <span style={{display: _breadcrumbDisplay}}>{context.breadcrumb}</span></h1>                
             </div>
-            <div className="pharmarack-cms-top-action-bar">{context.actions.map((item) => renderAction(item))}</div>
+            {
+                context.actions ? 
+                <div className="pharmarack-cms-top-action-bar">{context.actions.map((item) => renderAction(item))}</div>
+                : null
+            }
+            
         </div>
     );
 

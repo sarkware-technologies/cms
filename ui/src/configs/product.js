@@ -1,11 +1,14 @@
-let page_type_config = {
+let product_config = {
 
+    routes: {
+        main_view: ['/product'],
+        product_form: ["/product/new", "/product/:id"],
+    },
     views: {
         main_view: { 
-            source: "",
             context: "product",
-            viewFor: "",
-            match: ["/product"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Products",
@@ -41,7 +44,7 @@ let page_type_config = {
                                     is_main_grid: true,
                                     empty_message: "No product configured yet.!",
                                     datasource: {endpoint: "/system/v1/api/master/product/list?select=_id|MDM_PRODUCT_CODE|PRODUCT_NAME|BRAND_NAME|PTR|MRP|PTS", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "product", target_type: "view", view: "product_form", data: "remote", endpoint: "/main/product/"},
+                                    link: {key: "_id", context: "product", target_type: "view", view: "product_form", data: "remote", endpoint: "/product/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -123,10 +126,9 @@ let page_type_config = {
             manage: true             
         },
         product_form: {
-            source: "/system/v1/api/master/product/record?id=",
             context: "product",
-            viewFor: "product_grid",
-            match: ["/product/new", "/product/:id"],
+            source: "/system/v1/api/master/product/record?id=",            
+            viewFor: "product_grid",            
             context_header: {
                 show: true,
                 title: "Product",
@@ -233,4 +235,4 @@ let page_type_config = {
 
 };
 
-export default page_type_config;
+export default product_config;

@@ -1,11 +1,14 @@
 let user_config = {
 
+    routes: {
+        main_view: ['/user'],
+        user_form: ["/user/new", "/user/:id"],   
+    },
     views: {
         main_view: { 
-            source: "",
             context: "user",
-            viewFor: "",
-            match: ["/user"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Users",
@@ -41,7 +44,7 @@ let user_config = {
                                     is_main_grid: true,
                                     empty_message: "No user configured yet.!",
                                     datasource: {endpoint: "/system/v1/user", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "user", target_type: "view", view: "user_form", data: "remote", endpoint: "/main/user/"},
+                                    link: {key: "_id", context: "user", target_type: "view", view: "user_form", data: "remote", endpoint: "/user/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -112,10 +115,9 @@ let user_config = {
             manage: true             
         },
         user_form: {
-            source: "/system/v1/user/",
             context: "user",
-            viewFor: "user_grid",
-            match: ["/user/new", "/user/:id"],
+            source: "/system/v1/user/",            
+            viewFor: "user_grid",            
             context_header: {
                 show: true,
                 title: "User",

@@ -198,15 +198,15 @@ const ContextWrapper = (props, ref) => {
             let parsedResult = null;
             /* Reset */
             self.activeKeys = null;            
-            const viewKeys = Object.keys(self.config.views);
+            const routeKeys = Object.keys(self.config.routes);
             const contextObj = window._controller.getCurrentModuleInstance();
 
-            for (let i = 0; i < viewKeys.length; i++) {                
-                parsedResult = Helper.matchUrlPattern(self.config.views[viewKeys[i]].match, location);
+            for (let i = 0; i < routeKeys.length; i++) {
+                parsedResult = Helper.matchUrlPattern(self.config.routes[routeKeys[i]], location);
                 if (parsedResult) {
-                    targetView = viewKeys[i];                    
+                    targetView = routeKeys[i];                    
                     break;
-                }                
+                }
             }
 
             if (targetView) {

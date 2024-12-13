@@ -1,11 +1,14 @@
 let entity_config = {
 
+    routes: {
+        main_view: ['/entity'],
+        entity_form: ["/entity/new", "/entity/:id"]
+    },
     views: {
         main_view: { 
-            source: "",
             context: "entity", 
+            source: "",            
             viewFor: "",
-            match: ["/entity"],
             context_header: {
                 show: true,
                 title: "Entities",
@@ -41,7 +44,7 @@ let entity_config = {
                                     is_main_grid: true,
                                     empty_message: "No entity configured yet.!",
                                     datasource: {endpoint: "/system/v1/entity", page: 0, populate: "", handler: "dedicated"},
-                                    link: {key: "_id", context: "entity", target_type: "view", view: "entity_form", data: "remote", endpoint: "/main/entity/"},
+                                    link: {key: "_id", context: "entity", target_type: "view", view: "entity_form", data: "remote", endpoint: "/entity/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -101,10 +104,9 @@ let entity_config = {
             manage: false             
         },
         entity_form: {
-            source: "/system/v1/entity/",
             context: "entity", 
-            viewFor: "entity_grid",
-            match: ["/entity/new", "/entity/:id"],
+            source: "/system/v1/entity/",            
+            viewFor: "entity_grid",            
             context_header: {
                 show: true,
                 title: "Entity",

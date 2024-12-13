@@ -1,11 +1,14 @@
 let page_type_config = {
 
+    routes: {
+        main_view: ['/page_type'],
+        page_type_form: ["/page_type/new", "/page_type/:id"],        
+    },
     views: {
         main_view: { 
-            source: "",
             context: "page_type",
-            viewFor: "",
-            match: ["/page_type"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Page Types",
@@ -44,7 +47,7 @@ let page_type_config = {
                                     is_main_grid: true,
                                     empty_message: "No page configured yet.!",
                                     datasource: {endpoint: "/system/v1/api/page/page_type/list", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "page_type", target_type: "view", view: "page_type_form", data: "remote", endpoint: "/main/page_type/"},
+                                    link: {key: "_id", context: "page_type", target_type: "view", view: "page_type_form", data: "remote", endpoint: "/page_type/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -82,10 +85,9 @@ let page_type_config = {
             manage: true             
         },
         page_type_form: {
-            source: "/system/v1/api/page/page_type/record?id=",
             context: "page_type",
-            viewFor: "page_type_grid",
-            match: ["/page_type/new", "/page_type/:id"],
+            source: "/system/v1/api/page/page_type/record?id=",            
+            viewFor: "page_type_grid",            
             context_header: {
                 show: true,
                 title: "Page Type",

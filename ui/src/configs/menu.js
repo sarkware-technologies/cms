@@ -1,11 +1,14 @@
 let menu_config = {
 
+    routes: {
+        main_view: ['/menu'],
+        menu_form: ["/menu/new", "/menu/:id"],
+    },
     views: {
         main_view: { 
-            source: "",
             context: "menu", 
-            viewFor: "",
-            match: ["/menu"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Menus",
@@ -41,7 +44,7 @@ let menu_config = {
                                     is_main_grid: true,
                                     empty_message: "No menu configured yet.!",
                                     datasource: {endpoint: "/system/v1/menu?populate=true", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "menu", target_type: "view", view: "menu_form", data: "remote", endpoint: "/main/menu/"},
+                                    link: {key: "_id", context: "menu", target_type: "view", view: "menu_form", data: "remote", endpoint: "/menu/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -101,10 +104,9 @@ let menu_config = {
             manage: true             
         },
         menu_form: {
-            source: "/system/v1/menu/",
             context: "menu", 
-            viewFor: "menu_grid",
-            match: ["/menu/new", "/menu/:id"],
+            source: "/system/v1/menu/",            
+            viewFor: "menu_grid",            
             context_header: {
                 show: true,
                 title: "Menu",

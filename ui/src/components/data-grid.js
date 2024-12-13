@@ -774,7 +774,7 @@ const DataGrid = (props, ref) => {
         }        
 
         if (_props.config.field.type === "link" || _props.config.field.type === "link_search") {
-            return <td style={cssProperties} className={_props.config.classes}><a href={props.config.link.endpoint + _props.record[props.config.link.key]} onClick={e => handleRecordLinkClick(e, props.config.handle, props.config.link.context, _props.record)}>{_props.data}</a></td>;
+            return <td style={cssProperties} className={_props.config.classes}><a href={`/main${props.config.link.endpoint}${_props.record[props.config.link.key]}`} onClick={e => handleRecordLinkClick(e, props.config.handle, props.config.link.context, _props.record)}>{_props.data}</a></td>;
         } else if (_props.config.field.type === "button") {
             if (!_props.config.field.icon) {
                 return <td style={cssProperties} className={_props.config.classes}><button className={`pharmarack-cms-btn ${_props.config.field.classes}`} onClick={e => handleRecordBtnClick(e, _props.config.field.action, props.config.handle, _props.record)}>{_props.data}</button></td>

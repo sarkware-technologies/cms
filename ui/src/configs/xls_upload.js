@@ -1,11 +1,14 @@
 let xls_upload_config = {
 
+    routes: {
+        main_view: ['/xls_upload'],
+        upload_form: ["/xls_upload/:id"],
+    },
     views: {
         main_view: {
-            source: "",
             context: "xls_upload",
-            viewFor: "",
-            match: ["/xls_upload"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Upload Components",
@@ -41,7 +44,7 @@ let xls_upload_config = {
                                     is_main_grid: true,
                                     empty_message: "No upload done yet.!",
                                     datasource: { endpoint: "/system/v1/upload", page: 0, populate: false, handler: "dedicated" },
-                                    link: { key: "_id", context: "xls_upload", target_type: "view", view: "upload_form", data: "remote", endpoint: "/system/v1/upload/" },
+                                    link: { key: "_id", context: "xls_upload", target_type: "view", view: "upload_form", data: "remote", endpoint: "/xls_upload/" },
                                     columns: [
                                         {
                                             show: true,
@@ -156,10 +159,9 @@ let xls_upload_config = {
             manage: true
         },
         upload_form: {
-            source: "/system/v1/upload/",
             context: "xls_upload",
-            viewFor: "upload_grid",
-            match: ["/xls_upload/:id"],
+            source: "/system/v1/upload/",            
+            viewFor: "upload_grid",            
             context_header: {
                 show: true,
                 title: "Upload",

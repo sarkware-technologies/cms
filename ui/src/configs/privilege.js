@@ -1,11 +1,14 @@
 let privilege_config = {
 
+    routes: {
+        main_view: ['/privilege'],
+        privilege_form: ["/privilege/new", "/privilege/:id"]
+    },
     views: {
         main_view: { 
-            source: "",
             context: "privilege",
-            viewFor: "",
-            match: ["/privilege"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Privileges",
@@ -41,7 +44,7 @@ let privilege_config = {
                                     is_main_grid: true,
                                     empty_message: "No privilege found.!",
                                     datasource: {endpoint: "/system/v1/privilege", page: 0, populate: false, handler: "dedicated"},
-                                    link: {key: "_id", context: "privilege", target_type: "view", view: "privilege_form", data: "remote", endpoint: "/main/privilege/"},
+                                    link: {key: "_id", context: "privilege", target_type: "view", view: "privilege_form", data: "remote", endpoint: "/privilege/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -90,10 +93,9 @@ let privilege_config = {
             manage: true             
         },
         privilege_form: {
-            source: "/system/v1/privilege/",
             context: "privilege",
-            viewFor: "privilege_grid",
-            match: ["/privilege/new", "/privilege/:id"],
+            source: "/system/v1/privilege/",            
+            viewFor: "privilege_grid",            
             context_header: {
                 show: true,
                 title: "Privilege",

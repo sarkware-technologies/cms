@@ -1,11 +1,14 @@
 let component_config = {
 
+    routes: {
+        main_view: ['/component'],
+        component_form: ['/component/new', '/component/:id']
+    },
     views: {
         main_view: { 
             source: "",
             context: "component", 
-            viewFor: "",
-            match: ['/component'],
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Components",
@@ -43,7 +46,7 @@ let component_config = {
                                     is_main_grid: true,
                                     empty_message: "No component configured yet.!",
                                     datasource: {endpoint: "/system/v1/api/component/component/parent_list?populate=type", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "component", target_type: "view", view: "component_form", data: "remote", endpoint: "/main/component/"},
+                                    link: {key: "_id", context: "component", target_type: "view", view: "component_form", data: "remote", endpoint: "/component/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -136,10 +139,9 @@ let component_config = {
             manage: true             
         },
         component_form: {
-            source: "/system/v1/api/component/component/record?id=",
             context: "component", 
-            viewFor: "component_grid",
-            match: ['/component/new',  '/component/:id'],
+            source: "/system/v1/api/component/component/record?id=",            
+            viewFor: "component_grid",            
             context_header: {
                 show: true,
                 title: "Component",
@@ -197,10 +199,9 @@ let component_config = {
             manage: true 
         },
         mapping_form: {
-            source: "",
             context: "component", 
-            viewFor: "",
-            match: "",
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: false                
             },           

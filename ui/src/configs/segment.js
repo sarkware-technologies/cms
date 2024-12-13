@@ -1,11 +1,15 @@
 let segment_config = {
 
+    routes: {
+        main_view: ['/segment'],
+        new_segment_form: ["/segment/new"],
+        segment_form: ["/segment/:id"]
+    },
     views: {
         main_view: { 
-            source: "",
             context: "segment",
-            viewFor: "",
-            match: ["/segment"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Segments",
@@ -71,7 +75,7 @@ let segment_config = {
                                                                     is_main_grid: true,
                                                                     empty_message: "No segment configured yet.!",
                                                                     datasource: {endpoint: "/segmentation/v1/segment?result=all", page: 0, populate: false, handler: "dedicated"},
-                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/main/segment/"},
+                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segment/"},
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -193,7 +197,7 @@ let segment_config = {
                                                                     is_main_grid: true,
                                                                     empty_message: "No dynamic segment found",
                                                                     datasource: {endpoint: "/segmentation/v1/segment?result=dynamic", page: 0, populate: false, handler: "dedicated"},
-                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/main/segment/"},
+                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segment/"},
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -304,7 +308,7 @@ let segment_config = {
                                                                     is_main_grid: true,
                                                                     empty_message: "No static segment found",
                                                                     datasource: {endpoint: "/segmentation/v1/segment?result=static", page: 0, populate: false, handler: "dedicated"},
-                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/main/segment/"},
+                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segment/"},
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -415,7 +419,7 @@ let segment_config = {
                                                                     is_main_grid: true,
                                                                     empty_message: "No in progress segment found",
                                                                     datasource: {endpoint: "/segmentation/v1/segment?result=scheduled", page: 0, populate: false, handler: "dedicated"},
-                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/main/segment/"},
+                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segment/"},
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -515,7 +519,7 @@ let segment_config = {
                                                                     is_main_grid: true,
                                                                     empty_message: "No disabled segment found.!",
                                                                     datasource: {endpoint: "/segmentation/v1/segment?result=disabled", page: 0, populate: false, handler: "dedicated"},
-                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/main/segment/"},
+                                                                    link: {key: "_id", context: "segment", target_type: "view", view: "segment_form", data: "remote", endpoint: "/segment/"},
                                                                     columns: [
                                                                         {
                                                                             show: true, 
@@ -610,10 +614,9 @@ let segment_config = {
             manage: true             
         },
         new_segment_form: {
-            source: "",
             context: "segment",
-            viewFor: "",
-            match: ["/segment/new"],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Segment",
@@ -1002,10 +1005,9 @@ let segment_config = {
             manage: false 
         },
         segment_form: {
-            source: "/segmentation/v1/segment/",
             context: "segment",
-            viewFor: "",
-            match: ["/segment/:id"],
+            source: "/segmentation/v1/segment/",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Segment",
@@ -1072,10 +1074,9 @@ let segment_config = {
             manage: true
         },
         segment_build_form: {
-            source: "",
             context: "segment",
-            viewFor: "",
-            match: [""],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: true,
                 title: "Segment",
@@ -1230,10 +1231,9 @@ let segment_config = {
             manage: true
         },
         segment_retailer_form: {
-            source: "",
             context: "segment",
-            viewFor: "",
-            match: [""],
+            source: "",            
+            viewFor: "",            
             context_header: {
                 show: false                
             },           
@@ -1307,10 +1307,9 @@ let segment_config = {
             manage: false
         },        
         static_retailer_list_form: {
-            source: "",
             context: "segment",
-            viewFor: "",
-            match: [""],
+            source: "",            
+            viewFor: "",            
             context_header: {show: false},           
             header: {
                 show: true,
@@ -1424,10 +1423,9 @@ let segment_config = {
             manage: false
         },
         dynamic_retailer_list_form: {
-            source: "",
             context: "segment",
-            viewFor: "",
-            match: [""],
+            source: "",            
+            viewFor: "",            
             context_header: {show: false},           
             header: {show: false},
             content: {

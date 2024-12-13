@@ -1,11 +1,14 @@
 let component_type_config = {
 
+    routes: {
+        main_view: ['/component_type'],
+        component_type_form: ['/component_type/new', '/component_type/:id']
+    },
     views: {
         main_view: { 
-            source: "",
-            context: "component_type", 
-            viewFor: "",
-            match: ['/component_type'],
+            context: "component_type",
+            source: "",             
+            viewFor: "",           
             context_header: {
                 show: true,
                 title: "Component Types",
@@ -41,7 +44,7 @@ let component_type_config = {
                                     is_main_grid: true,
                                     empty_message: "No component types found.!",
                                     datasource: {endpoint: "/system/v1/api/component/component_type/list", page: 0, populate: false, handler: "default"},
-                                    link: {key: "_id", context: "component_type", target_type: "view", view: "component_type_form", data: "remote", endpoint: "/main/component_type/"},
+                                    link: {key: "_id", context: "component_type", target_type: "view", view: "component_type_form", data: "remote", endpoint: "/component_type/"},
                                     columns: [
                                         {
                                             show: true, 
@@ -90,10 +93,9 @@ let component_type_config = {
             manage: true             
         },
         component_type_form: {
-            source: "/system/v1/api/component/component_type/record?id=",
             context: "component_type", 
-            viewFor: "component_type_grid",
-            match: ['/component_type/new', '/component_type/:id'],
+            source: "/system/v1/api/component/component_type/record?id=",            
+            viewFor: "component_type_grid",            
             context_header: {
                 show: true,
                 title: "Component Type",
