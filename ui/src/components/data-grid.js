@@ -599,6 +599,16 @@ const DataGrid = (props, ref) => {
 
     };
 
+    const getSourceUrl = () => {
+
+        if (props.config.link.target_type == "view") {
+            return contextObj.config.views[props.config.link.view].source || null;            
+        } else {
+            return props.config.link.endpoint;
+        }
+
+    };
+
     const switchView = () => {        
 
         if (contextObj && props.config.link && props.config.link.target_type && contextObj.currentRecord[props.config.handle]) {
@@ -668,10 +678,11 @@ const DataGrid = (props, ref) => {
                         _record[_props.config.handle] = _e.target.checked;
 
                         const request = {};
+                        const endPoint = getSourceUrl();
                         const id = _record[_props.config.value_key];                                   
 
                         request["method"] = "PUT";
-                        request["endpoint"] = props.config.link.endpoint.endsWith("/") ? (props.config.link.endpoint + id) : (props.config.link.endpoint +"/"+ id);
+                        request["endpoint"] = (endPoint + id);
                         request["payload"] = {};                        
                         request["payload"][_props.config.handle] = _e.target.checked;
 

@@ -1,22 +1,22 @@
 import redis from "redis";
 
-export default class RedisClientSession {
+export default class CmsRedisClient {
 
     static instance;
 
     constructor() {
-        
-        if (RedisClientSession.instance) {
-            return RedisClientSession.instance;
+        if (CmsRedisClient.instance) {
+            return CmsRedisClient.instance;
         }
 
-        try {
+        try { 
+            
             this.writeClient = redis.createClient({
-                url: process.env.REDIS_WRITE_CLIENT_USER_SESSION,
+                url: process.env.CMS_BACKEND_REDIS_WRITE_CLIENT,
             });
 
             this.readClient = redis.createClient({
-                url: process.env.REDIS_READ_CLIENT_USER_SESSION,
+                url: process.env.CMS_BACKEND_REDIS_READ_CLIENT,
             });
 
             this.writeClient.connect();
@@ -26,14 +26,16 @@ export default class RedisClientSession {
             console.log(error);
         }
 
-        RedisClientSession.instance = this;
+        console.log("CMS Redis client is connected");
+
+        CmsRedisClient.instance = this;
     }
 
     static getInstance() {
-        if (!RedisClientSession.instance) {
-            RedisClientSession.instance = new RedisClientSession();
+        if (!CmsRedisClient.instance) {
+            CmsRedisClient.instance = new CmsRedisClient();
         }
-        return RedisClientSession.instance;
+        return CmsRedisClient.instance;
     }
 
     async put(group, key, object) {
@@ -56,20 +58,8 @@ export default class RedisClientSession {
             console.error("Error retrieving object from Redis:", err);
         }
     }
-    async delete(group, key) {
-        try {
-            const result = await this.writeClient.hDel(group, key); // Delete the specific key from the hash
-            if (result === 1) {
-                console.log(`Successfully deleted key '${key}' from group '${group}'`);
-            } else {
-                console.log(`Key '${key}' not found in group '${group}'`);
-            }
-        } catch (err) {
-            console.error("Error deleting object from Redis:", err);
-        }
-    }
 
-    async  getAll(group) {
+    async getAll(group) {
 
         try {
             const data = await this.readClient.hGetAll(group);
@@ -83,6 +73,7 @@ export default class RedisClientSession {
         } catch (err) {
             console.error("Error retrieving all key-value pairs from Redis:", err);
         }
+
     }
 
     async exists(group, key) {
@@ -107,8 +98,7 @@ export default class RedisClientSession {
 
 // Properly close the Redis clients when done
 process.on("exit", () => {
-    const redisClient = RedisClientSession.getInstance();
+    const redisClient = CmsRedisClient.getInstance();
     redisClient.writeClient.quit();
     redisClient.readClient.quit();
 });
-

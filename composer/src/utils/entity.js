@@ -4,9 +4,6 @@ dotenv.config();
 import cache from "./cache.js";
 import mongoose from "mongoose";
 
-import EntityModel from "../models/entity.js";
-import FieldModel from "../models/field.js";
-
 /**
  * 
  * @author          Sark
@@ -31,34 +28,7 @@ class EntityManager {
             "8" : "Mixed"            
         };
 
-        this.reloadEntityCache();
-
     }
-
-    reloadEntityCache = async () => {
-
-        const result = {};
-
-        try {                        
-            
-            let _fields = [];            
-            const entities = await EntityModel.find().lean();
-
-            for (let i = 0; i < entities.length; i++) {                        
-                _fields = await FieldModel.find({entity: entities[i]._id});                          
-                result[entities[i].handle] = {
-                    id: entities[i]._id,
-                    fields: _fields
-                }
-            }                                                          
-
-        } catch (_e) {
-            throw _e; 
-        }
-
-        cache.setEntities(result);
-
-    };
 
     createModel = async (_collectionName, _fields) => {
 
@@ -70,6 +40,8 @@ class EntityManager {
 
         let config = {};
         let options = {};
+
+        const compoundIndex = [];
         const schemaFields = {};
 
         for (const field of _fields) {
@@ -97,6 +69,16 @@ class EntityManager {
                 /* Unique */
                 if (field.unique) {                    
                     config["unique"] = field.unique;
+                }
+
+                /* Index */
+                if (field.index) {                    
+                    config["index"] = field.index;
+                }
+
+                /* Compound index */
+                if (field.compound) {
+                    compoundIndex.push(field.handle);
                 }
 
                 if (field.options) {
@@ -187,55 +169,73 @@ class EntityManager {
         //schemaFields["healthy"] = { type: mongoose.Schema.Types.Boolean, default: true };
         //schemaFields["audit_msg"] = { type: mongoose.Schema.Types.String, default: "" };
         //schemaFields["last_dump"] = { type: mongoose.Schema.Types.String, default: "" };
-        schemaFields["created_by"] = { type: mongoose.Schema.Types.ObjectId, ref: "system_user", default: null },
-        schemaFields["updated_by"] = { type: mongoose.Schema.Types.ObjectId, ref: "system_user", default: null }
+        schemaFields["createdBy"] = { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+        schemaFields["updatedBy"] = { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }
 
-        const schema = new mongoose.Schema(schemaFields, {strict: true, timestamps: true});                
+        const schema = new mongoose.Schema(schemaFields, {strict: true, timestamps: true}); 
+        
+        /* Add compound index - if it is configured */
+        if (compoundIndex.length > 0) {
 
-        return mongoose.model(_collectionName, schema);        
+            const cIndexes = {};
+            compoundIndex.forEach(handle => {
+                if (schemaFields[handle]) { // Ensure the field exists in the schema
+                    cIndexes[handle] = 1;
+                } else {
+                    console.warn(`Field "${handle}" for compound index does not exist in schema. Ignoring.`);
+                }
+            });
+
+            if (Object.keys(cIndexes).length > 0) {
+                schema.index(cIndexes, { unique: true });                
+            }
+            
+        }
+
+        /* This check is needed, as the model might be created because of foreign key ref */
+        if (mongoose.modelNames().includes(_collectionName)) {
+            return mongoose.model(_collectionName);
+        }
+
+        const _model = mongoose.model(_collectionName, schema);        
+        //await _model.createIndexes();
+        return _model;
 
     };
 
     getModel = async (_entity) => {
 
-        if (_entity) { 
-            
-            if (!cache.hasEntity(_entity)) {
-
-                /**
-                 * Entity not found on the cache
-                 * Thats probably the entity belongs to some other service,
-                 * Lets try to fetch it from system
-                 * 
-                 **/
-                try {
-                    this.reloadEntityCache();
-                } catch (_e) {
-                    console.error(_e);
-                }
-
-            }
-
-            if (cache.hasEntity(_entity)) {
-
-                const entity = cache.getEntity(_entity);
-
-                if (Array.isArray(entity.fields) && entity.fields.length > 0) {                   
-                    return await this.createModel(_entity, entity.fields);
-                } else {
-                    throw new Error("No fields found for entity : "+ _entity);    
-                }
-
-            }
+        if (!_entity) {
+            throw new Error("Invalid entity: " + _entity);
+        }
+    
+        if (mongoose.modelNames().includes(_entity)) {
+            return mongoose.model(_entity);
         }
 
-        throw new Error("Invalid entity : "+ _entity);
+        const modelExist = await cache.hasEntity(_entity);
+        if (!modelExist) {
+            console.error(`Model ${_entity} does not exist in cache`);
+            return null;
+        }
+
+        const entity = await cache.getEntity(_entity);
+        if (!Array.isArray(entity.fields) || entity.fields.length === 0) {
+            throw new Error("No fields found for entity: " + _entity);
+        }
+
+        try {
+            return await this.createModel(_entity, entity.fields);
+        } catch (e) {
+            console.error(`Failed to create model for entity ${_entity}:`, e.message);
+            throw e;
+        }
 
     };
 
     getEntityHandle = async(_id, _collectionName) => {
 
-        const eCahceList = cache.getAll();
+        const eCahceList = await cache.getAllEntities();
         if (eCahceList) {
             const keys = Object.keys(eCahceList);
             for (let i = 0; i < keys.length; i++) {
@@ -254,6 +254,8 @@ class EntityManager {
                 }
             }
         }
+
+        return null;
 
     };
 

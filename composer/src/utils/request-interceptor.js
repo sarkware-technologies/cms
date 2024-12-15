@@ -1,4 +1,3 @@
-import TokenManager from "./token-manager.js";
 import Utils from "./utils.js";
 
 class RequestInterceptor {
@@ -13,11 +12,11 @@ class RequestInterceptor {
             "/health",
             "/cms/health",
             "/cms/api/invalidatePageCache",
-            "/cms/api/invalidateAllPageCache"
+            "/cms/api/invalidateAllPageCache",
+            "/cms/sponsoredProduct"
         ]
 
-        this.express = null;
-        this.tokenManager = new TokenManager();
+        this.express = null;        
         RequestInterceptor.instance = this;
 
     }

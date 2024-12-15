@@ -3,10 +3,10 @@ import path from 'path';
 
 import EM from "../utils/entity.js";
 import MYDBM from "../utils/mysql.js";
-import cache from "../utils/cache.js"
 
 import SegmentModel from "../models/segment.js";
-import UserSegmentModel from "../models/user-segment.js";
+import SegmentRetailerModel from '../models/segment-retailer.js';
+import RetailerMaster from '../models/retailer-master.js';
 import OfferModel from "../models/offer.js";
 
 import { fileURLToPath } from 'url';
@@ -433,7 +433,7 @@ export default class ApiService {
 
         if (retailer && retailer.length > 0) {            
                         
-            let segments = await this.determineSegments(_userId);
+            let segments = await this.determineSegments(retailer[0].RetailerId);
             const allOffers = await OfferModel.find({}).lean();
 
             if (segments.length === 0) {
@@ -449,23 +449,19 @@ export default class ApiService {
 
                 for (let i = 0; i < allOffers.length; i++) {
 
-                    let isEligible = false;
-                    const offerSegments = allOffers[i].SegmentName.split(","); 
+                    let isEligible = false;                    
+                    const offerSegments = allOffers[i].SegmentName.split(",").map(item => item.trim()); 
 
                     if (allOffers[i].Audience.trim().toLowerCase() === "all") {
                         /* This means this offers is applicable for all users */
                         isEligible = true;
                     } else {
 
-                        if (Array.isArray(offerSegments)) {
+                        const offerSegmentSet = new Set(offerSegments);
+                        const hasMatchingSegment = segments.some(segment => offerSegmentSet.has(segment));
 
-                            const  offerItemSegments = offerSegments.map(item => item.trim());
-                            const mappedSegments = segments.filter(value => offerItemSegments.includes(value));
-
-                            if (Array.isArray(mappedSegments) && mappedSegments.length > 0) {
-                                isEligible = true;
-                            }
-
+                        if (hasMatchingSegment) {
+                            isEligible = true;
                         }
 
                     }
@@ -496,17 +492,16 @@ export default class ApiService {
     prepareOfferedProductForElasticAPi = async(_userId) => {          
 
         const offer = [];
-        // const retailer = await MYDBM.queryWithConditions(`select * from retailers r inner join retailermanagers r2 on r2.RetailerId = r.RetailerId where r2.UserId=?`, [_userId]);
+        const retailer = await MYDBM.queryWithConditions(`select * from retailers r inner join retailermanagers r2 on r2.RetailerId = r.RetailerId where r2.UserId=?`, [_userId]);
 
-        // if (retailer && retailer.length > 0) {            
+        if (retailer && retailer.length > 0) {            
             
-            let segments = await this.determineSegments(_userId);
+            let segments = await this.determineSegments(retailer[0].RetailerId);            
             const allOffers = await OfferModel.find({}).lean();            
 
             if (segments.length === 0) {
                 segments.push("all");
-            }
-            segments = segments.map(item => item.trim());
+            }            
 
             if (allOffers && Array.isArray(allOffers)) {
 
@@ -516,23 +511,19 @@ export default class ApiService {
 
                 for (let i = 0; i < allOffers.length; i++) {
 
-                    let isEligible = false;
-                    const offerSegments = allOffers[i].SegmentName.split(","); 
+                    let isEligible = false;                    
+                    const offerSegments = allOffers[i].SegmentName.split(",").map(item => item.trim());
 
                     if (allOffers[i].Audience.trim().toLowerCase() === "all") {
                         /* This means this offers is applicable for all users */
                         isEligible = true;
                     } else {
 
-                        if (Array.isArray(offerSegments)) {
+                        const offerSegmentSet = new Set(offerSegments);
+                        const hasMatchingSegment = segments.some(segment => offerSegmentSet.has(segment));
 
-                            const  offerItemSegments = offerSegments.map(item => item.trim());
-                            const mappedSegments = segments.filter(value => offerItemSegments.includes(value));
-
-                            if (Array.isArray(mappedSegments) && mappedSegments.length > 0) {
-                                isEligible = true;
-                            }
-
+                        if (hasMatchingSegment) {
+                            isEligible = true;
                         }
 
                     }
@@ -549,7 +540,7 @@ export default class ApiService {
                 }
             }
 
-        // }
+        }
 
         return offer;
 
@@ -595,24 +586,22 @@ export default class ApiService {
         
     }    
 
-    determineSegments = async (_rId) => {
+    determineSegments = async (_retailerId) => {
+
+        /* Get  cms retailer id as well */
+        const cmsRetailer = await RetailerMaster.findOne({ RetailerId: _retailerId }).lean();
+
+        if (!cmsRetailer) {
+            throw new Error(`The retailer ${_retailerId} is no found on CMS Retailer Master collection`);
+        }
 
         try {
-
-            let mappedSegments = [];
-            const segments = await SegmentModel.find().lean();
-
-            if (segments) {                    
-                const userSegment = await UserSegmentModel.findOne({userId: _rId});
-                if (userSegment) {
-                    mappedSegments = userSegment.segment.map(item => item.segmentKey);
-                }
-            }
-
-            return mappedSegments;
             
-        } catch (_e) {
-            return [];
+            const _segments = await SegmentRetailerModel.find({ retailer: cmsRetailer._id }).populate("segment").lean();           
+            return _segments.map(item => item.segment.handle.trim());
+
+        } catch (error) {
+            throw new Error('Error fetching user segments: ' + error.message);
         }
         
     }

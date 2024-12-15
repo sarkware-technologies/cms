@@ -1,4 +1,4 @@
-import RedisClientSession from "../../utils/redisSessionManager.js";
+import Pr2RedisClient from "../../utils/pr2-redis.js";
 import AbTestingModel from "../../models/Ab-test.js";
 import AbretailerModel from "../../models/Ab-retailers.js";
 import AbregionModel from "../../models/Ab-region.js";
@@ -6,7 +6,7 @@ import AbBuildVersionModel from "../../models/ab-build-version.js";
 
 export default class RedisSyncService {
     constructor() {
-        this.redisClient = RedisClientSession.getInstance();
+        this.redisClient = Pr2RedisClient.getInstance();
     }
 
     async bulkUpdate(req) {

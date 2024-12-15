@@ -3,16 +3,15 @@ import Utils from './utils/utils.js';
 import ComposeService from './services/compose.js';
 import ApiService from './services/api.js';
 import ElasticService from './services/elastic.js';
-import RedisClient from "./utils/redis.js";
-import CreateNewCompany from "./services/company.service.js";
+import CmsRedisClient from './utils/cms-redis.js';
+import SponsoredProductService from './services/sponsored-product.js';
   
 const routes = new Router();
 const CS = new ComposeService();
 const API = new ApiService();
-
 const elastic = new ElasticService();
-const redisClient = RedisClient.getInstance();
-const companyservide = new CreateNewCompany();
+const cmsRedisClient = CmsRedisClient.getInstance();
+const sponsoredProduct = new SponsoredProductService();
 
 /**
  * 
@@ -148,7 +147,7 @@ const invalidatePageCache = async (_req, _res) => {
 
     try {
 
-        await redisClient.invalidateAllCache("PAGE");
+        await cmsRedisClient.invalidateAllCache("PAGE");
         _res.status(200).json({ status: true });
 
     } catch (_e) {
@@ -161,7 +160,7 @@ const invalidateAllPageCache = async (_req, _res) => {
 
     try {
     
-        await redisClient.invalidateAllCache("PAGE");
+        await cmsRedisClient.invalidateAllCache("PAGE");
         _res.status(200).json({ status: true });
 
     } catch (_e) {
@@ -182,7 +181,35 @@ const processCompaniesRequest = async (_req, _res) => {
 
 };
 
+const getSponsoredProducts = async (_req, _res) => {
+
+    try {
+
+        _res.status(200).json(await sponsoredProduct.getSponsoredProducts(_req));
+
+    } catch (_e) {
+        Utils.handleError(_e, _res);
+    }
+
+};
+
+const updateSponsoredProduct = async (_req, _res) => {
+
+    try {
+
+        _res.status(200).json(await sponsoredProduct.updateSponsoredProductPerformance(_req));
+
+    } catch (_e) {
+        Utils.handleError(_e, _res);
+    }
+
+};
+
 routes.get("/page/*", processPageRequest);
+
+routes.get("/sponsoredProduct", getSponsoredProducts);
+routes.put("/sponsoredProduct", updateSponsoredProduct);
+
 routes.get("/api/topPicks", processTopPicksRequest);
 routes.get("/api/topOffered", processTopOfferedRequest);
 routes.get("/api/topTrending", processTopTrendingRequest);
@@ -199,10 +226,5 @@ routes.get("/api/invalidatePageCache", invalidatePageCache);
 routes.get("/api/invalidateAllPageCache", invalidateAllPageCache);
 
 routes.get("/api/companies", processCompaniesRequest);
-routes.post("/api/companies", companyservide.CreateNewCompany);
-routes.get("/api/companies/list", companyservide.GetCompanys);
-routes.get("/api/companies/:id", companyservide.GetCompany);
-routes.put("/api/companies", companyservide.updateCompany);
-routes.delete("/api/companies", companyservide.deleteCompany);
 
 export default routes;

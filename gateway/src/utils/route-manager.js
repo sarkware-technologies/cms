@@ -34,7 +34,7 @@ export default class RouterManager {
         this.express.use("/segmentation", async (_req, _res, _next) => {
 
             try {
-                createProxyMiddleware({ target: process.env.SCHEDULER_SERVER })( _req, _res, _next );
+                createProxyMiddleware({ target: process.env.SEGMENT_SERVER })( _req, _res, _next );
             } catch (_e) { 
                 _res.status(500).setHeader("content-type", "text/plain").send(_e.message);                
             }

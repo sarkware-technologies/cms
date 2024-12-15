@@ -3,13 +3,12 @@ import { Worker } from 'worker_threads';
 import MYDBM from "../utils/mysql.js";
 import Utils from "../utils/utils.js";
 import EM from "../utils/entity.js";
-
-import RedisClientSession from "../utils/redisSessionManager.js"
+import Pr2RedisClient from '../utils/pr2-redis.js';
 
 export default class VersionService {
 
     constructor() {
-        this.redisClient = RedisClientSession.getInstance();
+        this.redisClient = Pr2RedisClient.getInstance();
     }
 
     listRegions = async (_req) => {

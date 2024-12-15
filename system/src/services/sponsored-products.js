@@ -1,9 +1,13 @@
 import EM from "../utils/entity.js";
 import Utils from "../utils/utils.js";
+import CmsRedisClient from "../utils/cms-redis.js";
+import cache from "../utils/cache.js";
 
 export default class SponsoredProductService {
 
-    constructor () {}
+    constructor () {
+        this.redisClient = CmsRedisClient.getInstance();
+    }
 
     list = async (_req) => {
 
@@ -199,9 +203,16 @@ export default class SponsoredProductService {
         }
 
         try {
+
             const sponsoredProductModel = await EM.getModel("cms_sponsored_product");
-            return await sponsoredProductModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
-        } catch (_e) {
+            const result = await sponsoredProductModel.findByIdAndUpdate(_req.params.id, { $set: { ..._req.body, updatedBy: _req.user._id } }, { runValidators: true, new: true });
+
+            /* Update the cache */
+            await cache.setSponsoredProduct(_req.params.id);
+
+            return result;
+
+        } catch (_e) {  console.log(_e);
             throw _e;
         }
 
@@ -217,7 +228,12 @@ export default class SponsoredProductService {
 
             const sponsoredProductModel = await EM.getModel("cms_sponsored_product");            
             /* Finally remove the service itself */
-            return await sponsoredProductModel.deleteOne({ _id: _req.params.id }); 
+            const result = await sponsoredProductModel.deleteOne({ _id: _req.params.id });
+            
+            /* Remove it from cache */
+            await cache.deleteSponsoredProduct(_req.params.id);
+
+            return result;
 
         } catch (_e) {
             throw _e;
@@ -240,6 +256,9 @@ export default class SponsoredProductService {
             const sponsoredProductModel = await EM.getModel("cms_sponsored_product");
             const model = new sponsoredProductModel(body);
             const sponsoredProduct = await model.save();     
+
+            /* Add it to the cache */
+            await cache.setSponsoredProduct(sponsoredProduct._id);
 
             return {
                 status: true,

@@ -1,11 +1,10 @@
 
-import RedisConnector from "../utils/openSearchredis.js";
-
+import Pr2RedisClient from "../utils/pr2-redis.js";
 
 export default class Redisdata {
 
     constructor() {
-        this.redisPool = new RedisConnector();
+        this.redisPool = Pr2RedisClient.getInstance();
     }
     async topPicksResponsenew(data) {
         let result = [];

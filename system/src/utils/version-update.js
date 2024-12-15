@@ -4,13 +4,13 @@ dotenv.config();
 import DBM from "./db.js";
 import MYDBM from "./mysql.js";
 import EM from "./entity.js";
-import RedisClientSession from "./redisSessionManager.js"
+import Pr2RedisClient from "./pr2-redis.js";
 
 export default class VersionToggler {
 
     constructor() {
         this.BATCH_SIZE = 1000;
-        this.redisClient = RedisClientSession.getInstance();
+        this.redisClient = Pr2RedisClient.getInstance();
     }
 
     processUpdate = async (_regionId, _version) => {

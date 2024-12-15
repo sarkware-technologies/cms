@@ -1,7 +1,6 @@
 import MYDBM from "../utils/mysql.js";
 
 import SegmentModel from "../models/segment.js";
-import UserSegmentModel from "../models/user-segment.js";
 import PageComponentMappingModel from "../models/page-component-map.js";
 import ComponentTypeModel from "../models/component-type.js";
 import ComponentModel from "../models/component.js";
@@ -14,10 +13,7 @@ import ConditionType from "../enums/condition-type.js";
 import ApiService from "./api.js";
 import ElasticService from "./elastic.js";
 import OpensearchApi from "./openSearch.js";
-
-import Utils from "../utils/utils.js";
-import RedisClient from "../utils/redis.js";
-import RedisConnector from "../utils/openSearchredis.js";
+import CmsRedisClient from "../utils/cms-redis.js";
 import Retailer from "../models/retailer.js";
 import RetailerMaster from "../models/retailer-master.js";
 import SegmentRetailerModel from "../models/segment-retailer.js";
@@ -30,14 +26,11 @@ export default class ComposeService {
         this.provider = new ApiService();
         this.elastic = new ElasticService();
         this.OpensearchApi = new OpensearchApi();
+        this.redisClient = CmsRedisClient.getInstance();
 
         // this.cdnBaseUrl = null;
         this.cdnBaseUrl = process.env.CDN_ASSET_URL || 'dimoww82uudwo.cloudfront.net';
-        this.baseUrlRegex = /^(https?:\/\/).*?(\/|$)/;
-
-        this.redisClient = RedisClient.getInstance();
-        this.startTime = new Date();
-        this.redisPool = new RedisConnector();
+        this.baseUrlRegex = /^(https?:\/\/).*?(\/|$)/;                
 
     }
 
@@ -49,9 +42,7 @@ export default class ComposeService {
          * entity : /page
          * pageType   : /{page-type-handle}  Expect - page type handle
          * 
-         */
-
-        this.startTime = new Date();
+         */        
         
         let [module, entity, pageType] = this.getUrlPathParts(`${_req.protocol}://${_req.get("host")}${_req.originalUrl}`);
 
@@ -126,10 +117,11 @@ export default class ComposeService {
             if (segments) {
 
                 try {
-
-                    const pageTypeObjPromise = PageTypeModel.findOne({ handle: pageType }).lean();
-                    const detailsPromise = this.OpensearchApi.getOfferdetails(user);
-                    const [pageTypeObj, details] = await Promise.all([pageTypeObjPromise, detailsPromise]);
+                    
+                    const [pageTypeObj, details] = await Promise.all([
+                        PageTypeModel.findOne({ handle: pageType }).lean(),
+                        this.OpensearchApi.getOfferdetails(user)
+                    ]);
                     
                     if (pageTypeObj) {
 
@@ -162,12 +154,7 @@ export default class ComposeService {
                                 const batchPromises = page.sequence.map((seq, i) => {
                                     typeList[seq] = (typeList[seq] || 0) + 1; // Increment type count
                                     return this.prepareComponent(page._id, seq, typeList[seq], retailerId, distributorId, companyId, _token, user, regionName, details, i, segments);
-                                });
-                                {
-                                    const endTime = new Date();
-                                    const diffInMillySecod = Math.abs(new Date(this.startTime) - endTime);
-                                    console.log(diffInMillySecod);
-                                }
+                                });                                
 
                                 let ress = await Promise.all(batchPromises);
                                 ress.sort((a, b) => a[2] - b[2]); // Sort based on the third item in each result
@@ -316,7 +303,7 @@ export default class ComposeService {
                                 continue;
                             }
 
-                            if (await this.evaluateMappingRules(childrens[configuration.sequence[j]].title, configuration.sequence[j], _retailerId, _distributorId, _companyId, _segments)) {
+                            if (await this.evaluateMappingRules(configuration.sequence[j], _distributorId, _companyId, _segments)) {
 
                                 if (childrens[configuration.sequence[j]].configuration) {
 
@@ -382,7 +369,7 @@ export default class ComposeService {
                     } else {
 
                         /* This means this component doesn't has any parent child */
-                        if (await this.evaluateMappingRules(components[i].title, components[i]._id, _retailerId, _distributorId, _companyId, _segments)) {
+                        if (await this.evaluateMappingRules(components[i]._id, _distributorId, _companyId, _segments)) {
 
                             /* Since it is a match - break the loop */
                             configuration["component_type"] = componetType.handle;
@@ -531,7 +518,7 @@ export default class ComposeService {
 
     };
 
-    evaluateMappingRules = async (_title, _componentId, _retailerId, _distributorId, _companyId, _segments) => {
+    evaluateMappingRules = async (_componentId, _distributorId, _companyId, _segments) => {
 
         try {
 
@@ -571,7 +558,7 @@ export default class ComposeService {
                         } else {
 
                             if (rule.type == RuleType.RETAILER) {
-                                andConditions.push(await this.evaluateSegmentRule(rule, _retailerId, _segments));
+                                andConditions.push(this.evaluateSegmentRule(rule, _segments));
                             }
 
                         }
@@ -604,87 +591,82 @@ export default class ComposeService {
 
         try {
 
-            if (typeof _rule.distributors === 'string') {
-
-                if (_rule.distributors === 'none') {
-                    return (_rule.condition == ConditionType.INCLUDE) ? false : true;
-                } else {
-                    return (_rule.condition == ConditionType.INCLUDE) ? true : false;
+            const { distributors, condition } = _rule;
+    
+            // If distributors is a string
+            if (typeof distributors === "string") {
+                if (distributors === "none") {                    
+                    return condition !== ConditionType.INCLUDE; // true for EXCLUDE, false for INCLUDE
+                } else {                    
+                    return condition === ConditionType.INCLUDE; // true for INCLUDE, false for EXCLUDE
                 }
-
-            } else {
-
-                /* This means we have selected ARRAY of distributors */
-
-                if (_rule.distributors.indexOf(_distributorId) !== -1) {
-                    return (_rule.condition == ConditionType.INCLUDE) ? true : false;
-                }
-
-                return (_rule.condition == ConditionType.INCLUDE) ? false : true;
-
             }
+    
+            // If distributors is an array
+            const isMatched = Array.isArray(distributors) && distributors.includes(_distributorId);
+            return condition === ConditionType.INCLUDE ? isMatched : !isMatched;
 
-        } catch (_e) {
-            throw _e;
+        } catch (error) {
+            console.error("Error in evaluateDistributorRule:", error);
+            throw error;
         }
 
     };
+    
 
     evaluateCompanyRule = (_rule, _companyId) => {
 
         try {
 
-            if (typeof _rule.companies === 'string') {
+            const { companies, condition } = _rule;
 
-                if (_rule.companies === 'none') {
-                    return (_rule.condition == ConditionType.INCLUDE) ? false : true;
-                } else {
-                    return (_rule.condition == ConditionType.INCLUDE) ? true : false;
+            // If companies is string
+            if (typeof companies === "string") {
+                if (companies === "none") {                    
+                    return condition !== ConditionType.INCLUDE; // true for EXCLUDE, false for INCLUDE
+                } else {                    
+                    return condition === ConditionType.INCLUDE; // true for INCLUDE, false for EXCLUDE
                 }
-
-            } else {
-
-                /* This means we have selected ARRAY of companies */
-
-                if (_rule.companies.indexOf(_companyId) !== -1) {
-                    return (_rule.condition == ConditionType.INCLUDE) ? true : false;
-                }
-
-                return (_rule.condition == ConditionType.INCLUDE) ? false : true;
-
             }
-
-        } catch (_e) {
-            throw _e;
+    
+            // If companies is an array
+            const isMatched = Array.isArray(companies) && companies.includes(_companyId);
+            return condition === ConditionType.INCLUDE ? isMatched : !isMatched;
+    
+        } catch (error) {
+            console.error("Error in evaluateCompanyRule:", error);
+            throw error;
         }
 
     };
+    
 
-    evaluateSegmentRule = async (_rule, _retailerId, _segments) => {
+    evaluateSegmentRule = (_rule, _segments) => {
 
         try {
 
-            if (typeof _rule.segments === 'string') {
+            const { segments, condition } = _rule;
 
-                if (_rule.segments === 'none') {
-                    return (_rule.condition == ConditionType.INCLUDE) ? false : true;
+            // If segments is a string
+            if (typeof segments === "string") {
+                if (segments === "none") {
+                    return condition !== ConditionType.INCLUDE; // false for INCLUDE, true for EXCLUDE
                 } else {
-                    return (_rule.condition == ConditionType.INCLUDE) ? true : false;
+                    return condition === ConditionType.INCLUDE; // true for INCLUDE, false for EXCLUDE
                 }
-
-            } else {
-
-                if (_segments && Array.isArray(_segments)) {
-                    for (let i = 0; i < _segments.length; i++) {
-                        if (_rule.segments.indexOf(_segments[i]) !== -1) {
-                            return (_rule.condition == ConditionType.INCLUDE) ? true : false;
-                        }
-                    }
-                }
-
             }
 
-            return (_rule.condition == ConditionType.INCLUDE) ? false : true;
+            // If segments is an array
+            if (Array.isArray(_segments) && Array.isArray(segments)) {
+
+                const segmentSet = new Set(segments);
+                const hasMatchingSegment = _segments.some((segment) => segmentSet.has(segment));
+
+                return condition === ConditionType.INCLUDE ? hasMatchingSegment : !hasMatchingSegment;
+            }
+
+            // Default fallback
+            return condition !== ConditionType.INCLUDE; // false for INCLUDE, true for EXCLUDE
 
         } catch (_e) {
             throw _e;
@@ -695,7 +677,10 @@ export default class ComposeService {
     determineSegments = async (_cmsRetailerId) => {
 
         try {
-            return await SegmentRetailerModel.find({retailer: _cmsRetailerId }).select("segment").lean();           
+
+            const _segments = await SegmentRetailerModel.find({ retailer: _cmsRetailerId }).select("segment").lean();                       
+            return _segments.map(item => item.segment || null).filter(Boolean);
+         
         } catch (error) {
             throw new Error('Error fetching user segments: ' + error.message);
         }
@@ -715,7 +700,5 @@ export default class ComposeService {
         return [null, null, null];
 
     };
-
-
 
 }

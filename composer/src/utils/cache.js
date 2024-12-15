@@ -1,3 +1,5 @@
+import CmsRedisClient from "./cms-redis.js";
+
 /**
  * 
  * @author          Sark
@@ -11,103 +13,76 @@ class Cache {
 
     constructor() {
 
-        if (!Cache.instance) {
-            
-            this.entityCache = {};
-            this.pageCache = {};
-
-            this.timers = {};
-            this.expirationTime = 3600 * 24 * 1000; // 24 Hrs
-
+        if (!Cache.instance) {            
             Cache.instance = this;
+            this.redisClient = CmsRedisClient.getInstance(); 
         }
   
         return Cache.instance;
 
     };
 
-    getAll = () => this.entityCache;
+    initCache = async () => {       
 
-    setEntities = (_value) => {
-        this.entityCache = _value;
-    };
-
-    setEntity = (_key, _value) => {
-        this.entityCache[_key] = _value;
-    }; 
-    
-    getEntity = (_key) => {
-        return this.entityCache[_key];
-    };
-
-    hasEntity = (_key) => {
-        return this.entityCache[_key] ? true : false;
-    };
-  
-    removeEntity = (_key) => {
-        delete this.entityCache[_key];
-    };  
-
-    setPage = (_key, _value) => {
-        this.pageCache[_key] = _value;
-        this.initTimer(_key);
-    };
-
-    getPage = (_key) => {
-        return this.pageCache[_key] ? this.pageCache[_key] : null;
-    };
-
-    hasPage = (_key) => {
-        return this.pageCache[_key] ? true : false;
-    };
-
-    removePage = (_key) => {
-        if (this.pageCache[_key]) {
-            delete this.pageCache[_key];
+        try {
+            return true;
+        } catch (e) {
+            return false;
         }
-    }; 
-    
-    removePageType = (_type) => {
 
-        const keys = Object.keys(this.pageCache);
+    };    
 
-        for (let i = 0; i < keys.length; i++) {
-            if (keys[i].startsWith(_type)) {
-                delete this.pageCache[keys[i]];
-            }
+    getCapabilities = async (_handle) => {
+
+        try {
+            return await this.redisClient.get("pharmarack_cms_caps", _handle);            
+        } catch (e) {  console.log(e);
+            return null;
+        }
+
+    };
+
+    getPrivileges = async (_handle) => {
+
+        try {
+            return await this.redisClient.get("pharmarack_cms_prevs", _handle);
+        } catch (e) { console.log(e);
+            return null;
         }
         
-    }; 
+    };
 
-    removeAllPage = () => {
-        this.pageCache = {};
-    }
+    getAllEntities = async () => {
 
-    initTimer = (_key) => {
-
-        if (!this.timers[_key]) {
-             this.timers[_key] = setTimeout(() => {
-                 this.removePage(_key);
-                 delete this.timers[_key];
-            }, this.expirationTime);
+        try {            
+            return await this.redisClient.getAll("pharmarack_cms_entities");
+        } catch (err) {
+            console.error("Error retrieving all key-value pairs from Redis:", err);
         }
 
     };
 
-    resetTimer = (_key) => {
+    getEntity = async (_handle) => {
 
-        if (this.timers[_key]) {
-            clearTimeout(this.timers[_key]);
-            delete this.timers[_key];
-            this.initTimer(_key);
+        try {
+            return await this.redisClient.get("pharmarack_cms_entities", _handle);
+        } catch (e) {
+            return null;
         }
         
+    };
+
+    hasEntity = async (_handle) => {
+
+        try {
+            return await this.redisClient.exists("pharmarack_cms_entities", _handle);
+        } catch (e) {
+            return null;
+        }
+
     };
 
 }
   
-// Create a single instance of the Cache class
-const cache = new Cache();
-  
-// Export the instance to make it accessible from other modules
+const cache = new Cache();  
 export default cache;

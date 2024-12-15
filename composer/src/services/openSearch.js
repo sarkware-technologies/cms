@@ -1,12 +1,13 @@
-import axios from "./opensearchservice.js"
-import RedisConnector from "../utils/openSearchredis.js";
+import axios from "./opensearchservice.js";
+import Pr2RedisClient from "../utils/pr2-redis.js";
 import MYDBM from "../utils/mysql.js";
 import ApiService from './api.js';
-import searchResponseModel from "../models/searchResponseModel.js"
+import searchResponseModel from "../models/searchResponseModel.js";
+
 export default class OpensearchApi {
 
     constructor() {
-        this.redisPool = new RedisConnector();
+        this.redisPool = Pr2RedisClient.getInstance();
         this.API = new ApiService();
         this.startTime=new Date()
     }

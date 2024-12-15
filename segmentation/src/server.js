@@ -71,7 +71,7 @@ class SegmentServer {
             await MYDBM.connect(true);              
 
             if (MDBM.isConnected()) {
-                this.app.listen(6060);
+                this.app.listen(process.env.SEGMENT_PORT);
             } else {
                 console.log("MongoDB connection error");
             }

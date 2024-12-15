@@ -1,22 +1,22 @@
 import redis from "redis";
 
-export default class RedisClient {
+export default class CmsRedisClient {
 
     static instance;
 
     constructor() {
         
-        if (RedisClient.instance) {
-            return RedisClient.instance;
+        if (CmsRedisClient.instance) {
+            return CmsRedisClient.instance;
         }
 
         try {
             this.writeClient = redis.createClient({
-                url: process.env.REDIS_WRITE_CLIENT,
+                url: process.env.CMS_BACKEND_REDIS_WRITE_CLIENT,
             });
 
             this.readClient = redis.createClient({
-                url: process.env.REDIS_READ_CLIENT,
+                url: process.env.CMS_BACKEND_REDIS_READ_CLIENT,
             });
 
             this.writeClient.connect();
@@ -26,14 +26,14 @@ export default class RedisClient {
             console.log(error);
         }
 
-        RedisClient.instance = this;
+        CmsRedisClient.instance = this;
     }
 
     static getInstance() {
-        if (!RedisClient.instance) {
-            RedisClient.instance = new RedisClient();
+        if (!CmsRedisClient.instance) {
+            CmsRedisClient.instance = new CmsRedisClient();
         }
-        return RedisClient.instance;
+        return CmsRedisClient.instance;
     }
 
     async put(group, key, object) {
@@ -84,6 +84,18 @@ export default class RedisClient {
         }
     }
 
+    async delete(group, key) {
+        try {
+            const result = await this.writeClient.hDel(group, key);
+            if (result === 0) {
+                console.warn(`Key "${key}" not found in group "${group}".`);
+            }
+            return result; // Returns 1 if the key was deleted, 0 otherwise
+        } catch (err) {
+            console.error("Error deleting cache in Redis:", err);
+        }
+    }
+
     async invalidateAllCache(group) {
         try {
             await this.writeClient.del(group);            
@@ -96,7 +108,7 @@ export default class RedisClient {
 
 // Properly close the Redis clients when done
 process.on("exit", () => {
-    const redisClient = RedisClient.getInstance();
+    const redisClient = CmsRedisClient.getInstance();
     redisClient.writeClient.quit();
     redisClient.readClient.quit();
 });

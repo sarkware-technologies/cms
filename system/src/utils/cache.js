@@ -1,9 +1,10 @@
-import RedisClient from "./redis.js";
+import CmsRedisClient from "./cms-redis.js";
 import ServiceService from "../services/service.js";
 import EntityService from "../services/entity.js";
 import CapabilityModel from "../models/capability.js";
 import RoleModel from "../models/role.js";
 import RolePrivilegeMappingModel from "../models/role-privilege-mapping.js";
+import SponsoredProductModel from "../models/sponsored-product.js";
 
 /**
  * 
@@ -20,7 +21,7 @@ class Cache {
 
         if (!Cache.instance) {            
             Cache.instance = this;
-            this.redisClient = RedisClient.getInstance();
+            this.redisClient = CmsRedisClient.getInstance();
             this.service = new ServiceService();
             this.entity = new EntityService();
         }
@@ -37,6 +38,7 @@ class Cache {
             await this.setRoutes();
             await this.setCapabilities();
             await this.setPrivileges();
+            await this.setSponsoredProducts();
 
             return true;
 
@@ -45,6 +47,73 @@ class Cache {
         }
 
     };    
+
+    setSponsoredProducts = async () => {
+
+        try {
+
+            const sponsoredProducts = await SponsoredProductModel.find({ status: true }).lean();
+
+            if (Array.isArray(sponsoredProducts)) {
+
+                const redisPromises = sponsoredProducts.map(async (sProduct) => {
+
+                    try {
+                        return await this.redisClient.put(
+                            "pharmarack_cms_sponsored_products",
+                            sProduct._id,
+                            JSON.stringify(sProduct)
+                        );
+                    } catch (e) {
+                        console.error("Error storing capability in Redis:", e);
+                    }
+
+                });
+    
+                await Promise.all(redisPromises);
+
+            }
+
+        } catch (e) {
+            console.error("Critical error. Setting up sponsored products cache failed", e);
+        }
+
+    };
+
+    setSponsoredProduct = async (_sProductId) => {
+
+        try {
+
+            const sponsoredProduct = await SponsoredProductModel.findById(_sProductId).lean();
+
+            if (sponsoredProduct) {
+                return await this.redisClient.put(
+                    "pharmarack_cms_sponsored_products",
+                    _sProductId,
+                    JSON.stringify(sponsoredProduct)
+                );
+            }
+
+        } catch (e) {
+            console.error("Error setting up sponsored product", e);
+        }
+
+    };
+
+    deleteSponsoredProduct = async (_sProductId) => {
+
+        try {
+
+            const isExist = await this.redisClient.exists("pharmarack_cms_sponsored_products", _sProductId);
+            if (isExist) {
+                return await this.redisClient.delete("pharmarack_cms_sponsored_products", _sProductId);
+            }
+
+        } catch (e) {
+            console.error("Error setting up sponsored product", e);
+        }
+
+    };
 
     setCapabilities = async () => {
 
