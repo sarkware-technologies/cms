@@ -8,6 +8,28 @@ const sponsoredProductService = new SponsoredProductService();
 const moduleHandle = "sponsored_product";
 
 router.get(
+    `/${moduleHandle}/:id/summary`,
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
+        try {
+            res.status(200).json(await sponsoredProductService.getSummary(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.get(
+    `/${moduleHandle}/:id/performance`,
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
+        try {
+            res.status(200).json(await sponsoredProductService.getPerformance(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.get(
     `/${moduleHandle}/:id`,
     await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {

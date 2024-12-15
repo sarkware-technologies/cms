@@ -189,7 +189,7 @@ let service_config = {
                                                                     columns: [
                                                                         {
                                                                             show: true, 
-                                                                            width: "5", 
+                                                                            width: "10", 
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",
@@ -200,7 +200,7 @@ let service_config = {
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "65", 
+                                                                            width: "60", 
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",

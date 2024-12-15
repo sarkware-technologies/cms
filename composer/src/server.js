@@ -4,13 +4,11 @@ dotenv.config();
 import cors from "cors";
 import express from "express";
 import routes from "./router.js";
-import DBM from "./utils/db.js";
+import MDBM from "./utils/mongo.js";
 import MYDBM from "./utils/mysql.js";
-import cache from "./utils/cache.js";
+import RC from "./utils/request-interceptor.js";
 
-/* Adde comment for trigger */
-
-class CmsServer {
+class ComposerServer {
 
     constructor() {
         /* Load the express */
@@ -21,31 +19,17 @@ class CmsServer {
 
     setupMiddlewares = () => {
 
-        this.app.use((req, res, next) => {            
-            next();
-        });
-
-         /**
-         * 
-         * Global exception handler 
-         * 
-         */          
-         this.app.use((err, req, res, next) => {
-            if (!err) {
-                return next();
-            }        
-            console.error(err.stack);
-            res.status(500);
-            res.send(err.message ? err.message : 'Internal server error');
-        });
-
         this.app.use(express.json());                
         this.app.use(cors());
+
+        RC.init(this.app);
 
     }
 
     setupRoutes = () => { 
 
+        this.app.use('/cms/v1', cors(), routes);
+        /* Keeping this for legacy support */
         this.app.use('/cms', cors(), routes);
 
         this.app.get('/health', (req, res) => {
@@ -61,17 +45,25 @@ class CmsServer {
 
     listen = async () => {
 
-        await DBM.connect();
-        if (DBM.checkConnection()) {
-            this.app.listen(process.env.COMPOSER_PORT);
-        } else {
-            console.log("DB connection error");
-        }      
+        try {
+
+            await MDBM.connect();
+            await MYDBM.connect(true);
+            
+            if (MDBM.isConnected()) {
+                this.app.listen(process.env.COMPOSER_PORT);
+            } else {
+                console.log("DB connection error");
+            }    
+            
+        } catch (e) {
+            console.log(e);
+        }
 
     }
 
 }
 
 /* Kick start the server */
-const server = new CmsServer();
+const server = new ComposerServer();
 server.listen();

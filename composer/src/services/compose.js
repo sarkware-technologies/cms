@@ -10,17 +10,17 @@ import PageModel from "../models/page.js";
 import RulesGroupModel from "../models/rules-group.js";
 import RuleModel from "../models/rule.js";
 import RuleType from "../enums/rule-type.js";
-import RetailerLookup from "../enums/retailer-lookup.js";
 import ConditionType from "../enums/condition-type.js";
 import ApiService from "./api.js";
 import ElasticService from "./elastic.js";
 import OpensearchApi from "./openSearch.js";
 
 import Utils from "../utils/utils.js";
-import cache from "../utils/cache.js";
 import RedisClient from "../utils/redis.js";
-import RedisConnector from "../utils/openSearchredis.js"
-import Retailer from "../models/retailer.js"
+import RedisConnector from "../utils/openSearchredis.js";
+import Retailer from "../models/retailer.js";
+import RetailerMaster from "../models/retailer-master.js";
+import SegmentRetailerModel from "../models/segment-retailer.js";
 
 export default class ComposeService {
 
@@ -41,39 +41,6 @@ export default class ComposeService {
 
     }
 
-    get_retailer = async (_req, res) => {
-        // const retailerPromise = await MYDBM.queryWithConditions(
-        //     `select * from retailers r inner join retailermanagers r2 on r2.RetailerId = r.RetailerId inner join regions r3  on r3.RegionId = r.RegionId  where r2.UserId=?`,
-        //     [_req.query.id]
-        // );
-        try {
-            const token = _req.headers["authorization"].split(" ")[1];
-            const user = Utils.verifyToken(token);
-
-            // const retailermanager = await MYDBM.queryWithConditions(
-            //     'CALL PR_GetRetailerDetailsByUserId(?)'
-            //     [_req.query.id]
-            // );
-            const retailerregisn = await MYDBM.queryWithConditions(
-                `select r.RetailerId, r.RetailerName,r3.RegionName, r3.StateId, r3.RegionId from retailers r inner join retailermanagers r2 on r2.RetailerId = r.RetailerId inner join regions r3  on r3.RegionId = r.RegionId  where r2.UserId=?`,
-                [_req.query.id]
-            );
-
-            res.send({
-                retailerregisn, id: _req.query.id, user: user, host: {
-                    host: process.env.API_DB_HOST,
-                    port: process.env.API_DB_PORT,
-                    user: process.env.API_DB_USER,
-                    password: process.env.API_DB_PASS,
-                    database: process.env.API_DB
-                }
-            });
-        }
-        catch (e) {
-            res.send(e);
-        }
-    }
-
     handlePageRequest = async (_req) => {
 
         /** 
@@ -83,19 +50,12 @@ export default class ComposeService {
          * pageType   : /{page-type-handle}  Expect - page type handle
          * 
          */
-        this.startTime = new Date();
 
+        this.startTime = new Date();
+        
         let [module, entity, pageType] = this.getUrlPathParts(`${_req.protocol}://${_req.get("host")}${_req.originalUrl}`);
 
-        const _token = _req.headers["authorization"];
-        if (!_token) {
-            throw new Error("Bearer token not present");
-        }
-
-        /* validate token */
-        const token = _req.headers["authorization"].split(" ")[1];
-        const user = Utils.verifyToken(token);
-
+        const user = _req.user;
         if (!user) {
             throw new Error("Invalid token");
         }
@@ -103,9 +63,8 @@ export default class ComposeService {
         if (module && entity && pageType) {
 
             let retailerId = null;
-            let regionName = '';
-            let StateId = '';
-            let RegionId = '';
+            let regionName = '';            
+            let cmsRetailer = null;
 
             const distributorId = parseInt(_req.query.sid);
             const companyId = parseInt(_req.query.cid);
@@ -135,47 +94,45 @@ export default class ComposeService {
                             userId: user,
                             RetailerId: retailerPromise[0].RetailerId,
                             RetailerName: retailerPromise[0].RetailerName,
-                            RegionName: retailerPromise[0].RegionName,
-                            StateId: retailerPromise[0].StateId,
-                            RegionId: retailerPromise[0].RegionId,
+                            RegionName: retailerPromise[0].RegionName                            
                         });
                     }
                 }
+
                 if (retailer) {
                     retailerId = retailer.RetailerId;
-                    regionName = retailer?.RegionName;
-                    StateId = retailer?.StateId;
-                    RegionId = retailer?.RegionId;
-                }
+                    regionName = retailer?.RegionName;                    
+                }                
 
                 if (!retailerId) {
                     throw new Error("No retailer found", retailer);
                 }
 
+                /* Get  cms retailer id as well */
+                cmsRetailer = await RetailerMaster.findOne({ RetailerId: retailerId}).lean();
+
+                if (!cmsRetailer) {
+                    throw new Error(`The retailer ${retailerId} is no found on CMS Retailer Master collection`);
+                }
+
             } catch (e) {
                 throw e;
             }
-            /* Step 1 - determine the hierarchy & segments */
-            // const [RegionId, StateId] = await this.determineHierarchy(retailerId);
-            this.segments = await this.determineSegments(user);
-            /* Step 2 - fetch the page sequence */
-            if (RegionId && StateId && retailerId && this.segments) {
-                try {
-                    const pageTypeObjPromise = PageTypeModel.findOne({ handle: pageType }).lean();
-                    {
-                        const endTime = new Date();
-                        const diffInMillySecod = Math.abs(new Date(this.startTime) - endTime);
-                        console.log(diffInMillySecod, 1111);
-                    }
-                    const detailsPromise = this.OpensearchApi.getOfferdetails(user);
 
+            /* Step 1 - determine the segments */            
+            const segments = await this.determineSegments(cmsRetailer._id);
+
+            /* Step 2 - fetch the page sequence */
+            if (segments) {
+
+                try {
+
+                    const pageTypeObjPromise = PageTypeModel.findOne({ handle: pageType }).lean();
+                    const detailsPromise = this.OpensearchApi.getOfferdetails(user);
                     const [pageTypeObj, details] = await Promise.all([pageTypeObjPromise, detailsPromise]);
-                    {
-                        const endTime = new Date();
-                        const diffInMillySecod = Math.abs(new Date(this.startTime) - endTime);
-                        console.log(diffInMillySecod, 22222);
-                    }
+                    
                     if (pageTypeObj) {
+
                         let page = null;
 
                         if (companyId) {
@@ -204,7 +161,7 @@ export default class ComposeService {
 
                                 const batchPromises = page.sequence.map((seq, i) => {
                                     typeList[seq] = (typeList[seq] || 0) + 1; // Increment type count
-                                    return this.prepareComponent(page._id, seq, typeList[seq], retailerId, distributorId, companyId, RegionId, StateId, _token, user, regionName, details, i);
+                                    return this.prepareComponent(page._id, seq, typeList[seq], retailerId, distributorId, companyId, _token, user, regionName, details, i, segments);
                                 });
                                 {
                                     const endTime = new Date();
@@ -229,7 +186,7 @@ export default class ComposeService {
                                         typeList = {};
                                         const defaultBatchPromises = defaultPage.sequence.map((seq, i) => {
                                             typeList[seq] = (typeList[seq] || 0) + 1; // Increment type count
-                                            return this.prepareComponent(defaultPage._id, seq, typeList[seq], retailerId, distributorId, companyId, RegionId, StateId, _token, user, regionName, details, i);
+                                            return this.prepareComponent(defaultPage._id, seq, typeList[seq], retailerId, distributorId, companyId, _token, user, regionName, details, i, segments);
                                         });
 
                                         let defaultRess = await Promise.all(defaultBatchPromises);
@@ -277,16 +234,8 @@ export default class ComposeService {
                     throw _e;
                 }
 
-            } else {
-                if (!RegionId) {
-                    throw new Error("Invalid region id for this retailer");
-                }
-                if (!StateId) {
-                    throw new Error("Invalid state id for this retailer");
-                }
-                if (!retailerId) {
-                    throw new Error("Invalid retailer id");
-                }
+            } else {                                
+                throw new Error("Retailer is not belongs to any segment");                
             }
 
         } else {
@@ -295,7 +244,8 @@ export default class ComposeService {
     };
 
 
-    prepareComponent = async (_pageId, _componentTypeId, _positionIndex, _retailerId, _distributorId, _companyId, _regionId, _stateId, _token, _user, regionName, details, index) => {
+    prepareComponent = async (_pageId, _componentTypeId, _positionIndex, _retailerId, _distributorId, _companyId, _token, _user, regionName, details, index, _segments) => {
+
         try {
 
             let childrens = [],
@@ -366,7 +316,7 @@ export default class ComposeService {
                                 continue;
                             }
 
-                            if (await this.evaluateMappingRules(childrens[configuration.sequence[j]].title, configuration.sequence[j], _retailerId, _distributorId, _companyId, _regionId, _stateId)) {
+                            if (await this.evaluateMappingRules(childrens[configuration.sequence[j]].title, configuration.sequence[j], _retailerId, _distributorId, _companyId, _segments)) {
 
                                 if (childrens[configuration.sequence[j]].configuration) {
 
@@ -432,7 +382,7 @@ export default class ComposeService {
                     } else {
 
                         /* This means this component doesn't has any parent child */
-                        if (await this.evaluateMappingRules(components[i].title, components[i]._id, _retailerId, _distributorId, _companyId, _regionId, _stateId)) {
+                        if (await this.evaluateMappingRules(components[i].title, components[i]._id, _retailerId, _distributorId, _companyId, _segments)) {
 
                             /* Since it is a match - break the loop */
                             configuration["component_type"] = componetType.handle;
@@ -445,27 +395,22 @@ export default class ComposeService {
                                 if (configuration["type"] == "products") {
 
                                     if (configuration["context"] == "ordered") {
-                                        configuration["data"] = await this.elastic.getOrderedProducts(_token, count, _user, details);
+                                        configuration["data"] = await this.elastic.getOrderedProducts(count, _user, details);
                                     } else if (configuration["context"] == "picked") {
-                                        configuration["data"] = await this.elastic.getPickedProducts(_token, count, _distributorId, details);
+                                        configuration["data"] = await this.elastic.getPickedProducts(count, _distributorId, details);
                                     } else if (configuration["context"] == "trending") {
-                                        configuration["data"] = await this.elastic.getTrendingProducts(_token, count, regionName, details);
+                                        configuration["data"] = await this.elastic.getTrendingProducts(count, regionName, details);
                                     } else if (configuration["context"] == "company") {
                                         const _companyProducts = await this.provider.fetchStaticCompanyProducts(_user, _companyId, count);
                                         if (_companyProducts) {
                                             configuration["data"] = _companyProducts;
                                         } else {
                                             configuration["data"] = [];
-                                        }
-                                        //configuration["data"] = await this.provider.fetchStaticCompanyProducts(_companyId, count);
-                                        //configuration["data"] = await  this.elastic.getCompanyProducts(_token, _companyId, count);
-                                        //configuration["data"] = await this.provider.fetchCompanyProducts(_companyId, _user, count);
+                                        }                                        
                                     } else if (configuration["context"] == "store") {
-                                        configuration["data"] = await this.elastic.getDistributorProducts(_token, _distributorId, count);
-                                        //configuration["data"] = await this.provider.fetchDistributorProducts(_distributorId, _user, count);
+                                        configuration["data"] = await this.elastic.getDistributorProducts(_token, _distributorId, count);                                        
                                     } else if (configuration["context"] == "indoco") {
-                                        configuration["data"] = await this.provider.getIndocoProducts();
-                                        //configuration["data"] = await this.provider.fetchDistributorProducts(_distributorId, _user, count);
+                                        configuration["data"] = await this.provider.getIndocoProducts();                                        
                                     } else if (
                                         configuration["context"] == "mankind"
                                         || configuration["context"] == "cipla"
@@ -490,7 +435,7 @@ export default class ComposeService {
                                 } else if (configuration["type"] == "brands") {
 
 
-                                    configuration["data"] = await this.elastic.getBrands(_token, count, regionName);
+                                    configuration["data"] = await this.elastic.getBrands(count, regionName);
                                     //configuration["data"] = await this.provider.fetchTopBrands(_retailerId, count);
                                 } else if (configuration["type"] == "distributors") {
                                     if (configuration["context"]) {
@@ -586,7 +531,7 @@ export default class ComposeService {
 
     };
 
-    evaluateMappingRules = async (_title, _componentId, _retailerId, _distributorId, _companyId, _regionId, _stateId) => {
+    evaluateMappingRules = async (_title, _componentId, _retailerId, _distributorId, _companyId, _segments) => {
 
         try {
 
@@ -626,13 +571,7 @@ export default class ComposeService {
                         } else {
 
                             if (rule.type == RuleType.RETAILER) {
-
-                                if (rule.retailer_lookup == RetailerLookup.HIERARCHY) {
-                                    andConditions.push(this.evaluateHierachyRule(rule, _retailerId, _regionId, _stateId));
-                                } else {
-                                    andConditions.push(await this.evaluateSegmentRule(rule, _retailerId));
-                                }
-
+                                andConditions.push(await this.evaluateSegmentRule(rule, _retailerId, _segments));
                             }
 
                         }
@@ -721,124 +660,7 @@ export default class ComposeService {
 
     };
 
-    evaluateHierachyRule = (_rule, _retailerId, _regionId, _stateId) => {
-
-        let index;
-
-        if (typeof _rule.match.retailers === 'string') {
-
-            /**
-             * 
-             * Retailer property is STRING
-             * 
-             */
-
-            if (_rule.match.retailers === 'none') {
-
-                /* No need to go further */
-                return false;
-
-            } else {
-
-                /**
-                 * 
-                 * It must be all
-                 * If retailer is all, this means all UP level properties cannot be 'none'
-                 * 
-                 */
-
-                /* Go one step UP */
-                if (typeof _rule.match.regions === 'string') {
-
-                    if (_rule.match.regions === "all") {
-
-                        /* Go one step UP */
-                        if (typeof _rule.match.states === 'string') {
-
-                            if (_rule.match.states === "all") {
-
-                                /* Go one step UP */
-                                if (typeof _rule.match.countries === 'string') {
-
-                                    if (_rule.match.countries === "all") {
-                                        return (_rule.condition == ConditionType.INCLUDE) ? true : false;
-                                    } else {
-                                        /* It will not happen - but still incase */
-                                        return (_rule.condition == ConditionType.INCLUDE) ? false : true;
-                                    }
-
-                                } else {
-
-                                    /**
-                                     * 
-                                     * This means we have selected ARRAY of countries 
-                                     * and we hve only one country (INDIA) return true
-                                     * 
-                                     */
-
-                                    return (_rule.condition == ConditionType.INCLUDE) ? true : false;
-
-                                }
-
-                            }
-
-                        } else {
-
-                            /* This means we have selected ARRAY of states */
-
-                            if (Array.isArray(_rule.match.states)) {
-
-                                index = _rule.match.states.findIndex(item => item == _stateId);
-                                if (index !== -1) {
-                                    return (_rule.condition == ConditionType.INCLUDE) ? true : false;
-                                }
-
-                            }
-
-                            return (_rule.condition == ConditionType.INCLUDE) ? false : true;
-
-                        }
-
-                    }
-
-                } else {
-
-                    /* This means we have selected ARRAY of regions */
-
-                    if (Array.isArray(_rule.match.regions)) {
-
-                        index = _rule.match.regions.findIndex(item => item == _regionId);
-                        if (index !== -1) {
-                            return (_rule.condition == ConditionType.INCLUDE) ? true : false;
-                        }
-
-                    }
-
-                    return (_rule.condition == ConditionType.INCLUDE) ? false : true;
-
-                }
-
-            }
-        } else {
-
-            /* This means we have selected ARRAY of retailers */
-
-            if (Array.isArray(_rule.match.retailers)) {
-
-                index = _rule.match.retailers.findIndex(item => item == _retailerId);
-                if (index !== -1) {
-                    return (_rule.condition == ConditionType.INCLUDE) ? true : false;
-                }
-
-            }
-
-            return (_rule.condition == ConditionType.INCLUDE) ? false : true;
-
-        }
-
-    };
-
-    evaluateSegmentRule = async (_rule, _retailerId) => {
+    evaluateSegmentRule = async (_rule, _retailerId, _segments) => {
 
         try {
 
@@ -847,27 +669,14 @@ export default class ComposeService {
                 if (_rule.segments === 'none') {
                     return (_rule.condition == ConditionType.INCLUDE) ? false : true;
                 } else {
-
-                    // let retailerList = [];
-                    // /* This means all segments has been checked - now check all segments and see if the retailer is mapped on one */
-                    // for (let i = 0; i < this.segments.length; i++) {
-
-                    //     retailerList = await TermMappingModel.find({ term: this.segments[i]._id, record: _retailerId }).lean();
-                    //     if (retailerList.length > 0) {
-                    //         return (_rule.condition == ConditionType.INCLUDE) ? true : false; 
-                    //     }
-
-                    // }
-
                     return (_rule.condition == ConditionType.INCLUDE) ? true : false;
-
                 }
 
             } else {
 
-                if (this.segments && Array.isArray(this.segments)) {
-                    for (let i = 0; i < this.segments.length; i++) {
-                        if (_rule.segments.indexOf(this.segments[i]) !== -1) {
+                if (_segments && Array.isArray(_segments)) {
+                    for (let i = 0; i < _segments.length; i++) {
+                        if (_rule.segments.indexOf(_segments[i]) !== -1) {
                             return (_rule.condition == ConditionType.INCLUDE) ? true : false;
                         }
                     }
@@ -883,30 +692,10 @@ export default class ComposeService {
 
     };
 
-    determineHierarchy = async (_retailerId) => {
+    determineSegments = async (_cmsRetailerId) => {
 
         try {
-
-            const retailer = await MYDBM.queryWithConditions(`select * from retailers where RetailerId=?`, [_retailerId]);
-
-            if (retailer && Array.isArray(retailer) && retailer.length > 0) {
-                const { RegionId, StateId } = retailer[0];
-                return [RegionId, StateId];
-            } else {
-                throw new Error("Retailer record not found");
-            }
-
-        } catch (_e) {
-            throw _e;
-        }
-
-    }
-
-    determineSegments = async (user) => {
-
-        try {
-            const userSegment = await UserSegmentModel.findOne({ userId: user });
-            return userSegment ? userSegment.segment.map(item => item.segmentKey) : [];
+            return await SegmentRetailerModel.find({retailer: _cmsRetailerId }).select("segment").lean();           
         } catch (error) {
             throw new Error('Error fetching user segments: ' + error.message);
         }

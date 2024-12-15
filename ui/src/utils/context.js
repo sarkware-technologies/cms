@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef, forwardRef, useImperativeHandle} from "react";
+import React, {useState, useEffect, useRef, forwardRef, useImperativeHandle, useMemo} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import View from "../components/view";
 import Helper from "./helper";
@@ -319,7 +319,7 @@ const ContextWrapper = (props, ref) => {
      * 
      * @returns 
      */
-    const renderView = () => { 
+    const renderView = useMemo(() => { 
 
         /* Update the getState helper function */        
         stateRef.current = state;
@@ -349,12 +349,13 @@ const ContextWrapper = (props, ref) => {
             </div>
             );        
         }
-    };
+
+    }, [state.currentView, state.viewConfig, contextErr, context]);
 
     /**
      * Start to inflate the view
      */
-    return renderView();
+    return renderView;
 
 }
 

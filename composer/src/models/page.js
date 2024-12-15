@@ -7,8 +7,8 @@ const PageSchema = new mongoose.Schema({
     description     : { type: String, default: "" }, 
     sequence        : { type: Array, default: [] }, 
     status          : { type: Boolean, default: false }, 
-    created_by      : { type: mongoose.Schema.Types.ObjectId, ref: "system_user", default: null },
-    updated_by      : { type: mongoose.Schema.Types.ObjectId, ref: "system_user", default: null }       
+    createdBy       : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+    updatedBy       : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }      
 },
 {  
     strict          : true,

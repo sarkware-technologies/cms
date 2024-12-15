@@ -11,91 +11,89 @@ export default class ElasticService {
 
     }
 
-    getBrands = async (_token, _count,regionName) => {
-        return await this.redisData.trendingProducts({ regionName });
+    getBrands = async (_count, regionName) => {
 
-        // return await this.contactElasticServer(_token, '/open-search/api/v1/order-history/trending-products', {
-        //     "FromDate": "2016-01-01T07:41:21.819Z",
-        //     "ToDate": moment().toISOString(),
-        //     "Count": _count,
-        //     "SkipCount": 0
-        // });
+        try {
+            return await this.redisData.trendingProducts({ regionName });
+        } catch (e) {
+            console.log(e);
+            return [];
+        }
+        
     };
 
-    getTrendingProducts = async (_token, _count, regionName, details) => {
+    getTrendingProducts = async (_count, regionName, details) => {
 
-        // let tempRes = await this.contactElasticServer(_token, "/open-search/api/v1/order-history/trending-products", {
-        //     "FromDate": "2016-01-01T07:41:21.819Z",
-        //     "ToDate": moment().toISOString(),
-        //     "Count": _count,
-        //     "SkipCount": 0
-        // });
-        let tempRes = await this.redisData.trendingProducts({ regionName });
+        try {
 
-        if (tempRes && Array.isArray(tempRes) && tempRes.length > 0) {
-            tempRes = await this.openSearch.YourTopPickProducts(tempRes, details);
-            // tempRes = await this.contactElasticServer(_token, "/open-search/api/v1/search/your-top-picks-products", tempRes);
-            let result = tempRes
-                .filter((item) => {
-                    return item.DoNotShowToRetailer === false && item.ProductLock != true;
-                })
-                .sort((a, b) => a.Priority - b.Priority);
-            result = result.slice(0, _count)
-            return result;
+            let tempRes = await this.redisData.trendingProducts({ regionName });
+
+            if (tempRes && Array.isArray(tempRes) && tempRes.length > 0) {
+
+                tempRes = await this.openSearch.YourTopPickProducts(tempRes, details);            
+                let result = tempRes
+                    .filter((item) => {
+                        return item.DoNotShowToRetailer === false && item.ProductLock != true;
+                    })
+                    .sort((a, b) => a.Priority - b.Priority);
+                result = result.slice(0, _count)
+                return result;
+            }
+
+        } catch (e) {
+            console.log(e);            
+        }
+        
+        return [];       
+
+    };
+
+    getOrderedProducts = async (_count, user, details) => {
+
+        try {
+
+            let tempRes = await this.redisData.orderAgain({ UserId: user });
+
+            if (tempRes && Array.isArray(tempRes) && tempRes.length > 0) {
+                
+                tempRes = await this.openSearch.YourTopPickProducts(tempRes, details);
+                let result = tempRes
+                    .filter((item) => {
+                        return item.DoNotShowToRetailer === false && item.ProductLock != true;
+                    })
+                    .sort((a, b) => a.Priority - b.Priority);
+                result = result.slice(0, _count)
+                return result;
+            }
+
+        } catch (e) {
+            console.log(e);
         }
 
-        return [];
+        return [];   
 
     };
 
-    getOrderedProducts = async (_token, _count, user, details) => {
+    getPickedProducts = async (_count, _distributorId, details) => {
 
-        // let tempRes = await this.contactElasticServer(_token, "/open-search/api/v1/order-history/order-again", {
-        //     "FromDate": "2016-01-01T07:41:21.819Z",
-        //     "ToDate": moment().toISOString(),
-        //     "Count": 50,
-        //     "SkipCount": 0
-        // });
+        try {
 
-        let tempRes = await this.redisData.orderAgain({ UserId: user });
-        if (tempRes && Array.isArray(tempRes) && tempRes.length > 0) {
-            // tempRes = await this.contactElasticServer(_token, "/open-search/api/v1/search/your-top-picks-products", tempRes);
-            tempRes = await this.openSearch.YourTopPickProducts(tempRes, details);
-            let result = tempRes
-                .filter((item) => {
-                    return item.DoNotShowToRetailer === false && item.ProductLock != true;
-                })
-                .sort((a, b) => a.Priority - b.Priority);
-            result = result.slice(0, _count)
-            return result;
-        }
+            let tempRes = await this.redisData.topPicks({ storeId: [_distributorId] });
 
-        return [];
+            if (tempRes && Array.isArray(tempRes) && tempRes.length > 0) {
+                
+                tempRes = await this.openSearch.YourTopPickProducts(tempRes, details);
+                let result = tempRes
+                    .filter((item) => {
+                        return item.DoNotShowToRetailer === false && item.ProductLock != true;
+                    })
+                    .sort((a, b) => a.Priority - b.Priority);
+                result = result.slice(0, _count)
+                return result;
+            }
 
-    };
-
-    getPickedProducts = async (_token, _count, _distributorId, details) => {
-
-        // let tempRes = await this.contactElasticServer(_token, "/open-search/api/v1/order-history/top-picks", {
-        //     "FromDate": "2016-01-01T07:41:21.819Z",
-        //     "ToDate": moment().toISOString(),
-        //     "Count": 50,
-        //     "SkipCount": 0,
-        //     storeId: [_distributorId]
-        // });
-        let tempRes = await this.redisData.topPicks({ storeId: [_distributorId] });
-
-
-        if (tempRes && Array.isArray(tempRes) && tempRes.length > 0) {
-            // tempRes = await this.contactElasticServer(_token, "/open-search/api/v1/search/your-top-picks-products", tempRes);
-            tempRes = await this.openSearch.YourTopPickProducts(tempRes, details);
-            let result = tempRes
-                .filter((item) => {
-                    return item.DoNotShowToRetailer === false && item.ProductLock != true;
-                })
-                .sort((a, b) => a.Priority - b.Priority);
-            result = result.slice(0, _count)
-            return result;
+        } catch (e) {
+            console.log(e);            
         }
 
         return [];

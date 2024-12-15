@@ -1,12 +1,12 @@
 import mongoose from'mongoose';
 import SegmentType from '../enums/segment-type.js';
-import SegmentOrder from '../enums/segment-order.js';
 import RetailerStatus from '../enums/segment-retailer-status.js';
 import StoreStatus from '../enums/segment-store-status.js';
 import SegmentStatus from '../enums/segment-status.js';
 
 const SegmentSchema = new mongoose.Schema({ 
     title                   : { type: String, required: true },
+    handle                  : { type: String, required: true },
     description             : { type: String, default: null },
     segmentType             : { type: Number, default: SegmentType.DYNAMIC },
     fromDate                : { type: Date, default: null },

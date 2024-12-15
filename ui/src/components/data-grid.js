@@ -1000,6 +1000,9 @@ const DataGrid = (props, ref) => {
         if (contextObj && contextObj.onDatagridRequest) {
             if ((!datasource)) {
                 datasource = contextObj.onDatagridRequest(props.config.handle, props.config.datasource); 
+                if (!datasource) {
+                    return null;
+                }
             }
         } else if (!datasource) {
             datasource = props.config.datasource;

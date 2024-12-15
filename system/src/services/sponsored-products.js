@@ -109,7 +109,7 @@ export default class SponsoredProductService {
     get = async (_req) => {
 
         if (!_req.params.id) {
-            throw new Error("Service id is missing");
+            throw new Error("Sponsored product id is missing");
         }
 
         try {
@@ -121,10 +121,81 @@ export default class SponsoredProductService {
 
     };
 
+    getSummary = async (_req) => {
+
+        if (!_req.params.id) {
+            throw new Error("Sponsored product id is missing");
+        }
+
+        try {
+
+            return {
+                impression: 1000,
+                addedToCart: 80,
+                ordered: 60,
+                averageQty: 5,
+                revenue: 25000 
+            };
+
+        } catch (e) {
+            throw e;
+        }
+
+    };
+
+    getPerformance = async (_req) => {
+
+        if (!_req.params.id) {
+            throw new Error("Sponsored product id is missing");
+        }
+
+        try {
+
+            let _performance = [];
+
+            const page = parseInt(_req.query.page) || 1;
+            const skip = (page - 1) * parseInt(process.env.PAGE_SIZE);
+            const limit = parseInt(process.env.PAGE_SIZE);
+
+            const searchFor = _req.query.search ? _req.query.search : "";
+            const searchFrom = _req.query.field ? _req.query.field : "";
+
+            if (searchFrom !== "") {
+                return await this.searchPerformance(_req, page, skip, limit, searchFrom, searchFor);
+            }
+
+            const sponsoredProductPerformance = await EM.getModel("cms_sponsored_product_performance");
+            const _count = await sponsoredProductPerformance.countDocuments({});
+            _performance = await sponsoredProductPerformance.find({ sponsoredProduct: _req.params.id }).sort({ impression: 1 }).skip(skip).limit(limit).lean();
+            
+            return Utils.response(_count, page, _performance);
+
+        } catch (e) {
+            throw e;
+        }     
+
+    };
+
+    searchPerformance = async (_req, _page, _skip, _limit, _field, _search) => {
+
+        try {
+
+            const sponsoredProductPerformance = await EM.getModel("cms_sponsored_product_performance");
+            const _count = await sponsoredProductPerformance.countDocuments({ [_field]: { $regex: new RegExp(_search, 'i') } });
+            const _performance = await sponsoredProductPerformance.find({ [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
+
+            return Utils.response(_count, _page, _performance);
+
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+
     update = async (_req) => {
 
         if (!_req.params.id) {
-            throw new Error("Service id is missing");
+            throw new Error("Sponsored product id is missing");
         }
 
         try {
@@ -139,7 +210,7 @@ export default class SponsoredProductService {
     delete = async (_req) => {
         
         if (!_req.params.id) {
-            throw new Error("Service id is missing");
+            throw new Error("Sponsored product id is missing");
         }
 
         try {

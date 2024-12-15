@@ -58,7 +58,25 @@ export default function SegmentContext(_component) {
 
         return datasource;
 
-    };    
+    };  
+    
+    /**
+     * 
+     * @param {*} _handle 
+     * @param {*} _value 
+     * @param {*} _e 
+     * 
+     * Called whenever user click pressing key on any fields or grid cell 
+     * 
+     */
+    this.onFieldKeyUp = ( _handle, _value, _e ) => {
+        
+        if (_handle === "segment_form_tab_title") {
+            let name = _value.replace(/\s+/g, '_').toUpperCase();
+            this.controller.setInputFieldVal("segment_form_tab_handle", name);
+        }
+
+    };
 
     /**
      * 

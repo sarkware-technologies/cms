@@ -20,7 +20,7 @@ export default class Utils {
         _res.setHeader('content-type', 'text/plain');
         _res.send(_e.message);
         
-    }
+    };
 
     static response = (_totalRecords, _currentPage, _records) => {
 
@@ -32,19 +32,25 @@ export default class Utils {
             payload: _records
         }
 
-    }
+    };
 
     static verifyToken = (_token) => {
 
         try {
                   
             const verified = jwt.verify(_token.trim(), process.env.JWT_SECRET_KEY);                        
-            return verified.id;                             
+            return {
+                status: true,
+                payload: verified
+            };                             
 
         } catch (_e) {            
-            return null;
+            return {
+                status: false,
+                payload: null
+            };
         }
         
-    }
+    };
 
 }

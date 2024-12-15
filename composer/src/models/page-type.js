@@ -4,8 +4,8 @@ const PageTypeSchema = new mongoose.Schema({
     title           : { type: String, required: true },
     handle          : { type: String, required: true, unique: true }, 
     description     : { type: String, default: "" }, 
-    created_by      : { type: mongoose.Schema.Types.ObjectId, ref: "system_user", default: null },
-    updated_by      : { type: mongoose.Schema.Types.ObjectId, ref: "system_user", default: null }       
+    createdBy       : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+    updatedBy       : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }     
 },
 {  
     strict          : true,

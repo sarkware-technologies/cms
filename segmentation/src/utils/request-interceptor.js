@@ -11,6 +11,7 @@ class RequestInterceptor {
         }
 
         this.whiteListUrls = [
+            "/health",
             "/segmentation/v1/health",                
             "/segmentation/v1/synch/retailer",
             "/segmentation/v1/synch/order"

@@ -1,6 +1,7 @@
 import { createRef } from "react";
 import { createRoot } from 'react-dom/client';
 import KeywordsManager from "../components/keywords-manager";
+import SponsoredSummary from "../components/sponsored-summary";
 
 export default function SponsoredProductContext(_component) {
 
@@ -9,6 +10,7 @@ export default function SponsoredProductContext(_component) {
     this.controller = window._controller;
 
     this.keywordManagerRef = createRef(null);
+    this.sponsoredSummaryRef = createRef(null);
 
     /**
      * 
@@ -18,6 +20,28 @@ export default function SponsoredProductContext(_component) {
     this.init = (_view) => {
         this.controller.switchView(_view);
     };  
+
+    /**
+     * 
+     * @param {*} _handle 
+     * @param {*} _datasource 
+     * @returns 
+     * 
+     * Called before making request to server - for datagrid
+     * 
+     */
+    this.onDatagridRequest = (_handle, _datasource) => {  console.log("onDatagridRequest is called for : "+ _handle);
+
+        let datasource = JSON.parse(JSON.stringify(_datasource));        
+        const record = this.component.currentRecord["sponsored_product_grid"];
+
+        if (_handle === "sponsored_product_analytic_grid" && record) {                        
+            datasource.endpoint = `/system/v1/sponsored_product/${record._id}/performance`;            
+        }
+
+        return datasource;
+
+    };    
 
     /**
      * 
@@ -46,6 +70,14 @@ export default function SponsoredProductContext(_component) {
      * 
      */
     this.beforeViewMount = (_handle, _viewConfig) => {
+
+        const record = this.component.currentRecord["sponsored_product_grid"];
+        if (!record && _handle == "sponsored_product_form") {
+            const newConfig =  JSON.parse(JSON.stringify(_viewConfig));
+            newConfig.content.rows[0].columns.splice(1, 1);
+            return newConfig;
+        }
+
         return _viewConfig;
     };    
 
@@ -56,22 +88,29 @@ export default function SponsoredProductContext(_component) {
      * Called whenever view is mounted on the DOM
      * 
      */
-    this.onViewMounted = (_handle) => {
+    this.onViewMounted = (_handle) => {    console.log("onViewMounted is called : "+ _handle);
 
         if (_handle == "sponsored_product_form") {
 
             const record = this.component.currentRecord["sponsored_product_grid"];
             const _keywords = record ? record.keywords : [];
-
             const _keywordHolder = document.getElementById('sponsored_product_keyword_container');
             const keywordRoot = createRoot(_keywordHolder); 
             keywordRoot.render(<KeywordsManager ref={this.keywordManagerRef} keywords={_keywords} />);
             
-            const _segmentField = this.controller.getField("sponsored_product_form_segments");            
-            if (record && _segmentField) {
-                setTimeout(() => {
-                    _segmentField.setSelectedRecords(record.segments);
-                }, 1000);                
+            if (record) {
+
+                const _summaryHolder = document.getElementById('sponsored_product_analytics_container');
+                const summaryRoot = createRoot(_summaryHolder); 
+                summaryRoot.render(<SponsoredSummary ref={this.sponsoredSummaryRef} />);            
+                
+                const _segmentField = this.controller.getField("sponsored_product_form_segments");            
+                if (_segmentField) {
+                    setTimeout(() => {
+                        _segmentField.setSelectedRecords(record.segments);
+                    }, 1000);                
+                }
+
             }
 
         }
@@ -89,6 +128,15 @@ export default function SponsoredProductContext(_component) {
         if (_action === "SAVE_SPONSORED_PRODUCT") {
             this.saveSponsoredProduct();
         }
+    };
+
+    /**
+     * 
+     * Called whenever user click on back button (or cancel button click)
+     * 
+     */
+    this.onBackAction = () => {
+        this.component.currentRecord["sponsored_product_grid"] = null;
     };
 
     this.saveSponsoredProduct = () => {

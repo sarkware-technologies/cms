@@ -57,7 +57,7 @@ const TopBar = (props, ref) => {
         window._controller.layout.current.toggleSidebar();
     };
 
-    const renderAction = (_config) => { console.log(_config);
+    const renderAction = (_config) => {
 
         if (!_config.method || !caps || !caps[_config.method]) {
             return null;

@@ -38,51 +38,43 @@ export default class OpensearchApi {
 
     };
 
-
-
     getOfferdetails = async (userId) => {
+
         try {
-        this.startTime =new Date();
-        let store = [];
-        const redisClientReader = await this.redisPool.getReaderConnection();
-        let responseReader = await redisClientReader.get(`retailer****${userId}`);
-        let responseOfferReader = null;
-       
-        if (!responseReader) {
-            const redisWriteReader = await this.redisPool.getWriterConnection();
-            const resionData =
-                await this.RegionwiseStoresForRetailerManagerNew(userId);
-            //const mappedData = resionData.filter((item) => item.Ismapped);
-            const mappedActualData = resionData?.map((item) => {
-                return {
-                    userId,
-                    RetailerId: item.RetailerId,
-                    StoreId: item.StoreId,
-                    StoreName: item.StoreName,
-                    Priority: item.Priority || 'None',
-                    regionname: item.regionname,
-                    PartyCode: item.PartyCode,
-                };
-            });
-            await redisWriteReader.set(
-                `retailer****${userId}`,
-                JSON.stringify(mappedActualData),
-                {
-                    EX: 60 * 15, //60 * 60 * 1,
-                },
-            );
-            responseReader = await redisClientReader.get(`retailer****${userId}`);
-        }
 
-
+            this.startTime =new Date();
+            let store = [];
+            const redisClientReader = await this.redisPool.getReaderConnection();
+            let responseReader = await redisClientReader.get(`retailer****${userId}`);
+            let responseOfferReader = null;
        
-        const storeData = JSON.parse(responseReader) || [];
-        let { nonNullPriority, nullPriority } =
-            this.StorePriorityFilter(storeData);
-        store = this.updatePriorities(
-            nonNullPriority,
-            nullPriority,
-        );
+            if (!responseReader) {
+                const redisWriteReader = await this.redisPool.getWriterConnection();
+                const resionData = await this.RegionwiseStoresForRetailerManagerNew(userId);                
+                const mappedActualData = resionData?.map((item) => {
+                    return {
+                        userId,
+                        RetailerId: item.RetailerId,
+                        StoreId: item.StoreId,
+                        StoreName: item.StoreName,
+                        Priority: item.Priority || 'None',
+                        regionname: item.regionname,
+                        PartyCode: item.PartyCode,
+                    };
+                });
+                await redisWriteReader.set(
+                    `retailer****${userId}`,
+                    JSON.stringify(mappedActualData),
+                    {
+                        EX: 60 * 15, //60 * 60 * 1,
+                    },
+                );
+                responseReader = await redisClientReader.get(`retailer****${userId}`);
+            }
+       
+            const storeData = JSON.parse(responseReader) || [];
+            let { nonNullPriority, nullPriority } = this.StorePriorityFilter(storeData);
+            store = this.updatePriorities(nonNullPriority, nullPriority);
        
             if (!responseOfferReader) {
                 
@@ -107,11 +99,13 @@ export default class OpensearchApi {
             }
            
             return { store, offer: JSON.parse(responseOfferReader) || [] }
+
         } catch {
             return { store: [], offer: [] }
         }
 
     }
+
     StorePriorityFilter(storeData) {
         let nonNullPriority = storeData.filter(
             (item) => item.Priority !== 'None' && item.Priority !== '0',

@@ -3850,6 +3850,7 @@ input[type="range"]::-moz-range-thumb {
     color: #fff;
 }
 
+table.sponsored-summary-widget,
 table.segment-summary-widget {
     width: auto;
     float: right;
@@ -3857,28 +3858,32 @@ table.segment-summary-widget {
     border-collapse: separate;
 }
 
+table.sponsored-summary-widget {
+    width: 100%;
+}
+
+table.sponsored-summary-widget td,
 table.segment-summary-widget td {
     padding: 15px 25px;
     text-align: center;
     background: #eee;
 }
 
+table.sponsored-summary-widget td span,
 table.segment-summary-widget td span {
     display: block;
 }
 
+table.sponsored-summary-widget td span:first-child,
 table.segment-summary-widget td span:first-child {    
     margin-bottom: 10px;
     font-weight: bold;
     font-size: 18px;
 }
 
+table.sponsored-summary-widget td span:last-child,
 table.segment-summary-widget td span:last-child {
     font-size: 14px;
-}
-
-.pharmarack-cms-forgot-sumbitted-view {
-
 }
 
 .pharmarack-cms-forgot-sumbitted-view > div {
@@ -4014,20 +4019,8 @@ table.segment-summary-widget td span:last-child {
     color: #555;
 }
 
-.sponsored_product_form .pharmarack-cms-view-column-title {
-    border-bottom: none;
-    padding-bottom: 0px;
-    margin-bottom: 5px;
-}
-
-.sponsored_product_form .pharmarack-cms-view-column-title h3 {
-    color: #495057 !important;
-    font-size: 13px;
-    font-weight: normal;
-}
-
 .pharmarack-cms-keyword-container {    
-    margin-bottom: 5px;
+    margin-bottom: 5px;   
 }
 
 .pharmarack-cms-keyword-container > label {
@@ -4043,15 +4036,9 @@ table.segment-summary-widget td span:last-child {
 
 .pharmarack-cms-keyword-header {
     position: relative;
-    width: calc(40% - 30px);
     display: flex;
     align-items: center;
     margin-bottom: 10px;
-}
-
-.pharmarack-cms-form-field-wrapper.segments,
-.pharmarack-cms-form-field-wrapper.mdmProductCode {
-    width: calc(100% - 30px);
 }
 
 .pharmarack-cms-keyword-header > label {
@@ -4091,6 +4078,6 @@ table.segment-summary-widget td span:last-child {
     margin-left: 5px;
 }
 
-.pharmarack-cms-keyword-input {
+.sponsored_product_form .pharmarack-cms-form-field-wrapper.segments {
 
 }

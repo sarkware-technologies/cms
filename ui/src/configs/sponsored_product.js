@@ -156,91 +156,11 @@ let sponsored_product_config = {
                                 collapsible: false,
                                 classes: "",
                                 fields: [                                    
-                                    { type: "text", label: "Title", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }                                    
-                                ]
-                            },
-                            {
-                                title: "",
-                                sub_title: "",
-                                type: "fields",
-                                width: "20%",
-                                layout: "horizontal",
-                                collapsible: false,
-                                classes: "",
-                                fields: [                                    
-                                    { type: "date", label: "Valid From", handle: "validFrom", value : "", placeholder: "From", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }                                    
-                                ]
-                            },
-                            {
-                                title: "",
-                                sub_title: "",
-                                type: "fields",
-                                width: "20%",
-                                layout: "horizontal",
-                                collapsible: false,
-                                classes: "",
-                                fields: [                                    
-                                    { type: "date", label: "Valid Upto", handle: "validUpto", value : "", placeholder: "To", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }                                    
-                                ]
-                            },
-                            {
-                                title: "Status",
-                                sub_title: "",
-                                type: "fields",
-                                width: "20%",
-                                layout: "horizontal",
-                                collapsible: false,
-                                classes: "",
-                                fields: [                                    
-                                    { type: "toggle", label: "", handle: "status", value : false, classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" }
-                                ]
-                            }
-                        ]
-                    }, 
-                    {
-                        seperator: false,
-                        columns: [
-                            {
-                                title: "",
-                                sub_title: "",
-                                type: "fields",
-                                width: "40%",
-                                layout: "horizontal",
-                                collapsible: false,
-                                classes: "",
-                                fields: [                                    
-                                    { type: "text", label: "MDM Product code", handle: "mdmProductCode", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
-                                ]
-                            }
-                        ]
-                    }, 
-                    {
-                        seperator: false,
-                        columns: [
-                            {
-                                title: "",
-                                sub_title: "",
-                                type: "placeholder",
-                                width: "100%",
-                                layout: "horizontal",
-                                collapsible: false,
-                                classes: "",
-                                placeholder: "sponsored_product_keyword_container"
-                            }
-                        ]
-                    }, 
-                    {
-                        seperator: false,
-                        columns: [
-                            {
-                                title: "",
-                                sub_title: "",
-                                type: "fields",
-                                width: "40%",
-                                layout: "horizontal",
-                                collapsible: false,
-                                classes: "",
-                                fields: [                                                                        
+                                    { type: "toggle", label: "Status", handle: "status", value : false, classes : "", mandatory : true, disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", validation_message: "" },
+                                    { type: "text", label: "Title", handle: "title", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                    { type: "date", label: "Valid From", handle: "validFrom", value : "", placeholder: "From", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                    { type: "date", label: "Valid Upto", handle: "validUpto", value : "", placeholder: "To", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                    { type: "text", label: "MDM Product code", handle: "mdmProductCode", value : "", placeholder: "", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
                                     {
                                         type: "multiselect", 
                                         label: "Segments", 
@@ -265,21 +185,136 @@ let sponsored_product_config = {
                                         label_key: "title", 
                                         source: "remote",
                                         endpoint: "/system/v1/api/component/component/multi_select_list?entity=cms_segment"
-                                    }
+                                    },
+                                    { type: "placeholder", placeholder: "sponsored_product_keyword_container", classes : "", label_width: 0, label_position: "top" },
+                                ]
+                            },
+                            {
+                                title: "",
+                                sub_title: "",
+                                type: "fields",
+                                width: "60%",
+                                layout: "horizontal",
+                                collapsible: false,
+                                classes: "",
+                                fields: [                                                                        
+                                    { type: "placeholder", placeholder: "sponsored_product_analytics_container", classes : "", label_width: 0, label_position: "top" },
+                                    { type: "view", value: "analytic_grid_view", classes : "", label_width: 0, label_position: "top" },
                                 ]
                             }
                         ]
-                    } 
+                    }
                 ]
             },
             footer: {
-                show: true,
+                show: true, 
                 rows: []
             },
             sidebar: null,
             manage: true 
+        },
+        analytic_grid_view: { 
+            context: "sponsored_product",
+            source: "",            
+            viewFor: "",            
+            context_header: {show: false},           
+            header: {show: false},
+            content: {
+                show: true,
+                rows: [
+                    {
+                        seperator: false,
+                        columns: [
+                            {
+                                title: "Performance",
+                                sub_title: "",
+                                type: "datagrid",
+                                width: "100%",
+                                layout: "horizontal",
+                                collapsible: false,
+                                datagrid: {
+                                    handle: "sponsored_product_analytic_grid",        
+                                    layout: "fluid",		
+                                    height: "",
+                                    header: true,
+                                    content: true,
+                                    footer: true,	
+                                    grid_lines: true,								
+                                    multi_select: false,
+                                    full_row_select: false,
+                                    is_main_grid: true,
+                                    empty_message: "No analytic data to be show.!",
+                                    datasource: {endpoint: "/system/v1/sponsored_product/:id/performance", page: 0, populate: false, handler: "dedicated"},
+                                    link: {key: "_id", context: "sponsored_product", target_type: "view", view: "sponsored_product_form", data: "remote", endpoint: "/sponsored_product/"},
+                                    columns: [
+                                        {
+                                            show: true, 
+                                            width: "10", 
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "S.No", align: "left"}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "#", type: "serial", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "45",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Keyword", align: "left", filterable: false, searchable: true, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "title", type: "link", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "15",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Impression", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "mdmProductCode", type: "alphanumeric", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "15",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "In Cart", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "validFrom", type: "date", align: "left", editable: false},
+                                            prompt: ""
+                                        },
+                                        {
+                                            show: true, 
+                                            width: "15",
+                                            search: false,
+                                            filter: false,
+                                            classes: "",
+                                            header: {title: "Ordered", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                            footer: {title: "", type: "none", total_type: "none", align: "left"},
+                                            field: {handle: "validUpto", type: "date", align: "left", editable: false},
+                                            prompt: ""
+                                        }                              
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            footer: {
+                show: false
+            },
+            sidebar: null,
+            manage: true             
         }
-        
     },
     enums: {}
 

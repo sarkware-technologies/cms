@@ -10,8 +10,8 @@ const ComponentSchema = new mongoose.Schema({
     status          : { type: Boolean, default: false }, 
     start_date      : { type: Date, default: null }, 
     end_date        : { type: Date, default: null }, 
-    created_by      : { type: mongoose.Schema.Types.ObjectId, ref: "system_user", default: null },
-    updated_by      : { type: mongoose.Schema.Types.ObjectId, ref: "system_user", default: null }       
+    createdBy       : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+    updatedBy       : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }      
 },
 {  
     strict          : true,

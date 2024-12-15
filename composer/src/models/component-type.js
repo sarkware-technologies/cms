@@ -6,8 +6,8 @@ const ComponentTypeSchema = new mongoose.Schema({
     configuration   : { type: mongoose.Schema.Types.Mixed, default: null }, 
     icon            : { type: String, default: "" }, 
     is_child        : { type: Boolean, default: false }, 
-    created_by      : { type: mongoose.Schema.Types.ObjectId, ref: "system_user", default: null },
-    updated_by      : { type: mongoose.Schema.Types.ObjectId, ref: "system_user", default: null }       
+    createdBy       : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },
+    updatedBy       : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null }       
 },
 {  
     strict          : true,

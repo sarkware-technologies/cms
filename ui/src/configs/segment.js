@@ -101,18 +101,18 @@ let segment_config = {
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "25",
+                                                                            width: "20",
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "ellipsis-text",
-                                                                            header: {title: "Description", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            header: {title: "Handle", align: "left", filterable: false, searchable: false, sortable: false}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                            field: {handle: "description", type: "alphanumeric", align: "left", editable: false},
+                                                                            field: {handle: "handle", type: "alphanumeric", align: "left", editable: false},
                                                                             prompt: ""
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "13", 
+                                                                            width: "15", 
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "ellipsis-text",
@@ -123,7 +123,7 @@ let segment_config = {
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "13", 
+                                                                            width: "15", 
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "ellipsis-text",
@@ -145,7 +145,7 @@ let segment_config = {
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "9", 
+                                                                            width: "10", 
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",
@@ -212,7 +212,7 @@ let segment_config = {
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "25",
+                                                                            width: "30",
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",
@@ -223,13 +223,13 @@ let segment_config = {
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "30",
+                                                                            width: "25",
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",
-                                                                            header: {title: "Description", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            header: {title: "Handle", align: "left", filterable: false, searchable: false, sortable: false}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                            field: {handle: "description", type: "alphanumeric", align: "left", editable: false},
+                                                                            field: {handle: "handle", type: "alphanumeric", align: "left", editable: false},
                                                                             prompt: ""
                                                                         },
                                                                         {
@@ -323,7 +323,7 @@ let segment_config = {
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "25",
+                                                                            width: "30",
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",
@@ -334,13 +334,13 @@ let segment_config = {
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "30",
+                                                                            width: "25",
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",
-                                                                            header: {title: "Description", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            header: {title: "Handle", align: "left", filterable: false, searchable: false, sortable: false}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                            field: {handle: "description", type: "alphanumeric", align: "left", editable: false},
+                                                                            field: {handle: "handle", type: "alphanumeric", align: "left", editable: false},
                                                                             prompt: ""
                                                                         },
                                                                         {
@@ -434,7 +434,7 @@ let segment_config = {
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "25",
+                                                                            width: "35",
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",
@@ -445,13 +445,13 @@ let segment_config = {
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "40",
+                                                                            width: "30",
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",
-                                                                            header: {title: "Description", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            header: {title: "Handle", align: "left", filterable: false, searchable: false, sortable: false}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                            field: {handle: "description", type: "alphanumeric", align: "left", editable: false},
+                                                                            field: {handle: "handle", type: "alphanumeric", align: "left", editable: false},
                                                                             prompt: ""
                                                                         },
                                                                         {
@@ -534,7 +534,7 @@ let segment_config = {
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "25",
+                                                                            width: "30",
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",
@@ -545,13 +545,13 @@ let segment_config = {
                                                                         },
                                                                         {
                                                                             show: true, 
-                                                                            width: "30",
+                                                                            width: "25",
                                                                             search: false,
                                                                             filter: false,
                                                                             classes: "",
-                                                                            header: {title: "Description", align: "left", filterable: false, searchable: false, sortable: false}, 
+                                                                            header: {title: "Handle", align: "left", filterable: false, searchable: false, sortable: false}, 
                                                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                                                            field: {handle: "description", type: "alphanumeric", align: "left", editable: false},
+                                                                            field: {handle: "handle", type: "alphanumeric", align: "left", editable: false},
                                                                             prompt: ""
                                                                         },
                                                                         {
@@ -698,7 +698,8 @@ let segment_config = {
                                                                                 layout: "horizontal",
                                                                                 classes: "",
                                                                                 fields: [                                                                        
-                                                                                    { type: "text", label: "", handle: "title", value : "", placeholder: "Segment Name", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },                                                                    
+                                                                                    { type: "text", label: "", handle: "title", value : "", placeholder: "Segment Name", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },
+                                                                                    { type: "text", label: "", handle: "handle", value : "", placeholder: "Segment Handle", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },                                                                    
                                                                                     { type: "textarea", label: "", handle: "description", value : "", placeholder: "Description", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
                                                                                 ]
                                                                             }                            
@@ -1037,6 +1038,7 @@ let segment_config = {
                                 classes: "",
                                 fields: [                                                                        
                                     { type: "label", label: "Title", handle: "title", value : "",  classes : "", align: "right", label_width: 0, label_position: "top" },                                                                    
+                                    { type: "label", label: "Handle", handle: "handle", value : "",  classes : "", align: "right", label_width: 0, label_position: "top" },                                                                    
                                     { type: "label", label: "Description", handle: "description", value : "", classes : "", align: "right", label_width: 0, label_position: "top" }
                                 ]
                             },
