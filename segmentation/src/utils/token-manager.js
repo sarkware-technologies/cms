@@ -14,7 +14,7 @@ import jwt from "jsonwebtoken";
 export default class TokenManager {
     
     constructor() {
-        this.commonSecretKey = process.env.JWT_SECRET_KEY;     
+        this.commonSecretKey = process.env.PR2_BACKEND_SECRET;     
         this.systemSecretKey = process.env.CMS_SYSTEM_SECRET;     
         this.tempSecretKey = process.env.CMS_COMMON_SECRET;
         this.refreshSecretKey = process.env.CMS_COMMON_SECRET;

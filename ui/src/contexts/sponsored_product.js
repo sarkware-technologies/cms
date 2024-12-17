@@ -102,7 +102,7 @@ export default function SponsoredProductContext(_component) {
 
                 const _summaryHolder = document.getElementById('sponsored_product_analytics_container');
                 const summaryRoot = createRoot(_summaryHolder); 
-                summaryRoot.render(<SponsoredSummary ref={this.sponsoredSummaryRef} />);            
+                summaryRoot.render(<SponsoredSummary ref={this.sponsoredSummaryRef} sponsoredId={record._id} />);            
                 
                 const _segmentField = this.controller.getField("sponsored_product_form_segments");            
                 if (_segmentField) {

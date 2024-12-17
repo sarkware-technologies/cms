@@ -38,7 +38,7 @@ export default class Utils {
 
         try {
                   
-            const verified = jwt.verify(_token.trim(), process.env.JWT_SECRET_KEY);                        
+            const verified = jwt.verify(_token.trim(), process.env.PR2_BACKEND_SECRET);                        
             return {
                 status: true,
                 payload: verified

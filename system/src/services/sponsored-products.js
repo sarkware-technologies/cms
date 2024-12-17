@@ -133,13 +133,38 @@ export default class SponsoredProductService {
 
         try {
 
-            return {
-                impression: 1000,
-                addedToCart: 80,
-                ordered: 60,
-                averageQty: 5,
-                revenue: 25000 
+            let totalQty = 0;
+            const _summary = {
+                impression: 0,
+                addedToCart: 0,
+                ordered: 0,
+                averageQty: 0,
+                revenue: 0 
             };
+
+            const sponsoredProductModel = await EM.getModel("cms_sponsored_product");
+            const sponsoredProductPerformance = await EM.getModel("cms_sponsored_product_performance");
+            const performances = await sponsoredProductPerformance.find({ sponsoredProduct: _req.params.id }).lean();
+            const sponsoredProduct = await sponsoredProductModel.findById(_req.params.id).lean();            
+
+            for (let i = 0; i < performances.length; i++) {
+
+                _summary.impression = _summary.impression + performances[i].impression;
+                _summary.addedToCart = _summary.addedToCart + performances[i].addedToCart;
+                _summary.ordered = _summary.ordered + performances[i].ordered;
+                totalQty = totalQty + performances[i].orderedQty;
+
+            }
+
+            if (totalQty > 0) {
+                _summary.averageQty = Math.ceil(totalQty / performances.length);            
+                const _price = sponsoredProduct.PTR || sponsoredProduct.MRP;
+                if (_price) {
+                    _summary.revenue = totalQty * parseFloat(sponsoredProduct._price);
+                }                
+            }
+
+            return _summary;
 
         } catch (e) {
             throw e;
