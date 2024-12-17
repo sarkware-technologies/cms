@@ -520,69 +520,44 @@ export default class ComposeService {
 
     evaluateMappingRules = async (_componentId, _distributorId, _companyId, _segments) => {
 
-        try {
-
-            let rule = {};
-            let andConditions = [];
-            const orConditions = [];
+        try {          
+            
             const groups = await RulesGroupModel.find({ component: _componentId }).lean();
 
-            for (let i = 0; i < groups.length; i++) {
+            const orConditions = await Promise.all(
 
-                /* Reset AND condition */
+                groups.map(async (group) => {
+                    
+                    const rulePromises = group.rules.map((ruleId) => RuleModel.findById(ruleId).lean());
+                    const rules = await Promise.all(rulePromises);
 
-                andConditions = [];
-
-                for (let j = 0; j < groups[i].rules.length; j++) {
-
-                    rule = await RuleModel.findById(groups[i].rules[j]).lean();
-
-                    if (rule) {
-
-                        if (_distributorId) {
-
-                            /* This means the request is for distributor page */
-
-                            if (rule.type == RuleType.DISTRIBUTOR) {
-                                andConditions.push(this.evaluateDistributorRule(rule, _distributorId));
-                            }
-
-                        } else if (_companyId) {
-
-                            /* This means the request is for company page */
-
-                            if (rule.type == RuleType.COMPANY) {
-                                andConditions.push(this.evaluateCompanyRule(rule, _companyId));
-                            }
-
-                        } else {
-
-                            if (rule.type == RuleType.RETAILER) {
-                                andConditions.push(this.evaluateSegmentRule(rule, _segments));
-                            }
-
+                    // Evaluate the rules
+                    const andConditions = rules
+                    .filter(Boolean)
+                    .map((rule) => {
+                        if (rule.type === RuleType.RETAILER) {
+                            return this.evaluateSegmentRule(rule, _segments);
+                        } else if (_distributorId && rule.type === RuleType.DISTRIBUTOR) {
+                            return this.evaluateDistributorRule(rule, _distributorId);
+                        } else if (_companyId && rule.type === RuleType.COMPANY) {
+                            return this.evaluateCompanyRule(rule, _companyId);
                         }
+                        return false;
+                    });
 
-                    }
+                    // Return true if all conditions are met for this group
+                    return andConditions.length > 0 && andConditions.every(Boolean);
 
-                }
+                })
 
-                if (andConditions.length > 0) {
-                    orConditions.push(andConditions.every(Boolean));
-                } else {
-                    orConditions.push(false);
-                }
+            );
 
-            }
-
-            if (orConditions.length > 0) {
-                return orConditions.some(Boolean);
-            } else {
-                return false;
-            }
+            // Return true if any group conditions are met
+            return orConditions.length > 0 && orConditions.some(Boolean);
 
         } catch (_e) {
-            throw _e;
+            console.log(_e);
+            return false;
         }
 
     };

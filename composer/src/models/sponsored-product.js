@@ -5,7 +5,7 @@ const SponsoredProductSchema = new mongoose.Schema({
     status                  : { type: Boolean, default: false },
     keywords                : { type: [{type: String}], default: [] },
     mdmProductCode          : { type: String, required: true },
-    segments                : { type: [{type: mongoose.Schema.Types.ObjectId, ref: "cms_segment"}], default: [] },
+    segments                : { type: mongoose.Schema.Types.Mixed, default: "none" },
 	validFrom               : { type: Date, default: null },
     validUpto               : { type: Date, default: null },
     createdBy               : { type: mongoose.Schema.Types.ObjectId, ref: "cms_system_user", default: null },

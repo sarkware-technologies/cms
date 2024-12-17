@@ -117,6 +117,31 @@ export default class SegmentService {
 
     };
 
+    mdmCodeLookUp = async (_req) => {
+
+        if (!_req.params.code) {
+            throw new Error("Mdm code is missing");
+        }
+
+        try {
+
+            const _record = await MYDBM.queryWithConditions(
+                `SELECT mgpm.MDM_PRODUCT_CODE,                         
+                    CONCAT(mgpm.MDM_PRODUCT_CODE, ' - ', mgpm.PRODUCT_NAME) AS ProductName,
+                    mgpm.PTR, mgpm.MRP, mgpm.PRODUCT_NAME as name 
+                 FROM mdm_golden_product_master mgpm
+                 WHERE mgpm.MDM_PRODUCT_CODE=?`, 
+                [_req.params.code]
+            );
+
+            return _record;
+
+        } catch (e) {
+            throw e;
+        }
+
+    };
+
     listAll = async (_req) => {
 
         try {
@@ -914,12 +939,19 @@ export default class SegmentService {
                 'SELECT * FROM brands b WHERE b.IsDeleted = 0 AND b.IsApproved = 1 AND LOWER(Name) LIKE LOWER(?) LIMIT ?, ?',
                 [search, skip, pageSize]
             );
-            const totalCount = await MYDBM.queryWithConditions(
-                'SELECT COUNT(*) as count FROM brands b WHERE b.IsDeleted = 0 AND b.IsApproved = 1 AND LOWER(Name) LIKE LOWER(?)',
+            const totalCountResult = await MYDBM.queryWithConditions(
+                'SELECT COUNT(*) as TotalCount FROM brands b WHERE b.IsDeleted = 0 AND b.IsApproved = 1 AND LOWER(Name) LIKE LOWER(?)',
                 [search]
             );
 
-            return [((Array.isArray(totalCount) && totalCount.length == 1) ? totalCount[0].count : 0), page, _records];                  
+            const count = totalCountResult[0]?.TotalCount || 0;
+            
+            return  {
+                count,
+                page,
+                pageSize,
+                records: _records,
+            };
 
         } catch (e) {
             throw e;
@@ -932,69 +964,84 @@ export default class SegmentService {
         try {
 
             const pageSize = 10;
-            const page = parseInt(_req.query.page) || 1;
-            const skip = (page - 1) * pageSize;                       
+            const page = Math.max(parseInt(_req.query.page, 10) || 1, 1); // Ensure page is at least 1
+            const skip = (page - 1) * pageSize;
             const search = _req.query.search ? `%${_req.query.search}%` : "%";
-
+    
+            // Fetch paginated records
             const _records = await MYDBM.queryWithConditions(
                 `SELECT DISTINCT(s.Category) AS Name
-                FROM storeproducts s
-                WHERE LOWER(s.Category) LIKE LOWER(?)
-                ORDER BY s.Category
-                LIMIT ? OFFSET ?`
-                [search, skip, pageSize]
+                 FROM storeproducts s
+                 WHERE LOWER(s.Category) LIKE LOWER(?)
+                 ORDER BY s.Category
+                 LIMIT ? OFFSET ?`,
+                [search, pageSize, skip]
             );
-            const totalCount = await MYDBM.queryWithConditions(
+    
+            // Fetch total count
+            const totalCountResult = await MYDBM.queryWithConditions(
                 `SELECT COUNT(DISTINCT s.Category) AS TotalCount
-                FROM storeproducts s
-                WHERE LOWER(s.Category) LIKE LOWER(?)`,
+                 FROM storeproducts s
+                 WHERE LOWER(s.Category) LIKE LOWER(?)`,
                 [search]
             );
-
-            return [((Array.isArray(totalCount) && totalCount.length == 1) ? totalCount[0].count : 0), page, _records];                        
-
+    
+            const count = totalCountResult[0]?.TotalCount || 0;
+    
+            return {
+                count,
+                page,
+                pageSize,
+                records: _records,
+            };
+    
         } catch (e) {
+            console.error("Error in searchCategories:", e.message);
             throw e;
         }
 
-    };
+    };    
 
     searchMdmProducts = async (_req) => {
 
         try {
-
+            
             const pageSize = 10;
-            const page = parseInt(_req.query.page) || 1;
-            const skip = (page - 1) * pageSize;                       
-            const search = _req.query.search ? `'%${_req.query.search}%'` : `'%'`;
-
+            const page = Math.max(parseInt(_req.query.page, 10) || 1, 1);
+            const skip = (page - 1) * pageSize;
+            const search = _req.query.search ? `%${_req.query.search}%` : `%`;
+    
+            // Fetch paginated records
             const _records = await MYDBM.queryWithConditions(
-                `SELECT DISTINCT mspm.MDM_PRODUCT_CODE, 
-                CONCAT(mspm.MDM_PRODUCT_CODE, ' - ', mgpm.PRODUCT_NAME) AS ProductName
-                FROM mdm_store_product_master mspm
-                INNER JOIN prproduct_mdm_product_linkage pmpl 
-                    ON pmpl.PRODUCT_CODE = mspm.PRODUCT_CODE
-                INNER JOIN mdm_golden_product_master mgpm 
-                    ON pmpl.MDM_PRODUCT_CODE = mgpm.MDM_PRODUCT_CODE
-                WHERE (LOWER(mgpm.PRODUCT_NAME) LIKE LOWER(${search}) OR LOWER(mspm.MDM_PRODUCT_CODE) LIKE LOWER(${search}))
-                LIMIT ${skip}, ${pageSize}`,
+                `SELECT mgpm.MDM_PRODUCT_CODE, 
+                    CONCAT(mgpm.MDM_PRODUCT_CODE, ' - ', mgpm.PRODUCT_NAME) AS ProductName,
+                    mgpm.PTR, mgpm.MRP, mgpm.PRODUCT_NAME as name 
+                 FROM mdm_golden_product_master mgpm
+                 WHERE (LOWER(mgpm.PRODUCT_NAME) LIKE LOWER('${search}') 
+                        OR LOWER(mgpm.MDM_PRODUCT_CODE) LIKE LOWER('${search}'))
+                 LIMIT ${skip}, ${pageSize}`, 
                 []
             );
-
-            const totalCount = await MYDBM.queryWithConditions(
-                `SELECT COUNT(DISTINCT mspm.MDM_PRODUCT_CODE) AS TotalCount
-                FROM mdm_store_product_master mspm
-                INNER JOIN prproduct_mdm_product_linkage pmpl 
-                    ON pmpl.PRODUCT_CODE = mspm.PRODUCT_CODE
-                INNER JOIN mdm_golden_product_master mgpm 
-                    ON pmpl.MDM_PRODUCT_CODE = mgpm.MDM_PRODUCT_CODE
-                WHERE (LOWER(mgpm.PRODUCT_NAME) LIKE LOWER(${search}) OR LOWER(mspm.MDM_PRODUCT_CODE) LIKE LOWER(${search}))`,
+    
+            // Fetch total count
+            const totalCountResult = await MYDBM.queryWithConditions(
+                `SELECT COUNT(*) AS TotalCount
+                 FROM mdm_golden_product_master mgpm
+                 WHERE (LOWER(mgpm.PRODUCT_NAME) LIKE LOWER('${search}') 
+                        OR LOWER(mgpm.MDM_PRODUCT_CODE) LIKE LOWER('${search}'))`,
                 []
-            );
+            );    
 
-            return [((Array.isArray(totalCount) && totalCount.length == 1) ? totalCount[0].TotalCount : 0), page, _records];            
+            const count = totalCountResult[0]?.TotalCount || 0;
 
-        } catch (e) {  console.log(e);
+            return {
+                count,
+                page,
+                pageSize,
+                records: _records
+            };
+    
+        } catch (e) {            
             throw e;
         }
 
@@ -1018,17 +1065,17 @@ export default class SegmentService {
 
                     } else if (_entity === "brands") {
 
-                        const [count, page, records] = await this.searchBrands(_req);
+                        const {count, page, records} = await this.searchBrands(_req);
                         callback(Utils.response(count, page, records), null);
 
                     } else if (_entity === "mdms") {
 
-                        const [count, page, records] = await this.searchMdmProducts(_req);
+                        const {count, page, records} = await this.searchMdmProducts(_req);
                         callback(Utils.response(count, page, records, 10), null);
 
                     } else if (_entity === "categories") { 
                         
-                        const [count, page, records] = await this.searchCategories(_req);
+                        const {count, page, records} = await this.searchCategories(_req);
                         callback(Utils.response(count, page, records), null);
 
                     } else if (_entity === "companies") {

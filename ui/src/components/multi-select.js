@@ -134,10 +134,16 @@ const MultiSelect = (props, ref) => {
 
         },
         setSelectedRecords: (_records) => {
-            setState((prevState) => ({
-                ...prevState,                           
-                selectedRecords: _records ? _records : []                                   
-            }));        
+            if (_records == "all") {
+                setMode("all");
+            } else if (_records == "none") {
+                setMode("none");
+            } else {
+                setState((prevState) => ({
+                    ...prevState,                           
+                    selectedRecords: _records ? _records : []                                   
+                }));        
+            }            
             setUserMessage(props.config.placeholder);
             if (_records.length > 0) {                
                 if (props.child && props.child.current) {

@@ -230,7 +230,7 @@ const Search = (props, ref) => {
 
         setState({ ...state, active: false, resultText: record[props.config.label_key], currentRecord: record });
 
-        if (props.onRecordSelected) {  console.log("onRecordSelected call back is there, about to call it");
+        if (props.onRecordSelected) {
             /* this option exclusively used by segment rule widget */
             props.onRecordSelected(record, props.index);
         } else if (contextObj && contextObj.onSearchRecordSelected) {
@@ -243,7 +243,7 @@ const Search = (props, ref) => {
 
     useEffect(() => {
 
-        const handleBlur = (event) => { console.log("handleBlur is called");
+        const handleBlur = (event) => {
             if (containerRef.current && !containerRef.current.contains(event.relatedTarget)) {
                 setState((prevState) => ({ ...prevState, active: false }));
             }
@@ -262,6 +262,7 @@ const Search = (props, ref) => {
     const self = {
         getRecords: () => state.records,
         getCurrentRecord: () => state.currentRecord[props.config.value_key] || null,
+        getCurrentRecordWhole: () => state.currentRecord || null,
         setCurrentRecord: (_record) => {
             setState({ ...state, currentRecord: _record || {} });
             if (contextObj && contextObj.onSearchRecordSelected) {

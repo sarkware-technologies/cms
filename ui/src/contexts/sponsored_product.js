@@ -111,6 +111,27 @@ export default function SponsoredProductContext(_component) {
                     }, 1000);                
                 }
 
+                /* Retrieve the mdm record */
+                if (record.mdmProductCode) {
+                    
+                    const request = {};  
+                    request["method"] = "GET";
+                    request["endpoint"] = "/segmentation/v1/segment/mdmLookUp/"+ record.mdmProductCode;
+
+                    this.controller.docker.dock(request).then((_res) => {
+                            
+                        const _mdmProductCodeField = this.controller.getField("sponsored_product_form_mdmProductCode");            
+                        if (_mdmProductCodeField && Array.isArray(_res) && _res.length > 0) {                            
+                            _mdmProductCodeField.setCurrentRecord(_res[0]);                            
+                        }
+                            
+                    })
+                    .catch((e) => {
+                        console.log(e);
+                    }); 
+
+                }
+
             }
 
         }
@@ -157,9 +178,14 @@ export default function SponsoredProductContext(_component) {
         const sponsoredProductForm = this.controller.getField("sponsored_product_form");
         if (sponsoredProductForm) {
 
+            if (!this.validateDates()) {
+                return;
+            }
+
             request["payload"] = sponsoredProductForm.getFormFields();   
             const _segmentField = this.controller.getField("sponsored_product_form_segments");
-            if (this.keywordManagerRef.current && _segmentField) {
+            const _mdmProductCodeField = this.controller.getField("sponsored_product_form_mdmProductCode");
+            if (this.keywordManagerRef.current && _segmentField && _mdmProductCodeField) {
 
                 const _keywords = this.keywordManagerRef.current.getVal();
                 if (_keywords && _keywords.length > 0) {
@@ -168,6 +194,12 @@ export default function SponsoredProductContext(_component) {
                     if (_segments != "none") {
 
                         request["payload"]["keywords"] = _keywords;
+
+                        const mdmRecord = _mdmProductCodeField.getCurrentRecordWhole();
+                        request["payload"]["mrp"] = mdmRecord.MRP;
+                        request["payload"]["ptr"] = mdmRecord.PTR;
+                        request["payload"]["productName"] = mdmRecord.name; 
+
                         this.controller.docker.dock(request).then((_res) => {
                             
                             if (request["method"] == "POST") {
@@ -183,7 +215,7 @@ export default function SponsoredProductContext(_component) {
                         });                        
 
                     } else {
-                        this.controller.notify("Please select some or all segments", "error");
+                        this.controller.notify("Please select one or more segments", "error");
                     }
 
                 } else {
@@ -193,6 +225,36 @@ export default function SponsoredProductContext(_component) {
             }
 
         }
+
+    };
+
+    this.validateDates = () => {
+
+        const fromDateField = this.controller.getField("sponsored_product_form_validFrom");
+        const toDateField = this.controller.getField("sponsored_product_form_validUpto");
+
+        if (fromDateField  && toDateField) {
+
+            const sDate = new Date(fromDateField.getVal());
+            const eDate = new Date(toDateField.getVal());        
+
+            if (sDate && eDate) {
+
+                sDate.setHours(0,0,0,0);
+                eDate.setHours(0,0,0,0);
+
+                if (eDate < sDate) {                   
+                    window._controller.notify("To date should be greater than or equal to From date", "error");
+                    return false;
+                }
+
+            }       
+
+        }
+       
+        
+
+        return true;
 
     };
 

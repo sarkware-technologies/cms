@@ -8,6 +8,17 @@ const segmentService = new SegmentService();
 const moduleHandle = "segment";
 
 router.get(
+    `/${moduleHandle}/mdmLookUp/:code`,
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
+        try {
+            res.status(200).json(await segmentService.mdmCodeLookUp(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.get(
     `/${moduleHandle}/all`,
     await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {

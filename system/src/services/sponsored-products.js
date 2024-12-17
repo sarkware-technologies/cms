@@ -45,7 +45,7 @@ export default class SponsoredProductService {
             return Utils.response(_count, page, _sponsoredProducts);
 
         } catch (e) {
-            throw _e;
+            throw e;
         }
 
     };   
