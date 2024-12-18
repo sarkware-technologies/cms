@@ -259,9 +259,7 @@ export default class SynchService {
                         orderId: OrderId,
                         queueStatus : QueueStatus.WAITING
                     });
-                    const ddd = await orderQueue.save();
-                    console.log(ddd);
-                    console.log("About to call processQueue");
+                    await orderQueue.save();                    
 
                     /* Trigger the order builder */
                     await this.orderBuildManager.processQueue();
@@ -305,7 +303,12 @@ export default class SynchService {
 
             const order = await orderModel.findOneAndUpdate(
                 { orderId: OrderId },
-                { $set: { orderStatus: body.IsProcessed ? "Processed" : (body.IsUploaded ? "Uploaded" : "Placed") } },
+                {   
+                    $set: { 
+                        orderStatus: body.IsProcessed ? "Processed" : (body.IsUploaded ? "Uploaded" : "Placed"), 
+                        isProcessed: body.IsProcessed
+                    }
+                },
                 { new: true }
             );
 

@@ -268,9 +268,9 @@ export default function SegmentContext(_component) {
                 
                 if (this.geographySelectorRef && this.geographySelectorRef.current) {
                     if (record.geography == 1) {
-                        this.geographySelectorRef.current.setSelectedRecords(record.states);
+                        this.geographySelectorRef.current.setSelectedRecords(record.states || 'none');
                     } else {
-                        this.geographySelectorRef.current.setSelectedRecords(record.regions);
+                        this.geographySelectorRef.current.setSelectedRecords(record.regions || 'none');
                     }
                 }
 
@@ -615,9 +615,8 @@ export default function SegmentContext(_component) {
                     request["endpoint"] = "/segmentation/v1/segment/" + segment._id;                
 
                     this.controller.docker.dock(request).then((_res) => {
-                        this.controller.notify(segment.title + " deleted successfully.!");
-                        this.controller.switchView("main_view");
-                        this.component.currentRecord = {};                
+                        this.controller.notify(segment.title + " deleted successfully.!");                        
+                        this.component.triggerBack();          
                     })
                     .catch((e) => {
                         this.controller.notify(e.message, "error");
@@ -851,9 +850,8 @@ export default function SegmentContext(_component) {
             this.controller.docker.dock(request).then((_res) => {
 
                 if (_res.status) {
-                    this.controller.notify(((_res.payload ? _res.payload.title : _res.title )  + " saved successfully.!"));
-                    this.controller.switchView("main_view");
-                    this.component.currentRecord = {};
+                    this.controller.notify(((_res.payload ? _res.payload.title : _res.title )  + " saved successfully.!"));                    
+                    this.component.triggerBack();
                 } else {
                     this.controller.notify("Failed to save segment.!", "error");
                 }

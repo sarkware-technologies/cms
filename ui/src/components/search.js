@@ -297,7 +297,11 @@ const Search = (props, ref) => {
                     type="text"
                     placeholder={props.config.placeholder}
                     onFocus={handleResultBoxFocus}
-                    value={state.currentRecord ? state.currentRecord[props.config.label_key] : (props.value ? props.value : "")}
+                    value={
+                        state.currentRecord && state.currentRecord[props.config.label_key]
+                            ? state.currentRecord[props.config.label_key]
+                            : (props.value || "")
+                    }
                     readOnly
                 />
                 <i className="fa fa-angle-down"></i>

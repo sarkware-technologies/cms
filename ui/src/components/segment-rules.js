@@ -102,7 +102,7 @@ const SegmentRule = (props, ref) => {
 
     const handleTargetChange = (_value, _index) => {
         const _rules = [...rules];
-        _rules[_index].target = _value;
+        _rules[_index].target = _value.MDM_PRODUCT_CODE;
         setRules(_rules);
     };
 

@@ -1080,7 +1080,7 @@ export default class SegmentService {
 
                     } else if (_entity === "companies") {
 
-                        callback(await MYDBM.query("select * from companies c where c.IsDeleted = 0 AND c.IsApproved = 1"), null);
+                        callback(await MYDBM.query("select c.CompanyId, c.CompanyName from companies c where c.IsDeleted = 0 AND c.IsApproved = 1"), null);
 
                     } else if (_entity === "cities") {
 

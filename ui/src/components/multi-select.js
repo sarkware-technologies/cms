@@ -449,7 +449,7 @@ const MultiSelect = (props, ref) => {
                     contextObj.onMultiSelectRecordLoaded(props.config.handle);
                 } 
             })
-            .catch((e) => {
+            .catch((e) => { 
                 window._controller.notify(e.message, "error");
             });            
 
