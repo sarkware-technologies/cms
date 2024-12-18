@@ -3,16 +3,17 @@ import CmsRedisClient from "../utils/cms-redis.js";
 import Retailer from "../models/retailer.js";
 import RetailerMaster from "../models/retailer-master.js";
 import SegmentRetailerModel from "../models/segment-retailer.js";
+import SponsoredProductModel from "../models/sponsored-product.js";
 import SponsoredProductPerformanceModel from "../models/sponsored-product-performance.js";
+import MYDBM from "../utils/mysql.js";
 
 export default class SponsoredProductService {
 
-    constructor() {        
+    constructor() {
         this.redisClient = CmsRedisClient.getInstance();
     }
 
     getSponsoredProducts = async (_req) => {
-
         try {
 
             const user = _req.user;
@@ -25,7 +26,8 @@ export default class SponsoredProductService {
                 throw new Error("Search key is empty");
             }
 
-            let retailerId = null;                     
+            let retailerId = null;
+            let regionName = null;
             let cmsRetailer = null;
             let sponsoredProducts = [];
             let retailer = await Retailer.findOne({ userId: user });
@@ -42,7 +44,7 @@ export default class SponsoredProductService {
                         userId: user,
                         RetailerId: retailerPromise[0].RetailerId,
                         RetailerName: retailerPromise[0].RetailerName,
-                        RegionName: retailerPromise[0].RegionName                            
+                        RegionName: retailerPromise[0].RegionName
                     });
                 }
 
@@ -50,15 +52,15 @@ export default class SponsoredProductService {
 
             if (retailer) {
                 retailerId = retailer.RetailerId;
-                regionName = retailer?.RegionName;                    
-            }                
+                regionName = retailer?.RegionName;
+            }
 
             if (!retailerId) {
                 throw new Error("No retailer found", retailer);
             }
 
             /* Get  cms retailer id as well */
-            cmsRetailer = await RetailerMaster.findOne({ RetailerId: retailerId}).lean();
+            cmsRetailer = await RetailerMaster.findOne({ RetailerId: retailerId }).lean();
 
             if (!cmsRetailer) {
                 throw new Error(`The retailer ${retailerId} is no found on CMS Retailer Master collection`);
@@ -67,43 +69,50 @@ export default class SponsoredProductService {
             const retailerSegments = await this.determineSegments(cmsRetailer._id);
             if (retailerSegments) {
 
-                const _sps = await this.redisClient.getAll("pharmarack_cms_sponsored_products");
-                if (_sps) {
-                    
-                    const sKeys = Object.keys(_sps);
-                    for (let i = 0; i <  sKeys.length;  i++) {
+                // const _sps = await this.redisClient.getAll("pharmarack_cms_sponsored_products");
+                const _sps = await SponsoredProductModel.find({ keywords: search });
 
-                        if (_sps[sKeys[i]].keywords.includes(search) && this.evaluateSegmentRule(_sps[sKeys[i]].segments, retailerSegments )) {
+
+                if (_sps) {
+
+                    // const sKeys = Object.keys(_sps);
+                    // for (let i = 0; i <  _sps.length;  i++) {
+
+                    _sps.forEach(async (e) => {
+                        if (this.evaluateSegmentRule(e.segments, retailerSegments)) {
 
                             sponsoredProducts.push({
-                                "ProductName": _sps[sKeys[i]].productName,
-                                "PTR": _sps[sKeys[i]].ptr,
-                                "MRP": _sps[sKeys[i]].mrp,
-                                "MDMProductCode": _sps[sKeys[i]].mdmProductCode,
+                                "ProductName": e.productName,
+                                "PTR": e.ptr,
+                                "MRP": e.mrp,
+                                "MDMProductCode": e.mdmProductCode,
                                 "Keyword": search,
-                                "SponsoredProduct": sKeys[i]
+                                "SponsoredProduct": e._id,
+                                // "SponsoredProductdetails": e
                             });
 
                             await SponsoredProductPerformanceModel.findOneAndUpdate(
-                                { sponsoredProduct: sKeys[i], keyword: search },
+                                { sponsoredProduct: e._id, keyword: search },
                                 { $inc: { impression: 1 } },
                                 { new: true, upsert: true }
                             );
-                            
+
                         }
 
-                    }
+                    })
+
+                    // }
 
                 }
 
-            }            
+            }
 
             return {
                 "success": true,
                 "StatusCode": 200,
                 "data": sponsoredProducts,
                 "message": "Group search mapped result",
-                "uuid": "1df1e469-948a-4dca-abed-c828ba1a16b3"
+                "uuid": "1df1e469-948a-4dca-abed-c828ba1a16b3",
             };
 
         } catch (e) {
@@ -120,13 +129,13 @@ export default class SponsoredProductService {
             if (!body) {
                 throw new Error("Request body is empty");
             }
-    
+
             const { sponsoredProduct, keyword, event, qty } = body;
-    
+
             if (!sponsoredProduct || !keyword) {
                 throw new Error("Missing required fields: sponsoredProduct or keyword");
             }
-    
+
             if (event === 1) {
                 // Cart event
                 await SponsoredProductPerformanceModel.findOneAndUpdate(
@@ -140,7 +149,7 @@ export default class SponsoredProductService {
                     ordered: 1,
                     orderedQty: typeof qty === "number" ? qty : 1,
                 };
-    
+
                 await SponsoredProductPerformanceModel.findOneAndUpdate(
                     { sponsoredProduct, keyword },
                     { $inc: incrementFields },
@@ -155,7 +164,7 @@ export default class SponsoredProductService {
         }
 
     };
-    
+
 
     evaluateSegmentRule = (_sponsoredSegments, _retailerSegments) => {
 
@@ -186,9 +195,9 @@ export default class SponsoredProductService {
 
         try {
 
-            const _segments = await SegmentRetailerModel.find({ retailer: _cmsRetailerId }).select("segment").lean();                       
+            const _segments = await SegmentRetailerModel.find({ retailer: _cmsRetailerId }).select("segment").lean();
             return _segments.map(item => item.segment || null).filter(Boolean);
-         
+
         } catch (error) {
             throw new Error('Error fetching user segments: ' + error.message);
         }

@@ -2,6 +2,9 @@ import mongoose from'mongoose';
 
 const SponsoredProductSchema = new mongoose.Schema({
     title                   : { type: String, required: true },
+    productName             : { type: String, default: "" },
+    ptr                     : { type: Number, default: 0 },
+    mrp                     : { type: Number, default: 0 },
     status                  : { type: Boolean, default: false },
     keywords                : { type: [{type: String}], default: [] },
     mdmProductCode          : { type: String, required: true },

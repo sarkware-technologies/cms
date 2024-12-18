@@ -6,9 +6,9 @@ import RC from "../utils/request-interceptor.js";
 const router = Router();
 const synchService = new SynchService();
 const moduleHandle = "synch";
-const basicAuthToken = process.env.CMS_SEGMENT_BASIC_AUTH || "0f777851-ac8a-4f42-84f2-230f98d7c8d1";
+const basicAuthToken = process.env.CMS_SEGMENT_BASIC_AUTH;
 
-const verifyBasicAuth = (_req) => { console.log("Cerify basic auth is called");
+const verifyBasicAuth = (_req) => {
 
     try {
 

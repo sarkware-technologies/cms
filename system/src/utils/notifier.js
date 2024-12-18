@@ -2,9 +2,9 @@ import AWS from 'aws-sdk';
 import axios from 'axios';
 
 AWS.config.update({
-	accessKeyId: "",
-    secretAccessKey: "",	
-	region: "ap-south-1"
+	accessKeyId: process.env.AWS_SES_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SES_SECRET_ACCESS_KEY,	
+	region: process.env.AWS_SES_REGION
 });
 
 class NotificationService {
