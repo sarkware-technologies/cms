@@ -52,6 +52,7 @@ class Cache {
 
         try {
 
+            await this.redisClient.invalidateAllCache("pharmarack_cms_sponsored_products");
             const sponsoredProducts = await SponsoredProductModel.find({ status: true }).lean();
 
             if (Array.isArray(sponsoredProducts)) {
