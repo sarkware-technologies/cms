@@ -13,7 +13,6 @@ class RequestInterceptor {
             "/cms/health",
             "/cms/api/invalidatePageCache",
             "/cms/api/invalidateAllPageCache",
-            "/cms/sponsoredProduct"
         ]
 
         this.express = null;        
@@ -56,7 +55,6 @@ class RequestInterceptor {
 
             const token = authHeader.split(" ")[1];
             const tokenValidationResult = Utils.verifyToken(token);
-
             if (tokenValidationResult.status) {
                 _req["user"] = tokenValidationResult.payload.id;
                 return _next(); // Token is valid, proceed

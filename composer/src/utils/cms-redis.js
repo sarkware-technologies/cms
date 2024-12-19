@@ -40,7 +40,7 @@ export default class CmsRedisClient {
 
     async put(group, key, object) {
         try {
-            await this.writeClient.hSet(group, key, object);                
+            await this.writeClient.hSet(group, key, JSON.stringify(object));                
         } catch (err) {
             console.error("Error storing object in Redis:", err);
         }

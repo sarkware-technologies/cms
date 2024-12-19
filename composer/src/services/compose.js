@@ -45,7 +45,10 @@ export default class ComposeService {
          */        
         
         let [module, entity, pageType] = this.getUrlPathParts(`${_req.protocol}://${_req.get("host")}${_req.originalUrl}`);
-
+        const _token = _req.headers["authorization"];
+        if (!_token) {
+            throw new Error("Bearer token not present");
+        }
         const user = _req.user;
         if (!user) {
             throw new Error("Invalid token");
@@ -190,16 +193,17 @@ export default class ComposeService {
                                     }
 
                                 }
-                                if(pageType =="home_page"){
-                                if (payload != null) {
-                                    payload.components['65fc01c082d219999d4a2c86'].childrens.map((e) => {
-                                        if (e.title == "Prescription") {
-                                                e.asset_url ='https://cms-pagecomposer.s3.ap-south-1.amazonaws.com/assets/1733483272744-Image.jpeg';
-                                        }
-                                    });
-                                    payload.components['6752d46ff113da328887d271'].mobile_asset_url="https://cms-pagecomposer.s3.ap-south-1.amazonaws.com/assets/1733481966416-Group%201000004152%20(1).png";
+
+                                if(pageType =="home_page") {
+                                    if (payload != null) {
+                                        payload.components['65fc01c082d219999d4a2c86']?.childrens.map((e) => {
+                                            if (e.title == "Prescription") {
+                                                    e.asset_url ='https://cms-pagecomposer.s3.ap-south-1.amazonaws.com/assets/1733483272744-Image.jpeg';
+                                            }
+                                        });
+                                        payload.components['6752d46ff113da328887d271'].mobile_asset_url="https://cms-pagecomposer.s3.ap-south-1.amazonaws.com/assets/1733481966416-Group%201000004152%20(1).png";
+                                    }
                                 }
-                            }
                                 // Cache the result
                                 await this.redisClient.put("PAGE", pageKey, payload);
 
@@ -231,7 +235,7 @@ export default class ComposeService {
     };
 
 
-    prepareComponent = async (_pageId, _componentTypeId, _positionIndex, _retailerId, _distributorId, _companyId, _token, _user, regionName, details, index, _segments) => {
+    prepareComponent = async (_pageId, _componentTypeId, _positionIndex, _retailerId, _distributorId, _companyId, _token, _user, regionName, details, index, _segments) => {  console.log("prepareComponent is called");
 
         try {
 
@@ -523,7 +527,6 @@ export default class ComposeService {
         try {          
             
             const groups = await RulesGroupModel.find({ component: _componentId }).lean();
-
             const orConditions = await Promise.all(
 
                 groups.map(async (group) => {
@@ -535,11 +538,12 @@ export default class ComposeService {
                     const andConditions = rules
                     .filter(Boolean)
                     .map((rule) => {
-                        if (rule.type === RuleType.RETAILER) {
+
+                        if (rule.type == RuleType.RETAILER) {
                             return this.evaluateSegmentRule(rule, _segments);
-                        } else if (_distributorId && rule.type === RuleType.DISTRIBUTOR) {
+                        } else if (_distributorId && rule.type == RuleType.DISTRIBUTOR) {
                             return this.evaluateDistributorRule(rule, _distributorId);
-                        } else if (_companyId && rule.type === RuleType.COMPANY) {
+                        } else if (_companyId && rule.type == RuleType.COMPANY) {
                             return this.evaluateCompanyRule(rule, _companyId);
                         }
                         return false;
@@ -570,16 +574,16 @@ export default class ComposeService {
     
             // If distributors is a string
             if (typeof distributors === "string") {
-                if (distributors === "none") {                    
-                    return condition !== ConditionType.INCLUDE; // true for EXCLUDE, false for INCLUDE
+                if (distributors == "none") {                    
+                    return condition != ConditionType.INCLUDE; // true for EXCLUDE, false for INCLUDE
                 } else {                    
-                    return condition === ConditionType.INCLUDE; // true for INCLUDE, false for EXCLUDE
+                    return condition == ConditionType.INCLUDE; // true for INCLUDE, false for EXCLUDE
                 }
             }
     
             // If distributors is an array
             const isMatched = Array.isArray(distributors) && distributors.includes(_distributorId);
-            return condition === ConditionType.INCLUDE ? isMatched : !isMatched;
+            return condition == ConditionType.INCLUDE ? isMatched : !isMatched;
 
         } catch (error) {
             console.error("Error in evaluateDistributorRule:", error);
@@ -597,16 +601,16 @@ export default class ComposeService {
 
             // If companies is string
             if (typeof companies === "string") {
-                if (companies === "none") {                    
-                    return condition !== ConditionType.INCLUDE; // true for EXCLUDE, false for INCLUDE
+                if (companies == "none") {                    
+                    return condition != ConditionType.INCLUDE; // true for EXCLUDE, false for INCLUDE
                 } else {                    
-                    return condition === ConditionType.INCLUDE; // true for INCLUDE, false for EXCLUDE
+                    return condition == ConditionType.INCLUDE; // true for INCLUDE, false for EXCLUDE
                 }
             }
     
             // If companies is an array
             const isMatched = Array.isArray(companies) && companies.includes(_companyId);
-            return condition === ConditionType.INCLUDE ? isMatched : !isMatched;
+            return condition == ConditionType.INCLUDE ? isMatched : !isMatched;
     
         } catch (error) {
             console.error("Error in evaluateCompanyRule:", error);
@@ -624,10 +628,10 @@ export default class ComposeService {
 
             // If segments is a string
             if (typeof segments === "string") {
-                if (segments === "none") {
-                    return condition !== ConditionType.INCLUDE; // false for INCLUDE, true for EXCLUDE
+                if (segments == "none") {
+                    return condition != ConditionType.INCLUDE; // false for INCLUDE, true for EXCLUDE
                 } else {
-                    return condition === ConditionType.INCLUDE; // true for INCLUDE, false for EXCLUDE
+                    return condition == ConditionType.INCLUDE; // true for INCLUDE, false for EXCLUDE
                 }
             }
 
@@ -637,11 +641,11 @@ export default class ComposeService {
                 const segmentSet = new Set(segments);
                 const hasMatchingSegment = _segments.some((segment) => segmentSet.has(segment));
 
-                return condition === ConditionType.INCLUDE ? hasMatchingSegment : !hasMatchingSegment;
+                return condition == ConditionType.INCLUDE ? hasMatchingSegment : !hasMatchingSegment;
             }
 
             // Default fallback
-            return condition !== ConditionType.INCLUDE; // false for INCLUDE, true for EXCLUDE
+            return condition != ConditionType.INCLUDE; // false for INCLUDE, true for EXCLUDE
 
         } catch (_e) {
             throw _e;
