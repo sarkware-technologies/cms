@@ -1,4 +1,4 @@
-import React, {forwardRef, useImperativeHandle, useState, useRef, useEffect, useLayoutEffect, memo} from "react";
+import React, {forwardRef, useImperativeHandle, useState, useRef, useEffect, useLayoutEffect, useMemo} from "react";
 import { v4 as uuidv4 } from 'uuid';
 
 const MultiSelect = (props, ref) => {
@@ -24,14 +24,7 @@ const MultiSelect = (props, ref) => {
      * popup
      * 
      */
-    const [behave, setBehaviour] = useState(('behaviour' in props.config) ? props.config.behaviour : "dropdown");
-
-    /**
-     * 
-     * Used to hold the original records
-     * 
-     */
-    const [original, setOriginal] = useState(props.original);
+    const [behave, setBehaviour] = useState(('behaviour' in props.config) ? props.config.behaviour : "dropdown");    
 
     /**
      * 
@@ -56,7 +49,14 @@ const MultiSelect = (props, ref) => {
         selectedRecords: ('selected' in props) ? ( Array.isArray(props.selected) ? props.selected : []) : [],
         searchText: "",
         resultText: ""
-    });        
+    });       
+
+    /**
+     * 
+     * Used to hold the original records
+     * 
+     */
+    const [original, setOriginal] = useState(props.original ? props.original : []);
 
     const self = { 
 
@@ -422,45 +422,65 @@ const MultiSelect = (props, ref) => {
 
     useEffect(() => {
 
-        if (props.config.source === "remote") {
-
-            const request = {
-                method: "GET",
-                endpoint: props.config.endpoint
-            };        
-
-            window._controller.docker.dock(request).then((_res) => {
-                if (Array.isArray(_res)) {
-
-                    setOriginal(_res);
-                    
-                    setState({
-                        ...state,
-                        currentPage: 0,  
-                        records: _res,
-                        source: _res,                                    
-                        isLoading: false,                            
-                        totalPages: Math.floor(_res.length / props.config.recordsPerPage) 
-                    });  
-                    
+        const fetchData = async () => {
+            if (props.config.source === "remote") {
+                const request = {
+                    method: "GET",
+                    endpoint: props.config.endpoint,
+                };
+    
+                try {
+                    const _res = await window._controller.docker.dock(request);
+                    if (Array.isArray(_res)) {
+                        let _originalRecords = _res;
+                        if (contextObj?.beforeLodingMultiSelect) {
+                            _originalRecords = await contextObj.beforeLodingMultiSelect(
+                                props.config.handle,
+                                _originalRecords
+                            );
+                        }
+    
+                        setState((prevState) => ({
+                            ...prevState,
+                            currentPage: 0,
+                            records: _originalRecords,
+                            source: _originalRecords,
+                            isLoading: false,
+                            totalPages: Math.ceil(
+                                _originalRecords.length / props.config.recordsPerPage
+                            ),
+                        }));
+                    }
+    
+                    if (contextObj?.onMultiSelectRecordLoaded) {
+                        contextObj.onMultiSelectRecordLoaded(props.config.handle);
+                    }
+                } catch (e) {
+                    window._controller.notify(e.message, "error");
                 }
-                
-                if (contextObj && contextObj.onMultiSelectRecordLoaded) {
-                    contextObj.onMultiSelectRecordLoaded(props.config.handle);
-                } 
-            })
-            .catch((e) => { 
-                window._controller.notify(e.message, "error");
-            });            
+            } else {              
 
-        } else {
-            setState({
-                ...state,
-                currentPage: 0,                    
-                totalPages: Math.floor(original.length / props.config.recordsPerPage) 
-            });            
-        }
+                let _originalRecords = original;
+                if (contextObj?.beforeLodingMultiSelect) {
+                    _originalRecords = await contextObj.beforeLodingMultiSelect(
+                        props.config.handle,
+                        _originalRecords
+                    );
+                }
 
+                setState((prevState) => ({
+                    ...prevState,
+                    currentPage: 0,
+                    active: behave === "flatlist" && _originalRecords.length > 0,
+                    records: _originalRecords.length > 0 ? _originalRecords : [],
+                    source: _originalRecords.length > 0 ? _originalRecords : [],
+                    totalPages: Math.ceil(_originalRecords.length / props.config.recordsPerPage),
+                }));
+            }
+        };
+    
+        fetchData();
+        
         const handleDocumentClick = (event) => {
         
             setState((prevState) => {
@@ -495,15 +515,18 @@ const MultiSelect = (props, ref) => {
 
     }, [state.records]);
 
-    let _placeholder = props.config.placeholder; 
+    const _placeholder = useMemo(() => {
+        if ((state.source.length > 0 && state.selectedRecords.length === state.source.length) || mode == "all") {
+            return `All ${props.config.placeholder}`;
+        } else if (state.selectedRecords.length > 0) {
+            return `${state.selectedRecords.length} ${props.config.placeholder} selected`;
+        }
+        return props.config.placeholder;
+    }, [state.source.length, state.selectedRecords, mode, props.config.placeholder]);
     
-    if ((state.source.length > 0 && state.selectedRecords.length === state.source.length) || mode == "all") {
-        _placeholder = "All "+ _placeholder;
-    } else if (state.selectedRecords.length > 0) {
-        _placeholder = (state.selectedRecords.length +" "+ props.config.placeholder +" selected");
-    }
-
-    const dropdownClass = state.active ? props.config.popup_class + " visible" : props.config.popup_class;
+    const dropdownClass = useMemo(() => {
+        return state.active ? `${props.config.popup_class} visible` : props.config.popup_class;
+    }, [state.active, props.config.popup_class]);    
 
     return (
         <>

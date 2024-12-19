@@ -922,6 +922,7 @@ let segment_config = {
                                                                                 classes: "",
                                                                                 fields: [                                                                        
                                                                                     { type: "text", label: "", handle: "title", value : "", placeholder: "Segment Name", classes : "", mandatory : true, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },                                                                    
+                                                                                    { type: "text", label: "", handle: "handle", value : "", placeholder: "Segment Handle", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" },                                                                    
                                                                                     { type: "textarea", label: "", handle: "description", value : "", placeholder: "Description", classes : "", mandatory : false, pattern: "", disabled: false, tabindex : 1, align: "right", label_width: 0, label_position: "top", autocomplete: false, prompt_message: "", validation_message: "" }
                                                                                 ]
                                                                             }                            
@@ -961,8 +962,8 @@ let segment_config = {
                                                                                         validation_message: "", 
                                                                                         value_key: "_id", 
                                                                                         label_key: "RetailerName", 
-                                                                                        source: "remote",
-                                                                                        endpoint: "/segmentation/v1/api/segment/segment/multi_select_list?entity=cms_master_retailer&select=_id|RetailerId|RetailerName"
+                                                                                        source: "local",
+                                                                                        original: window._controller.bucket.retailerList
                                                                                     }
                                                                                 ]
                                                                             }                            
@@ -1316,8 +1317,8 @@ let segment_config = {
             header: {
                 show: true,
                 actions: [                 
-                    { label: "Blacklist Retailers", theme: "warning", method: "delete", action: "BLACKLIST_RETAILER", classes: "bulk-retailer-removed", icon: "", tabindex : 8, status: true, shortcut: "" },
-                    { label: "Whitelist Retailers", theme: "primary", method: "post", action: "WHITELIST_RETAILER", classes: "bulk-retailer-added", icon: "", tabindex : 8, status: true, shortcut: "" }
+                    { label: "Delete Retailers", theme: "warning", method: "delete", action: "BLACKLIST_RETAILER", classes: "bulk-retailer-removed", icon: "", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Add Retailers", theme: "primary", method: "post", action: "WHITELIST_RETAILER", classes: "bulk-retailer-added", icon: "", tabindex : 8, status: true, shortcut: "" }
                 ]
             },
             content: {

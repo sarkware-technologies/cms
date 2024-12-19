@@ -197,7 +197,7 @@ const Tab = (props, ref) => {
         } else if (_config.type === "label") {
             field = <Text ref={fieldRef} namespace={_namespace} config={_config} />
         } else if (_config.type === "multiselect") {
-            field = <MultiSelect ref={fieldRef} namespace={_namespace} config={_config} />
+            field = <MultiSelect ref={fieldRef} namespace={_namespace} config={_config} original={_config.original ? _config.original : []} />
         } else if (_config.type === "image") {            
             field = <Image ref={fieldRef} namespace={_namespace} config={_config} />
         } else if (_config.type === "button") {            

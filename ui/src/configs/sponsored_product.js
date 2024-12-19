@@ -287,7 +287,7 @@ let sponsored_product_config = {
                                             classes: "",
                                             header: {title: "Keyword", align: "left", filterable: false, searchable: true, sortable: false}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "title", type: "link", align: "left", editable: false},
+                                            field: {handle: "keyword", type: "alphanumeric", align: "left", editable: false},
                                             prompt: ""
                                         },
                                         {
@@ -298,7 +298,7 @@ let sponsored_product_config = {
                                             classes: "",
                                             header: {title: "Impression", align: "left", filterable: false, searchable: false, sortable: false}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "mdmProductCode", type: "alphanumeric", align: "left", editable: false},
+                                            field: {handle: "impression", type: "alphanumeric", align: "left", editable: false},
                                             prompt: ""
                                         },
                                         {
@@ -309,7 +309,7 @@ let sponsored_product_config = {
                                             classes: "",
                                             header: {title: "In Cart", align: "left", filterable: false, searchable: false, sortable: false}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "validFrom", type: "date", align: "left", editable: false},
+                                            field: {handle: "addedToCart", type: "alphanumeric", align: "left", editable: false},
                                             prompt: ""
                                         },
                                         {
@@ -320,7 +320,7 @@ let sponsored_product_config = {
                                             classes: "",
                                             header: {title: "Ordered", align: "left", filterable: false, searchable: false, sortable: false}, 
                                             footer: {title: "", type: "none", total_type: "none", align: "left"},
-                                            field: {handle: "validUpto", type: "date", align: "left", editable: false},
+                                            field: {handle: "ordered", type: "alphanumeric", align: "left", editable: false},
                                             prompt: ""
                                         }                              
                                     ]

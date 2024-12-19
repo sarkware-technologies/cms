@@ -4078,6 +4078,6 @@ table.segment-summary-widget td span:last-child {
     margin-left: 5px;
 }
 
-.sponsored_product_form .pharmarack-cms-form-field-wrapper.segments {
-
+.new_segment_form .pharmarack-cms-form-field-wrapper.segmentType {
+    margin-bottom: 35px;
 }

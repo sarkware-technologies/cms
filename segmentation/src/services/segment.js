@@ -543,6 +543,23 @@ export default class SegmentService {
 
     };
 
+    listSegmentRetailersAll = async (_req) => {
+
+        try {
+
+            if (!_req.params.id) {
+                throw new Error("Segment id is missing");
+            }            
+
+            const segmentRetailerModel = await EM.getModel("cms_segment_retailer");
+            return await segmentRetailerModel.find({segment: _req.params.id}).select("retailer").lean();            
+
+        } catch (_e) {
+            throw _e;
+        }
+
+    };
+
     listWhitelistedRetailers = async (_req) => {
 
         try {

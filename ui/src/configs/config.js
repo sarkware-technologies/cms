@@ -68,7 +68,8 @@ const app_config = {
         segmentRecords: '/system/v1/api/component/component/multi_select_list?entity=cms_segment',
         distributorRecords: '/system/v1/api/component/component/multi_select_list?entity=distributor',
         companyRecords: '/system/v1/api/component/component/multi_select_list?entity=company',
-        componentTypeList: '/system/v1/api/component/component_type/all_component_type'
+        componentTypeList: '/system/v1/api/component/component_type/all_component_type',
+        retailerList: '/segmentation/v1/api/segment/segment/multi_select_list?entity=cms_master_retailer&select=_id|RetailerId|RetailerName'
     }
 
 };

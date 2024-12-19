@@ -30,7 +30,7 @@ export default function SponsoredProductContext(_component) {
      * Called before making request to server - for datagrid
      * 
      */
-    this.onDatagridRequest = (_handle, _datasource) => {  console.log("onDatagridRequest is called for : "+ _handle);
+    this.onDatagridRequest = (_handle, _datasource) => {
 
         let datasource = JSON.parse(JSON.stringify(_datasource));        
         const record = this.component.currentRecord["sponsored_product_grid"];
@@ -88,7 +88,7 @@ export default function SponsoredProductContext(_component) {
      * Called whenever view is mounted on the DOM
      * 
      */
-    this.onViewMounted = (_handle) => {    console.log("onViewMounted is called : "+ _handle);
+    this.onViewMounted = (_handle) => {
 
         if (_handle == "sponsored_product_form") {
 

@@ -70,7 +70,7 @@ export default class SponsoredProductService {
             if (retailerSegments) {
 
                 // const _sps = await this.redisClient.getAll("pharmarack_cms_sponsored_products");
-                const _sps = await SponsoredProductModel.find({ keywords: search });
+                const _sps = await SponsoredProductModel.find({ status: true, keywords: search });
 
 
                 if (_sps) {

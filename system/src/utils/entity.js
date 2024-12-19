@@ -83,6 +83,7 @@ class EntityManager {
                     config["index"] = field.index;
                 }
 
+                /* Compound index */
                 if (field.compound) {
                     compoundIndex.push(field.handle);
                 }
@@ -198,7 +199,14 @@ class EntityManager {
             
         }
 
-        return mongoose.model(_collectionName, schema);        
+        /* This check is needed, as the model might be created because of foreign key ref */
+        if (mongoose.modelNames().includes(_collectionName)) {
+            return mongoose.model(_collectionName);
+        }
+
+        const _model = mongoose.model(_collectionName, schema);        
+        //await _model.createIndexes();
+        return _model;
 
     };
 

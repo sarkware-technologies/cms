@@ -118,6 +118,17 @@ export default function ContextInterface(_component) {
      * Called whenever any multiselector loaded
      * 
      */
+    this.beforeLodingMultiSelect = (_handle, _records) => {
+        return _records;
+    };
+
+    /**
+     * 
+     * @param {*} _handle 
+     * 
+     * Called whenever any multiselector loaded
+     * 
+     */
     this.onMultiSelectRecordLoaded = (_handle) => {
 
     };

@@ -41,6 +41,17 @@ router.get(
 );
 
 router.get(
+    `/${moduleHandle}/:id/retailers/all`,
+    await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
+        try {
+            res.status(200).json(await segmentService.listSegmentRetailersAll(req));
+        } catch (error) {
+            Utils.handleError(error, res);
+        }
+    })
+);
+
+router.get(
     `/${moduleHandle}/:id/summary`,
     await RC.interceptRequest(moduleHandle, 'get', [], async (req, res) => {
         try {

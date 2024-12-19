@@ -254,6 +254,46 @@ export default function SegmentContext(_component) {
      * Called whenever any multiselector loaded
      * 
      */
+    this.beforeLodingMultiSelect = async (_handle, _records) => {
+
+        const record = this.getCurrentSegmentRecord();
+
+        if (record && _handle === "add_retailers") {
+            // If it's edit segment view, filter out mapped retailers
+            const _filtered = [];
+            const request = {
+                method: "GET",
+                endpoint: `/segmentation/v1/segment/${record._id}/retailers/all`,
+            };
+    
+            try {
+                const _res = await this.controller.docker.dock(request);
+                const retailers = this.controller.bucket.retailerList;
+    
+                for (let retailer of retailers) {
+                    const exists = _res.some((firstItem) => firstItem.retailer === retailer._id);
+                    if (!exists) {
+                        _filtered.push(retailer);
+                    }
+                }
+    
+                return _filtered;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    
+        return _records;
+        
+    };
+
+    /**
+     * 
+     * @param {*} _handle 
+     * 
+     * Called whenever any multiselector loaded
+     * 
+     */
     this.onMultiSelectRecordLoaded = (_handle) => {
 
         const record = this.getCurrentSegmentRecord();
@@ -443,9 +483,10 @@ export default function SegmentContext(_component) {
      */
     this.beforeViewMount = (_handle, _viewConfig) => {
 
-        if (_handle === "segment_form") {
-            const segment = this.getCurrentSegmentRecord();  
-            if (segment && segment.segmentType == 2) {    
+        const segment = this.getCurrentSegmentRecord();  
+
+        if (_handle === "segment_form" && segment) {            
+            if (segment.segmentType == 2) {    
                 _viewConfig.context_header.actions = [
                     { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
                     { label: "Delete Segment", theme: "danger", method: "delete", action: "DELETE_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
@@ -458,13 +499,17 @@ export default function SegmentContext(_component) {
                     { label: "", theme: "primary", method: "put", action: "BUILD_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "fa fa-gear", tabindex : 8, status: true, shortcut: "" },
                 ];                
             }
-        } else if (_handle === "segment_retailer_form") {
-            const segment = this.getCurrentSegmentRecord();  
-            if (segment && segment.segmentType == 2) {
+        } else if (_handle === "segment_retailer_form" && segment) {            
+            if (segment.segmentType == 2) {
                 _viewConfig.content.rows[0].columns[0].view = "static_retailer_list_form";
             } else {
                 _viewConfig.content.rows[0].columns[0].view = "dynamic_retailer_list_form";
             }
+        } else if (_handle === "new_segment_form" && segment) {
+            /* If it is for edit segment  then no need to show the  segment type change radio */
+            const editViewConfig = JSON.parse(JSON.stringify(_viewConfig));
+            editViewConfig.content.rows[0].columns[0].rows.splice(0, 1);
+            return editViewConfig; 
         }
 
         return _viewConfig;
