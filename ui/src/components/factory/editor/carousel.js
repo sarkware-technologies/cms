@@ -19,6 +19,7 @@ const Carousel = (props, ref) => {
 
     let groupsRef = null;
 
+    let tabAssetMediaRef = null;
     let webAssetMediaRef = null;
     let mobileAssetMediaRef = null;
 
@@ -145,6 +146,7 @@ const Carousel = (props, ref) => {
             }
         } catch (_e) {
             console.error(_e);
+            window._controller.notify(_e.message, "error");
         }
 
     };
@@ -198,6 +200,7 @@ const Carousel = (props, ref) => {
 
         groupsRef = React.createRef();
 
+        tabAssetMediaRef = React.createRef();
         webAssetMediaRef = React.createRef();
         mobileAssetMediaRef = React.createRef();
         
@@ -205,13 +208,16 @@ const Carousel = (props, ref) => {
         carouselItemEndDateRef = React.createRef();
         carouselItemStartDateRef = React.createRef();
 
+        const _tabAssetMedia = <Media key={uuidv4()} ref={tabAssetMediaRef} config={carouselItemConfig["tab_asset_url"]} type={_type} handleMediaChange={handleMediaChange} handleMediaDelete={handleMediaDelete} value={_config["tab_asset_url"]} />;
         const _webAssetMedia = <Media key={uuidv4()} ref={webAssetMediaRef} config={carouselItemConfig["web_asset_url"]} type={_type} handleMediaChange={handleMediaChange} handleMediaDelete={handleMediaDelete} value={_config["web_asset_url"]} />;
         const _mobileAssetMedia = <Media key={uuidv4()} ref={mobileAssetMediaRef} config={carouselItemConfig["mobile_asset_url"]} type={_type} handleMediaChange={handleMediaChange} handleMediaDelete={handleMediaDelete} value={_config["mobile_asset_url"]} />;
 
+        const tabAssetMedia = Helper.buildWrapper(carouselItemConfig["tab_asset_url"], _tabAssetMedia);
         const webAssetMedia = Helper.buildWrapper(carouselItemConfig["web_asset_url"], _webAssetMedia);
         const mobileAssetMedia = Helper.buildWrapper(carouselItemConfig["mobile_asset_url"], _mobileAssetMedia);
 
         /* Prevent this media from rendering by the helper */
+        carouselItemConfig["tabAssetMedia"]["visible"] = false;
         carouselItemConfig["web_asset_url"]["visible"] = false;
         carouselItemConfig["mobile_asset_url"]["visible"] = false;
 
@@ -244,6 +250,7 @@ const Carousel = (props, ref) => {
         }   
         
         result.fields.splice(0, 0, webAssetMedia);
+        result.fields.splice(0, 0, tabAssetMedia);        
         result.fields.splice(0, 0, mobileAssetMedia);
 
         return (
@@ -482,13 +489,15 @@ const Carousel = (props, ref) => {
                 /* Update the carousel item config */
 
                 /* Now update the media fields - since it is not managed by the Helper utils */
+                carouselItemConfigValues["tab_asset_url"] = tabAssetMediaRef.current.getVal();
                 carouselItemConfigValues["web_asset_url"] = webAssetMediaRef.current.getVal();
                 carouselItemConfigValues["mobile_asset_url"] = mobileAssetMediaRef.current.getVal();
 
                 /* Get the dimension too */
                 carouselItemConfigValues["mobile_assest_dimension"] = mobileAssetMediaRef.current.getDimension();    
-                carouselItemConfigValues["web_assest_dimension"] = webAssetMediaRef.current.getDimension();    
-
+                carouselItemConfigValues["web_assest_dimension"] = webAssetMediaRef.current.getDimension();  
+                carouselItemConfigValues["tab_assest_dimension"] = tabAssetMediaRef.current.getDimension();  
+                
                 carouselItem["configuration"] = carouselItemConfigValues;                    
                 carouselItem["title"] = carouselItemTitleRef.current.getVal();
                 carouselItem["start_date"] = carouselItemStartDateRef.current.getVal();

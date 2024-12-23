@@ -16,9 +16,9 @@ export default function ABtestContext(_component) {
      * Context init handler, this is the place where everything get start ( context wise - not global wise ) 
      *
      **/
-    this.init = () => {
-        this.controller.switchView("main_view");
-    };
+    this.init = (_view) => {
+        this.controller.switchView(_view);
+    };  
 
     /**     
      * 
@@ -40,7 +40,7 @@ export default function ABtestContext(_component) {
      * 
      */
     this.onViewMounted = (_handle) => {
-        const abdetails = this.component.currentRecord["ab_tesing"];
+        const abdetails = this.component.currentRecord["ab_tesing_mapping"];
         if (_handle == "ab_testing_form") {
             const _statusHolder = document.getElementById('tableform');
             const statusRoot = createRoot(_statusHolder);
@@ -74,7 +74,7 @@ export default function ABtestContext(_component) {
     this.onDatagridRequest = (_handle, _datasource) => {
 
         let datasource = JSON.parse(JSON.stringify(_datasource));
-        const mapped = this.component.currentRecord["ab_tesing"];
+        const mapped = this.component.currentRecord["ab_tesing_mapping"];
 
         if (_handle === "retailer_grid" && mapped) {
             datasource.endpoint = "/system/v1/api_manager/mapped/retailers/" + mapped._id;
@@ -188,7 +188,7 @@ export default function ABtestContext(_component) {
     };
     this.SAVE_testing_list = () => {
         const request = {};
-        const user = this.component.currentRecord["ab_tesing"];
+        const user = this.component.currentRecord["ab_tesing_mapping"];
 
         if (user) {
             /* It's an uppdate call */
@@ -242,7 +242,7 @@ export default function ABtestContext(_component) {
     }
     this.save_build_version = () => {
         const request = {};
-        const user = this.component.currentRecord["ab_tesing"];
+        const user = this.component.currentRecord["ab_tesing_build_list"];
 
         if (user) {
             /* It's an uppdate call */
@@ -274,7 +274,7 @@ export default function ABtestContext(_component) {
         }
     }
     this.SAVE_FROM_MAPPING = () => {
-        const abtest = this.component.currentRecord["ab_tesing"];
+        const abtest = this.component.currentRecord["ab_tesing_mapping"];
         const request = {};
         request["method"] = "POST";
         request["endpoint"] = "/system/v1/api_manager/mapping";
@@ -283,7 +283,6 @@ export default function ABtestContext(_component) {
         if (this.mappingDetails.current) {
             let AbForm = this.mappingDetails.current.getState();
             payload['users'] = AbForm;
-            console.log(AbForm);
         }
         let regions = this.controller.getField("dynamic_retailer_tab_regions");
         if (regions) {

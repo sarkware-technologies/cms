@@ -432,6 +432,7 @@ const MultiSelect = (props, ref) => {
                 try {
                     const _res = await window._controller.docker.dock(request);
                     if (Array.isArray(_res)) {
+
                         let _originalRecords = _res;
                         if (contextObj?.beforeLodingMultiSelect) {
                             _originalRecords = await contextObj.beforeLodingMultiSelect(
@@ -439,6 +440,8 @@ const MultiSelect = (props, ref) => {
                                 _originalRecords
                             );
                         }
+
+                        setOriginal(_originalRecords);
     
                         setState((prevState) => ({
                             ...prevState,
@@ -455,6 +458,7 @@ const MultiSelect = (props, ref) => {
                     if (contextObj?.onMultiSelectRecordLoaded) {
                         contextObj.onMultiSelectRecordLoaded(props.config.handle);
                     }
+
                 } catch (e) {
                     window._controller.notify(e.message, "error");
                 }

@@ -21,7 +21,9 @@ export default function ComponentContext(_component) {
     this.componentEditor = null;
 
     this.mobileAssetUrl = null;
+    this.tabAssetUrl = null;
     this.webAssetUrl = null;
+    this.videoAssetUrl = null;
     this.previewAssetUrl = null;
 
     this.appInternalViewList = [];
@@ -489,16 +491,21 @@ export default function ComponentContext(_component) {
 
             const _url = await this.controller.docker.upload('/system/v1/api/component/component/s3_upload', formData);
 
-            if (_handle == "asset_url" || _handle == "mobile_asset_url" ) {
+            if ( _handle == "mobile_asset_url" ) {                
                 this.mobileAssetUrl = _url;
-            } else if (_handle == "preview_asset_url") {
-                this.previewAssetUrl = _url;
-            } else {
+            } else if ( _handle == "tab_asset_url" ) {
+                this.tabAssetUrl = _url;
+            } else if ( _handle == "web_asset_url" ) {
                 this.webAssetUrl = _url;
+            } else if ( _handle == "video_asset_url" ) {
+                this.videoAssetUrl = _url;
+            } else if ( _handle == "preview_asset_url" ) {
+                this.previewAssetUrl = _url;
             }
             
         } catch (_e) {
             console.error(_e);
+            this.controller.notify(_e.message, "error");
         }
     };
 
@@ -523,12 +530,17 @@ export default function ComponentContext(_component) {
             };    
             
             this.controller.docker.dock(request).then((_res) => {
-                if (_handle == "asset_url" || _handle == "mobile_asset_url" ) {
+
+                if ( _handle == "mobile_asset_url" ) {                
                     this.mobileAssetUrl = "";
-                } else if (_handle == "preview_asset_url") {
-                    this.previewAssetUrl = "";
-                } else {
+                } else if ( _handle == "tab_asset_url" ) {
+                    this.tabAssetUrl = "";
+                } else if ( _handle == "web_asset_url" ) {
                     this.webAssetUrl = "";
+                } else if ( _handle == "video_asset_url" ) {
+                    this.videoAssetUrl = "";
+                } else if ( _handle == "preview_asset_url" ) {
+                    this.previewAssetUrl = "";
                 }
                 
                 const configFields = this.componentEditor.current.getConfigFields();
@@ -757,15 +769,20 @@ export default function ComponentContext(_component) {
 
                     /* For field type image and video - update the asset url */
                     if (componentType.handle == "image") {
-                        if (this.mobileAssetUrl) {
+                        if (this.mobileAssetUrl) {                            
                             configurations["mobile_asset_url"] = this.mobileAssetUrl;
+                        }
+                        if (this.tabAssetUrl) {
+                            configurations["tab_asset_url"] = this.tabAssetUrl;
                         }
                         if (this.webAssetUrl) {
                             configurations["web_asset_url"] = this.webAssetUrl;
                         }
                     } else if (componentType.handle == "video") {
-                        if (this.mobileAssetUrl) {
-                            configurations["asset_url"] = this.mobileAssetUrl;
+                        if (this.videoAssetUrl) {                            
+                            configurations["video_asset_url"] = this.videoAssetUrl;
+                            /* Keeping this for legacy support */
+                            configurations["asset_url"] = this.videoAssetUrl;
                         }
                         if (this.previewAssetUrl) {
                             configurations["preview_asset_url"] = this.previewAssetUrl;

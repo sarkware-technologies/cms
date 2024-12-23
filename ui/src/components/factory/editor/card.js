@@ -17,8 +17,11 @@ const Card = (props, ref) => {
     /* For sortable */  
     let selected = null;
 
-    let groupsRef = null;
-    let assetMediaRef = null;    
+    let groupsRef = null;    
+
+    let tabAssetMediaRef = null;
+    let webAssetMediaRef = null;
+    let mobileAssetMediaRef = null;  
 
     let cardItemTitleRef = null;
     let cardItemEndDateRef = null;
@@ -146,6 +149,7 @@ const Card = (props, ref) => {
             }
         } catch (_e) {
             console.error(_e);
+            window._controller.notify(_e.message, "error");
         }
 
     };
@@ -201,17 +205,28 @@ const Card = (props, ref) => {
         }
         
         groupsRef = React.createRef();        
-        assetMediaRef = React.createRef();  
+        tabAssetMediaRef = React.createRef();
+        webAssetMediaRef = React.createRef();
+        mobileAssetMediaRef = React.createRef();  
         
         cardItemTitleRef = React.createRef();
         cardItemEndDateRef = React.createRef();
         cardItemStartDateRef = React.createRef(); 
 
-        const _assetMedia = <Media key={uuidv4()} ref={assetMediaRef} config={cardItemConfig["asset_url"]} type={_type} handleMediaChange={handleMediaChange} handleMediaDelete={handleMediaDelete} value={_config["asset_url"]} />;        
-        const assetMedia = Helper.buildWrapper(cardItemConfig["asset_url"], _assetMedia);        
+        const _tabAssetMedia = <Media key={uuidv4()} ref={tabAssetMediaRef} config={cardItemConfig["tab_asset_url"]} type={_type} handleMediaChange={handleMediaChange} handleMediaDelete={handleMediaDelete} value={_config["tab_asset_url"]} />;
+        const _webAssetMedia = <Media key={uuidv4()} ref={webAssetMediaRef} config={cardItemConfig["web_asset_url"]} type={_type} handleMediaChange={handleMediaChange} handleMediaDelete={handleMediaDelete} value={_config["web_asset_url"]} />;        
+
+        const _assetValue = _config["asset_url"] ? _config["asset_url"] : _config["mobile_asset_url"];
+        const _mobileAssetMedia = <Media key={uuidv4()} ref={mobileAssetMediaRef} config={cardItemConfig["mobile_asset_url"]} type={_type} handleMediaChange={handleMediaChange} handleMediaDelete={handleMediaDelete} value={_assetValue} />;
+
+        const tabAssetMedia = Helper.buildWrapper(cardItemConfig["tab_asset_url"], _tabAssetMedia);
+        const webAssetMedia = Helper.buildWrapper(cardItemConfig["web_asset_url"], _webAssetMedia);        
+        const mobileAssetMedia = Helper.buildWrapper(cardItemConfig["mobile_asset_url"], _mobileAssetMedia);        
 
         /* Prevent this media from rendering by the helper */
-        cardItemConfig["asset_url"]["visible"] = false;
+        cardItemConfig["tab_asset_url"]["visible"] = false;
+        cardItemConfig["web_asset_url"]["visible"] = false;
+        cardItemConfig["mobile_asset_url"]["visible"] = false;
 
         const result = Helper.renderConfigFields(cardItemNameSpace, cardItemConfig, _config);       
         cardItemConfigFields = result.refs;
@@ -241,7 +256,9 @@ const Card = (props, ref) => {
 
         } 
         
-        result.fields.splice(0, 0, assetMedia);        
+        result.fields.splice(0, 0, webAssetMedia);
+        result.fields.splice(0, 0, tabAssetMedia);        
+        result.fields.splice(0, 0, mobileAssetMedia);        
 
         return (
             <div key={uuidv4()} className="component-item-config">
@@ -483,10 +500,20 @@ const Card = (props, ref) => {
                 /* Update the crm bar item config */
 
                 /* Now update the media fields - since it is not managed by the Helper utils */
-                cardItemConfigValues["asset_url"] = assetMediaRef.current.getVal();    
+                cardItemConfigValues["tab_asset_url"] = tabAssetMediaRef.current.getVal();    
+                cardItemConfigValues["web_asset_url"] = webAssetMediaRef.current.getVal();    
+                cardItemConfigValues["mobile_asset_url"] = mobileAssetMediaRef.current.getVal();  
+                
+                /* Keeping this for legacy support */
+                cardItemConfigValues["asset_url"] = mobileAssetMediaRef.current.getVal();
 
                 /* Get the dimension too */
-                cardItemConfigValues["assest_dimension"] = assetMediaRef.current.getDimension();                    
+                cardItemConfigValues["tab_assest_dimension"] = tabAssetMediaRef.current.getDimension();
+                cardItemConfigValues["web_assest_dimension"] = webAssetMediaRef.current.getDimension();
+                cardItemConfigValues["mobile_assest_dimension"] = mobileAssetMediaRef.current.getDimension();  
+                
+                /* Keeping this for legacy support */
+                cardItemConfigValues["assest_dimension"] = mobileAssetMediaRef.current.getDimension();
 
                 cardItem["configuration"] = cardItemConfigValues;  
                 cardItem["title"] = cardItemTitleRef.current.getVal();

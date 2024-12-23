@@ -528,11 +528,18 @@ export default class ComponentService {
                         ACL: 'public-read', 
                     };
 
-                    const command = new PutObjectCommand(params);
-                    const response = await this.s3Client.send(command);
-                    const publicUrl = `https://${process.env.AWS_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.AWS_BUCKET_ASSET_FOLDER}/${assetKey}`;
+                    try {
 
-                    callback(publicUrl, null);
+                        const command = new PutObjectCommand(params);
+                        const response = await this.s3Client.send(command);
+                        const publicUrl = `https://${process.env.AWS_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${process.env.AWS_BUCKET_ASSET_FOLDER}/${assetKey}`;
+
+                        callback(publicUrl, null);
+
+                    } catch (e) {
+                        callback(null, e);
+                    }
+                    
                     return;
 
                 });

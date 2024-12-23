@@ -18,7 +18,11 @@ const CrmBar = (props, ref) => {
     let selected = null;
 
     let groupsRef = null;
-    let assetMediaRef = null;    
+    let assetMediaRef = null;  
+    
+    let tabAssetMediaRef = null;
+    let webAssetMediaRef = null;
+    let mobileAssetMediaRef = null;  
 
     let crmBarItemTitleRef = null;
     let crmBarItemEndDateRef = null;
@@ -143,6 +147,7 @@ const CrmBar = (props, ref) => {
             }
         } catch (_e) {
             console.error(_e);
+            window._controller.notify(_e.message, "error");
         }
 
     };
@@ -195,17 +200,28 @@ const CrmBar = (props, ref) => {
         }
         
         groupsRef = React.createRef();        
-        assetMediaRef = React.createRef(); 
+        tabAssetMediaRef = React.createRef();
+        webAssetMediaRef = React.createRef();
+        mobileAssetMediaRef = React.createRef();          
         
         crmBarItemTitleRef = React.createRef();        
         crmBarItemEndDateRef = React.createRef();
         crmBarItemStartDateRef = React.createRef();  
 
-        const _assetMedia = <Media key={uuidv4()} ref={assetMediaRef} config={crmBarItemConfig["asset_url"]} type={_type} handleMediaChange={handleMediaChange} handleMediaDelete={handleMediaDelete} value={_config["asset_url"]} />;        
-        const assetMedia = Helper.buildWrapper(crmBarItemConfig["asset_url"], _assetMedia);        
+        const _tabAssetMedia = <Media key={uuidv4()} ref={tabAssetMediaRef} config={crmBarItemConfig["tab_asset_url"]} type={_type} handleMediaChange={handleMediaChange} handleMediaDelete={handleMediaDelete} value={_config["tab_asset_url"]} />;
+        const _webAssetMedia = <Media key={uuidv4()} ref={webAssetMediaRef} config={crmBarItemConfig["web_asset_url"]} type={_type} handleMediaChange={handleMediaChange} handleMediaDelete={handleMediaDelete} value={_config["web_asset_url"]} />;        
+
+        const _assetValue = _config["asset_url"] ? _config["asset_url"] : _config["mobile_asset_url"];
+        const _mobileAssetMedia = <Media key={uuidv4()} ref={mobileAssetMediaRef} config={crmBarItemConfig["mobile_asset_url"]} type={_type} handleMediaChange={handleMediaChange} handleMediaDelete={handleMediaDelete} value={_assetValue} />;
+
+        const tabAssetMedia = Helper.buildWrapper(crmBarItemConfig["tab_asset_url"], _tabAssetMedia);
+        const webAssetMedia = Helper.buildWrapper(crmBarItemConfig["web_asset_url"], _webAssetMedia);        
+        const mobileAssetMedia = Helper.buildWrapper(crmBarItemConfig["mobile_asset_url"], _mobileAssetMedia);        
 
         /* Prevent this media from rendering by the helper */
-        crmBarItemConfig["asset_url"]["visible"] = false;
+        crmBarItemConfig["tab_asset_url"]["visible"] = false;
+        crmBarItemConfig["web_asset_url"]["visible"] = false;
+        crmBarItemConfig["mobile_asset_url"]["visible"] = false;
 
         const result = Helper.renderConfigFields(crmBarItemNameSpace, crmBarItemConfig, _config);       
         crmBarItemConfigFields = result.refs;
@@ -233,9 +249,11 @@ const CrmBar = (props, ref) => {
             result.fields.splice(0, 0, carouselItemStartDate);
             result.fields.splice(0, 0, carouselItemTitle);
 
-        }      
+        }              
         
-        result.fields.splice(0, 0, assetMedia);        
+        result.fields.splice(0, 0, webAssetMedia);
+        result.fields.splice(0, 0, tabAssetMedia);        
+        result.fields.splice(0, 0, mobileAssetMedia);      
 
         return (
             <div key={uuidv4()} className="component-item-config">
@@ -476,9 +494,20 @@ const CrmBar = (props, ref) => {
                 /* Update the crm bar item config */
 
                 /* Now update the media fields - since it is not managed by the Helper utils */
-                crmBarItemConfigValues["asset_url"] = assetMediaRef.current.getVal();    
+                crmBarItemConfigValues["tab_asset_url"] = tabAssetMediaRef.current.getVal();    
+                crmBarItemConfigValues["web_asset_url"] = webAssetMediaRef.current.getVal();    
+                crmBarItemConfigValues["mobile_asset_url"] = mobileAssetMediaRef.current.getVal();                   
+
+                /* Keeping this for legacy support */
+                crmBarItemConfigValues["asset_url"] = mobileAssetMediaRef.current.getVal();
+
                 /* Get the dimension too */
-                crmBarItemConfigValues["assest_dimension"] = assetMediaRef.current.getDimension();    
+                crmBarItemConfigValues["tab_assest_dimension"] = tabAssetMediaRef.current.getDimension();
+                crmBarItemConfigValues["web_assest_dimension"] = webAssetMediaRef.current.getDimension();
+                crmBarItemConfigValues["mobile_assest_dimension"] = mobileAssetMediaRef.current.getDimension();   
+
+                /* Keeping this for legacy support */
+                crmBarItemConfigValues["assest_dimension"] = mobileAssetMediaRef.current.getDimension();   
 
                 crmBarItem["configuration"] = crmBarItemConfigValues;                                    
                 crmBarItem["title"] = crmBarItemTitleRef.current.getVal();

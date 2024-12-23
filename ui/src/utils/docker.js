@@ -143,7 +143,7 @@ export default class Docker {
             if (this.indicatorRef.current) {
                 this.indicatorRef.current.style.display = "none";
             }
-            return error.message;
+            throw error;
         }
 
     };

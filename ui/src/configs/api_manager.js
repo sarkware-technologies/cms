@@ -1,8 +1,15 @@
 let user_config = {
 
     routes: {
-        main_view: ['/api_manager']        
+        main_view: ['/api_manager'],
+        ab_testing_form: ['/api_manager/new','/api_manager/:id'],
+        mapping_screen: ['/api_manager/mapping/:id'],
+        api_list: ["/api_manager/apilist/list"],
+        add_api_form: ["/api_manager/apilist/list/new","/api_manager/apilist/list/:id"],
+        build_list: ["/api_manager/build/list"],
+        build_form: ["/api_manager/build/list/new","/api_manager/build/list/:id"],
     },
+
     views: {
         main_view: {
             context: "api_manager",
@@ -11,9 +18,9 @@ let user_config = {
                 title: "AB TESTING LIST",
                 breadcrumb: "",
                 actions: [
-                    { label: "NEW AB TESTING", theme: "primary", method: "post", action: "ab_testing_form", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-road", tabindex: 8, status: true, shortcut: "" },
-                    { label: "API LIST", theme: "primary", method: "post", action: "api_list", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-road", tabindex: 8, status: true, shortcut: "" },
-                    { label: "BUILD LIST", theme: "primary", method: "post", action: "build_list", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-road", tabindex: 8, status: true, shortcut: "" },
+                    { type: "link", label: "NEW AB TESTING", theme: "primary", method: "post", action: '/api_manager/new', classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-road", tabindex: 8, status: true, shortcut: "" },
+                    { type: "link", label: "API LIST", theme: "primary", method: "post", action: "/api_manager/apilist/list", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-road", tabindex: 8, status: true, shortcut: "" },
+                    { type: "link", label: "BUILD LIST", theme: "primary", method: "post", action: "/api_manager/build/list", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-road", tabindex: 8, status: true, shortcut: "" },
                 ]
             },
             header: {
@@ -33,7 +40,7 @@ let user_config = {
                                 layout: "horizontal",
                                 collapsible: false,
                                 datagrid: {
-                                    handle: "ab_tesing",
+                                    handle: "ab_tesing_mapping",
                                     layout: "fluid",
                                     height: "",
                                     header: true,
@@ -45,7 +52,7 @@ let user_config = {
                                     is_main_grid: true,
                                     empty_message: "No user configured yet.!",
                                     datasource: { endpoint: "/system/v1/api_manager/ablist/list/pagination?populate=type", page: 0, populate: false, handler: "default" },
-                                    link: { key: "_id", context: "api_manager", target_type: "view", view: "mapping_screen", data: "remote", endpoint: "/system/v1/api_manager/ablist/" },
+                                    link: { key: "_id", context: "api_manager", target_type: "view", data: "remote", endpoint: "/api_manager/mapping/" },
                                     columns: [
                                         {
                                             show: true,
@@ -129,12 +136,14 @@ let user_config = {
         },
         ab_testing_form: {
             context: "api_manager",
+            source: "/system/v1/api_manager/ablist/",
+            viewFor: "ab_tesing_mapping",
             context_header: {
                 show: true,
                 title: "CREATE NEW AB TEST",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK_TO_MAIN", classes: "icon-left", icon: "fa fa-times", tabindex: 8, status: true, shortcut: "" },
+                    { label: "Back", type: "button", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex: 8, status: true, shortcut: "" },
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_testing_list", classes: "icon-left", icon: "fa fa-save", tabindex: 8, status: true, shortcut: "" }
                 ]
             },
@@ -185,13 +194,16 @@ let user_config = {
 
         mapping_screen: {
             context: "api_manager",
+            source: "/system/v1/api_manager/ablist/",
+            viewFor: "ab_tesing_mapping",
             context_header: {
                 show: true,
                 title: "Ab Mapping Screen",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Back", theme: "secondary", method: "cancel", action: "BACK_TO_MAIN", classes: "icon-left", icon: "fa fa-chevron-left", tabindex: 8, status: true, shortcut: "" },
-                    { label: "Edit", theme: "primary", method: "post", action: "EDIT_Mapping", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex: 8, status: true, shortcut: "" }
+                    { type: "Cancel", label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                    { label: "Edit", theme: "primary", method: "post", action: "EDIT_Mapping", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex: 8, status: true, shortcut: "" },
+                    
                 ]
             },
             header: { show: false },
@@ -208,8 +220,8 @@ let user_config = {
                                 width: "50%",
                                 layout: "horizontal",
                                 classes: "",
-                                fields: [                                                                        
-                                    { type: "label", label: "Title", handle: "testName", value : "",  classes : "", align: "right", label_width: 0, label_position: "top" },                                                                    
+                                fields: [
+                                    { type: "label", label: "Title", handle: "testName", value: "", classes: "", align: "right", label_width: 0, label_position: "top" },
                                 ]
                             },
                         ]
@@ -613,8 +625,8 @@ let user_config = {
                 title: "API LISTS",
                 breadcrumb: "",
                 actions: [
-                    { label: "Back", theme: "secondary", method: "cancel", action: "BACK_TO_MAIN", classes: "icon-left", icon: "fa fa-chevron-left", tabindex: 8, status: true, shortcut: "" },
-                    { label: "NEW API", theme: "primary", method: "post", action: "add_api_form", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-road", tabindex: 8, status: true, shortcut: "" },
+                    { label: "Back", type: "button", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-chevron-left", tabindex: 8, status: true, shortcut: "" },
+                    { type:"link",label: "NEW API", theme: "primary", method: "post", action:"/api_manager/apilist/list/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-road", tabindex: 8, status: true, shortcut: "" },
                 ]
             },
             header: {
@@ -634,7 +646,7 @@ let user_config = {
                                 layout: "horizontal",
                                 collapsible: false,
                                 datagrid: {
-                                    handle: "ab_tesing",
+                                    handle: "ab_tesing_api_list",
                                     layout: "fluid",
                                     height: "",
                                     header: true,
@@ -646,7 +658,7 @@ let user_config = {
                                     is_main_grid: true,
                                     empty_message: "No page configured yet.!",
                                     datasource: { endpoint: "/system/v1/api_manager/api/list/pagination?populate=type", page: 0, populate: false, handler: "default" },
-                                    link: { key: "_id", context: "user", target_type: "view", view: "add_api_form", data: "remote", endpoint: "/system/v1/api_manager/api/" },
+                                    link: { key: "_id", context: "user", target_type: "view", view: "add_api_form", data: "remote", endpoint: "/api_manager/apilist/list/" },
                                     columns: [
                                         {
                                             show: true,
@@ -708,13 +720,15 @@ let user_config = {
         },
 
         add_api_form: {
-            context: "user",
+            context: "ab_tesing",
+            source: "/system/v1/api_manager/api/",
+            viewFor: "ab_tesing_api_list",
             context_header: {
                 show: true,
                 title: "ADD API",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_NEW_API", classes: "icon-left", icon: "fa fa-times", tabindex: 8, status: true, shortcut: "" },
+                    { type: "button", label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_api_list", classes: "icon-left", icon: "fa fa-save", tabindex: 8, status: true, shortcut: "" }
                 ]
             },
@@ -777,8 +791,8 @@ let user_config = {
                 title: "BUILD LISTS",
                 breadcrumb: "",
                 actions: [
-                    { label: "Back", theme: "secondary", method: "cancel", action: "BACK_TO_MAIN", classes: "icon-left", icon: "fa fa-chevron-left", tabindex: 8, status: true, shortcut: "" },
-                    { label: "NEW BUILD", theme: "primary", method: "post", action: "build_form", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-road", tabindex: 8, status: true, shortcut: "" },
+                    {label: "Back", type: "button", theme: "secondary", method: "cancel", action: "BACK",classes: "icon-left", icon: "fa fa-chevron-left", tabindex: 8, status: true, shortcut: "" },
+                    { type:"link", label: "NEW BUILD", theme: "primary", method: "post", action: "/api_manager/build/list/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-road", tabindex: 8, status: true, shortcut: "" },
                 ]
             },
             header: {
@@ -798,7 +812,7 @@ let user_config = {
                                 layout: "horizontal",
                                 collapsible: false,
                                 datagrid: {
-                                    handle: "ab_tesing",
+                                    handle: "ab_tesing_build_list",
                                     layout: "fluid",
                                     height: "",
                                     header: true,
@@ -810,7 +824,7 @@ let user_config = {
                                     is_main_grid: true,
                                     empty_message: "No Build Available yet.!",
                                     datasource: { endpoint: "/system/v1/api_manager/build/list/pagination?populate=type", page: 0, populate: false, handler: "default" },
-                                    link: { key: "_id", context: "user", target_type: "view", view: "build_form", data: "remote", endpoint: "/system/v1/api_manager/build/version/" },
+                                    link: { key: "_id", context: "ab_tesing", target_type: "view", data: "remote", endpoint: "/api_manager/build/list/" },
                                     columns: [
                                         {
                                             show: true,
@@ -884,12 +898,14 @@ let user_config = {
 
         build_form: {
             context: "user",
+            source: "/system/v1/api_manager/build/version/",
+            viewFor: "ab_tesing_build_list",
             context_header: {
                 show: true,
                 title: "CREATE NEW BUILD",
                 breadcrumb: "title",
                 actions: [
-                    { label: "Cancel", theme: "secondary", method: "cancel", action: "CANCEL_build_form", classes: "icon-left", icon: "fa fa-times", tabindex: 8, status: true, shortcut: "" },
+                    { label: "Cancel", type: "button", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex: 8, status: true, shortcut: "" },
                     { label: "Save", theme: "primary", method: "post", action: "SAVE_build_form", classes: "icon-left", icon: "fa fa-save", tabindex: 8, status: true, shortcut: "" }
                 ]
             },
