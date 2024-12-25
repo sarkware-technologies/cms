@@ -131,6 +131,7 @@ class Cache {
                         if (Array.isArray(capabilities)) {
                             
                             const redisPromises = capabilities.map(async (capability) => {
+
                                 const roleCaps = {
                                     get: capability.can_read,
                                     post: capability.can_create,

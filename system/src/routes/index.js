@@ -20,6 +20,7 @@ import CacheRouter from './cache.js';
 import ABTestingRouter from './abtesting.js';
 import ABTestmappingRouter from './abtestmapping.js';
 import SponsoredProductRouter from './sponsored-products.js';
+import SearchVersionRouter from  './search-version.js';
 
 const ping = (_req, _res) => {
     _res.status(200).send("Its working");
@@ -47,6 +48,7 @@ routes.use(queryBrowser);
 routes.use(ABTestingRouter);
 routes.use(ABTestmappingRouter);
 routes.use(SponsoredProductRouter);
+routes.use(SearchVersionRouter);
 routes.use(new CacheRouter().getRoutes());
 
 export default routes;

@@ -37,7 +37,7 @@ export default class SegmentService {
             const filterType = _req.query.filter_type ? _req.query.filter_type : "";
 
             if (searchFrom !== "") {
-                return this.search(_req, page, skip, limit, searchFrom, searchFor);
+                return this.search(_req, page, skip, limit, searchFrom, searchFor, result);
             }
 
             if (filter !== "") {
@@ -165,7 +165,7 @@ export default class SegmentService {
 
     };
 
-    search = async (_req, _page, _skip, _limit, _field, _search) => {
+    search = async (_req, _page, _skip, _limit, _field, _search, _result) => {
 
         try {
 
@@ -173,16 +173,16 @@ export default class SegmentService {
             let _segments = [];
             const segmentModel = await EM.getModel("cms_segment");
 
-            if (result == "dynamic") {
+            if (_result == "dynamic") {
                 _count = await segmentModel.countDocuments({ segmentType: SegmentType.DYNAMIC, [_field]: { $regex: new RegExp(_search, 'i') }});
                 _segments = await segmentModel.find({ segmentType: SegmentType.DYNAMIC, [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
-            } else if (result == "static") {
+            } else if (_result == "static") {
                 _count = await segmentModel.countDocuments({ segmentType: SegmentType.STATIC, [_field]: { $regex: new RegExp(_search, 'i') }});
                 _segments = await segmentModel.find({ segmentType: SegmentType.STATIC, [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
-            } else if (result == "progress") {
+            } else if (_result == "progress") {
                 _count = await segmentModel.countDocuments({ segmentStatus: SegmentStatus.SCHEDULED, [_field]: { $regex: new RegExp(_search, 'i') }});
                 _segments = await segmentModel.find({ status: SegmentStatus.PROGRESS, [_field]: { $regex: new RegExp(_search, 'i') } }).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
-            } else if (result == "disabled") {  console.log("in the disabled block");
+            } else if (_result == "disabled") {  console.log("in the disabled block");
                 _count = await segmentModel.countDocuments({ status: SegmentStatus.DISABLED, [_field]: { $regex: new RegExp(_search, 'i') } });
                 _segments = await segmentModel.find({ status: SegmentStatus.DISABLED, [_field]: { $regex: new RegExp(_search, 'i') }}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(_skip).limit(_limit).lean().exec();
             } else {
@@ -192,7 +192,7 @@ export default class SegmentService {
 
             return Utils.response(_count, _page, _segments);
 
-        } catch (_e) {
+        } catch (_e) { 
             throw _e;
         }
 
@@ -695,7 +695,7 @@ export default class SegmentService {
 
             let _count = 0;
             let _retailers = [];
-            const retailerModel = await EM.getModel("retailer");
+            const retailerModel = await EM.getModel("cms_master_retailer");
             const segmentRetailerModel = await EM.getModel("cms_segment_retailer");
 
             if (retailerModel) {
@@ -704,18 +704,18 @@ export default class SegmentService {
                 const retailerIds = segmentRetailers.map(record => record.retailer);
 
                 _count = await retailerModel.countDocuments({ 
-                    RetailerId: { $in: retailerIds }, 
+                    _id: { $in: retailerIds }, 
                     [_field]: { $regex: new RegExp(_search, 'i') } 
                 });
                 _retailers = await retailerModel.find({ 
-                    RetailerId: { $in: retailerIds }, 
+                    _id: { $in: retailerIds }, 
                     [_field]: { $regex: new RegExp(_search, 'i') } 
                 }).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
             }
 
             return Utils.response(_count, _page, _retailers);
 
-        } catch (_e) {
+        } catch (_e) { console.log(_e);
             throw _e;
         }
 

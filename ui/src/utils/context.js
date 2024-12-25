@@ -266,6 +266,16 @@ const ContextWrapper = (props, ref) => {
 
                 } else {                    
                     if (contextObj) {
+                        /* Reset the current record */
+                        contextObj.currentRecord = {};
+                        if (viewObj) {                            
+                            window._controller.loadContextBar(
+                                viewObj.context_header.title, 
+                                "", 
+                                viewObj.context_header.actions
+                            );
+                        }
+
                         contextObj.init(targetView);
                     }
                 }

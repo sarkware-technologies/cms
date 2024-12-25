@@ -561,7 +561,7 @@ export default function SegmentContext(_component) {
             this.controller.docker.dock(request).then((_res) => {                
                 const _summaryHolder = document.getElementById('segment_summary');
                 const summaryRoot = createRoot(_summaryHolder);
-                summaryRoot.render(<SegmentSummary ref={this.segmentSummaryRef} options={_res} />);                
+                summaryRoot.render(<SegmentSummary ref={this.segmentSummaryRef} options={_res} segment={record} />);                
             })
             .catch((e) => {
                 this.controller.notify(e.message, "error");
@@ -836,10 +836,10 @@ export default function SegmentContext(_component) {
 
     };
 
-    this.saveSegment = () => {
+    this.saveSegment = () => { console.log("saveSegment is called");
 
         const request = {};    
-        const segment = this.getCurrentSegmentRecord();
+        const segment = this.getCurrentSegmentRecord();  console.log(segment);
 
         if (segment) {
             /* It's an uppdate call */
@@ -852,41 +852,36 @@ export default function SegmentContext(_component) {
         }
 
         request["payload"] = null;
-        const segmentType = this.controller.getField("new_segment_form_segmentType");
+        const _segmentType = this.controller.getField("new_segment_form_segmentType");
+        const sType = segment ? segment.segmentType : _segmentType.getVal();
+        const segmentTab = this.controller.getField("segment_form_tab");            
 
-        if (segmentType) {
-            
-            const sType = segmentType.getVal();
-            const segmentTab = this.controller.getField("segment_form_tab");            
+        if (segmentTab) {                
+            if (sType == 1) {
 
-            if (segmentTab) {                
-                if (sType == 1) {
+                /* It is a dynamic segment */                    
+                const dynamicFields = this.prepareSegment(segmentTab.getFormFields());
 
-                    /* It is a dynamic segment */                    
-                    const dynamicFields = this.prepareSegment(segmentTab.getFormFields());
+                if (dynamicFields) {
+                    request["payload"] = dynamicFields;
+                    request["payload"]["segmentType"] = sType;  
+                    request["payload"]["segmentStatus"] = 2;
+                }
 
-                    if (dynamicFields) {
-                        request["payload"] = dynamicFields;
-                        request["payload"]["segmentType"] = sType;  
-                        request["payload"]["segmentStatus"] = 2;
-                    }
+            } else {
 
-                } else {
+                /* It is is static segment */
+                request["payload"] = segmentTab.getFormFields();                                       
+                request["payload"]["segmentType"] = sType;
+                request["payload"]["segmentStatus"] = 1;
 
-                    /* It is is static segment */
-                    request["payload"] = segmentTab.getFormFields();                                       
-                    request["payload"]["segmentType"] = sType;
-                    request["payload"]["segmentStatus"] = 1;
+                if (!request["payload"].title) {
+                    this.controller.notify("Title is required", "error");
+                    return false;
+                }
 
-                    if (!request["payload"].title) {
-                        this.controller.notify("Title is required", "error");
-                        return false;
-                    }
-
-                }                
-            }
-
-        }
+            }                
+        }        
 
         if (request["payload"]) {
 
@@ -952,11 +947,16 @@ export default function SegmentContext(_component) {
 
         if (this.segmentRuleContainer.current) {
             const segmentRules = this.segmentRuleContainer.current.getRules();
-            if (!segmentRules || (Array.isArray(segmentRules) && segmentRules.length == 0)) {
+
+            if (Array.isArray(segmentRules) && segmentRules.length == 0) {
                 _segmentFields["rules"] = [];
-            } else {
+            } else if (Array.isArray(segmentRules) && segmentRules.length > 0) {
                 _segmentFields["rules"] = segmentRules;
+            } else {
+                this.controller.notify("Rules error - From qty should be less than or equal to To qty", "error");
+                return false;
             }
+
         } else {
             this.controller.notify("Something went wrong - couldn't find the segment rules selector", "error");
             return false;

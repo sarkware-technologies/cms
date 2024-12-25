@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import VersionResult from '../components/version-result';
 
-export default function VersionManagerContext(_component) {
+export default function SearchVersionContext(_component) {
 
     this.component = _component;
     this.config = this.component.config;
@@ -34,29 +34,11 @@ export default function VersionManagerContext(_component) {
             const versionGrid = this.controller.getField("version_grid");
             if (versionGrid) {
 
-                let _version = 1;
                 const page = versionGrid.getCurrentPage();
                 const searchObj = versionGrid.getCurrentSearch();
 
-                if (_toggleHandle == "Version1") {
-
-                    if (_status) {
-                        _version = _record.Version == 2 ? 3 : 1;
-                    } else {
-                        _version = 2;
-                    }
-
-                } else if (_toggleHandle == "Version2") {
-
-                    if (_status) {
-                        _version = _record.Version == 1 ? 3 : 2;
-                    } else {
-                        _version = 1;
-                    }
-
-                }
-
-                let endPoint = "/system/v1/version/retailer?page="+ page +"&version="+ (_version) +"&retailerId="+ _record.RetailerId;
+                const  shouldEnable = _status ? 1 : 0;
+                let endPoint = "/system/v1/search_version/retailer?page="+ page +"&enableMdmSearch="+ (shouldEnable) +"&retailerId="+ _record.RetailerId;
                 
                 if (searchObj) {
                     endPoint += "&field="+ searchObj.field +"&search="+ searchObj.search;
@@ -69,9 +51,8 @@ export default function VersionManagerContext(_component) {
 
                 this.controller.docker.dock(request).then((_res) => {
                     versionGrid.loadRecords(_res.payload, _res.totalPages, _res.recordPerPage, _res.currentPage);
-                    const statusLabel = _status ? " activated" : " deactivated";
-                    const versionLabel = (_toggleHandle == "Version1") ? "1.0" : "2.0";
-                    this.controller.notify("PR "+ versionLabel + statusLabel +" for "+ _record.RetailerName);
+                    const statusLabel = _status ? " Enabled" : " Disabled";                    
+                    this.controller.notify("Mdm based search "+ statusLabel +" for "+ _record.RetailerName);
                 })
                 .catch((e) => {
                     this.controller.notify(e.message, "error");
@@ -84,57 +65,11 @@ export default function VersionManagerContext(_component) {
             const regionGrid = this.controller.getField("region_grid");
             if (regionGrid) {
 
-                let _version = 1;
                 const page = regionGrid.getCurrentPage();
                 const searchObj = regionGrid.getCurrentSearch();
 
-                if (_record.Progress) {
-                    regionGrid.reloadRecords();
-                    this.controller.notify("Version update is already in progress for "+ _record.RegionName, "warning");
-                    return;
-                }
-
-                if (_toggleHandle == "Version1Full") {
-
-                    if (_record.Version2) {
-
-                        if (_status) {
-                            _version = 3;
-                        } else {
-                            _version = 1;
-                        }
-
-                    } else {
-
-                        if (_status) {                            
-                            _version = 1;
-                        } else {
-                            _version = 2;
-                        }
-                    }
-                    
-
-                } else if (_toggleHandle == "Version2Full") {
-
-                    if (_record.Version1) {
-
-                        if (_status) {
-                            _version = 3;
-                        } else {
-                            _version = 2;
-                        }
-
-                    } else {
-                        if (_status) {                            
-                            _version = 2;
-                        } else {
-                            _version = 1;
-                        }
-                    }
-
-                }
-
-                let endPoint = "/system/v1/version/regions?page="+ page +"&version="+ (_version) +"&regionId="+ _record.RegionId;
+                const shouldEnable = _status ? 1 : 0;
+                let endPoint = "/system/v1/search_version/regions?page="+ page +"&enableMdmSearch="+ (shouldEnable) +"&regionId="+ _record.RegionId;
 
                 if (searchObj) {
                     endPoint += "&field="+ searchObj.field +"&search="+ searchObj.search;
@@ -147,7 +82,8 @@ export default function VersionManagerContext(_component) {
 
                 this.controller.docker.dock(request).then((_res) => {
                     regionGrid.loadRecords(_res.payload, _res.totalPages, _res.recordPerPage, _res.currentPage);
-                    this.controller.notify("Version update process started");
+                    const statusLabel = _status ? " Enabled" : " Disabled";
+                    this.controller.notify("Mdm based search "+ statusLabel +" for "+ _record.RegionName);
                 })
                 .catch((e) => {
                     this.controller.notify(e.message, "error");
@@ -187,12 +123,10 @@ export default function VersionManagerContext(_component) {
             this.controller.switchView("main_view");
         } else if (_action ===  "BULK_UPDATE") {
             this.controller.switchView("bulk_update_form");
-        } else if (_action ===  "PR1") {
+        } else if (_action ===  "ENABLE") {
             this.processUpload(1);
-        } else if (_action ===  "PR2") {
-            this.processUpload(2);
-        } else if (_action ===  "BOTH") {
-            this.processUpload(3);
+        } else if (_action ===  "DISABLE") {
+            this.processUpload(0);
         } else if (_action === "REFRESH") {
             const regionGrid = this.controller.getField("region_grid");
             if (regionGrid) {
@@ -218,7 +152,7 @@ export default function VersionManagerContext(_component) {
 
             const request = {
                 method: "POST",
-                endpoint: "/system/v1/version/upload",
+                endpoint: "/system/v1/search_version/upload",
                 payload: {
                     version: _version,
                     users: _users

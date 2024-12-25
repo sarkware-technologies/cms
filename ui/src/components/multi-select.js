@@ -526,7 +526,7 @@ const MultiSelect = (props, ref) => {
             return `${state.selectedRecords.length} ${props.config.placeholder} selected`;
         }
         return props.config.placeholder;
-    }, [state.source.length, state.selectedRecords, mode, props.config.placeholder]);
+    }, [state.source.length, state.selectedRecords.length, mode, props.config.placeholder]);
     
     const dropdownClass = useMemo(() => {
         return state.active ? `${props.config.popup_class} visible` : props.config.popup_class;

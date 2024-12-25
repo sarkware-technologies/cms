@@ -235,13 +235,17 @@ Thank you for submitting your registration. Your request is under review and wil
 
 Regards,  
 The Pharmarack Team`
-            }            
-
-            await this.notifier.sendEmail(eBody);
+            }      
+            
+            try {
+                await this.notifier.sendEmail(eBody);
+            } catch (e) {
+                console.log(e);
+            }
 
             return {
                 status: true,
-                message: 'You request submitted, please wait until the administrator approve your reguest',
+                message: 'Your request submitted, please wait until the administrator approve your request',
                 payload: registered
             };
 
@@ -315,7 +319,11 @@ Best regards,
 The Pharmarack Team`
                     } 
                     
-                    await this.notifier.sendEmail(eBody);
+                    try {
+                        await this.notifier.sendEmail(eBody);
+                    } catch (e) {
+                        console.log(e);
+                    }
 
                     return { status: true, message: "Rejected successfully" }
 
@@ -375,8 +383,12 @@ If you have any questions, feel free to reach out to our support team.
 Best regards,  
 The Pharmarack Team`
                     }                    
-
-                    await this.notifier.sendEmail(eBody);
+                    
+                    try {
+                        await this.notifier.sendEmail(eBody);
+                    } catch (e) {
+                        console.log(e);
+                    }
 
                     return { status: true, message: "Approved successfully" }
 

@@ -207,6 +207,10 @@ const SegmentRule = (props, ref) => {
                             from: rules[i].from ? rules[i].from : -1,
                             to: rules[i].to ? rules[i].to : -1
                         });
+                        /* Validate from and to qty */
+                        if (rules[i].from > rules[i].to) {
+                            return  null;
+                        }
                     }
                 }                
                 return _rules;

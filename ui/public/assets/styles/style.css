@@ -1434,7 +1434,7 @@ div.pharmarack-cms-multi-select-search-container i {
 .pharmarack-cms-multi-select-widget-popup-container {
     display: none;
     padding: 20px;    
-    border-radius: 0px 0px 5px 5px;
+    border-radius: 5px;
     box-shadow: 0 6px 12px rgba(0,0,0,.175);
     -webkit-animation-name: slideInUp;
     animation-name: slideInUp;

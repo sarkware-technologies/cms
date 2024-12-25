@@ -7,6 +7,8 @@ const SegmentSummary = (props, ref) => {
         whitelisted: props.options.whitelisted,
         balcklisted: props.options.balcklisted
     });
+    
+    const segmentType = props.segment.segmentType || null;
 
     const self = {        
         setSummary: (options) => setState(options)
@@ -19,8 +21,13 @@ const SegmentSummary = (props, ref) => {
             <tbody>
                 <tr>
                     <td><span>{state.retailer}</span><span>Retailers</span></td>
-                    <td><span>{state.whitelisted}</span><span>Whitelisted</span></td>
-                    <td><span>{state.balcklisted}</span><span>Blacklisted</span></td>
+                    {segmentType && segmentType == 1 ? (
+                        <>
+                            <td><span>{state.whitelisted}</span><span>Whitelisted</span></td>
+                            <td><span>{state.balcklisted}</span><span>Blacklisted</span></td>
+                        </>
+                        ) : null
+                    }
                 </tr>
             </tbody>
         </table>
