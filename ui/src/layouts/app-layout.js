@@ -16,7 +16,7 @@ const AppLayout = (props, ref) => {
         window._controller.logout();
     };
 
-    const handleClick = (_context) => {  console.log("handleClick is called  : "+ _context);
+    const handleClick = (_context) => {
         const current = window._controller.getCurrentModule();
         if (current == _context) {
             const contextObj = window._controller.getCurrentModuleInstance();

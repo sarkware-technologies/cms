@@ -69,9 +69,16 @@ export default class SponsoredProductService {
             const retailerSegments = await this.determineSegments(cmsRetailer._id);
             if (retailerSegments) {
 
-                // const _sps = await this.redisClient.getAll("pharmarack_cms_sponsored_products");
-                const _sps = await SponsoredProductModel.find({ status: true, keywords: search });
+                const currentDate = new Date();
+                currentDate.setHours(0, 0, 0, 0);
 
+                // const _sps = await this.redisClient.getAll("pharmarack_cms_sponsored_products");
+                const _sps = await SponsoredProductModel.find({ 
+                    status: true, 
+                    keywords: search,
+                    validFrom: { $lte: currentDate },
+                    validUpto: { $gte: currentDate }                    
+                });
 
                 if (_sps) {
 

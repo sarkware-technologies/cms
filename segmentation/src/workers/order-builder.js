@@ -170,17 +170,15 @@ const checkOrderHeader = async (_order, _retailer, _segment) => {
 
         }
 
-        console.log(("storeOk : " + storeOk +", regionOk: "+ regionOk +", stateOk: "+ stateOk +",  retailerOk: "+ retailerOk +", dateFromOk : "+ dateFromOk +", dateToOk : "+ dateToOk));
-
         return (storeOk && regionOk && stateOk && retailerOk && dateFromOk && dateToOk);
 
-    } catch (e) { console.log(e);
+    } catch (e) {
         return false;        
     }
 
 };
 
-const updateSummary = async (order, retailer) => {  console.log("updfateSummary is called");
+const updateSummary = async (order, retailer) => {
 
     try {        
         
@@ -195,7 +193,7 @@ const updateSummary = async (order, retailer) => {  console.log("updfateSummary 
             let segmentSummary = await models.cms_segment_retailer_summary.findOne({ retailer: order.retailer, segment: segments[i]._id }).lean();
 
             /* Order header part */
-            if (segmentSummary) { console.log("Prior segment summary found");  console.log("segmentSummary : ", segmentSummary);
+            if (segmentSummary) {
 
                 /* This retailer is already on this segment */
 
@@ -219,7 +217,7 @@ const updateSummary = async (order, retailer) => {  console.log("updfateSummary 
                     }
                 }
 
-                const isOrderEligible = await checkOrderHeader(order, retailer, segments[i]); console.log("Order  : "+ order.orderId +" isOrderEligible : "+ isOrderEligible);
+                const isOrderEligible = await checkOrderHeader(order, retailer, segments[i]);
                 if (isOrderEligible) { 
                     
                     orderSucceed = true;
@@ -260,14 +258,14 @@ const updateSummary = async (order, retailer) => {  console.log("updfateSummary 
                         { upsert: true, new: true }
                     ); 
 
-                } else {    console.log("Since order itself not eligible continueing to next segment");
+                } else {
                     continue;
                 }                
 
-            } else {     console.log("No prior summary for segment : "+ segments[i].title);
+            } else {
 
                 /* He is not on this segment - check whether he is eligible or not */
-                const isOrderEligible = await checkOrderHeader(order, retailer, segments[i]);  console.log("Order  : "+ order.orderId +" isOrderEligible : "+ isOrderEligible);
+                const isOrderEligible = await checkOrderHeader(order, retailer, segments[i]); 
                 if (isOrderEligible) {
 
                     orderSucceed = true;
@@ -285,15 +283,13 @@ const updateSummary = async (order, retailer) => {  console.log("updfateSummary 
                     segmentSummary = await retailerSummaryObj.save();                    
 
                 } else {
-                    console.log("Since order id  : "+ order.orderId +", not eligible for segment : "+ segments[i].title +", we are moving to next segment");
                     continue;
                 }                    
                 
             }  
             
             /* If this segment doesn't have  any rules, then safe to move to next segment */
-            if (segmentRules.length == 0) {  
-                console.log("Since no rule for segment : "+ segments[i].title +", just moving to nexct segment, before it check the order succedd, then the reailer is eligible");                
+            if (segmentRules.length == 0) {
                 segmentResults[segments[i]._id] = orderSucceed;                
                 continue;
             }
@@ -305,7 +301,7 @@ const updateSummary = async (order, retailer) => {  console.log("updfateSummary 
              */
 
             /* Proceed to check order item only if segmentSummary is there */
-            if (segmentSummary) {  console.log("There are rules for segment : "+ segments[i].title +", going to evoluate");   console.log("segmentSummary is valid");
+            if (segmentSummary) {
 
                 let qty = 0; 
                 let entry = {};
@@ -323,9 +319,7 @@ const updateSummary = async (order, retailer) => {  console.log("updfateSummary 
                 for (const item of orderItems) {
                     for (const rule of segmentRules) {
 
-                        if (rule.ruleType == SegmentRuleType.PRODUCT) {  console.log("rule type is mdmCode");
-
-                            console.log(item.mdmProductCode.trim().toLowerCase() +" == "+ rule.target.trim().toLowerCase());
+                        if (rule.ruleType == SegmentRuleType.PRODUCT) {
 
                             if (
                                 item.mdmProductCode && 
@@ -334,9 +328,7 @@ const updateSummary = async (order, retailer) => {  console.log("updfateSummary 
                                 entry = summaryProducts.get(rule.target) || { quantity: 0, amount: 0 };
                                 qty = item.receivedQty || item.orderedQty || 0;
                                 entry.quantity += qty;
-                                entry.amount += qty * item.ptr;
-    
-                                console.log(entry);
+                                entry.amount += qty * item.ptr;    
 
                                 summaryProducts.set(rule.target, entry);  
     
@@ -387,8 +379,6 @@ const updateSummary = async (order, retailer) => {  console.log("updfateSummary 
                     }                    
                 }
 
-                console.log("existingRuleSummary : ", existingRuleSummary);
-
                 /**
                  * 
                  * Condition evoluation
@@ -410,20 +400,14 @@ const updateSummary = async (order, retailer) => {  console.log("updfateSummary 
 
                     const targetSummary = summary.get(target);
 
-                    console.log(targetSummary);
-
                     if (targetSummary) {
 
                         let value = targetSummary[property];
-
-                        console.log("Before Value : "+ value);
 
                         /* Before evoluating, update the value with existing rule summary */
                         if(existingRuleSummary[rule._id]) {
                             value = (value + parseFloat(existingRuleSummary[rule._id]));
                         }
-
-                        console.log("After Value : "+ value);
 
                         ruleResult.push(
                             (_from && _to && value >= _from && value <= _to) ||
@@ -449,18 +433,16 @@ const updateSummary = async (order, retailer) => {  console.log("updfateSummary 
                             console.log(e);
                         }
 
-                    } else { console.log("targetSummary is not found");
+                    } else {
                         /* If no aggrgation value for onle rule item, then consider it is a failed condition */
                         ruleResult.push(false);
                     }
 
-                }              
-                
-                console.log("ruleResult : ", ruleResult);
+                }                              
 
                 if (ruleResult.length > 0 && ruleResult.every(Boolean)) {
                     segmentResults[segments[i]._id] = true; 
-                } else {  console.log("Since segment rule summary failed, going to remove the  summaryu from the collection");
+                } else {
                     segmentResults[segments[i]._id] = false; 
                 }
 
@@ -471,13 +453,12 @@ const updateSummary = async (order, retailer) => {  console.log("updfateSummary 
         return segmentResults;
 
     } catch(e) {
-        console.log(e);
         throw e;
     }
 
 };
 
-const addRetailerToSegment = async (_segmentId, _retailerId) => {  console.log("addRetailerToSegment is called");
+const addRetailerToSegment = async (_segmentId, _retailerId) => {
 
     try {
 
@@ -517,7 +498,7 @@ const addRetailerToSegment = async (_segmentId, _retailerId) => {  console.log("
 
 };
 
-const updateRetailerMapping = async (retailer, segmentResults) => {   console.log("updateRetailerMapping is called"); console.log(segmentResults);
+const updateRetailerMapping = async (retailer, segmentResults) => {
 
     try {
 
@@ -551,11 +532,11 @@ const updateRetailerMapping = async (retailer, segmentResults) => {   console.lo
 
 const processBatch = async (data) => {  
 
-    const { orderId } = data;   console.log("processBatch called for orderId : "+ orderId);
+    const { orderId } = data;
 
     try {
 
-        await init();  console.log("Thread is initialized ");
+        await init();
 
         /**
          * 
@@ -564,7 +545,7 @@ const processBatch = async (data) => {
          */
         const order = await models.cms_master_order.findOne({ orderId: orderId }).lean();
 
-        if (order) {  console.log("Order  retrived for id : "+orderId );
+        if (order) {
 
             /**
              * 
@@ -574,7 +555,7 @@ const processBatch = async (data) => {
              */
             const retailer = await checkRetailerMaster(order.retailerId);
 
-            if (retailer) {  console.log("Retailer is retrived for id : "+ order.retailerId);
+            if (retailer) {
 
                 /**
                  * 

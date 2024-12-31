@@ -56,6 +56,24 @@ export default function ImporterContext(_component) {
 
     };  
 
+    /**
+     * 
+     * @param {*} _e 
+     * @param {*} _handle 
+     * @param {*} _targetContext 
+     * @param {*} _record 
+     * 
+     * Called whenever user click on the datagrid record (link type)
+     * 
+     */
+    this.onRecordLinkClick = (_e, _handle, _targetContext, _record) => {
+
+        if (_handle === "importer_grid") {
+            this.component.switchView("importer_form");
+        }
+
+    };
+
     /**     
      * 
      * @param {*} _handle 

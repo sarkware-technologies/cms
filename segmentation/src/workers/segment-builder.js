@@ -188,7 +188,7 @@ const checkSegmentRules = async(_retailer, _orders, _segment) => {
 
 };
 
-const checkRetailerEligibility = async (_retailer, _segment) => {   
+const checkRetailerEligibility = async (_retailer, _segment) => {     console.log("checkRetailerEligibility is called");
 
     try {
 
@@ -210,6 +210,8 @@ const checkRetailerEligibility = async (_retailer, _segment) => {
                 filterOrderQuery["orderDate"] = { $lte: new Date(_segment.toDate) };
             }
         }
+
+        console.log("_segment.states : ", _segment.states);
 
         if ((_segment.geography == SegmentGeography.STATE) && (Array.isArray(_segment.states) && _segment.states.length > 0 )) {
             filterOrderQuery["stateId"] = { $in: _segment.states };
@@ -245,7 +247,7 @@ const checkRetailerEligibility = async (_retailer, _segment) => {
         }
 
         if (_segment.retailerStatus == SegmentRetailerStatus.AUTHORIZED) {
-            populateOrderQuery.push({path: "retailer", match: { isAuthorized: true }});
+            populateOrderQuery.push({path: "retailer", match: { IsAuthorized: true }});
         }
 
         if (_segment.storeStatus == SegmentStoreStatus.AUTHORIZED) {
@@ -256,6 +258,8 @@ const checkRetailerEligibility = async (_retailer, _segment) => {
             filterOrderQuery["store"] = { $nin: _segment.excludedStores };
         }
 
+        console.log(filterOrderQuery);
+
         let finalOrders = await models.cms_master_order.find(filterOrderQuery)
             .populate(populateOrderQuery)            
             .lean();
@@ -264,7 +268,7 @@ const checkRetailerEligibility = async (_retailer, _segment) => {
             finalOrders = finalOrders.filter(order => order.store && order.store.isAuthorized);
         }
         if (populateOrderQuery.some(item => item.path === "retailer")) {
-            finalOrders = finalOrders.filter(order => order.retailer && order.retailer.isAuthorized);
+            finalOrders = finalOrders.filter(order => order.retailer && order.retailer.IsAuthorized);
         }
 
         const oIds = finalOrders.map((order) => {

@@ -58,7 +58,7 @@ export default class SegmentService {
                 _segments = await segmentModel.find({segmentType: SegmentType.STATIC}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
             } else if (result == "scheduled") {
                 _count = await segmentModel.countDocuments({segmentStatus: SegmentStatus.SCHEDULED});
-                _segments = await segmentModel.find({status: SegmentStatus.PROGRESS}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
+                _segments = await segmentModel.find({segmentStatus: SegmentStatus.SCHEDULED}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
             } else if (result == "disabled") {
                 _count = await segmentModel.countDocuments({status: false});
                 _segments = await segmentModel.find({status: false}).sort({ title: 1 }).populate("createdBy").populate("updatedBy").skip(skip).limit(limit).lean().exec();
@@ -725,7 +725,7 @@ export default class SegmentService {
 
         try {
             let _seeds = [];
-            const retailerModel = await EM.getModel("retailer");
+            const retailerModel = await EM.getModel("cms_master_retailer");
             if (retailerModel) {
                 _seeds = await retailerModel.distinct(_field).exec();
             }
@@ -747,7 +747,7 @@ export default class SegmentService {
 
             let _count = 0;
             let _retailers = [];
-            const retailerModel = await EM.getModel("retailer");
+            const retailerModel = await EM.getModel("cms_master_retailer");
             if (retailerModel) {
                 _count = await retailerModel.countDocuments(query);
                 _retailers = await retailerModel.find(query).sort({ [_field]: 1 }).skip(_skip).limit(_limit).lean();
@@ -757,6 +757,52 @@ export default class SegmentService {
 
         } catch (_e) {
             throw _e;
+        }
+
+    };
+
+    mapAllRetailers = async (_segmentId, _segmentType) => {
+
+        try {
+
+            const chunkSize = 100;
+            const retailerModel = await EM.getModel("cms_master_retailer");
+            const _modelName = (SegmentType.STATIC == _segmentType) ? "cms_segment_retailer" : "cms_segment_whitelisted_retailer";
+            const segmentRetailerModel = await EM.getModel(_modelName);
+    
+            // Flush current retailer mapping
+            await segmentRetailerModel.deleteMany({ segment: _segmentId });
+    
+            const cursor = retailerModel.find().select('_id').lean().cursor();
+    
+            let chunk = [];
+            for await (const retailer of cursor) {
+                chunk.push({
+                    retailer: retailer._id,
+                    segment: _segmentId,
+                });
+    
+                if (chunk.length === chunkSize) {
+                    try {
+                        await segmentRetailerModel.insertMany(chunk, { ordered: false });
+                    } catch (_e) {
+                        console.error('Error during bulk insert:', _e.message);
+                    }
+                    chunk = [];
+                }
+            }
+    
+            // Insert any remaining chunk
+            if (chunk.length > 0) {
+                try {
+                    await segmentRetailerModel.insertMany(chunk, { ordered: false });
+                } catch (_e) {
+                    console.error('Error during bulk insert:', _e.message);
+                }
+            }
+    
+        } catch (e) {
+            console.error('Error in mapAllRetailers:', e.message);
         }
 
     };
@@ -783,49 +829,60 @@ export default class SegmentService {
             const segment = await segmentModel.findById(_req.params.id).lean();
             
             if (segment) {
-                if (segment.segmentType == SegmentType.STATIC) {
 
-                    /* It's a static segment */
+                if (!Array.isArray(body) && body == "all") {
 
-                    mapping = await Promise.all(body.map(async (retilerId) => {
-                        try {  
-                            
-                            const exist = await segmentRetailerModel.find({segment: segment._id, retailer: retilerId,}).lean();
-                            if (!exist || (Array.isArray(exist) && exist.length == 0)) {
-                                const srModel = new segmentRetailerModel({
-                                    segment: segment._id,
-                                    retailer: retilerId,
-                                    createdBy: body["createdBy"]
-                                });          
-                                return await srModel.save();
-                            }
+                    /* This means all retailers should be whitelisted */
+                    await this.mapAllRetailers(segment._id, segment.segmentType);                        
 
-                        } catch (e) {
-                            console.log(e);
-                        }
-                    }));
                 } else {
 
-                    /* It's a dynamic segment - add it to inclusion list */
-                    mapping = await Promise.all(body.map(async (retilerId) => {
-                        try { 
-                            
-                            const exist = await segmentWhitelistedRetailerModel.find({segment: segment._id, retailer: retilerId,}).lean();
-                            if (!exist || (Array.isArray(exist) && exist.length == 0)) {
-                                const srModel = new segmentWhitelistedRetailerModel({
-                                    segment: segment._id,
-                                    retailer: retilerId,
-                                    createdBy: body["createdBy"]
-                                });          
-                                return await srModel.save();
-                            }
+                    if (segment.segmentType == SegmentType.STATIC) {
 
-                        } catch (e) {
-                            console.log(e);
-                        }
-                    }));
+                        /* It's a static segment */
+                        mapping = await Promise.all(body.map(async (retilerId) => {
+                            try {  
+                                
+                                const exist = await segmentRetailerModel.find({segment: segment._id, retailer: retilerId,}).lean();
+                                if (!exist || (Array.isArray(exist) && exist.length == 0)) {
+                                    const srModel = new segmentRetailerModel({
+                                        segment: segment._id,
+                                        retailer: retilerId,
+                                        createdBy: body["createdBy"]
+                                    });          
+                                    return await srModel.save();
+                                }
+    
+                            } catch (e) {
+                                console.log(e);
+                            }
+                        }));    
+                        
+                    } else {
+    
+                        /* It's a dynamic segment - add it to inclusion list */
+                        mapping = await Promise.all(body.map(async (retilerId) => {
+                            try { 
+                                
+                                const exist = await segmentWhitelistedRetailerModel.find({segment: segment._id, retailer: retilerId,}).lean();
+                                if (!exist || (Array.isArray(exist) && exist.length == 0)) {
+                                    const srModel = new segmentWhitelistedRetailerModel({
+                                        segment: segment._id,
+                                        retailer: retilerId,
+                                        createdBy: body["createdBy"]
+                                    });          
+                                    return await srModel.save();
+                                }
+    
+                            } catch (e) {
+                                console.log(e);
+                            }
+                        }));
+    
+                    }
 
                 }
+                
             }               
 
             return mapping;
@@ -1078,7 +1135,7 @@ export default class SegmentService {
 
                     if (_entity === "segment") { 
 
-                        callback(await segmentModel.find().lean(), null);
+                        callback(await segmentModel.find({ status: true }).lean(), null);
 
                     } else if (_entity === "brands") {
 

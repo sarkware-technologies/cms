@@ -18,6 +18,8 @@ export default function SegmentContext(_component) {
     this.geographySelectorRef = null;
     this.segmentRuleContainer = null;
     this.blacklistRetailerId = null;
+    this.blacklistedRetailerId = null;
+    this.whitelistedRetailerId = null;
 
     this.segmentActionRef = createRef(null);
     this.segmentStatusRef = createRef(null);
@@ -583,9 +585,19 @@ export default function SegmentContext(_component) {
      */
     this.onRecordButtonClick = (_e, _field, _grid, _record) => {
 
-        if (_grid == "retailer_grid" && _field == "REMOVE") {            
-            this.blacklistRetailerId = _record._id;            
-            this.controller.getUserConfirm("BLACKLIST_RETAILER_RECORD", "Are you sure ?");            
+        if (_field == "REMOVE") {
+
+            if (_grid == "retailer_grid") {
+                this.blacklistRetailerId = _record._id;            
+                this.controller.getUserConfirm("BLACKLIST_RETAILER_RECORD", "Are you sure ?");            
+            } else if (_grid == "blacklist_retailer_grid") {
+                this.blacklistedRetailerId = _record._id;            
+                this.controller.getUserConfirm("REMOVE_FROM_BLACKLIST_RECORD", "Are you sure ?"); 
+            } else if (_grid == "whitelist_retailer_grid") {                
+                this.whitelistedRetailerId = _record._id;
+                this.controller.getUserConfirm("REMOVE_FROM_WHITELIST_RECORD", "Are you sure ?"); 
+            }
+
         }
 
     };
@@ -704,6 +716,10 @@ export default function SegmentContext(_component) {
                 this.removeRetailersFromSegment([this.blacklistRetailerId]);
             } else if (_task == "HOUSE_KEEP_SEGMENT") {
                 this.purgeSegmentBuilder();
+            } else if (_task === "REMOVE_FROM_BLACKLIST_RECORD") {            
+                this.removeFromBlacklistedForSegment([{ _id: this.blacklistedRetailerId}]);
+            } else if (_task === "REMOVE_FROM_WHITELIST_RECORD") {            
+                this.removeFromWhitelistedForSegment([{ _id: this.whitelistedRetailerId}]);
             }
 
         }
@@ -753,12 +769,12 @@ export default function SegmentContext(_component) {
         }
     };
 
-    this.removeFromWhitelistedForSegment = () => {
+    this.removeFromWhitelistedForSegment = (_whitelistedId = null) => {
 
         const segment = this.getCurrentSegmentRecord();
         const retailerGrid = this.controller.getField("whitelist_retailer_grid");
         if (segment && retailerGrid) {
-            const checkedRecords = retailerGrid.getCheckedRecords();
+            const checkedRecords = _whitelistedId || retailerGrid.getCheckedRecords();
             if (checkedRecords.length > 0) {
                 const retailerIds = checkedRecords.map(record => record._id);
                 
@@ -782,12 +798,15 @@ export default function SegmentContext(_component) {
 
     };
 
-    this.removeFromBlacklistedForSegment = () => {
+    this.removeFromBlacklistedForSegment = (_blacklistedId = null) => {  console.log("removeFromBlacklistedForSegment is called"); console.log(_blacklistedId);
 
         const segment = this.getCurrentSegmentRecord();
         const retailerGrid = this.controller.getField("blacklist_retailer_grid");
         if (segment && retailerGrid) {
-            const checkedRecords = retailerGrid.getCheckedRecords();
+            const checkedRecords = _blacklistedId || retailerGrid.getCheckedRecords();
+
+            console.log(checkedRecords);
+
             if (checkedRecords.length > 0) {
                 const retailerIds = checkedRecords.map(record => record._id);
                 
@@ -836,10 +855,10 @@ export default function SegmentContext(_component) {
 
     };
 
-    this.saveSegment = () => { console.log("saveSegment is called");
+    this.saveSegment = () => {
 
         const request = {};    
-        const segment = this.getCurrentSegmentRecord();  console.log(segment);
+        const segment = this.getCurrentSegmentRecord();
 
         if (segment) {
             /* It's an uppdate call */
@@ -915,9 +934,7 @@ export default function SegmentContext(_component) {
             return false;
         }
 
-        if (this.geographySelectorRef.current) {
-
-            console.log(this.geographySelectorRef.current.getSelectedRecords());
+        if (this.geographySelectorRef.current) {            
 
             if (_segmentFields.geography == 1) {
                 _segmentFields["states"] = this.geographySelectorRef.current.getSelectedRecords();
