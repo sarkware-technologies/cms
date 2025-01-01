@@ -141,8 +141,8 @@ export default class RetailerBuilder {
         }
     
         if (
-            (_segment.geography === SegmentGeography.STATE && Array.isArray(_segment.states) && _segment.states.length > 0) ||
-            (_segment.geography === SegmentGeography.REGION && Array.isArray(_segment.regions) && _segment.regions.length > 0)
+            (_segment.geography == SegmentGeography.STATE && Array.isArray(_segment.states) && _segment.states.length > 0) ||
+            (_segment.geography == SegmentGeography.REGION && Array.isArray(_segment.regions) && _segment.regions.length > 0)
         ) {
             return false;
         }
@@ -152,8 +152,8 @@ export default class RetailerBuilder {
             return false;
         }
     
-        if (_segment.retailerStatus === SegmentRetailerStatus.AUTHORIZED || 
-            _segment.storeStatus === SegmentStoreStatus.AUTHORIZED) {
+        if (_segment.retailerStatus == SegmentRetailerStatus.AUTHORIZED || 
+            _segment.storeStatus == SegmentStoreStatus.AUTHORIZED) {
             return false;
         }
     

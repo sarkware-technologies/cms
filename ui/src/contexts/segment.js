@@ -485,9 +485,17 @@ export default function SegmentContext(_component) {
      */
     this.beforeViewMount = (_handle, _viewConfig) => {
 
+        const _rName = localStorage.getItem("pharmarack_cms_role_name");
         const segment = this.getCurrentSegmentRecord();  
 
-        if (_handle === "segment_form" && segment) {            
+        if (_handle === "main_view") {
+            
+            _viewConfig.context_header.actions = [{ type: "link", label: "New Segment", theme: "primary", method: "post", action: "/segment/new", classes: "pharmarack-cms-action-new icon-left", icon: "fa fa-plus", tabindex : 8, status: true, shortcut: "" }];
+            if (_rName && _rName == "System") {
+                _viewConfig.context_header.actions.unshift({ label: "Purge Builder", theme: "danger", method: "get", action: "HOUSE_KEEP_SEGMENT", classes: "pharmarack-cms-action-clear icon-left", icon: "fa fa-broom", tabindex : 8, status: true, shortcut: "" });
+            }
+
+        } else if (_handle === "segment_form" && segment) {            
             if (segment.segmentType == 2) {    
                 _viewConfig.context_header.actions = [
                     { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
@@ -497,9 +505,11 @@ export default function SegmentContext(_component) {
                 _viewConfig.context_header.actions = [
                     { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },
                     { label: "Delete", theme: "danger", method: "delete", action: "DELETE_SEGMENT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
-                    { label: "Edit", theme: "primary", method: "post", action: "EDIT_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex : 8, status: true, shortcut: "" },
-                    { label: "", theme: "primary", method: "put", action: "BUILD_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "fa fa-gear", tabindex : 8, status: true, shortcut: "" },
-                ];                
+                    { label: "Edit", theme: "primary", method: "post", action: "EDIT_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "", tabindex : 8, status: true, shortcut: "" }                    
+                ];                                 
+                if (_rName && _rName == "System") {
+                    _viewConfig.context_header.actions.push({ label: "", theme: "primary", method: "put", action: "BUILD_SEGMENT", classes: "pharmarack-cms-segment-rule-edit-btn", icon: "fa fa-gear", tabindex : 8, status: true, shortcut: "" });
+                }
             }
         } else if (_handle === "segment_retailer_form" && segment) {            
             if (segment.segmentType == 2) {

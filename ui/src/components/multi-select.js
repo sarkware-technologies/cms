@@ -240,7 +240,7 @@ const MultiSelect = (props, ref) => {
                     _checked = true;
                 }
 
-                items.push(<label key={uuidv4()}><input type="checkbox" onChange={(_e) => handleRecordCheckChange(_e, state.records[i])} checked={_checked} /> <span>{state.records[i][props.config.label_key]}</span></label>);
+                items.push(<label key={uuidv4()} title={state.records[i][props.config.label_key]}><input type="checkbox" onChange={(_e) => handleRecordCheckChange(_e, state.records[i])} checked={_checked} /> <span>{state.records[i][props.config.label_key]}</span></label>);
             }
 
         } else {

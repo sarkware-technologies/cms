@@ -232,7 +232,7 @@ const SegmentRule = (props, ref) => {
                                 <select onChange={(e) => handleRuleTypeChange(e, index)} value={rule.ruleType} >
                                     <option value="1">Product</option>
                                     <option value="2">Brand</option>                                   
-                                    <option value="3">Category</option>                                    
+                                    <option value="3" disabled>Category</option>                                    
                                 </select>
                             </td>
                             <td className="target-td">

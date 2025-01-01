@@ -272,7 +272,7 @@ export default class SegmentService {
         const segmentModel = await EM.getModel("cms_segment");  
         const segmentRetailerModel = await EM.getModel("cms_segment_retailer");  
         const segmentRuleModel = await EM.getModel("cms_segment_rule");
-        
+        const segmentRetailerRuleSummary = await EM.getModel("cms_segment_retailer_rules_summary");
 
         if (!body) {
             throw new Error('Request body is required');
@@ -281,8 +281,14 @@ export default class SegmentService {
         try {
 
             if (body.rules) {
+
+                const _rules = await segmentRuleModel.find({ segment: _req.params.id }).lean();
+                for (let i = 0; i < _rules.length; i++) {
+                    await segmentRetailerRuleSummary.deleteOne({ segmentRule: _rules[i]._id });
+                }
                 /* Before anything - clear the rules (even if it is for static segment) */
                 await segmentRuleModel.deleteMany({ segment: _req.params.id });
+
             }
 
             if (body.retailers) {

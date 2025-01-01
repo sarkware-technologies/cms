@@ -252,9 +252,12 @@ export default class SponsoredProductService {
         try {
 
             const sponsoredProductModel = await EM.getModel("cms_sponsored_product");            
+            const sponsoredProductPerformance = await EM.getModel("cms_sponsored_product_performance");
+
+            /* Delete the performance  records for the sponsored product */
+            await sponsoredProductPerformance.deleteMany({ sponsoredProduct: _req.params.id }).lean();
             /* Finally remove the service itself */
-            const result = await sponsoredProductModel.deleteOne({ _id: _req.params.id });
-            
+            const result = await sponsoredProductModel.deleteOne({ _id: _req.params.id });            
             /* Remove it from cache */
             await cache.deleteSponsoredProduct(_req.params.id);
 

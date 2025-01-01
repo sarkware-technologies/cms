@@ -227,7 +227,7 @@ export default class EntityService {
 
             /* If the field type is ObjectId then populate the Foreign Entity */
             for (let i = 0; i < _fields.length; i++) {
-                if (_fields[i].type === 5 || _fields[i].type === 6) {                    
+                if (_fields[i].type == 5 || _fields[i].type == 6) {                    
                     let options = {};
                     try {
 

@@ -184,9 +184,9 @@ const Search = (props, ref) => {
                     }).join(" - ");
 
                     if (!props.value) {
-                        recordsElement.push(<a href="#" key={i} className={ (state.currentRecord[props.config.value_key] && state.currentRecord[props.config.value_key] === state.records[i][props.config.value_key]) ? "selected" : "" } onClick={(e) => {handleRecordClick(e, state.records[i])}}>{title}</a>);
+                        recordsElement.push(<a href="#" title={title} key={i} className={ (state.currentRecord[props.config.value_key] && state.currentRecord[props.config.value_key] === state.records[i][props.config.value_key]) ? "selected" : "" } onClick={(e) => {handleRecordClick(e, state.records[i])}}>{title}</a>);
                     } else {
-                        recordsElement.push(<a href="#" key={i} className={ (props.value && props.value === state.records[i][props.config.value_key]) ? "selected" : "" } onClick={(e) => {handleRecordClick(e, state.records[i])}}>{title}</a>);
+                        recordsElement.push(<a href="#" title={title} key={i} className={ (props.value && props.value === state.records[i][props.config.value_key]) ? "selected" : "" } onClick={(e) => {handleRecordClick(e, state.records[i])}}>{title}</a>);
                     }                    
 
                 }
@@ -194,7 +194,7 @@ const Search = (props, ref) => {
                 return recordsElement;
 
             } else {
-                return state.records.map((_record, _index) => <a href="#" key={_index} className={ (state.currentRecord[props.config.value_key] && state.currentRecord[props.config.value_key] === _record[props.config.value_key]) ? "selected" : "" } onClick={(e) => {handleRecordClick(e, _record)}}>{_record[props.config.label_key]}</a>);
+                return state.records.map((_record, _index) => <a href="#" title={_record[props.config.label_key]} key={_index} className={ (state.currentRecord[props.config.value_key] && state.currentRecord[props.config.value_key] === _record[props.config.value_key]) ? "selected" : "" } onClick={(e) => {handleRecordClick(e, _record)}}>{_record[props.config.label_key]}</a>);
             }
         } else { 
             return <div className="pharmarack-cms-search-box-empty-records">No matching records found.!</div>

@@ -391,10 +391,10 @@ const updateSummary = async (order, retailer) => {
                     const _from = from > 0 ? from : 0;
                     const _to = to > 0 ? to : 0;
 
-                    const property = qtyType === SegmentRuleQtyType.QUANTITY ? "quantity" : "amount";
-                    const summary = ruleType === SegmentRuleType.PRODUCT
+                    const property = qtyType == SegmentRuleQtyType.QUANTITY ? "quantity" : "amount";
+                    const summary = ruleType == SegmentRuleType.PRODUCT
                         ? summaryProducts
-                        : ruleType === SegmentRuleType.BRAND
+                        : ruleType == SegmentRuleType.BRAND
                             ? summaryBrands
                             : summaryCategories;
 

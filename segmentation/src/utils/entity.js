@@ -52,7 +52,7 @@ class EntityManager {
                     type: this.types[field.type]                    
                 };
                 /* Check for the ObjectId type */
-                if (this.types[field.type] === "ObjectId") {
+                if (this.types[field.type] == "ObjectId") {
                     config["type"] = mongoose.Schema.Types.ObjectId                    
                 }
 
@@ -85,11 +85,11 @@ class EntityManager {
                     try {
                         
                         options = {};
-                        if (field.options && typeof field.options === "string") {
+                        if (field.options && typeof field.options == "string") {
                             options = JSON.parse(field.options);
                         }
                         
-                        if (this.types[field.type] === "String") {
+                        if (this.types[field.type] == "String") {
 
                             if (('match' in options) && options.match !== "") {
                                 config["match"] = options.match;
@@ -113,30 +113,30 @@ class EntityManager {
                                 config["uppercase"] = options.uppercase;
                             }                            
 
-                        } else if (this.types[field.type] === "Number") {
+                        } else if (this.types[field.type] == "Number") {
                             if (('min' in options) && !Number.isNaN(options.min) && parseFloat(options.min) >= 0) {
                                 config["min"] = parseFloat(options.min);
                             }
                             if (('max' in options) && !Number.isNaN(options.max) && parseFloat(options.max) > 0) {
                                 config["max"] = parseFloat(options.max);
                             }
-                        } else if (this.types[field.type] === "Date") {
+                        } else if (this.types[field.type] == "Date") {
                             if (('min' in options) && this.isValidDate(options.min)) {
                                 config["min"] = new Date(options.min);
                             }
                             if (('max' in options) && this.isValidDate(options.max)) {
                                 config["max"] = new Date(options.max);
                             }
-                        } else if (this.types[field.type] === "ObjectId") {
+                        } else if (this.types[field.type] == "ObjectId") {
 
                             const _entity = await this.getEntityHandle(options.entity, _collectionName);
                             if (_entity) { 
                                 config["ref"] = _entity;
                             }                            
                                                         
-                        } else if (this.types[field.type] === "Array") {
+                        } else if (this.types[field.type] == "Array") {
 
-                            if (options.itemType === "ObjectId") {
+                            if (options.itemType == "ObjectId") {
                                 const _entity = await this.getEntityHandle(options.itemTarget, _collectionName);
                                 config["ref"] = _entity;
                                 config["type"] = mongoose.Schema.Types.ObjectId;
@@ -156,8 +156,8 @@ class EntityManager {
                 }   
                 
                 /* Update default value for Boolean - since default is String type */
-                if (this.types[field.type] === "Boolean" && config["default"] && typeof config["default"] === 'string') {
-                    config["default"] = (config["default"] === 'true');
+                if (this.types[field.type] == "Boolean" && config["default"] && typeof config["default"] == 'string') {
+                    config["default"] = (config["default"] == 'true');
                 }
 
                 schemaFields[field.handle] = config;

@@ -137,10 +137,10 @@ const checkSegmentRules = async(_retailer, _orders, _segment) => {
             const _from = from > 0 ? from : 0;
             const _to = to > 0 ? to : 0;
 
-            const property = qtyType === SegmentRuleQtyType.QUANTITY ? "quantity" : "amount";
-            const summary = ruleType === SegmentRuleType.PRODUCT
+            const property = qtyType == SegmentRuleQtyType.QUANTITY ? "quantity" : "amount";
+            const summary = ruleType == SegmentRuleType.PRODUCT
                 ? summaryProducts
-                : ruleType === SegmentRuleType.BRAND
+                : ruleType == SegmentRuleType.BRAND
                     ? summaryBrands
                     : summaryCategories;
 
@@ -188,7 +188,7 @@ const checkSegmentRules = async(_retailer, _orders, _segment) => {
 
 };
 
-const checkRetailerEligibility = async (_retailer, _segment) => {     console.log("checkRetailerEligibility is called");
+const checkRetailerEligibility = async (_retailer, _segment) => {   
 
     try {
 
@@ -210,8 +210,6 @@ const checkRetailerEligibility = async (_retailer, _segment) => {     console.lo
                 filterOrderQuery["orderDate"] = { $lte: new Date(_segment.toDate) };
             }
         }
-
-        console.log("_segment.states : ", _segment.states);
 
         if ((_segment.geography == SegmentGeography.STATE) && (Array.isArray(_segment.states) && _segment.states.length > 0 )) {
             filterOrderQuery["stateId"] = { $in: _segment.states };
@@ -258,16 +256,14 @@ const checkRetailerEligibility = async (_retailer, _segment) => {     console.lo
             filterOrderQuery["store"] = { $nin: _segment.excludedStores };
         }
 
-        console.log(filterOrderQuery);
-
         let finalOrders = await models.cms_master_order.find(filterOrderQuery)
             .populate(populateOrderQuery)            
             .lean();
 
-        if (populateOrderQuery.some(item => item.path === "store")) {
+        if (populateOrderQuery.some(item => item.path == "store")) {
             finalOrders = finalOrders.filter(order => order.store && order.store.isAuthorized);
         }
-        if (populateOrderQuery.some(item => item.path === "retailer")) {
+        if (populateOrderQuery.some(item => item.path == "retailer")) {
             finalOrders = finalOrders.filter(order => order.retailer && order.retailer.IsAuthorized);
         }
 

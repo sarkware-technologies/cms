@@ -72,10 +72,21 @@ export default function SponsoredProductContext(_component) {
     this.beforeViewMount = (_handle, _viewConfig) => {
 
         const record = this.component.currentRecord["sponsored_product_grid"];
+
         if (!record && _handle == "sponsored_product_form") {
             const newConfig =  JSON.parse(JSON.stringify(_viewConfig));
             newConfig.content.rows[0].columns.splice(1, 1);
+            newConfig.context_header.actions = [
+                { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },                
+                { label: "Save", theme: "primary", method: "post", action: "SAVE_SPONSORED_PRODUCT", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+            ];
             return newConfig;
+        } else if (record && _handle == "sponsored_product_form") {
+            _viewConfig.context_header.actions = [
+                { label: "Cancel", theme: "secondary", method: "cancel", action: "BACK", classes: "icon-left", icon: "fa fa-times", tabindex : 8, status: true, shortcut: "" },
+                { label: "Delete", theme: "danger", method: "delete", action: "DELETE_SPONSORED_PRODUCT", classes: "icon-left", icon: "", tabindex : 8, status: true, shortcut: "" },                    
+                { label: "Save", theme: "primary", method: "post", action: "SAVE_SPONSORED_PRODUCT", classes: "icon-left", icon: "fa fa-save", tabindex : 8, status: true, shortcut: "" }
+            ];
         }
 
         return _viewConfig;
@@ -148,7 +159,38 @@ export default function SponsoredProductContext(_component) {
     this.onActionBtnClick = (_action) => {
         if (_action === "SAVE_SPONSORED_PRODUCT") {
             this.saveSponsoredProduct();
+        } else if (_action === "DELETE_SPONSORED_PRODUCT") {
+            this.controller.getUserConfirm("DELETE_SPONSORED_PRODUCT", "Are you sure ?");
         }
+    };
+
+    /**
+     * 
+     * Called whenever user click on back button (or cancel button click)
+     * 
+     */
+    this.onUserConfirm = (_task, _choice) => {
+
+        if (_choice) {
+
+            const sponsoredProduct = this.component.currentRecord["sponsored_product_grid"];
+            if (sponsoredProduct && _task == "DELETE_SPONSORED_PRODUCT") {
+
+                const request = {};
+                request["method"] = "DELETE";
+                request["endpoint"] = "/system/v1/sponsored_product/" + sponsoredProduct._id;
+
+                this.controller.docker.dock(request).then((_res) => {
+                    this.controller.notify(sponsoredProduct.title + " deleted successfully.!");                        
+                    this.component.triggerBack();          
+                })
+                .catch((e) => {
+                    this.controller.notify(e.message, "error");
+                });
+
+            }
+        }
+
     };
 
     /**

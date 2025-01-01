@@ -29,7 +29,7 @@ const purgeRetailers = async () => {
 
     try {
         const retailerModel = await EM.getModel("cms_master_retailer");
-        const logModel = await EM.getModel("cms_retailer_importer_logs");
+        const logModel = await EM.getModel("cms_retailer_importer_log");
 
         await Promise.all([
             retailerModel.deleteMany({}),
@@ -50,7 +50,7 @@ const purgeStores = async () => {
 
     try {
         const storeModel = await EM.getModel("cms_master_store");
-        const logModel = await EM.getModel("cms_store_importer_logs");
+        const logModel = await EM.getModel("cms_store_importer_log");
 
         await Promise.all([
             storeModel.deleteMany({}),

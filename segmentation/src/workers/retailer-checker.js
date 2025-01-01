@@ -71,11 +71,11 @@ export default class RetailerChecker {
                         entry = null;
                         qty = 0;
     
-                        if (rule.ruleType === SegmentRuleType.PRODUCT) {
+                        if (rule.ruleType == SegmentRuleType.PRODUCT) {
     
                             if (
                                 item.mdmProductCode && 
-                                item.mdmProductCode.trim().toLowerCase() === rule.target.trim().toLowerCase()) {                             
+                                item.mdmProductCode.trim().toLowerCase() == rule.target.trim().toLowerCase()) {                             
     
                                 entry = summaryProducts.get(rule.target) || { quantity: 0, amount: 0 };
                                 qty = item.receivedQty || item.orderedQty || 0;
@@ -86,7 +86,7 @@ export default class RetailerChecker {
     
                             }                        
     
-                        } else if (rule.ruleType === SegmentRuleType.BRAND) {
+                        } else if (rule.ruleType == SegmentRuleType.BRAND) {
     
                             if (item.brandId && item.brandId == rule.target) { 
                                 
@@ -99,11 +99,11 @@ export default class RetailerChecker {
                                                  
                             }                        
     
-                        } else if (rule.ruleType === SegmentRuleType.CATEGORY) {
+                        } else if (rule.ruleType == SegmentRuleType.CATEGORY) {
     
                             if (
                                 item.category && 
-                                item.category.trim().toLowerCase() === rule.target.trim().toLowerCase()) {  
+                                item.category.trim().toLowerCase() == rule.target.trim().toLowerCase()) {  
                                 
                                 entry = summaryCategories.get(rule.target) || { quantity: 0, amount: 0 };
                                 qty = item.receivedQty || item.orderedQty || 0;
@@ -128,10 +128,10 @@ export default class RetailerChecker {
                 const _from = from > 0 ? from : 0;
                 const _to = to > 0 ? to : 0;
     
-                const property = qtyType === SegmentRuleQtyType.QUANTITY ? "quantity" : "amount";
-                const summary = ruleType === SegmentRuleType.PRODUCT
+                const property = qtyType == SegmentRuleQtyType.QUANTITY ? "quantity" : "amount";
+                const summary = ruleType == SegmentRuleType.PRODUCT
                     ? summaryProducts
-                    : ruleType === SegmentRuleType.BRAND
+                    : ruleType == SegmentRuleType.BRAND
                         ? summaryBrands
                         : summaryCategories;
     
@@ -304,10 +304,10 @@ export default class RetailerChecker {
                 .populate(populateOrderQuery)            
                 .lean();
     
-            if (populateOrderQuery.some(item => item.path === "store")) {
+            if (populateOrderQuery.some(item => item.path == "store")) {
                 finalOrders = finalOrders.filter(order => order.store && order.store.isAuthorized);
             }
-            if (populateOrderQuery.some(item => item.path === "retailer")) {
+            if (populateOrderQuery.some(item => item.path == "retailer")) {
                 finalOrders = finalOrders.filter(order => order.retailer && order.retailer.isAuthorized);
             }
     

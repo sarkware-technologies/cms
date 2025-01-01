@@ -73,24 +73,24 @@ export default class SegmentBuilder {
         if (_segment.fromDate || _segment.toDate) {
             return false;
         }
-    
+
         if (
-            (_segment.geography === SegmentGeography.STATE && Array.isArray(_segment.states) && _segment.states.length > 0) ||
-            (_segment.geography === SegmentGeography.REGION && Array.isArray(_segment.regions) && _segment.regions.length > 0)
+            (_segment.geography == SegmentGeography.STATE && Array.isArray(_segment.states) && _segment.states.length > 0) ||
+            (_segment.geography == SegmentGeography.REGION && Array.isArray(_segment.regions) && _segment.regions.length > 0)
         ) {
             return false;
         }
-    
+
         if ((Array.isArray(_segment.orderStatus) && _segment.orderStatus.length > 0) || 
             (Array.isArray(_segment.excludedStores) && _segment.excludedStores.length > 0)) {
             return false;
         }
-    
-        if (_segment.retailerStatus === SegmentRetailerStatus.AUTHORIZED || 
-            _segment.storeStatus === SegmentStoreStatus.AUTHORIZED) {
+
+        if (_segment.retailerStatus == SegmentRetailerStatus.AUTHORIZED || 
+            _segment.storeStatus == SegmentStoreStatus.AUTHORIZED) {
             return false;
         }
-    
+
         return true;
         
     };
