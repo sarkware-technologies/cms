@@ -77,7 +77,8 @@ export default class ApiService {
 
             return [];
             
-        } catch (err) {            
+        } catch (err) {    
+            console.log(err);        
             throw err;
         }
 
@@ -490,7 +491,7 @@ export default class ApiService {
     };
 
     prepareOfferedProductForElasticAPi = async(_userId) => {          
-
+        try{
         const offer = [];
         const retailer = await MYDBM.queryWithConditions(`select * from retailers r inner join retailermanagers r2 on r2.RetailerId = r.RetailerId where r2.UserId=?`, [_userId]);
 
@@ -543,6 +544,11 @@ export default class ApiService {
         }
 
         return offer;
+    } catch (e) {
+        console.log(e);
+        throw  e; 
+
+    }
 
     };
 
@@ -597,8 +603,9 @@ export default class ApiService {
 
         try {
             
-            const _segments = await SegmentRetailerModel.find({ retailer: cmsRetailer._id }).populate("segment").lean();           
-            return _segments.map(item => item.segment.handle.trim());
+            const _segments = await SegmentRetailerModel.find({ retailer: cmsRetailer._id }).populate("segment").lean();   
+            console.log(_segments);        
+            return _segments.filter(Boolean).map(item => item.segment.handle.trim());
 
         } catch (error) {
             throw new Error('Error fetching user segments: ' + error.message);

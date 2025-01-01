@@ -235,7 +235,7 @@ export default class ComposeService {
     };
 
 
-    prepareComponent = async (_pageId, _componentTypeId, _positionIndex, _retailerId, _distributorId, _companyId, _token, _user, regionName, details, index, _segments) => {  console.log("prepareComponent is called");
+    prepareComponent = async (_pageId, _componentTypeId, _positionIndex, _retailerId, _distributorId, _companyId, _token, _user, regionName, details, index, _segments) => {
 
         try {
 

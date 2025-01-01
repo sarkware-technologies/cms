@@ -2,6 +2,9 @@ import Utils from "../../utils/utils.js";
 import AbTestingModel from "../../models/Ab-test.js";
 import MYDBM from "../../utils/mysql.js";
 import RedisSyncService from "./redisupdate.js";
+import AbretailerModel from "../../models/Ab-retailers.js";
+import AbregionModel from "../../models/Ab-region.js";
+import AbBuildVersionModel from "../../models/ab-build-version.js";
 
 export default class ABtesingService {
 
@@ -41,11 +44,21 @@ export default class ABtesingService {
 
             const _count = await AbTestingModel.countDocuments({});
             _authTypes = await AbTestingModel.find({}).sort({ title: 1 }).skip(skip).limit(limit).lean();
-          let newabbuild=  _authTypes.map((test) => {
-                return {
-                    ...test, ...{ apicount: Object.keys(test.apis).length, regioncount:test.region.length, usercount: test.users.length, buildcount: test.buildversion.length }
-                }
-            })
+            const abTestsWithCounts = _authTypes.map(test => {
+                return Promise.all([
+                    AbregionModel.find({ mappedId: test._id }).count(),
+                    AbretailerModel.find({ mappedId: test._id }).count(),
+                    AbBuildVersionModel.find({ mappedId: test._id }).count()
+                ]).then(([regionCount, userCount, buildCount]) => ({
+                    ...test,
+                    apicount: Object.keys(test.apis).length,
+                    regioncount: regionCount,
+                    usercount: userCount,
+                    buildcount: buildCount
+                }));
+            });
+            const newabbuild = await Promise.all(abTestsWithCounts);
+
             return Utils.response(_count, page, newabbuild);
 
         } catch (e) {
