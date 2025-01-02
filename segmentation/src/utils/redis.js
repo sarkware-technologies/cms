@@ -12,11 +12,13 @@ export default class RedisClient {
         try { 
             
             this.writeClient = redis.createClient({
-                url: process.env.CMS_BACKEND_REDIS_WRITE_CLIENT || "redis://pharmretail-uat-cmsreplicationgroup.desm5w.ng.0001.aps1.cache.amazonaws.com:6379",
+                //url: process.env.CMS_BACKEND_REDIS_WRITE_CLIENT || "redis://pharmretail-uat-cmsreplicationgroup.desm5w.ng.0001.aps1.cache.amazonaws.com:6379",
+                url: process.env.CMS_BACKEND_REDIS_WRITE_CLIENT,
             });
 
             this.readClient = redis.createClient({
-                url: process.env.CMS_BACKEND_REDIS_READ_CLIENT || "redis://pharmretail-uat-cmsreplicationgroup-ro.desm5w.ng.0001.aps1.cache.amazonaws.com:6379",
+                //url: process.env.CMS_BACKEND_REDIS_READ_CLIENT || "redis://pharmretail-uat-cmsreplicationgroup-ro.desm5w.ng.0001.aps1.cache.amazonaws.com:6379",
+                url: process.env.CMS_BACKEND_REDIS_READ_CLIENT,
             });
 
             this.writeClient.connect();

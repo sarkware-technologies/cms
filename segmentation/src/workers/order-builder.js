@@ -111,6 +111,8 @@ const checkOrderHeader = async (_order, _retailer, _segment) => {
         let retailerOk = true;
         let dateFromOk = true;
         let dateToOk = true;
+        let orderStatusOk = true;
+        let storeIncludedOk = true;
 
         /* Check the date */
 
@@ -156,21 +158,27 @@ const checkOrderHeader = async (_order, _retailer, _segment) => {
             
             if (_segment.states && Array.isArray(_segment.states)) {
                 stateOk = _segment.states.includes(_order.stateId);
-            } else {
-                stateOk = true;
             }
 
         } else {
 
             if (_segment.regions && Array.isArray(_segment.regions)) {
                 regionOk = _segment.regions.includes(_order.regionId);
-            } else {
-                regionOk = true;
             }
 
         }
 
-        return (storeOk && regionOk && stateOk && retailerOk && dateFromOk && dateToOk);
+        /* Check the order status */        
+        if(Array.isArray(_segment.orderStatus && !_segment.orderStatus.includes(_order.orderStatus))) {
+            orderStatusOk = false;
+        }
+
+        /* Check store excluded list */
+        if (Array.isArray(_segment.excludedStores && _segment.excludedStores.includes(_order.store))) {
+            storeIncludedOk = false;
+        }
+
+        return (storeOk && regionOk && stateOk && retailerOk && dateFromOk && dateToOk && orderStatusOk && storeIncludedOk);
 
     } catch (e) {
         return false;        
@@ -310,6 +318,23 @@ const updateSummary = async (order, retailer) => {
                 const summaryProducts = new Map();
                 const summaryBrands = new Map();
                 const summaryCategories = new Map();
+
+                /* Before go into rules, check whther the order items has configured companies */
+                if (Array.isArray(segments[i].companies)) { 
+
+                    let valid = false;
+                    for (const item of orderItems) {
+                        if (segments[i].companies.includes(item.companyId)) {
+                            valid = true;
+                        }
+                    }   
+
+                    if (!valid) {
+                        segmentResults[segments[i]._id] = false; 
+                        continue;
+                    }                    
+
+                }
 
                 /**
                  * 

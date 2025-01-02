@@ -224,8 +224,8 @@ export default class SynchService {
 
                 /* Get the retailer and store references asynchronously */
                 const [retailerRecord, storeRecord] = await Promise.all([
-                    retailerModel.findOne({ RetailerId: orderObj.RetailerId }).lean(),
-                    storeModel.findOne({ storeId: orderObj.StoreId }).lean()
+                    retailerModel.findOne({ RetailerId: orderObj.retailerId }).lean(),
+                    storeModel.findOne({ storeId: orderObj.storeId }).lean()
                 ]);
 
                 if (retailerRecord) orderObj.retailer = retailerRecord._id;

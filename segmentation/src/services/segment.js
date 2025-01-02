@@ -291,12 +291,11 @@ export default class SegmentService {
 
             }
 
-            if (body.retailers) {
+            if (body.segmentType == SegmentType.DYNAMIC) {
+
                 /* Also clear the retailer list */
                 await segmentRetailerModel.deleteMany({ segment: _req.params.id });
-            }            
 
-            if (body.segmentType == SegmentType.DYNAMIC) {
                 if (body.rules && Array.isArray(body.rules)) {
                     /** Insert the rules */
                     for (let i = 0; i < body.rules.length; i++) {

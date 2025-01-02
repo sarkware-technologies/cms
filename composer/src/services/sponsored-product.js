@@ -76,8 +76,12 @@ export default class SponsoredProductService {
                 const _sps = await SponsoredProductModel.find({ 
                     status: true, 
                     keywords: search,
-                    validFrom: { $lte: currentDate },
-                    validUpto: { $gte: currentDate }                    
+                    $expr: {
+                        $and: [
+                            { $lte: [{ $dateFromParts: { year: { $year: "$validFrom" }, month: { $month: "$validFrom" }, day: { $dayOfMonth: "$validFrom" } } }, currentDate] },
+                            { $gte: [{ $dateFromParts: { year: { $year: "$validUpto" }, month: { $month: "$validUpto" }, day: { $dayOfMonth: "$validUpto" } } }, currentDate] }
+                        ]
+                    }                                     
                 });
 
                 if (_sps) {
